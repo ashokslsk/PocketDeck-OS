@@ -1,0 +1,27 @@
+{
+  "feature": "reading-global",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "sessions": 0,
+  "reading_seconds": 71,
+  "reading_hours": 0.0,
+  "pages_turned": 18,
+  "books_finished": 0,
+  "longest_streak_days": 1,
+  "current_streak_days": 1,
+  "seconds_by_time_of_day": {
+    "morning": 0,
+    "afternoon": 0,
+    "evening": 71,
+    "night": 0
+  },
+  "seconds_by_weekday": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    71
+  ]
+}

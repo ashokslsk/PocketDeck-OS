@@ -9,6 +9,7 @@
 #include <iterator>
 
 #include "ToolsCommon.h"
+#include "ToolsLog.h"
 
 namespace habits {
 
@@ -127,6 +128,79 @@ bool saveWeek(const int32_t mondayDay, const Names& names, const int count, cons
   const bool ok = tools::writeFileAtomic(path, &writeWeek, &ctx);
   if (!ok) LOG_ERR("HABIT", "Failed to save %s", path);
   return ok;
+}
+
+namespace {
+struct NamesCtx {
+  const Names* names;
+  int count;
+};
+
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
+bool writeNames(FsFile& out, void* ctx) {
+  const auto* n = static_cast<const NamesCtx*>(ctx);
+  for (int i = 0; i < n->count; ++i) {
+    if (!tools::writeText(out, (*n->names)[i]) || !tools::writeText(out, "\n")) return false;
+  }
+  return true;
+}
+
+struct RenameCtx {
+  const char* path;
+  const char* oldName;
+  const char* newName;
+};
+
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
+bool writeRenamed(FsFile& out, void* ctx) {
+  const auto* r = static_cast<const RenameCtx*>(ctx);
+  FsFile in;
+  if (!Storage.openFileForRead("HABIT", r->path, in)) return false;
+  char line[kNameCap + 12];
+  bool ok = true;
+  while (ok && tools::readLine(in, line, sizeof(line)) >= 0) {
+    char* sep = strrchr(line, '|');
+    if (sep != nullptr) {
+      *sep = '\0';
+      const char* name = strcmp(line, r->oldName) == 0 ? r->newName : line;
+      ok = tools::writeText(out, name) && tools::writeText(out, "|") && tools::writeText(out, sep + 1);
+    } else {
+      ok = tools::writeText(out, line);
+    }
+    ok = ok && tools::writeText(out, "\n");
+  }
+  in.close();
+  return ok;
+}
+}  // namespace
+
+bool saveNames(const Names& names, const int count) {
+  if (!Storage.ensureDirectoryExists(kDir)) return false;
+  NamesCtx ctx{&names, count};
+  const bool ok = tools::writeFileAtomic(kNamesPath, &writeNames, &ctx);
+  if (!ok) LOG_ERR("HABIT", "Failed to save %s", kNamesPath);
+  return ok;
+}
+
+void renameInHistory(const int32_t today, const char* oldName, const char* newName, const int weeks) {
+  char path[48];
+  for (int w = 0; w < weeks; ++w) {
+    weekPath(path, sizeof(path), mondayOf(today) - 7 * w);
+    tools::recoverFromBackup(path);
+    if (!Storage.exists(path)) continue;
+    RenameCtx ctx{path, oldName, newName};
+    if (!tools::writeFileAtomic(path, &writeRenamed, &ctx)) LOG_ERR("HABIT", "Rename failed in %s", path);
+  }
+}
+
+void logToggle(const int32_t day, const char* name, const bool done) {
+  tlog::Stamp at;
+  if (!tlog::now(at)) return;
+  char date[12];
+  tools::formatIsoDate(date, sizeof(date), day);
+  char fields[kNameCap + 20];
+  snprintf(fields, sizeof(fields), "%s|%s|%d", date, name, done ? 1 : 0);
+  tlog::append("habits", at, fields);
 }
 
 int countDoneOn(const int32_t day, int* habitCount) {

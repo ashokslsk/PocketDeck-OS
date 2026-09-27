@@ -17,7 +17,7 @@ graph TD
     E --> H[Home/Library/Settings flows]
     E --> I[Network/Web server flows]
     G --> J[lib/Epub parsing + layout + hyphenation]
-    J --> K[SD cache in .crosspoint]
+    J --> K[SD cache in .pocketdeck-os]
     E --> L[GfxRenderer]
     L --> M[E-ink display buffer]
 ```
@@ -148,7 +148,7 @@ Two singletons are central:
 - `src/CrossPointSettings.h` (`SETTINGS`): user preferences and behavior flags
 - `src/CrossPointState.h` (`APP_STATE`): runtime/session state such as current book and sleep context
 
-Most SD-card persistence lives under `/.crosspoint/`. See file inventory in
+Most SD-card persistence lives under `/.pocketdeck-os/`. See file inventory in
 `docs/data-cache.md`; for binary cache formats, see `docs/file-formats.md`.
 
 ## Networking architecture

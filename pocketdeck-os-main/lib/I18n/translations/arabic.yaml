@@ -171,7 +171,7 @@ STR_REMOVE_READ_FROM_RECENTS: "إزالة الكتب المقروءة من قا�
 STR_MOVE_FINISHED_TO_READ: "نقل الكتب المنتهية إلى مجلد المقروءة"
 STR_AUTO_BACKUP_STATS: "النسخ الاحتياطية التلقائية"
 STR_BACKUP_NOW: "النسخ الاحتياطي الآن"
-STR_BACKUP_STATS_CONFIRM: "هل تريد حفظ نسخة في /.crossink-stats-backup/؟"
+STR_BACKUP_STATS_CONFIRM: "هل تريد حفظ نسخة في /.pocketdeck-os-stats-backup/؟"
 STR_BACKUP_STATS_DONE: "تم حفظ النسخة الاحتياطية"
 STR_BACKUP_STATS_FAILED: "فشل النسخ الاحتياطي"
 STR_SYSTEM_DEVICE: "جهاز"

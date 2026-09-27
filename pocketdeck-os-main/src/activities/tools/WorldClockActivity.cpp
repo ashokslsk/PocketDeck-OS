@@ -9,8 +9,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
+#include <vector>
 
+#include "CityCatalog.h"
 #include "activities/settings/ClockSyncActivity.h"
+#include "activities/util/OptionSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 
@@ -66,6 +70,99 @@ bool WorldClockActivity::writeDefaults(FsFile& out, void*) {
                           "London|0|EU\n"
                           "Tokyo|+9|NONE\n"
                           "Sydney|+10|AU\n");
+}
+
+bool WorldClockActivity::writeCities(FsFile& out, void* ctx) {
+  const auto* self = static_cast<const WorldClockActivity*>(ctx);
+  if (!tools::writeText(out,
+                        "# World Clock cities (max 4): Name|UTC offset in standard time|DST rule\n"
+                        "# Offset: hours (+9, -5, +5:30) or minutes (330). DST rules: US, EU, AU, NZ, NONE\n"
+                        "# Tip: hold Confirm in World Clock to pick cities on the device.\n")) {
+    return false;
+  }
+  static constexpr const char* kRuleNames[] = {"NONE", "US", "EU", "AU", "NZ"};
+  char line[64];
+  for (int i = 0; i < self->cityCount_; ++i) {
+    const City& c = self->cities_[i];
+    const int absOff = c.standardOffset < 0 ? -c.standardOffset : c.standardOffset;
+    snprintf(line, sizeof(line), "%s|%c%d:%02d|%s\n", c.name, c.standardOffset < 0 ? '-' : '+', absOff / 60,
+             absOff % 60, kRuleNames[static_cast<int>(c.rule)]);
+    if (!tools::writeText(out, line)) return false;
+  }
+  return true;
+}
+
+bool WorldClockActivity::saveCities() {
+  const bool ok = tools::writeFileAtomic(kConfigPath, &WorldClockActivity::writeCities, this);
+  if (!ok) LOG_ERR("WCLK", "Could not save %s", kConfigPath);
+  return ok;
+}
+
+void WorldClockActivity::chooseSlot() {
+  std::vector<std::string> options;
+  options.reserve(kMaxCities + 1);
+  for (int i = 0; i < cityCount_; ++i) {
+    options.emplace_back(std::to_string(i + 1) + ". " + cities_[i].name);
+  }
+  if (cityCount_ < kMaxCities) options.emplace_back(tr(STR_TOOLS_ADD_CITY));
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "WorldClockSlot",
+                                                           StrId::STR_TOOLS_EDIT_CITIES, std::move(options), 0);
+  if (!picker) return;
+  startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (!result.isCancelled && sel != nullptr) {
+      chooseCity(sel->index);
+      return;
+    }
+    requestUpdate();
+  });
+}
+
+void WorldClockActivity::chooseCity(const int slot) {
+  // Row 0 removes the city (only offered when editing an existing slot and
+  // at least one other city would remain); the catalogue follows.
+  const bool canRemove = slot < cityCount_ && cityCount_ > 1;
+  std::vector<std::string> options;
+  options.reserve(tools::kCityCatalogCount + 1);
+  if (canRemove) options.emplace_back(tr(STR_TOOLS_REMOVE_CITY));
+  uint8_t current = 0;
+  for (int i = 0; i < tools::kCityCatalogCount; ++i) {
+    if (slot < cityCount_ && strcmp(tools::kCityCatalog[i].name, cities_[slot].name) == 0) {
+      current = static_cast<uint8_t>(options.size());
+    }
+    options.emplace_back(tools::kCityCatalog[i].name);
+  }
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "WorldClockCity",
+                                                           StrId::STR_TOOLS_CHOOSE_CITY, std::move(options), current);
+  if (!picker) return;
+  startActivityForResult(std::move(picker), [this, slot, canRemove](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    lastMinute_ = -1;
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (!result.isCancelled && sel != nullptr) {
+      RenderLock lock(*this);  // cities_ is read by render()
+      int index = sel->index;
+      if (canRemove && index == 0) {
+        for (int i = slot; i + 1 < cityCount_; ++i) cities_[i] = cities_[i + 1];
+        --cityCount_;
+      } else {
+        index -= canRemove ? 1 : 0;
+        if (index >= 0 && index < tools::kCityCatalogCount) {
+          const tools::CatalogCity& c = tools::kCityCatalog[index];
+          City& dst = cities_[slot];
+          snprintf(dst.name, sizeof(dst.name), "%s", c.name);
+          dst.standardOffset = c.offsetMinutes;
+          dst.rule = c.rule;
+          if (slot >= cityCount_) cityCount_ = slot + 1;
+        }
+      }
+      saveCities();
+    }
+    requestUpdate();
+  });
 }
 
 void WorldClockActivity::loadCities() {
@@ -131,6 +228,10 @@ void WorldClockActivity::loop() {
     finish();
     return;
   }
+  if (input_.confirmLong) {
+    chooseSlot();
+    return;
+  }
   if (input_.confirm) {
     syncClock();
     return;
@@ -189,7 +290,7 @@ void WorldClockActivity::render(RenderLock&&) {
 
   // City rows.
   const int64_t utcMinutes = static_cast<int64_t>(tools::daysOf(utc)) * 1440 + utc.hour * 60 + utc.minute;
-  const int rowsAreaH = content.y + content.height - y;
+  const int rowsAreaH = content.y + content.height - y - renderer.getLineHeight(SMALL_FONT_ID) - 6;
   const int rowH = cityCount_ > 0 ? std::min(rowsAreaH / cityCount_, 80) : 0;
   const int nameH = renderer.getLineHeight(UI_12_FONT_ID);
   for (int i = 0; i < cityCount_; ++i) {
@@ -222,6 +323,8 @@ void WorldClockActivity::render(RenderLock&&) {
                       EpdFontFamily::BOLD);
   }
 
+  renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - renderer.getLineHeight(SMALL_FONT_ID),
+                            tr(STR_TOOLS_WORLD_CLOCK_HOLD_HINT));
   tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SYNC), "", "");
   const bool transition = transitionPending_;
   transitionPending_ = false;

@@ -58,7 +58,7 @@ class CrossPointState : public PersistableStore<CrossPointState> {
   bool saveToFile() const;
 
   bool loadFromFile();
-  static const char* getFilePath() { return "/.crosspoint/state.json"; }
+  static const char* getFilePath() { return "/.pocketdeck-os/state.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc);
   uint16_t pendingBookmarkSpine = UINT16_MAX;

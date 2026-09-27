@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "BookInsights.h"
 #include "BookReadingStats.h"
 #include "RecentBooksStore.h"
 #include "activities/home/RecentBookProgress.h"
@@ -25,15 +26,13 @@ bool isBook(const char* name) {
   return FsHelpers::hasEpubExtension(n) || FsHelpers::hasXtcExtension(n) || FsHelpers::checkFileExtension(n, ".txt");
 }
 
-std::string cachePathFor(const std::string& path) {
-  if (FsHelpers::hasEpubExtension(path)) return Epub::cachePathForFilePath(path, "/.crosspoint");
-  if (FsHelpers::hasXtcExtension(path)) return Xtc(path, "/.crosspoint").getCachePath();
-  return {};
-}
+std::string cachePathFor(const std::string& path) { return book_files::cachePathFor(path); }
 
 struct Totals {
   LibrarySummary* s;
   double progressSum;
+  LibrarySummary::BookFn onBook;
+  void* ctx;
 };
 
 void walk(const std::string& dirPath, const int depth, Totals& t) {
@@ -75,6 +74,7 @@ void walk(const std::string& dirPath, const int depth, Totals& t) {
     float progress = RecentBookProgress::loadPercent(book);
     if (progress < 0) progress = 0;
     t.progressSum += progress;
+    if (t.onBook != nullptr) t.onBook(full.c_str(), progress, t.ctx);
     if (stats.isCompleted || progress >= 99.5f) {
       ++t.s->finished;
     } else if (progress > 0 || stats.totalPagesTurned > 0) {
@@ -87,9 +87,11 @@ void walk(const std::string& dirPath, const int depth, Totals& t) {
 }
 }  // namespace
 
-LibrarySummary LibrarySummary::scan() {
+LibrarySummary LibrarySummary::scan() { return scan(nullptr, nullptr); }
+
+LibrarySummary LibrarySummary::scan(const BookFn onOpenedBook, void* ctx) {
   LibrarySummary s;
-  Totals t{&s, 0.0};
+  Totals t{&s, 0.0, onOpenedBook, ctx};
   walk("/", 0, t);
   s.averageProgress = s.opened > 0 ? static_cast<float>(t.progressSum / s.opened) : 0.0f;
   // "Currently reading" comes from recent books, which carry proper titles.

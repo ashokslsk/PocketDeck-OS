@@ -5,7 +5,7 @@
 #include <ObfuscationUtils.h>
 
 bool PersistableStoreBase::writeDocToFile(const char* path, const JsonDocument& doc) {
-  Storage.mkdir("/.crosspoint");
+  Storage.mkdir("/.pocketdeck-os");
   String json;
   serializeJson(doc, json);
   if (!Storage.writeFile(path, json)) {
@@ -16,7 +16,7 @@ bool PersistableStoreBase::writeDocToFile(const char* path, const JsonDocument& 
 }
 
 bool PersistableStoreBase::writeDocToFileAtomically(const char* path, const JsonDocument& doc) {
-  Storage.mkdir("/.crosspoint");
+  Storage.mkdir("/.pocketdeck-os");
   String json;
   serializeJson(doc, json);
 

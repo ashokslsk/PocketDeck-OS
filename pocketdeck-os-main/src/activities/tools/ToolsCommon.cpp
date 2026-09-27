@@ -13,7 +13,9 @@
 
 #include "CrossPointSettings.h"
 #include "SilentRestart.h"
+#include "ToolsLog.h"
 #include "activities/Activity.h"
+#include "activities/reader/ReadingStatsUtils.h"
 #include "components/HeaderDate.h"
 #include "components/UITheme.h"
 
@@ -175,12 +177,15 @@ void ToolInput::poll(const MappedInputManager& input) {
     confirmArmed_ = true;
     confirmLongFired_ = false;
   }
+  // A long Confirm is reported on release, not while held: tools open menus
+  // and pickers on it, and firing earlier would let this same release select
+  // the first row of the picker that just opened.
   if (confirmArmed_ && !confirmLongFired_ && input.isPressed(B::Confirm) && input.getHeldTime() >= kLongPressMs) {
-    confirmLong = true;
     confirmLongFired_ = true;
   }
   if (input.wasReleased(B::Confirm)) {
     confirm = confirmArmed_ && !confirmLongFired_;
+    confirmLong = confirmArmed_ && confirmLongFired_;
     confirmArmed_ = false;
   }
 
@@ -473,3 +478,21 @@ HalDisplay::RefreshMode transitionRefresh() {
 }
 
 }  // namespace tools
+
+namespace tools {
+void formatShortDate(char* buf, const size_t len, const int32_t day) {
+  ReadingStatsDate date;
+  civilFromDays(day, date.year, date.month, date.day);
+  formatReadingStatsShortDate(date, buf, len);
+}
+}  // namespace tools
+
+namespace tlog {
+bool now(Stamp& out) {
+  tools::DateTime local;
+  if (!tools::getLocalNow(local)) return false;
+  out.day = tools::daysOf(local);
+  out.minute = static_cast<int16_t>(local.hour * 60 + local.minute);
+  return true;
+}
+}  // namespace tlog

@@ -12,8 +12,11 @@
 #include "FlashcardsActivity.h"
 #include "HabitTrackerActivity.h"
 #include "KnowledgeCardActivity.h"
+#include "MedicineActivity.h"
+#include "MoodActivity.h"
 #include "PanchangaActivity.h"
 #include "PomodoroActivity.h"
+#include "StatsActivity.h"
 #include "WorldClockActivity.h"
 #include "components/UITheme.h"
 #include "util/ButtonNavigator.h"
@@ -26,6 +29,10 @@ const char* ToolsMenuActivity::toolLabel(const int index) {
       return tr(STR_TOOLS_WORLD_CLOCK);
     case HABITS:
       return tr(STR_TOOLS_HABITS);
+    case MEDICINE:
+      return tr(STR_TOOLS_MEDICINE);
+    case MOOD:
+      return tr(STR_TOOLS_MOOD);
     case FLASHCARDS:
       return tr(STR_TOOLS_FLASHCARDS);
     case QUOTE:
@@ -34,6 +41,8 @@ const char* ToolsMenuActivity::toolLabel(const int index) {
       return tr(STR_TOOLS_KNOWLEDGE);
     case PANCHANGA:
       return tr(STR_TOOLS_PANCHANGA);
+    case STATS:
+      return tr(STR_TOOLS_STATS);
     default:
       return tr(STR_TOOLS_TODAY);
   }
@@ -47,6 +56,10 @@ const char* ToolsMenuActivity::toolDescription(const int index) {
       return tr(STR_TOOLS_WORLD_CLOCK_DESC);
     case HABITS:
       return tr(STR_TOOLS_HABITS_DESC);
+    case MEDICINE:
+      return tr(STR_TOOLS_MEDICINE_DESC);
+    case MOOD:
+      return tr(STR_TOOLS_MOOD_DESC);
     case FLASHCARDS:
       return tr(STR_TOOLS_FLASHCARDS_DESC);
     case QUOTE:
@@ -55,6 +68,8 @@ const char* ToolsMenuActivity::toolDescription(const int index) {
       return tr(STR_TOOLS_KNOWLEDGE_DESC);
     case PANCHANGA:
       return tr(STR_TOOLS_PANCHANGA_DESC);
+    case STATS:
+      return tr(STR_TOOLS_STATS_DESC);
     default:
       return tr(STR_TOOLS_TODAY_DESC);
   }
@@ -80,6 +95,12 @@ void ToolsMenuActivity::openTool(const int index) {
     case HABITS:
       tool = makeUniqueNoThrow<HabitTrackerActivity>(renderer, mappedInput);
       break;
+    case MEDICINE:
+      tool = makeUniqueNoThrow<MedicineActivity>(renderer, mappedInput);
+      break;
+    case MOOD:
+      tool = makeUniqueNoThrow<MoodActivity>(renderer, mappedInput);
+      break;
     case FLASHCARDS:
       tool = makeUniqueNoThrow<FlashcardsActivity>(renderer, mappedInput);
       break;
@@ -91,6 +112,9 @@ void ToolsMenuActivity::openTool(const int index) {
       break;
     case PANCHANGA:
       tool = makeUniqueNoThrow<PanchangaActivity>(renderer, mappedInput);
+      break;
+    case STATS:
+      tool = makeUniqueNoThrow<StatsActivity>(renderer, mappedInput);
       break;
     default:
       tool = makeUniqueNoThrow<DailyCommandCenterActivity>(renderer, mappedInput);

@@ -24,6 +24,7 @@
 #include "CrossPointSettings.h"
 #include "FontSelectionActivity.h"
 #include "FrontlightTimePickerActivity.h"
+#include "HelpTextActivity.h"
 #include "KOReaderSettingsActivity.h"
 #include "KeyboardLayoutsActivity.h"
 #include "MappedInputManager.h"
@@ -1122,6 +1123,11 @@ void SettingsActivity::toggleCurrentSetting() {
         break;
       case SettingAction::About:
         startActivityForResult(std::make_unique<AboutActivity>(renderer, mappedInput), resultHandler);
+        break;
+      case SettingAction::WallpaperHelp:
+        startActivityForResult(std::make_unique<HelpTextActivity>(renderer, mappedInput, StrId::STR_WALLPAPER_HELP,
+                                                                  StrId::STR_WALLPAPER_HELP_BODY),
+                               resultHandler);
         break;
       case SettingAction::QuickActions:
         startActivityForResult(std::make_unique<QuickActionsActivity>(renderer, mappedInput), resultHandler);

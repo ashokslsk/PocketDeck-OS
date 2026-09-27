@@ -10,9 +10,9 @@
 
 namespace {
 constexpr uint8_t STATE_FILE_VERSION = 5;
-constexpr char STATE_FILE_BIN[] = "/.crosspoint/state.bin";
-constexpr char STATE_FILE_JSON[] = "/.crosspoint/state.json";
-constexpr char STATE_FILE_BAK[] = "/.crosspoint/state.bin.bak";
+constexpr char STATE_FILE_BIN[] = "/.pocketdeck-os/state.bin";
+constexpr char STATE_FILE_JSON[] = "/.pocketdeck-os/state.json";
+constexpr char STATE_FILE_BAK[] = "/.pocketdeck-os/state.bin.bak";
 }  // namespace
 
 bool CrossPointState::isRecentSleep(uint16_t idx, uint8_t checkCount) const {

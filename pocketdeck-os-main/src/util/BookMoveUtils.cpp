@@ -18,11 +18,11 @@ constexpr char READ_FOLDER[] = "/Read";
 
 bool getCachePath(const std::string& bookPath, const char* bookType, std::string& cachePath) {
   if (strcmp(bookType, "epub") == 0) {
-    cachePath = Epub::cachePathForFilePath(bookPath, "/.crosspoint");
+    cachePath = Epub::cachePathForFilePath(bookPath, "/.pocketdeck-os");
   } else if (strcmp(bookType, "xtc") == 0) {
-    cachePath = Xtc(bookPath, "/.crosspoint").getCachePath();
+    cachePath = Xtc(bookPath, "/.pocketdeck-os").getCachePath();
   } else if (strcmp(bookType, "txt") == 0) {
-    cachePath = Txt(bookPath, "/.crosspoint").getCachePath();
+    cachePath = Txt(bookPath, "/.pocketdeck-os").getCachePath();
   } else {
     LOG_ERR("BookMove", "Unknown book type for state migration: %s", bookType);
     return false;
@@ -213,7 +213,7 @@ bool migrateMovedEpubState(const std::string& oldPath, const std::string& newPat
                            const std::string& title, const std::string& author, const bool keepInRecents) {
   bool ok = true;
 
-  const std::string newCachePath = Epub::cachePathForFilePath(newPath, "/.crosspoint");
+  const std::string newCachePath = Epub::cachePathForFilePath(newPath, "/.pocketdeck-os");
   if (!oldCachePath.empty() && Storage.exists(oldCachePath.c_str())) {
     if (!Storage.rename(oldCachePath.c_str(), newCachePath.c_str())) {
       LOG_ERR("BookMove", "Failed to rename cache dir %s -> %s (non-fatal)", oldCachePath.c_str(),

@@ -72,7 +72,7 @@ void AboutActivity::render(RenderLock&&) {
   tools::drawWrappedText(renderer, body, tr(STR_ABOUT_BODY), opt);
 
   char footer[48];
-  snprintf(footer, sizeof(footer), "%s %d/%d   CrossInk %s", tr(STR_TOOLS_PAGE), page_ + 1, pageCount_,
+  snprintf(footer, sizeof(footer), "%s %d/%d   Based on CrossInk %s", tr(STR_TOOLS_PAGE), page_ + 1, pageCount_,
            CROSSINK_VERSION);
   renderer.drawText(SMALL_FONT_ID, content.x, content.y + content.height - footerH + 6, footer);
 

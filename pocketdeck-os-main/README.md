@@ -7,11 +7,27 @@
 **A personal project by Ashok Kumar Srinivas** · version 1.0.0
 
 PocketDeck-OS is e-reader firmware for the Xteink X3 that keeps the reader in
-your pocket and adds a small deck of daily tools: Pomodoro, World Clock, Habit
-Tracker, spaced-repetition Flashcards, Daily Quote, Knowledge (paged Q&A), an
-offline Kannada Panchanga, and Today (to-dos). Reading Stats include a Library
-dashboard, and there are eight UI themes including the new PocketDeck theme. See [docs/productivity-tools.md](docs/productivity-tools.md) and the
-[screenshot walkthrough](docs/screenshots/README.md) of every screen.
+your pocket and adds a small deck of daily tools:
+
+- **Pomodoro** with a shrinking ring and a focus-history stats page
+- **World Clock** with cities picked on the device from a built-in list
+- **Habit Tracker** (up to 12 habits, added and renamed on the device) with streaks, a weekly completion graph and "what time do I usually do this" stats
+- **Medicine & supplements**: time-bound courses ("3 a day for 4 days") with adherence, missed doses, on-time rate and start/stop/completion dates
+- **Mood**: a daily five-point check-in with notes, a 30-day graph and trends
+- **Flashcards** (spaced repetition), **Daily Quote**, **Knowledge** (paged Q&A)
+- **Panchanga**: offline, in **Kannada or English**
+- **Today** (to-dos) and **Stats & export**: every statistic written to `/stats/<feature>/*.json`, plus book data (progress, bookmarks, clippings, look-ups) you can restore on another card or device
+
+For reading: the **Lyra Carousel** theme can show the selected book's stats
+(progress, time read, time left, expected finish, pace, bookmarks, highlights,
+words looked up) under a half-height carousel; **tilt page turn** is in the
+book's own settings; the sleep screen can **rotate wallpapers** from `/sleep`
+every 15 min to 2 hours; and PDF/MOBI files now explain how to convert them.
+Reading Stats include a Library dashboard, and there are eight UI themes.
+
+- **Install or update:** [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md) (over CrossInk, first setup, and the routine for adding quotes, flashcards and knowledge)
+- **Using the tools:** [docs/productivity-tools.md](docs/productivity-tools.md)
+- **Every screen:** [screenshot walkthrough](docs/screenshots/README.md)
 
 It is built on [CrossInk](https://github.com/uxjulia/CrossInk), which is itself
 a fork of [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader).
@@ -31,7 +47,9 @@ optional SD-card data pack for the tools.
 | Xteink X4 Pro (ESP32-S3) | `dist/pocketdeck-os-x4-pro.bin` |
 
 > Your books, reading progress, bookmarks and settings live on the SD card and
-> are kept when you switch firmware. Charge the reader first and keep it
+> are kept when you switch firmware. PocketDeck-OS keeps its reader data in
+> `/.pocketdeck-os` and moves an existing CrossInk `/.crosspoint` folder there
+> on first start (see [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md#what-is-kept)). Charge the reader first and keep it
 > plugged in while flashing.
 
 ### Option A: SD card (already running CrossInk or PocketDeck-OS)
@@ -80,8 +98,8 @@ also written to `.pio/build/default/firmware-x3-x4.bin`.
 
 ### After installing
 
-1. Copy `sd-sample/tools` to the root of the SD card for sample quotes,
-   knowledge cards, flashcard decks and habits (see [sd-sample/README.md](sd-sample/README.md)).
+1. Copy `sd-sample/tools` (and optionally `sd-sample/sleep`) to the root of the SD card for sample quotes,
+   knowledge cards, flashcard decks, habits and wallpapers (see [sd-sample/README.md](sd-sample/README.md)).
 2. Set your time zone in **Settings > System > Device > Clock UTC Offset**, then
    open **Home > Tools > World Clock** and press **Confirm** to sync the clock over WiFi.
 3. Optional: add a StarDict dictionary under `/.dictionaries/` for word lookup
@@ -142,35 +160,53 @@ One quote per line:
 *|Only used for random picks — Author
 ```
 
-`YYYY-MM-DD` shows on that date, `MM-DD` every year, `*` joins the random pool.
+`YYYY-MM-DD` shows on that date, `MM-DD` every year, `*` has no date and only appears as a random pick (random picks come from the whole file).
 Text after ` — ` is the author. Very long quotes page with Up/Down (up to 2,048 bytes per line; longer lines are cut off).
 
 ### Habits: `/tools/habits/habits.txt`
 
-One habit per line, up to 8. To add **Yoga** and **Workout**, just add lines:
+Easiest: in **Habit Tracker**, hold **Confirm** and choose **Add a new habit**,
+**Rename** or **Delete**. Up to 12 habits. Or edit the file, one habit per line:
 
 ```
 Water
-Reading
-Exercise
-Meditation
-Study
-Sleep
 Yoga
 Workout
+Tender coconut water
 ```
 
 History is matched by name, so adding, removing or reordering lines keeps your
-existing ticks. Renaming a habit starts it fresh.
+ticks. Renaming on the device carries the last year of ticks to the new name
+(renaming in the file starts it fresh). Every tick is also logged with its time
+in `/tools/habits/log-YYYY-MM.txt`, which is where "Usual time", "Time
+consistency" and "Average gap" come from.
+
+### Medicine: `/tools/medicine/courses.txt`
+
+Add courses on the device (Medicine > Confirm, or hold Confirm > Add a course),
+or one per line in the file:
+
+```
+# id|name|doses per day|days|start|stopped or -|dose times
+c1|Paracetamol 500 mg|3|4|2026-09-27|-|08:00,13:00,19:00
+c2|Vitamin D3|1|30|2026-09-08|-|08:30
+```
+
+Ids can be any short word without `|`. Each tick is logged in
+`/tools/medicine/log-YYYY-MM.txt`.
 
 ### Other settings
 
 | File | What you can change |
 | --- | --- |
-| `/tools/worldclock.txt` | Cities, one per line: name, UTC offset and DST rule (US, EU, AU, NZ or NONE), separated by `\|` |
+| `/tools/worldclock.txt` | Cities (max 4): name, UTC offset and DST rule (US, EU, AU, NZ or NONE), separated by `\|`. On the device: World Clock > hold Confirm |
 | `/tools/pomodoro.txt` | `focus=25` and `break=5` minutes |
-| `/tools/panchanga.txt` | `lat=`, `lon=`, `tz=` for your town (default Bengaluru), `animate=0/1` |
+| `/tools/panchanga.txt` | `lat=`, `lon=`, `tz=` for your town (default Bengaluru), `animate=0/1`, `lang=kn` or `lang=en` (or hold Confirm in Panchanga) |
 | `/tools/daily.json` | Today's to-do list (also editable on the device) |
+| `/sleep/` | Wallpapers (`.bmp`, `.jpg`); Settings > Display > Sleep Screen > Change wallpaper |
+
+Stats for every feature are exported by **Tools > Stats & export** to
+`/stats/<feature>/`; see [docs/productivity-tools.md](docs/productivity-tools.md#stats--export).
 
 > **Updates:** **Settings > System > Check for Updates** still checks the
 > upstream CrossInk release feed. Accepting an update from there replaces

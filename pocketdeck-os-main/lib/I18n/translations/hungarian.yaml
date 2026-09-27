@@ -145,7 +145,7 @@ STR_REMOVE_READ_FROM_RECENTS: "Olvasott könyvek törlése a legutóbbiak listá
 STR_MOVE_FINISHED_TO_READ: "Befejezett könyvek áthelyezése a Read mappába"
 STR_AUTO_BACKUP_STATS: "Automatikus biztonsági mentések"
 STR_BACKUP_NOW: "Biztonsági mentés most"
-STR_BACKUP_STATS_CONFIRM: "Mentés másolatként ide: /.crossink-stats-backup/?"
+STR_BACKUP_STATS_CONFIRM: "Mentés másolatként ide: /.pocketdeck-os-stats-backup/?"
 STR_BACKUP_STATS_DONE: "Biztonsági mentés elmentve"
 STR_BACKUP_STATS_FAILED: "Biztonsági mentés sikertelen"
 STR_ALL_TIME_STATS: "Összesített statisztika"

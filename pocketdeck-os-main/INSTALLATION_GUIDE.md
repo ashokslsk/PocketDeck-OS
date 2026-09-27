@@ -1,0 +1,279 @@
+# PocketDeck-OS installation guide
+
+PocketDeck-OS 1.0.0 · a personal project by Ashok Kumar Srinivas
+
+This guide has four parts:
+
+1. [Install PocketDeck-OS on a reader that already runs CrossInk](#1-install-over-crossink)
+2. [First-time setup](#2-first-time-setup-about-10-minutes)
+3. [The content routine: adding quotes, flashcards and knowledge](#3-the-content-routine)
+4. [Backups, moving to a new card, and going back to CrossInk](#4-backups-new-cards-and-going-back)
+
+---
+
+## 1. Install over CrossInk
+
+You need:
+
+- The reader, charged above 50% (keep it on USB power while installing if you can).
+- Its microSD card and a way to copy files to it: a card reader, or the reader's own **File Transfer** (WiFi) page.
+- The firmware file for your device, from the `dist/` folder:
+
+| Device | File |
+| --- | --- |
+| Xteink X3 or X4 | `pocketdeck-os-x3.bin` |
+| Seeed reTerminal Sticky | `pocketdeck-os-sticky.bin` |
+| Xteink X4 Pro | `pocketdeck-os-x4-pro.bin` |
+
+### What is kept
+
+Everything on the SD card stays: books, reading progress, bookmarks, clippings,
+reading stats, settings, WiFi networks, dictionaries and fonts.
+
+PocketDeck-OS keeps its reader data in its own hidden folder,
+**`/.pocketdeck-os`**. On the first start it **moves** CrossInk's
+`/.crosspoint` folder there in one step, so all of the above comes along; it
+also renames `crossink-settings.json` to `pocketdeck-os-settings.json` and
+`/.crossink-stats-backup` to `/.pocketdeck-os-stats-backup`. If a
+`/.pocketdeck-os` folder already exists, nothing is moved or overwritten. The
+tools write under `/tools`, `/stats` and `/sleep`.
+
+### Steps (SD card method, no computer tools needed)
+
+1. **Copy the firmware to the card.** Put `pocketdeck-os-x3.bin` anywhere on
+   the SD card, for example in the root folder. Either:
+   - take the card out, copy the file with a card reader, and put the card back, or
+   - on the reader open **Home > File Transfer**, connect to WiFi, open the
+     address it shows in a browser on your phone or computer, and upload the file.
+2. **Open the updater.** On the reader: **Settings > System > SD Card Firmware Update**.
+3. **Pick the file.** Browse to `pocketdeck-os-x3.bin` and press **Select**.
+4. **Confirm.** The reader checks the image (size, chip and board type) before
+   writing anything. If the check fails, nothing is changed.
+5. **Wait.** Writing takes about a minute. Do not remove the card or press
+   buttons. The reader restarts by itself.
+6. **Check.** The PocketDeck-OS boot screen appears. **Settings** shows
+   "PocketDeck-OS 1.0.0" at the bottom, and **Settings > System > About**
+   shows the version and credits.
+
+### Alternative: USB with esptool
+
+Use this if the reader will not start, or it runs stock Xteink firmware.
+
+```bash
+pip3 install esptool
+```
+
+Find the port (`ls /dev/cu.*` on a Mac, for example `/dev/cu.usbmodem2101`),
+then flash app slot 0 and clear the OTA selector:
+
+```bash
+esptool.py --chip esp32c3 --port /dev/cu.usbmodem2101 --baud 921600 write_flash 0x10000 dist/pocketdeck-os-x3.bin
+```
+
+```bash
+esptool.py --chip esp32c3 --port /dev/cu.usbmodem2101 erase_region 0xe000 0x2000
+```
+
+Use `--chip esp32s3` and the matching file for the Sticky and X4 Pro.
+
+### Important: do not use "Check for Updates"
+
+**Settings > System > Check for Updates** still looks at the CrossInk release
+feed (PocketDeck-OS keeps CrossInk's version number, 1.6.0, for that check).
+Accepting an update there replaces PocketDeck-OS with stock CrossInk. To update
+PocketDeck-OS, install a newer PocketDeck-OS `.bin` with the steps above.
+
+---
+
+## 2. First-time setup (about 10 minutes)
+
+### 2.1 Copy the starter pack
+
+From `sd-sample/` copy these folders to the **root** of the SD card:
+
+```
+SD card (root)
+├── tools/            sample quotes, flashcards, knowledge, habits, settings
+│   ├── quotes.txt
+│   ├── flashcards/   ai_concepts.json, python_basics.json, sql_basics.json
+│   ├── knowledge/    AI.json, Python.json, SQL.json
+│   ├── habits/       habits.txt
+│   ├── worldclock.txt, pomodoro.txt, daily.json
+├── sleep/            example wallpapers (.bmp and .jpg)
+└── (your books, anywhere, e.g. /Books)
+```
+
+Nothing breaks if you skip this. Each tool creates its own files and folders
+the first time you open it, but Quote, Flashcards and Knowledge have nothing to
+show until they have content.
+
+**Folders PocketDeck-OS creates for you:** `/tools`, `/tools/.cache`,
+`/tools/habits`, `/tools/medicine`, `/tools/mood`, `/tools/pomodoro`,
+`/tools/today`, `/tools/flashcards`, `/tools/knowledge` and `/stats`.
+
+**Folders you create yourself:** `/sleep`, for wallpapers.
+
+### 2.2 Set the clock
+
+Habits, Medicine, Mood, Pomodoro stats, Quote-of-the-day and Panchanga need the date.
+
+1. **Settings > System > Device > Clock UTC Offset**: for India choose +5:30.
+2. **Home > Tools > World Clock**, press **Confirm** and connect to WiFi once. The clock syncs over the internet.
+
+### 2.3 Personalise (all optional)
+
+| What | Where |
+| --- | --- |
+| Carousel with book stats | Settings > Display > UI Theme = **Lyra Carousel**; **Carousel book stats** on (default) or off for big covers |
+| Tilt page turn | Inside a book: Menu > **Book Options** > **Tilt Page Turn** (also Menu > gear > Controls, and Settings > Controls) |
+| Rotating wallpaper | Put pictures in `/sleep`, then Settings > Display > Sleep Screen: **Wallpaper = Custom**, **Change wallpaper = Every 30 min**. Help: **How to add wallpapers** in the same menu |
+| Panchanga language | Tools > Panchanga, **hold Confirm**, choose Kannada or English |
+| World Clock cities | Tools > World Clock, **hold Confirm**, pick a city slot, pick a city |
+| Habits | Tools > Habit Tracker, **hold Confirm** > Add a new habit (e.g. "Tender coconut water") |
+| Medicine course | Tools > Medicine, **Confirm** (or hold Confirm > Add a course): name, doses per day, length, start |
+
+---
+
+## 3. The content routine
+
+Make this a weekly or monthly habit. All the tools read plain files in
+`/tools`, which you can prepare on your computer or phone.
+
+### 3.1 The routine in five steps
+
+1. **Write or update** the file on your computer, using the templates below.
+2. **Check the JSON.** Run the command below (it prints the file if it is
+   valid and shows the line with the mistake if not), or paste the file into any JSON validator.
+
+   ```bash
+   python3 -m json.tool Python.json
+   ```
+
+3. **Copy it to the card**, in the folder named below: with a card reader, or
+   over WiFi with **Home > File Transfer** (upload into that folder).
+4. **Open the tool on the reader.** Indexes rebuild by themselves when a file
+   changes. There is no restart and no cache to clear.
+5. **Check it once**: the new deck, topic or quote should be there. If a tool
+   says it has nothing to show, the JSON has a mistake (go back to step 2).
+
+Ready-to-copy templates for every file below are in [docs/examples/templates](docs/examples/templates).
+
+### 3.2 Daily quotes → `/tools/quotes.txt`
+
+One quote per line, UTF-8 text:
+
+```
+2026-12-25|Peace begins with a smile. — Mother Teresa
+01-01|Every new year is a fresh page. — Anonymous
+*|Only used for random picks. — Author
+```
+
+- `YYYY-MM-DD|…` shows on that exact date.
+- `MM-DD|…` shows on that day every year.
+- `*|…` has no date: it only appears as a random pick. Random picks (**Shuffle**, or a day with no dated quote) come from the whole file.
+- Text after ` — ` (space, em dash, space) is shown as the author.
+- Keep one line per quote. Up to 2,048 bytes per line; long quotes page with Up/Down.
+
+**Monthly habit:** paste next month's 30 dated lines at the end of the file.
+Order does not matter. To build a year of quotes from an EPUB anthology, see
+`scripts/tools/extract_quotes.py` and `scripts/tools/build_quotes.py`.
+
+### 3.3 Flashcards → `/tools/flashcards/<deck name>.json`
+
+The file name becomes the deck name (`python_basics.json` shows as
+"python_basics"). One file per subject; up to 16 decks and 400 cards each.
+
+```json
+{
+  "cards": [
+    {"question": "What does len() return for a dict?", "answer": "The number of **keys**."},
+    {"question": "Which SQL clause filters groups?", "answer": "**HAVING** (WHERE filters rows)."}
+  ]
+}
+```
+
+- Answers may use `**bold**`, `- bullets` and `1. numbered` lines; use `\n` for a new line.
+- Review history is kept per question text, so you can add, remove or reorder
+  cards at any time. Changing a question's wording makes it a new card.
+- A plain list `[{"question": …, "answer": …}]` also works.
+
+### 3.4 Knowledge → `/tools/knowledge/<topic>.json`
+
+Questions with longer, paged answers. The topic list shows file names.
+
+```json
+{
+  "topic": "Python",
+  "cards": [
+    {
+      "question": "What are list comprehensions?",
+      "answer": "A **list comprehension** builds a list in one expression.\n\n# Filtering\n- `[x for x in nums if x > 0]`\n\n# When not to use them\n1. The body needs several statements.\n2. You only need a loop, not a list."
+    }
+  ]
+}
+```
+
+- Formatting: `# Heading`, `**bold**`, `- bullet`, `1. numbered`, `` `code` ``.
+- Up to 500 questions per topic and about 4 KB per answer; long answers are paged ("Page 2 / 4").
+- The "question of the day" changes daily by itself.
+
+### 3.5 Habits, medicine, world clock (usually done on the device)
+
+| File | Format |
+| --- | --- |
+| `/tools/habits/habits.txt` | one habit name per line, up to 12 |
+| `/tools/medicine/courses.txt` | `id\|name\|doses per day\|days\|start YYYY-MM-DD\|stopped or -\|times` e.g. `c1\|Paracetamol\|3\|4\|2026-09-27\|-\|08:00,13:00,19:00` |
+| `/tools/worldclock.txt` | `Name\|+5:30\|NONE` (DST rules: US, EU, AU, NZ, NONE), max 4 lines |
+| `/tools/panchanga.txt` | `lat=`, `lon=`, `tz=`, `animate=1`, `lang=kn` or `lang=en` |
+
+### 3.6 Wallpapers → `/sleep/`
+
+- `.bmp` shows at once; `.jpg` is converted once into a `.bmp` copy next to it (two per sleep).
+- The best size for the X3 is 528 × 792 pixels, portrait. Grayscale with good contrast looks best on e-ink.
+- A pinned favourite wallpaper overrides rotation; unpin it to rotate.
+
+---
+
+## 4. Backups, new cards and going back
+
+### Export your stats (monthly)
+
+**Tools > Stats & export > Confirm** writes JSON files you can open on any computer:
+
+```
+/stats/habits/habits.json         /stats/pomodoro/pomodoro.json
+/stats/medicine/medicine.json     /stats/today/today.json
+/stats/mood/mood.json             /stats/flashcards/flashcards.json
+/stats/reading/library.json       /stats/reading/global.json
+/stats/reading/books/<book>.json  (one per book)
+```
+
+Copy `/stats` and `/tools` to your computer as a backup.
+
+### Moving books to another card or device
+
+1. On the old card: **Tools > Stats & export > Confirm**.
+2. Copy the books (in the **same folders**) and the `/stats` folder to the new card.
+3. On the new card: **Tools > Stats & export**, **hold Confirm**, then **Confirm**.
+   Progress, reading time, bookmarks, clippings and looked-up words come back.
+   Anything already on the new card is never overwritten.
+
+### Going back to CrossInk
+
+1. Install CrossInk's `firmware-x3-x4.bin` with the same **SD Card Firmware
+   Update** steps.
+2. To keep your progress, bookmarks and settings, rename two things on the
+   card with a computer (hidden files must be shown): the folder
+   `/.pocketdeck-os` to `/.crosspoint`, and inside it
+   `pocketdeck-os-settings.json` to `crossink-settings.json`.
+   Without this, CrossInk starts with fresh settings; your books are not affected.
+3. `/tools`, `/stats` and `/sleep` are simply ignored by CrossInk.
+
+### If something goes wrong
+
+- **The reader does not start after flashing:** reflash it with the USB method
+  above (esptool works whatever firmware is on the reader).
+- **A tool shows nothing:** check the JSON (step 3.1) and the folder name.
+- **The clock is wrong:** check the UTC offset, then sync again from World Clock.
+- **Wallpaper does not change while asleep:** the X4 powers down completely in
+  sleep, so it changes on each sleep instead. The X3 wakes itself on the timer.

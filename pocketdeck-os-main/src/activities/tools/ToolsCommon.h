@@ -19,7 +19,7 @@ class GfxRenderer;
 // Memory policy: nothing here allocates on the heap. Every buffer is either a
 // small stack local or a fixed-size array owned by the calling Activity, so a
 // tool's whole footprint is one allocation that disappears when it exits.
-// Tool data lives only under /tools on the SD card; /.crosspoint is never
+// Tool data lives only under /tools on the SD card; /.pocketdeck-os is never
 // touched.
 namespace tools {
 
@@ -49,6 +49,8 @@ inline int32_t daysOf(const DateTime& dt) { return daysFromCivil(dt.year, dt.mon
 void formatClock(char* buf, size_t len, uint8_t hour, uint8_t minute);
 // Localized long date using Settings > Date format; ISO fallback.
 void formatLongDate(char* buf, size_t len, const DateTime& local);
+// "Sep 27" style short date for a tools day number.
+void formatShortDate(char* buf, size_t len, int32_t day);
 // Translated weekday name, 0 = Monday.
 const char* weekdayName(uint8_t mon0);
 const char* weekdayShortName(uint8_t mon0);
@@ -58,7 +60,7 @@ const char* weekdayShortName(uint8_t mon0);
 //   Up / Left / PageBack      -> previous
 //   Down / Right / PageForward -> next
 //   Confirm (short)           -> select / toggle
-//   Confirm (hold)            -> secondary action
+//   Confirm (hold)            -> secondary action (reported on release)
 //   Back (short)              -> back one level
 //   Back (hold)               -> exit Tools to Home
 // ---------------------------------------------------------------------------

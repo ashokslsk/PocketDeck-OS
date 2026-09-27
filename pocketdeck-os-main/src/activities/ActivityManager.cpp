@@ -109,7 +109,7 @@ FrontlightPanelContext buildFrontlightPanelContext(Activity& activity, GfxRender
     context.bookPath = APP_STATE.openEpubPath;
     context.bookTitle = fileNameFromPath(context.bookPath);
     statsTitle = context.bookTitle;
-    cachePath = Epub::cachePathForFilePath(context.bookPath, "/.crosspoint");
+    cachePath = Epub::cachePathForFilePath(context.bookPath, "/.pocketdeck-os");
     bookStats = BookReadingStats::load(cachePath);
     const RecentBook book{context.bookPath, context.bookTitle, {}, {}};
     progress = RecentBookProgress::loadCachedEpubPercent(book);

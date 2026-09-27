@@ -1,0 +1,9 @@
+{
+  "topic": "My Topic",
+  "cards": [
+    {
+      "question": "A question you want to understand deeply?",
+      "answer": "Start with a one-line summary in **bold**.\n\n# Why it matters\n- First point\n- Second point\n\n# Steps\n1. First step\n2. Second step\n\nLong answers are split into pages automatically."
+    }
+  ]
+}

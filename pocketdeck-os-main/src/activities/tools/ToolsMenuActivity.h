@@ -15,7 +15,20 @@ class ToolsMenuActivity final : public Activity {
   void render(RenderLock&&) override;
 
  private:
-  enum Tool : uint8_t { POMODORO, WORLD_CLOCK, HABITS, FLASHCARDS, QUOTE, KNOWLEDGE, PANCHANGA, TODAY, TOOL_COUNT };
+  enum Tool : uint8_t {
+    POMODORO,
+    WORLD_CLOCK,
+    HABITS,
+    MEDICINE,
+    MOOD,
+    FLASHCARDS,
+    QUOTE,
+    KNOWLEDGE,
+    PANCHANGA,
+    TODAY,
+    STATS,
+    TOOL_COUNT
+  };
 
   static const char* toolLabel(int index);
   static const char* toolDescription(int index);

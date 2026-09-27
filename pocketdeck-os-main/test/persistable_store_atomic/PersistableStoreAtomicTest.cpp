@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 namespace {
-constexpr char STORE_PATH[] = "/.crosspoint/recent.json";
+constexpr char STORE_PATH[] = "/.pocketdeck-os/recent.json";
 
 JsonDocument documentWithPath(const char* path) {
   JsonDocument doc;

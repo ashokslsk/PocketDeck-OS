@@ -18,7 +18,7 @@ change; **HW** = must be confirmed on a physical Xteink X3 before release.
 | `src/simulator/SimulatorSmokeTest.cpp` | Renders the Tools menu and all seven tools after Home | Simulator-only code |
 | `test/CMakeLists.txt`, `test/tools_core/` | New native test target | Test-only |
 
-Not touched: WiFi stack and credential store, EPUB engine and `/.crosspoint`
+Not touched: WiFi stack and credential store, EPUB engine and `/.pocketdeck-os`
 cache layout, OTA updater and `partitions.csv`, SD init/SPI pins, settings
 menus, sleep/wake and power management, button remapping, fonts, reading stats.
 
@@ -27,20 +27,20 @@ menus, sleep/wake and power management, button remapping, fonts, reading stats.
 | Check | Command | Result |
 | --- | --- | --- |
 | X3/X4 firmware (ESP32-C3) | `pio run -e default` | **PASS (auto)**: image fits OTA slot |
-| reTerminal Sticky (ESP32-S3, touch) | `pio run -e sticky` | **PASS (auto)**: 6,176,630 B, 376,970 B free |
-| X4 Pro (ESP32-S3, touch, SDMMC) | `pio run -e x4-pro` | **PASS (auto)**: 6,268,105 B, 285,495 B free |
+| reTerminal Sticky (ESP32-S3, touch) | `pio run -e sticky` | **PASS (auto)**: 6,221,442 B, 332,158 B free |
+| X4 Pro (ESP32-S3, touch, SDMMC) | `pio run -e x4-pro` | **PASS (auto)**: 6,312,065 B, 241,535 B free |
 | Simulator builds | `pio run -e simulator`, `pio run -e simulator-X3` | **PASS (auto)** |
-| Native unit tests | `cmake -S test -B /tmp/t && cmake --build /tmp/t --target ToolsCoreTest && /tmp/t/tools_core/ToolsCoreTest` | **PASS (auto)**: 27/27 (store, dates, SRS, Panchanga vs Drik) |
+| Native unit tests | `cmake -S test -B /tmp/t && cmake --build /tmp/t --target ToolsCoreTest && /tmp/t/tools_core/ToolsCoreTest` | **PASS (auto)**: 32/32 tools_core (store, dates, SRS, Panchanga vs Drik, logs, JSON export, Kannada data) and 622/622 in the whole native suite |
 | Smoke test, 7 themes | `scripts/run_simulator_smoke_test.py --theme {classic,lyra,lyra-extended,roundedraff,lyra-carousel,dashboard,pocketdeck}` | **PASS (auto)**: Home, File Browser, Recent Books, Settings, Reader Options, Reader Menu, Sleep, EPUB open + page turns, plus Tools menu and all 8 tools |
-| Scripted UI walk (X3 profile) | simulator input script + screenshots | **PASS (auto)**: every tool entered, used and exited; data files written correctly; no `.tmp`/`.bak` left behind; nothing written to `/.crosspoint` |
+| Scripted UI walk (X3 profile) | simulator input script + screenshots | **PASS (auto)**: every tool entered, used and exited; data files written correctly; no `.tmp`/`.bak` left behind; nothing written to `/.pocketdeck-os` |
 
 ### Size and memory (ESP32-C3 `default` build)
 
 | | Before | After | Δ |
 | --- | --- | --- | --- |
-| Static RAM (`.data` + `.bss`) | 64,432 B | 64,496 B | +64 B |
-| Firmware image | 6,105,600 B | 6,306,229 B | +200,629 B (Panchanga Kannada bitmaps, Inter digits, theme, logos) |
-| OTA slot free | 448,000 B | 247,371 B | partition table unchanged |
+| Static RAM (`.data` + `.bss`) | 64,432 B | 64,552 B | +120 B |
+| Firmware image | 6,105,600 B | 6,359,789 B | +254,189 B (all tools incl. Medicine/Mood/Stats, Panchanga, Inter digits, theme, logos) |
+| OTA slot free | 448,000 B | 193,811 B | partition table unchanged |
 
 Heap available to WiFi, EPUB parsing and OTA is unchanged: the tools have no
 globals and allocate only while a tool is open.
@@ -53,7 +53,7 @@ Flash `dist/pocketdeck-os-x3.bin` (or the build output `firmware-x3-x4.bin`) ove
 | --- | --- | --- | --- | --- |
 | P1 | WiFi connect | Home > File Transfer > join a saved network | Connects with saved credentials; no re-entry needed | HW |
 | P2 | WiFi via tools | Tools > World Clock > Confirm | Same WiFi picker/credentials; "Clock synced"; Back > Back > Back reboots silently to Home | HW |
-| P3 | EPUB open | Home > Browse Files > open an EPUB | Opens at last position; existing `/.crosspoint/epub_*` cache reused | HW |
+| P3 | EPUB open | Home > Browse Files > open an EPUB | Opens at last position; existing `/.pocketdeck-os/epub_*` cache reused | HW |
 | P4 | Page turn | Turn 20+ pages both directions, open reader menu | No slowdowns or crashes; progress saved | HW |
 | P5 | Reader after tools | Open every tool, return Home, Continue Reading | Book reopens normally; serial `maxAlloc` similar to before | HW |
 | P6 | OTA check | Settings > System > Check for Updates | Version check runs; OTA flow unchanged | HW |
@@ -78,8 +78,31 @@ Flash `dist/pocketdeck-os-x3.bin` (or the build output `firmware-x3-x4.bin`) ove
 | T8 | Flashcards | Study a deck; mix Got it / Forgot; exit mid-session | Forgotten cards return; `srs_state.json` keeps other decks' entries |
 | T9 | Power loss | Pull power during a save (or leave a `.bak`) | Next open restores from `.bak` |
 | T10 | Missing data | Remove `/tools` entirely | Every tool shows a helpful empty state; nothing crashes |
+| T11 | Habits menu | Hold Confirm > Add "Tender coconut water"; rename it; delete another | Keyboard opens; list updates; renamed habit keeps its ticks and streak; `habits.txt` rewritten atomically |
+| T12 | Habit stats | Tick a habit on several days at different times; open Stats and graphs | Streaks match the grid; usual time and consistency follow the tick times; both graphs drawn |
+| T13 | Medicine | Add "Paracetamol, 3 a day, 4 days, today"; tick doses; open Details; Stop course | Doses show filled; adherence, missed, on-time and delay update; status Stopped with the stop date |
+| T14 | Mood | Pick a face and Confirm; hold Confirm to add a note; Up to yesterday and log it | Saved bar under the face; note shown; chart and averages update |
+| T15 | Pomodoro stats | Finish a focus session; press Left | Session counted today; bar for today; timer keeps running underneath |
+| T16 | World Clock cities | Hold Confirm; replace a city; remove one | `worldclock.txt` rewritten; times correct with DST |
+| T17 | Panchanga language | Hold Confirm > English; reopen the tool | English names, no overlaps; `lang=en` kept; Kannada restores the bitmaps |
+| T18 | Stats & export | Confirm; open the files on a computer | Nine feature files plus one per opened book; valid JSON |
+| T19 | Book data import | Export; copy books and `/stats` to a fresh card; hold Confirm | Progress, bookmarks, clippings, look-ups and stats restored; nothing overwritten on a second run |
+| T20 | Carousel book stats | Lyra Carousel theme; toggle Settings > Display > Carousel book stats | Half-height carousel with 10 stats, or the original large covers |
+| T21 | Tilt in book | Book menu > Book Options > Tilt Page Turn on; tilt the X3 | Pages turn on tilt; the Settings > Controls toggle shows the same state |
+| T22 | Rotating wallpaper | Put 3 images (one JPG) in `/sleep`; Custom + Every 15 min; sleep for 45 min on battery | The picture changes about every 15 min; power button still wakes; JPG gets a `.jpg.bmp` copy |
+| T23 | PDF / MOBI | Copy a .pdf and a .mobi; open them | Listed in Browse Files; a conversion help page opens instead of the reader |
 
-## 5. Final verification run (2026-09-27)
+## 5. Final verification run (2026-09-27, final enhancements)
+
+`default`, `sticky`, `x4-pro`, `simulator` and `simulator-X3` builds passed;
+32/32 tools_core tests and all 622 native tests passed; the smoke test passed in
+7 themes (Tools and every tool rendered); the scripted X3 walk captured all 176
+screens (`docs/screenshots`); book-data import restored 10/10 reader files
+byte-for-byte; a card with CrossInk's `/.crosspoint` folder was migrated to
+`/.pocketdeck-os` with progress, bookmarks, clippings and covers intact.
+Touched files formatted with clang-format 21.
+
+## 5a. Earlier verification run (2026-09-27)
 
 All run sequentially on the final sources: `default`, `sticky`, `x4-pro`,
 `simulator` and `simulator-X3` builds all passed; 22/22 unit tests passed; the

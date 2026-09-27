@@ -17,13 +17,30 @@ First PocketDeck-OS release, based on CrossInk 1.6.0. A personal project by Asho
 - Habit Tracker supports up to eight habits, and history is matched by name.
 - Long daily quotes page with Up/Down.
 - README guide to adding your own flashcards, knowledge topics, quotes and habits.
+- `INSTALLATION_GUIDE.md`: installing over CrossInk, first-time setup, and a step-by-step routine for adding quotes, flashcards and knowledge.
+- Tools > Medicine: time-bound medicine and supplement courses (1-4 doses a day for 1-90 days) with started / ends / completed / stopped dates, doses taken, adherence, missed doses, on-time rate, average delay and a dose grid.
+- Tools > Mood: daily five-point mood check-in with notes, a 30-day graph, averages, trend, streak, best weekday and usual check-in time.
+- Tools > Stats & export: every feature's statistics written to `/stats/<feature>/*.json`, one file per book with progress, time, bookmarks, clippings and looked-up words, and an import that restores book data on another card or device without overwriting anything.
+- Habit Tracker: add, rename (history follows) and delete habits on the device, up to 12; a stats page with streaks, 30-day rate, usual time, time consistency, average gap and best weekday, plus weekly-completion and time-of-day graphs.
+- Pomodoro: Left opens focus stats (sessions today / week / 30 days, focus time, streak, best day, usual start, 14-day chart).
+- World Clock: hold Confirm to choose cities from 79 built-in cities.
+- Panchanga: Kannada or English, chosen on the device (hold Confirm) and saved in `panchanga.txt`.
+- Lyra Carousel: optional **Carousel book stats** (on by default): a half-height carousel with the selected book's progress, time read, time left, estimated finish, pace, sessions, start date, bookmarks, highlights, words looked up and pages read.
+- Tilt page turn and direction are also in each book's Book Options.
+- Sleep Screen > **Change wallpaper**: rotates `/sleep` wallpapers every 15 min to 2 hours while asleep (X3 timer wake), with a "How to add wallpapers" help page. JPG wallpapers are converted on the device.
+- PDF, MOBI and AZW3 files appear in the file browser and explain how to convert them.
+- History logs for habits (tick times), medicine, mood, Pomodoro, Today and flashcards in `/tools/<feature>/log-YYYY-MM.txt`, appended atomically.
 
 ### Changed
 
 - The product version shown on screens is PocketDeck-OS 1.0.0. The CrossInk base version (1.6.0) is still used internally for update checks.
 - Boot and default sleep screens show a larger PocketDeck-OS logo, the name, "Developed by Ashok Kumar Srinivas" and the version. The default sleep screen is now light.
 - The Pomodoro, Today and World Clock screens no longer use seven-segment digits.
-- Tools are ordered Pomodoro, World Clock, Habit Tracker, Flashcards, Daily Quote, Knowledge, Panchanga, Today.
+- Tools are ordered Pomodoro, World Clock, Habit Tracker, Medicine, Mood, Flashcards, Daily Quote, Knowledge, Panchanga, Today, Stats & export.
+- Data folders carry the PocketDeck-OS name: `/.pocketdeck-os` (was `/.crosspoint`), `pocketdeck-os-settings.json` (was `crossink-settings.json`) and `/.pocketdeck-os-stats-backup` (was `/.crossink-stats-backup`). The first start moves an existing CrossInk folder across in one rename, so books, progress, bookmarks, clippings, stats and settings are kept; nothing is overwritten if both exist. File-format markers and sync IDs keep their CrossInk names for compatibility.
+- The About page footer reads "Based on CrossInk 1.6.0".
+- A long Confirm press in the tools now acts on release, so it can open a menu without selecting its first row.
+- Kannada text bitmaps are nibble run-length encoded (72 KB to 39 KB of flash) and decoded while drawing.
 - The Pomodoro ring is drawn with integer maths and no per-pixel trigonometry (the ESP32-C3 has no FPU), so per-second updates stay fast.
 
 
@@ -37,7 +54,7 @@ First PocketDeck-OS release, based on CrossInk 1.6.0. A personal project by Asho
   - Daily Quote: a date-matched quote from `/tools/quotes.txt`, a random pick otherwise, and a new quote after midnight.
   - Knowledge Card: one Markdown study card per day from `/tools/knowledge/<topic>/`.
   - Flashcards: JSON decks with simplified spaced repetition (interval doubles on success, resets on a miss).
-- All tool data is stored under `/tools` on the SD card with crash-safe atomic writes. `/.crosspoint` is not touched.
+- All tool data is stored under `/tools` on the SD card with crash-safe atomic writes. `/.pocketdeck-os` is not touched.
 - Simulator smoke test renders every tool screen, and a native `tools_core` test suite covers date/DST math, scheduling, JSON streaming, and atomic writes.
 
 ### Changed
@@ -348,7 +365,7 @@ First PocketDeck-OS release, based on CrossInk 1.6.0. A personal project by Asho
 
 ### Changed
 
-- CrossInk settings now save to `/.crosspoint/crossink-settings.json`, with a one-time fallback migration from `/.crosspoint/settings.json`, so switching between firmware builds is less likely to reset preferences.
+- CrossInk settings now save to `/.pocketdeck-os/pocketdeck-os-settings.json`, with a one-time fallback migration from `/.pocketdeck-os/settings.json`, so switching between firmware builds is less likely to reset preferences.
 - The X3 clock visibility setting is now phrased as `Hide Clock`, with existing `Show Clock` preferences migrated to the matching hide behavior.
 
 ### Fixed

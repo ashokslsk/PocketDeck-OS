@@ -1,0 +1,315 @@
+{
+  "feature": "mood",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "scale": "1 awful, 2 low, 3 okay, 4 good, 5 great",
+  "average_last_7_days": 3.8,
+  "average_last_30_days": 3.5,
+  "average_last_90_days": 3.7,
+  "days_logged_last_30": 24,
+  "days_logged_last_90": 49,
+  "usual_check_in_time": "21:13",
+  "counts_last_90_days": {
+    "awful": 0,
+    "low": 4,
+    "okay": 16,
+    "good": 22,
+    "great": 7
+  },
+  "days": [
+    {
+      "date": "2026-07-29",
+      "mood": 3,
+      "label": "okay",
+      "time": "20:43"
+    },
+    {
+      "date": "2026-07-30",
+      "mood": 4,
+      "label": "good",
+      "time": "21:36"
+    },
+    {
+      "date": "2026-08-01",
+      "mood": 5,
+      "label": "great",
+      "time": "21:14"
+    },
+    {
+      "date": "2026-08-02",
+      "mood": 5,
+      "label": "great",
+      "time": "20:38"
+    },
+    {
+      "date": "2026-08-03",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:22"
+    },
+    {
+      "date": "2026-08-05",
+      "mood": 3,
+      "label": "okay",
+      "time": "20:43"
+    },
+    {
+      "date": "2026-08-06",
+      "mood": 4,
+      "label": "good",
+      "time": "21:29"
+    },
+    {
+      "date": "2026-08-07",
+      "mood": 4,
+      "label": "good",
+      "time": "21:17"
+    },
+    {
+      "date": "2026-08-08",
+      "mood": 4,
+      "label": "good",
+      "time": "21:37"
+    },
+    {
+      "date": "2026-08-09",
+      "mood": 4,
+      "label": "good",
+      "time": "20:41"
+    },
+    {
+      "date": "2026-08-10",
+      "mood": 3,
+      "label": "okay",
+      "time": "20:51"
+    },
+    {
+      "date": "2026-08-12",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:15"
+    },
+    {
+      "date": "2026-08-14",
+      "mood": 4,
+      "label": "good",
+      "time": "21:51"
+    },
+    {
+      "date": "2026-08-15",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:14"
+    },
+    {
+      "date": "2026-08-16",
+      "mood": 4,
+      "label": "good",
+      "time": "20:50"
+    },
+    {
+      "date": "2026-08-17",
+      "mood": 3,
+      "label": "okay",
+      "time": "20:09"
+    },
+    {
+      "date": "2026-08-18",
+      "mood": 4,
+      "label": "good",
+      "time": "21:15"
+    },
+    {
+      "date": "2026-08-20",
+      "mood": 5,
+      "label": "great",
+      "time": "20:57"
+    },
+    {
+      "date": "2026-08-22",
+      "mood": 4,
+      "label": "good",
+      "time": "21:52"
+    },
+    {
+      "date": "2026-08-23",
+      "mood": 4,
+      "label": "good",
+      "time": "21:27"
+    },
+    {
+      "date": "2026-08-24",
+      "mood": 4,
+      "label": "good",
+      "time": "20:33"
+    },
+    {
+      "date": "2026-08-25",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:26"
+    },
+    {
+      "date": "2026-08-26",
+      "mood": 4,
+      "label": "good",
+      "time": "22:15"
+    },
+    {
+      "date": "2026-08-27",
+      "mood": 4,
+      "label": "good",
+      "time": "21:14"
+    },
+    {
+      "date": "2026-08-28",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:13"
+    },
+    {
+      "date": "2026-08-29",
+      "mood": 3,
+      "label": "okay",
+      "time": "20:55"
+    },
+    {
+      "date": "2026-08-31",
+      "mood": 4,
+      "label": "good",
+      "time": "21:41"
+    },
+    {
+      "date": "2026-09-01",
+      "mood": 4,
+      "label": "good",
+      "time": "20:56"
+    },
+    {
+      "date": "2026-09-02",
+      "mood": 2,
+      "label": "low",
+      "time": "21:11"
+    },
+    {
+      "date": "2026-09-03",
+      "mood": 4,
+      "label": "good",
+      "time": "21:23"
+    },
+    {
+      "date": "2026-09-04",
+      "mood": 2,
+      "label": "low",
+      "time": "20:27"
+    },
+    {
+      "date": "2026-09-05",
+      "mood": 2,
+      "label": "low",
+      "time": "21:18"
+    },
+    {
+      "date": "2026-09-06",
+      "mood": 4,
+      "label": "good",
+      "time": "21:19"
+    },
+    {
+      "date": "2026-09-07",
+      "mood": 5,
+      "label": "great",
+      "time": "21:14"
+    },
+    {
+      "date": "2026-09-08",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:04"
+    },
+    {
+      "date": "2026-09-09",
+      "mood": 4,
+      "label": "good",
+      "time": "20:44"
+    },
+    {
+      "date": "2026-09-10",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:48"
+    },
+    {
+      "date": "2026-09-11",
+      "mood": 3,
+      "label": "okay",
+      "time": "20:56"
+    },
+    {
+      "date": "2026-09-12",
+      "mood": 2,
+      "label": "low",
+      "time": "21:08"
+    },
+    {
+      "date": "2026-09-13",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:24"
+    },
+    {
+      "date": "2026-09-15",
+      "mood": 5,
+      "label": "great",
+      "time": "21:19"
+    },
+    {
+      "date": "2026-09-17",
+      "mood": 4,
+      "label": "good",
+      "time": "21:05"
+    },
+    {
+      "date": "2026-09-20",
+      "mood": 5,
+      "label": "great",
+      "time": "20:45"
+    },
+    {
+      "date": "2026-09-21",
+      "mood": 3,
+      "label": "okay",
+      "time": "21:51"
+    },
+    {
+      "date": "2026-09-22",
+      "mood": 4,
+      "label": "good",
+      "time": "21:37"
+    },
+    {
+      "date": "2026-09-23",
+      "mood": 3,
+      "label": "okay",
+      "time": "22:10"
+    },
+    {
+      "date": "2026-09-24",
+      "mood": 5,
+      "label": "great",
+      "time": "21:28"
+    },
+    {
+      "date": "2026-09-25",
+      "mood": 4,
+      "label": "good",
+      "time": "21:21"
+    },
+    {
+      "date": "2026-09-26",
+      "mood": 4,
+      "label": "good",
+      "time": "21:31"
+    }
+  ]
+}

@@ -11,6 +11,7 @@
 #include <cstring>
 #include <string>
 
+#include "ToolsLog.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 
@@ -387,7 +388,20 @@ void FlashcardsActivity::grade(const bool wasRemembered) {
   showNext();
 }
 
+void FlashcardsActivity::logSession() {
+  // History for Stats & export: one line per study session with grades.
+  if (openDeck_ < 0 || reviewed_ == 0) return;
+  tlog::Stamp at;
+  if (tlog::now(at)) {
+    char fields[kDeckNameCap + 32];
+    snprintf(fields, sizeof(fields), "%s|%d|%d|%d", decks_[openDeck_], reviewed_, remembered_, forgot_);
+    tlog::append("flashcards", at, fields);
+  }
+  reviewed_ = remembered_ = forgot_ = 0;
+}
+
 void FlashcardsActivity::closeDeck() {
+  logSession();
   saveState();
   openDeck_ = -1;
   screen_ = Screen::Decks;
@@ -406,6 +420,7 @@ void FlashcardsActivity::onEnter() {
 }
 
 void FlashcardsActivity::onExit() {
+  logSession();
   saveState();
   Activity::onExit();
 }
@@ -413,6 +428,7 @@ void FlashcardsActivity::onExit() {
 void FlashcardsActivity::loop() {
   input_.poll(mappedInput);
   if (input_.backLong) {
+    logSession();
     saveState();
     tools::exitToHome();
     return;

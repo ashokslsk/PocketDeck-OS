@@ -360,7 +360,7 @@ STR_REMOVE_READ_FROM_RECENTS: "Ачышчаць прачытаныя кнігі 
 STR_MOVE_FINISHED_TO_READ: "Перамяшчаць прачытаныя кнігі ў тэчку Read"
 STR_AUTO_BACKUP_STATS: "Аўтаматычныя рэзервовыя копіі"
 STR_BACKUP_NOW: "Зрабіць рэзервовую копію"
-STR_BACKUP_STATS_CONFIRM: "Захаваць копію ў /.crossink-stats-backup/?"
+STR_BACKUP_STATS_CONFIRM: "Захаваць копію ў /.pocketdeck-os-stats-backup/?"
 STR_BACKUP_STATS_DONE: "Рэзервовая копія захавана"
 STR_BACKUP_STATS_FAILED: "Не ўдалося стварыць рэзервовую копію"
 STR_ALL_TIME_STATS: "Статыстыка за ўвесь час"

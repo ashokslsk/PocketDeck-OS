@@ -18,7 +18,19 @@ class SleepActivity final : public Activity {
         sleepPopupOrientation(sleepPopupOrientation) {}
   void onEnter() override;
 
+  // PocketDeck-OS rotating wallpapers: true while a timer wake is only
+  // swapping the wallpaper (no "Entering sleep" popup is drawn).
+  static void setRotationWake(bool on) { rotationWake = on; }
+  // True when Sleep > Change wallpaper is on and the sleep screen in effect
+  // shows /sleep images (Custom, or Cover + Custom outside a book).
+  static bool wallpaperRotationActive(bool fromReader);
+  // Converts up to `maxCount` .jpg/.jpeg wallpapers in the sleep folder to
+  // screen-sized .bmp copies ("photo.jpg" -> "photo.jpg.bmp"). Returns how
+  // many were converted.
+  static int convertPendingJpegWallpapers(int maxCount);
+
  private:
+  static bool rotationWake;
   void renderDefaultSleepScreen() const;
   void renderCustomSleepScreen() const;
   void renderCoverSleepScreen() const;

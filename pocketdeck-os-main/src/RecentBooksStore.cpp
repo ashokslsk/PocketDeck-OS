@@ -13,8 +13,8 @@
 
 namespace {
 constexpr uint8_t RECENT_BOOKS_FILE_VERSION = 3;
-constexpr char RECENT_BOOKS_FILE_BIN[] = "/.crosspoint/recent.bin";
-constexpr char RECENT_BOOKS_FILE_BAK[] = "/.crosspoint/recent.bin.bak";
+constexpr char RECENT_BOOKS_FILE_BIN[] = "/.pocketdeck-os/recent.bin";
+constexpr char RECENT_BOOKS_FILE_BAK[] = "/.pocketdeck-os/recent.bin.bak";
 }  // namespace
 
 void RecentBooksStore::toJson(JsonDocument& doc) const {
@@ -42,6 +42,12 @@ bool RecentBooksStore::fromJson(JsonVariantConst doc) {
     book.title = obj["title"] | "";
     book.author = obj["author"] | "";
     book.coverBmpPath = obj["coverBmpPath"] | "";
+    // Cover paths saved by CrossInk point into /.crosspoint, which
+    // PocketDeck-OS moved to /.pocketdeck-os on first start.
+    static constexpr char kLegacyDataDir[] = "/.crosspoint/";
+    if (book.coverBmpPath.rfind(kLegacyDataDir, 0) == 0) {
+      book.coverBmpPath.replace(0, sizeof(kLegacyDataDir) - 2, "/.pocketdeck-os");
+    }
     const int storedCoverState = obj["coverState"] | 0;
     if (storedCoverState == static_cast<int>(RecentBook::CoverState::Missing)) {
       book.coverState = RecentBook::CoverState::Missing;
@@ -174,12 +180,12 @@ RecentBook RecentBooksStore::getDataFromBook(std::string path) const {
   // Use buildIfMissing=false to avoid heavy epub loading on boot; getTitle()/getAuthor() may be
   // blank until the book is opened, and entries with missing title are omitted from recent list.
   if (FsHelpers::hasEpubExtension(lastBookFileName)) {
-    Epub epub(path, "/.crosspoint");
+    Epub epub(path, "/.pocketdeck-os");
     epub.load(false, true, Epub::XLocationLoadMode::Skip);
     return RecentBook{path, epub.getTitle(), epub.getAuthor(), epub.getThumbBmpPath()};
   } else if (FsHelpers::hasXtcExtension(lastBookFileName)) {
     // Handle XTC file
-    Xtc xtc(path, "/.crosspoint");
+    Xtc xtc(path, "/.pocketdeck-os");
     if (xtc.load()) {
       return RecentBook{path, xtc.getTitle(), xtc.getAuthor(), xtc.getThumbBmpPath()};
     }

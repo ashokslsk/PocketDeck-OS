@@ -1,11 +1,11 @@
 # File Formats
 
-These formats describe the SD-card cache files under `/.crosspoint/epub_<hash>/`.
+These formats describe the SD-card cache files under `/.pocketdeck-os/epub_<hash>/`.
 All POD fields are written in the ESP32 little-endian representation used by
 `Serialization.h`; strings are length-prefixed UTF-8 unless a format notes a
 fixed-size char buffer.
 
-## `/.crosspoint/sleep-image-index/<directory-hash>-{bmp,all}.idx`
+## `/.pocketdeck-os/sleep-image-index/<directory-hash>-{bmp,all}.idx`
 
 ### Version 1
 
@@ -195,13 +195,13 @@ struct ReaderSettingsBin {
 };
 ```
 
-## `/.crosspoint/clippings/<bookType>_<crc32(path)>.bin`
+## `/.pocketdeck-os/clippings/<bookType>_<crc32(path)>.bin`
 
 ### Versions 1-4
 
 Clipping files store the per-book EPUB clipping list used by the reader. A
 saved clipping is also what CrossInk renders as an in-reader highlight; there is
-no separate highlight file. The file lives in `/.crosspoint/clippings/` instead
+no separate highlight file. The file lives in `/.pocketdeck-os/clippings/` instead
 of the EPUB render-cache directory so clearing/rebuilding layout cache does not
 delete user clippings.
 
@@ -210,7 +210,7 @@ The current implementation only writes EPUB clipping files, so `bookType` is
 example:
 
 ```text
-/.crosspoint/clippings/epub_1234567890.bin
+/.pocketdeck-os/clippings/epub_1234567890.bin
 ```
 
 Binary layout:
@@ -732,7 +732,7 @@ acceptance checks, not implied by host workspace accounting.
 
 ### COIX version 1
 
-The local index is `/.crosspoint/epub_<hash>/optimizer-images.idx`. Its header is:
+The local index is `/.pocketdeck-os/epub_<hash>/optimizer-images.idx`. Its header is:
 
 | Offset | Bytes | Field |
 | --- | --- | --- |
@@ -781,7 +781,7 @@ internal-memory guards still apply. Rebuilding an invalid CSS cache also
 invalidates section caches through the existing EPUB-load path, so books that
 previously cached zero rules can restore hidden content and layout rules.
 
-## `/.crosspoint/font-catalog.bin`
+## `/.pocketdeck-os/font-catalog.bin`
 
 ### Version 1
 

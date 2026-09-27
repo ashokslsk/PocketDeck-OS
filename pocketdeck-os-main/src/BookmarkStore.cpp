@@ -17,7 +17,7 @@ constexpr uint8_t VERSION = 5;
 // Stored count is uint16_t in v3+, but we keep an in-memory safety cap for ESP32-C3 RAM.
 constexpr uint16_t MAX_BOOKMARKS = 1024;
 constexpr size_t INITIAL_BOOKMARK_RESERVE = 8;
-constexpr char BOOKMARKS_DIR[] = "/.crosspoint/bookmarks";
+constexpr char BOOKMARKS_DIR[] = "/.pocketdeck-os/bookmarks";
 constexpr char READ_FOLDER[] = "/Read";
 
 struct BookmarkFileHeader {
@@ -213,6 +213,17 @@ bool readBookmarkFileHeader(const std::string& fullPath, const char* name, Bookm
 }  // namespace
 
 BookmarkStore BookmarkStore::instance;
+
+std::string BookmarkStore::storeFilePathFor(const std::string& filePath, const std::string& bookType) {
+  return currentStoreFilePathForBook(filePath, bookType);
+}
+
+uint16_t BookmarkStore::countForBook(const std::string& filePath, const std::string& bookType) {
+  const std::string path = currentStoreFilePathForBook(filePath, bookType);
+  if (!Storage.exists(path.c_str())) return 0;
+  BookmarkFileHeader header;
+  return readBookmarkFileHeader(path, nullptr, header) ? header.count : 0;
+}
 
 bool BookmarkStore::loadForBook(const std::string& filePath, const std::string& title, const std::string& author,
                                 const std::string& bookType) {

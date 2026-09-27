@@ -12,6 +12,7 @@
 
 #include "HabitData.h"
 #include "PomodoroActivity.h"
+#include "ToolsLog.h"
 #include "activities/util/KeyboardEntryActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -104,6 +105,19 @@ void DailyCommandCenterActivity::markDirty() {
 
 void DailyCommandCenterActivity::rollOverDay(const int32_t today) {
   if (today == 0 || dataDay_ == today) return;
+  // History for Stats & export: how the finished day went.
+  if (dataDay_ != 0 && count_ > 0) {
+    int done = 0;
+    for (int i = 0; i < count_; ++i) done += todos_[i].done ? 1 : 0;
+    tlog::Stamp at;
+    if (tlog::now(at)) {
+      char fields[40];
+      char date[12];
+      tools::formatIsoDate(date, sizeof(date), dataDay_);
+      snprintf(fields, sizeof(fields), "%s|%d|%d", date, done, count_);
+      tlog::append("today", at, fields);
+    }
+  }
   // New day: drop what was finished before today, keep what is still open.
   int kept = 0;
   for (int i = 0; i < count_; ++i) {

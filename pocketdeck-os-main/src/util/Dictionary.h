@@ -87,11 +87,11 @@ class Dictionary {
   static void setLookupDictPathOverride(const char* folderPath);
   static void clearLookupDictPathOverride();
 
-  // Writes folderPath to /.crosspoint/dictionary.bin (global setting).
+  // Writes folderPath to /.pocketdeck-os/dictionary.bin (global setting).
   // Pass empty string to clear the global dictionary.
   static void saveGlobalDictPath(const char* folderPath);
 
-  // Returns true when /.crosspoint/dictionary.bin exists, even if it is empty
+  // Returns true when /.pocketdeck-os/dictionary.bin exists, even if it is empty
   // because the user explicitly selected "None".
   static bool hasGlobalDictPathFile();
 
@@ -102,7 +102,7 @@ class Dictionary {
   // Gates all alternate-form UI — checked at runtime against the physical file.
   static bool hasAltForms(const char* cachePath = nullptr);
 
-  // Validates the dictionary path stored in /.crosspoint/dictionary.bin against the SD card.
+  // Validates the dictionary path stored in /.pocketdeck-os/dictionary.bin against the SD card.
   // If the path is missing or the required files are gone, clears the file. Returns true if valid.
   static bool isValidDictionary();
 

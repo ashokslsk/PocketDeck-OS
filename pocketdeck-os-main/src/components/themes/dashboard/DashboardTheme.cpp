@@ -83,7 +83,7 @@ std::string coverPathForRect(const RecentBook& book, const Rect& imageRect) {
   }
   if (FsHelpers::hasEpubExtension(book.path)) {
     const std::string adaptivePath =
-        Epub(book.path, "/.crosspoint").getAdaptiveThumbBmpPath(imageRect.width, imageRect.height);
+        Epub(book.path, "/.pocketdeck-os").getAdaptiveThumbBmpPath(imageRect.width, imageRect.height);
     if (Storage.exists(adaptivePath.c_str())) {
       return adaptivePath;
     }

@@ -18,7 +18,7 @@ namespace {
 constexpr char DICT_BIN[] = "dictionary.bin";
 std::string lookupDictPathOverride;
 bool lookupDictPathOverrideActive = false;
-constexpr char GLOBAL_DICT_DIR[] = "/.crosspoint";
+constexpr char GLOBAL_DICT_DIR[] = "/.pocketdeck-os";
 
 bool isTextDefinitionType(char type) {
   switch (type) {

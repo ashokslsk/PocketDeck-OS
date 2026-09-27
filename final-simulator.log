@@ -6,45 +6,45 @@ https://docs.platformio.org/en/latest/core/installation/troubleshooting.html
 Processing simulator (platform: native)
 --------------------------------------------------------------------------------
 Verbose mode can be enabled via `-v, --verbose` option
-Language              Code  Own  Fallback  Unused  Data (B)
---------------------  ----  ---  --------  ------  --------
-English               EN    949  0         65      17618   
-العربية               AR    709  240       57      23656   
-Беларуская            BE    529  420       23      18141   
-Català                CA    584  365       23      13277   
-Valencià              CAV   565  384       18      12562   
-Čeština               CS    716  233       57      16376   
-Dansk                 DA    528  421       23      9424    
-Deutsch               DE    705  244       53      15047   
-Español               ES    706  243       57      16224   
-Suomi                 FI    517  432       23      10297   
-Français              FR    528  421       23      10339   
-עברית                 HE    521  428       17      13912   
-Magyar                HU    528  421       23      11327   
-Italiano              IT    595  354       30      12235   
-Қазақша               KK    527  422       23      17782   
-Lietuvių              LT    528  421       23      9915    
-Nederlands            NL    527  422       22      9721    
-Polski                PL    547  402       30      11046   
-Português (Brasil)    PT    705  244       57      15895   
-Português (Portugal)  PT2   799  150       62      19020   
-Română                RO    527  422       22      10804   
-Русский               RU    592  357       22      21051   
-Slovenščina           SI    528  421       23      10189   
-Slovenčina            SK    616  333       34      13826   
-Svenska               SV    581  368       22      11467   
-Türkçe                TR    527  422       22      10343   
-Українська            UK    581  368       29      21189   
-Tiếng Việt            VI    582  367       33      13630   
+Language              Code  Own   Fallback  Unused  Data (B)
+--------------------  ----  ----  --------  ------  --------
+English               EN    1088  0         65      22559   
+العربية               AR    709   379       57      23661   
+Беларуская            BE    529   559       23      18146   
+Català                CA    584   504       23      13282   
+Valencià              CAV   565   523       18      12567   
+Čeština               CS    716   372       57      16381   
+Dansk                 DA    528   560       23      9429    
+Deutsch               DE    705   383       53      15052   
+Español               ES    706   382       57      16229   
+Suomi                 FI    517   571       23      10302   
+Français              FR    528   560       23      10344   
+עברית                 HE    521   567       17      13917   
+Magyar                HU    528   560       23      11332   
+Italiano              IT    595   493       30      12240   
+Қазақша               KK    527   561       23      17787   
+Lietuvių              LT    528   560       23      9920    
+Nederlands            NL    527   561       22      9726    
+Polski                PL    547   541       30      11051   
+Português (Brasil)    PT    705   383       57      15900   
+Português (Portugal)  PT2   799   289       62      19025   
+Română                RO    527   561       22      10809   
+Русский               RU    592   496       22      21056   
+Slovenščina           SI    528   560       23      10194   
+Slovenčina            SK    616   472       34      13831   
+Svenska               SV    581   507       22      11472   
+Türkçe                TR    527   561       22      10348   
+Українська            UK    581   507       29      21194   
+Tiếng Việt            VI    582   506       33      13635   
 
-  Total: 949  |  Used in code: 884  |  Never used: 65
-  Flash: 396,313 B strings (deduped)  +  53,144 B offset tables  =  449,457 B
+  Total: 1088  |  Used in code: 1023  |  Never used: 65
+  Flash: 401,389 B strings (deduped)  +  60,928 B offset tables  =  462,317 B
 
   Stripping 65 unused string(s) from output.
 
 Code generation complete!
   Languages: 28
-  String keys: 884
+  String keys: 1023
 WARNING [git_branch.py]: git command failed (exit 128): fatal: not a git repository (or any of the parent directories): .git; short SHA suffix will be "unknown"
 WARNING [git_branch.py]: Could not read git working-tree state: Command '['git', 'status', '--porcelain', '--untracked-files=no']' returned non-zero exit status 128.; state will be "unknown"
 HomePageHtml          2889B ->   1158B gz
@@ -78,6 +78,7 @@ Dependency Graph
 |-- MemoryBudget
 |-- Memory
 |-- AppVersion
+|-- JpegToBmpConverter
 |-- Txt
 |-- OpdsParser
 |-- Utf8
@@ -122,6 +123,7 @@ Compiling .pio/build/simulator/src/activities/network/NearbyStatsSyncActivity.o
 Compiling .pio/build/simulator/src/activities/network/NetworkModeSelectionActivity.o
 Compiling .pio/build/simulator/src/activities/network/UsbDriveActivity.o
 Compiling .pio/build/simulator/src/activities/network/WifiSelectionActivity.o
+Compiling .pio/build/simulator/src/activities/reader/BookInsights.o
 Compiling .pio/build/simulator/src/activities/reader/BookReadingStats.o
 Compiling .pio/build/simulator/src/activities/reader/BookStatsActivity.o
 Compiling .pio/build/simulator/src/activities/reader/BookStatsView.o
@@ -164,6 +166,7 @@ Compiling .pio/build/simulator/src/activities/settings/DictionarySelectActivity.
 Compiling .pio/build/simulator/src/activities/settings/FontDownloadActivity.o
 Compiling .pio/build/simulator/src/activities/settings/FontSelectionActivity.o
 Compiling .pio/build/simulator/src/activities/settings/FrontlightTimePickerActivity.o
+Compiling .pio/build/simulator/src/activities/settings/HelpTextActivity.o
 Compiling .pio/build/simulator/src/activities/settings/KOReaderAuthActivity.o
 Compiling .pio/build/simulator/src/activities/settings/KOReaderSettingsActivity.o
 Compiling .pio/build/simulator/src/activities/settings/KeyboardLayoutsActivity.o
@@ -178,24 +181,34 @@ Compiling .pio/build/simulator/src/activities/tools/DailyCommandCenterActivity.o
 Compiling .pio/build/simulator/src/activities/tools/DailyQuoteActivity.o
 Compiling .pio/build/simulator/src/activities/tools/FlashcardsActivity.o
 Compiling .pio/build/simulator/src/activities/tools/HabitData.o
+Compiling .pio/build/simulator/src/activities/tools/HabitStatsActivity.o
+Compiling .pio/build/simulator/src/activities/tools/HabitSummary.o
+src/activities/settings/SettingsActivity.cpp:1059:13: warning: enumeration values 'ScreenMargin' and 'ControlsHomeButton' not handled in switch [-Wswitch]
+ 1059 |     switch (setting.action) {
+      |             ^~~~~~~~~~~~~~
+src/activities/settings/SettingsActivity.cpp:1059:13: note: add missing switch cases
+ 1059 |     switch (setting.action) {
+      |             ^
 Compiling .pio/build/simulator/src/activities/tools/HabitTrackerActivity.o
 Compiling .pio/build/simulator/src/activities/tools/KnowledgeCardActivity.o
+Compiling .pio/build/simulator/src/activities/tools/MedicineActivity.o
+Compiling .pio/build/simulator/src/activities/tools/MedicineData.o
+Compiling .pio/build/simulator/src/activities/tools/MoodActivity.o
 Compiling .pio/build/simulator/src/activities/tools/PanchangaActivity.o
 Compiling .pio/build/simulator/src/activities/tools/PomodoroActivity.o
+1 warning generated.
+Compiling .pio/build/simulator/src/activities/tools/PomodoroStatsActivity.o
+Compiling .pio/build/simulator/src/activities/tools/StatsActivity.o
+Compiling .pio/build/simulator/src/activities/tools/StatsExport.o
+Compiling .pio/build/simulator/src/activities/tools/ToolsCharts.o
 Compiling .pio/build/simulator/src/activities/tools/ToolsCommon.o
-src/activities/settings/SettingsActivity.cpp:1058:13: warning: enumeration values 'ScreenMargin' and 'ControlsHomeButton' not handled in switch [-Wswitch]
- 1058 |     switch (setting.action) {
-      |             ^~~~~~~~~~~~~~
-src/activities/settings/SettingsActivity.cpp:1058:13: note: add missing switch cases
- 1058 |     switch (setting.action) {
-      |             ^
+Compiling .pio/build/simulator/src/activities/tools/ToolsLog.o
 Compiling .pio/build/simulator/src/activities/tools/ToolsMenuActivity.o
 Compiling .pio/build/simulator/src/activities/tools/ToolsStore.o
 Compiling .pio/build/simulator/src/activities/tools/WorldClockActivity.o
 Compiling .pio/build/simulator/src/activities/util/BmpViewerActivity.o
 Compiling .pio/build/simulator/src/activities/util/ConfirmationActivity.o
 Compiling .pio/build/simulator/src/activities/util/FrontlightPanelActivity.o
-1 warning generated.
 Compiling .pio/build/simulator/src/activities/util/FullScreenMessageActivity.o
 Compiling .pio/build/simulator/src/activities/util/IntervalSelectionActivity.o
 Compiling .pio/build/simulator/src/activities/util/KeyboardEntryActivity.o
@@ -248,23 +261,23 @@ Compiling .pio/build/simulator/libdda/uzlib/tinflate.o
 Compiling .pio/build/simulator/libdda/uzlib/uzlib_checksums.o
 Compiling .pio/build/simulator/libc44/InflateReader/InflateReader.o
 Compiling .pio/build/simulator/lib107/Memory/BuildScratch.o
-Archiving .pio/build/simulator/libdda/libuzlib.a
 Compiling .pio/build/simulator/libe59/EpdFont/EpdFont.o
-Archiving .pio/build/simulator/libc44/libInflateReader.a
-Indexing .pio/build/simulator/libdda/libuzlib.a
+Archiving .pio/build/simulator/libdda/libuzlib.a
 Compiling .pio/build/simulator/libe59/EpdFont/EpdFontFamily.o
-Indexing .pio/build/simulator/libc44/libInflateReader.a
 Compiling .pio/build/simulator/libe59/EpdFont/FontDecompressor.o
+Indexing .pio/build/simulator/libdda/libuzlib.a
+Archiving .pio/build/simulator/libc44/libInflateReader.a
 Compiling .pio/build/simulator/libe59/EpdFont/SdCardFont.o
+Indexing .pio/build/simulator/libc44/libInflateReader.a
 Compiling .pio/build/simulator/libe59/EpdFont/SdCardFontManager.o
+Compiling .pio/build/simulator/libe59/EpdFont/SdCardFontRegistry.o
 Archiving .pio/build/simulator/lib964/libUtf8.a
 Indexing .pio/build/simulator/lib964/libUtf8.a
-Compiling .pio/build/simulator/libe59/EpdFont/SdCardFontRegistry.o
 Compiling .pio/build/simulator/libc5c/MiniBidi/BidiUtils.o
 Compiling .pio/build/simulator/libc5c/MiniBidi/minibidi.o
-Compiling .pio/build/simulator/lib472/GfxRenderer/Bitmap.o
 Archiving .pio/build/simulator/lib818/libLogging.a
 Indexing .pio/build/simulator/lib818/libLogging.a
+Compiling .pio/build/simulator/lib472/GfxRenderer/Bitmap.o
 Compiling .pio/build/simulator/lib472/GfxRenderer/BitmapHelpers.o
 Compiling .pio/build/simulator/lib472/GfxRenderer/FontCacheManager.o
 Compiling .pio/build/simulator/lib472/GfxRenderer/GfxRenderer.o
@@ -276,18 +289,18 @@ Compiling .pio/build/simulator/lib603/simulator/HalClock.o
 Compiling .pio/build/simulator/lib603/simulator/HalDisplay.o
 Compiling .pio/build/simulator/lib603/simulator/HalFrontlight.o
 Archiving .pio/build/simulator/libe59/libEpdFont.a
-Compiling .pio/build/simulator/lib603/simulator/HalGPIO.o
 Indexing .pio/build/simulator/libe59/libEpdFont.a
 Archiving .pio/build/simulator/libc5c/libMiniBidi.a
+Compiling .pio/build/simulator/lib603/simulator/HalGPIO.o
 Compiling .pio/build/simulator/lib603/simulator/HalPowerManager.o
 Indexing .pio/build/simulator/libc5c/libMiniBidi.a
 Compiling .pio/build/simulator/lib603/simulator/HalStorage.o
 Compiling .pio/build/simulator/lib603/simulator/HalSystem.o
 Compiling .pio/build/simulator/lib603/simulator/HalTiltSensor.o
-Archiving .pio/build/simulator/lib472/libGfxRenderer.a
 Compiling .pio/build/simulator/lib603/simulator/NetworkClient.o
-Indexing .pio/build/simulator/lib472/libGfxRenderer.a
+Archiving .pio/build/simulator/lib472/libGfxRenderer.a
 Compiling .pio/build/simulator/lib603/simulator/SimulatorImageDecode.o
+Indexing .pio/build/simulator/lib472/libGfxRenderer.a
 Compiling .pio/build/simulator/lib603/simulator/SimulatorLifecycle.o
 Compiling .pio/build/simulator/lib603/simulator/SimulatorStackCheck.o
 Compiling .pio/build/simulator/lib603/simulator/WebServer.o
@@ -302,19 +315,19 @@ Compiling .pio/build/simulator/libee7/NearbyTransfer/NearbyTransfer.o
 Compiling .pio/build/simulator/lib991/QRCode/qrcode.o
 Compiling .pio/build/simulator/lib46f/PNGdec/PNGdec.o
 Archiving .pio/build/simulator/lib92e/libFreeInkUI.a
+Archiving .pio/build/simulator/lib991/libQRCode.a
 Indexing .pio/build/simulator/lib92e/libFreeInkUI.a
 Compiling .pio/build/simulator/lib46f/PNGdec/adler32.o
-Archiving .pio/build/simulator/lib991/libQRCode.a
-Compiling .pio/build/simulator/lib46f/PNGdec/crc32.o
 Indexing .pio/build/simulator/lib991/libQRCode.a
+Compiling .pio/build/simulator/lib46f/PNGdec/crc32.o
 Compiling .pio/build/simulator/lib46f/PNGdec/infback.o
 Compiling .pio/build/simulator/lib46f/PNGdec/inffast.o
 Compiling .pio/build/simulator/lib46f/PNGdec/inflate.o
-Archiving .pio/build/simulator/libee7/libNearbyTransfer.a
 Compiling .pio/build/simulator/lib46f/PNGdec/inftrees.o
-Indexing .pio/build/simulator/libee7/libNearbyTransfer.a
 Compiling .pio/build/simulator/lib46f/PNGdec/s3_simd_rgb565.o
+Archiving .pio/build/simulator/libee7/libNearbyTransfer.a
 Compiling .pio/build/simulator/lib46f/PNGdec/zutil.o
+Indexing .pio/build/simulator/libee7/libNearbyTransfer.a
 Compiling .pio/build/simulator/lib6ff/JPEGDEC/JPEGDEC.o
 Compiling .pio/build/simulator/lib6ff/JPEGDEC/s3_simd_420.o
 Compiling .pio/build/simulator/lib6ff/JPEGDEC/s3_simd_444.o
@@ -327,11 +340,15 @@ Compiling .pio/build/simulator/libcc4/I18n/I18n.o
 Compiling .pio/build/simulator/libcc4/I18n/I18nStrings.o
 Compiling .pio/build/simulator/libb75/FsHelpers/FsHelpers.o
 Compiling .pio/build/simulator/libb75/FsHelpers/NaturalSort.o
+Archiving .pio/build/simulator/lib6ff/libJPEGDEC.a
 Compiling .pio/build/simulator/lib746/miniz/InflateStream.o
 Compiling .pio/build/simulator/lib746/miniz/miniz_impl.o
+Indexing .pio/build/simulator/lib6ff/libJPEGDEC.a
+Archiving .pio/build/simulator/libcc4/libI18n.a
 Compiling .pio/build/simulator/lib170/ZipFile/ZipFile.o
-Archiving .pio/build/simulator/lib6ff/libJPEGDEC.a
 Compiling .pio/build/simulator/lib5db/expat/xmlparse.o
+Indexing .pio/build/simulator/libcc4/libI18n.a
+Compiling .pio/build/simulator/lib5db/expat/xmlrole.o
 In file included from lib/miniz/src/miniz_impl.c:4:
 lib/miniz/src/MinizConfig.h:13:9: warning: 'MINIZ_NO_ZLIB_COMPATIBLE_NAMES' macro redefined [-Wmacro-redefined]
    13 | #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
@@ -339,16 +356,12 @@ lib/miniz/src/MinizConfig.h:13:9: warning: 'MINIZ_NO_ZLIB_COMPATIBLE_NAMES' macr
 <command line>:13:9: note: previous definition is here
    13 | #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES 1
       |         ^
-Archiving .pio/build/simulator/libcc4/libI18n.a
-Indexing .pio/build/simulator/lib6ff/libJPEGDEC.a
-Archiving .pio/build/simulator/lib603/libsimulator.a
-1 warning generated.
-Indexing .pio/build/simulator/libcc4/libI18n.a
-Compiling .pio/build/simulator/lib5db/expat/xmlrole.o
 Compiling .pio/build/simulator/lib5db/expat/xmltok.o
+1 warning generated.
 Compiling .pio/build/simulator/lib336/JpegToBmpConverter/JpegToBmpConverter.o
-Indexing .pio/build/simulator/lib603/libsimulator.a
+Archiving .pio/build/simulator/lib603/libsimulator.a
 Compiling .pio/build/simulator/lib93c/PngToBmpConverter/PngToBmpConverter.o
+Indexing .pio/build/simulator/lib603/libsimulator.a
 Compiling .pio/build/simulator/lib55a/Epub/Epub.o
 Compiling .pio/build/simulator/lib55a/Epub/Epub/BookMetadataCache.o
 Archiving .pio/build/simulator/lib5db/libexpat.a
@@ -364,22 +377,22 @@ lib/miniz/src/MinizConfig.h:13:9: warning: 'MINIZ_NO_ZLIB_COMPATIBLE_NAMES' macr
       |         ^
 1 warning generated.
 Archiving .pio/build/simulator/lib746/libminiz.a
-Indexing .pio/build/simulator/lib746/libminiz.a
 Archiving .pio/build/simulator/libb75/libFsHelpers.a
-Compiling .pio/build/simulator/lib55a/Epub/Epub/Section.o
 Archiving .pio/build/simulator/lib1dc/libSerialization.a
+Indexing .pio/build/simulator/lib746/libminiz.a
 Indexing .pio/build/simulator/libb75/libFsHelpers.a
 Indexing .pio/build/simulator/lib1dc/libSerialization.a
+Compiling .pio/build/simulator/lib55a/Epub/Epub/Section.o
 Compiling .pio/build/simulator/lib55a/Epub/Epub/blocks/ImageBlock.o
 Archiving .pio/build/simulator/lib170/libZipFile.a
-Archiving .pio/build/simulator/lib336/libJpegToBmpConverter.a
 Compiling .pio/build/simulator/lib55a/Epub/Epub/blocks/TextBlock.o
 Indexing .pio/build/simulator/lib170/libZipFile.a
-Indexing .pio/build/simulator/lib336/libJpegToBmpConverter.a
+Archiving .pio/build/simulator/lib336/libJpegToBmpConverter.a
 Compiling .pio/build/simulator/lib55a/Epub/Epub/converters/ImageDecoderFactory.o
-Compiling .pio/build/simulator/lib55a/Epub/Epub/converters/ImageDimsProbe.o
 Archiving .pio/build/simulator/lib93c/libPngToBmpConverter.a
+Indexing .pio/build/simulator/lib336/libJpegToBmpConverter.a
 Indexing .pio/build/simulator/lib93c/libPngToBmpConverter.a
+Compiling .pio/build/simulator/lib55a/Epub/Epub/converters/ImageDimsProbe.o
 Compiling .pio/build/simulator/lib55a/Epub/Epub/converters/ImageToFramebufferDecoder.o
 Compiling .pio/build/simulator/lib55a/Epub/Epub/converters/JpegToFramebufferConverter.o
 Compiling .pio/build/simulator/lib55a/Epub/Epub/converters/PngToFramebufferConverter.o
@@ -405,13 +418,13 @@ Compiling .pio/build/simulator/lib35d/OpdsParser/OpdsStream.o
 Compiling .pio/build/simulator/lib668/KOReaderSync/ChapterXPathResolver.o
 Compiling .pio/build/simulator/lib668/KOReaderSync/KOReaderCredentialStore.o
 Compiling .pio/build/simulator/lib668/KOReaderSync/KOReaderDocumentId.o
-Archiving .pio/build/simulator/lib325/libTxt.a
 Compiling .pio/build/simulator/lib668/KOReaderSync/KOReaderSyncClient.o
-Compiling .pio/build/simulator/lib668/KOReaderSync/ProgressMapper.o
-Indexing .pio/build/simulator/lib325/libTxt.a
 Archiving .pio/build/simulator/lib3ed/libXtc.a
-Compiling .pio/build/simulator/lib8d0/DictHtmlRenderer/DictHtmlRenderer.o
+Archiving .pio/build/simulator/lib325/libTxt.a
 Indexing .pio/build/simulator/lib3ed/libXtc.a
+Indexing .pio/build/simulator/lib325/libTxt.a
+Compiling .pio/build/simulator/lib668/KOReaderSync/ProgressMapper.o
+Compiling .pio/build/simulator/lib8d0/DictHtmlRenderer/DictHtmlRenderer.o
 Compiling .pio/build/simulator/lib48f/FileIndex/FileIndex.o
 Archiving .pio/build/simulator/lib35d/libOpdsParser.a
 Indexing .pio/build/simulator/lib35d/libOpdsParser.a
@@ -424,9 +437,9 @@ Indexing .pio/build/simulator/lib8d0/libDictHtmlRenderer.a
 Archiving .pio/build/simulator/lib668/libKOReaderSync.a
 Indexing .pio/build/simulator/lib668/libKOReaderSync.a
 Linking .pio/build/simulator/program
-========================= [SUCCESS] Took 34.94 seconds =========================
+========================= [SUCCESS] Took 39.41 seconds =========================
 
 Environment    Status    Duration
 -------------  --------  ------------
-simulator      SUCCESS   00:00:34.941
-========================= 1 succeeded in 00:00:34.941 =========================
+simulator      SUCCESS   00:00:39.410
+========================= 1 succeeded in 00:00:39.410 =========================

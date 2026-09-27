@@ -37,7 +37,7 @@ bool ReaderActivity::shouldShowLoadingPopup(const std::string& path) {
   if (isXtcFile(path) || isTxtFile(path) || isImagePreviewFile(path)) {
     return true;
   }
-  return !Epub::hasCache(path, "/.crosspoint");
+  return !Epub::hasCache(path, "/.pocketdeck-os");
 }
 
 int ReaderActivity::initialRefreshCountdown() const {
@@ -54,7 +54,7 @@ ReaderActivity::EpubOpenResult ReaderActivity::loadEpub(const std::string& path)
     return result;
   }
 
-  auto epub = makeUniqueNoThrow<Epub>(path, "/.crosspoint");
+  auto epub = makeUniqueNoThrow<Epub>(path, "/.pocketdeck-os");
   if (!epub) {
     LOG_ERR("READER", "Failed to allocate EPUB object");
     result.failure = Epub::OpenFailure::OutOfMemory;
@@ -106,7 +106,7 @@ std::unique_ptr<Xtc> ReaderActivity::loadXtc(const std::string& path) {
     return nullptr;
   }
 
-  auto xtc = makeUniqueNoThrow<Xtc>(path, "/.crosspoint");
+  auto xtc = makeUniqueNoThrow<Xtc>(path, "/.pocketdeck-os");
   if (!xtc) {
     LOG_ERR("READER", "Failed to allocate XTC object");
     return nullptr;
@@ -125,7 +125,7 @@ std::unique_ptr<Txt> ReaderActivity::loadTxt(const std::string& path) {
     return nullptr;
   }
 
-  auto txt = makeUniqueNoThrow<Txt>(path, "/.crosspoint");
+  auto txt = makeUniqueNoThrow<Txt>(path, "/.pocketdeck-os");
   if (!txt) {
     LOG_ERR("READER", "Failed to allocate TXT object");
     return nullptr;

@@ -10,6 +10,7 @@
 #include <HalGPIO.h>
 #include <HalStorage.h>
 #include <I18n.h>
+#include <JpegToBmpConverter.h>
 #include <PNGdec.h>
 #include <Xtc.h>
 
@@ -254,10 +255,10 @@ RecentBook recentBookForPath(const std::string& path) {
 
 std::string bookStatsCachePathFor(const std::string& path) {
   if (FsHelpers::hasEpubExtension(path)) {
-    return Epub::cachePathForFilePath(path, "/.crosspoint");
+    return Epub::cachePathForFilePath(path, "/.pocketdeck-os");
   }
   if (FsHelpers::hasXtcExtension(path)) {
-    return Xtc(path, "/.crosspoint").getCachePath();
+    return Xtc(path, "/.pocketdeck-os").getCachePath();
   }
   return {};
 }
@@ -275,7 +276,7 @@ std::string loadChapterTitleForPath(const std::string& path) {
     return {};
   }
 
-  Epub epub(path, "/.crosspoint");
+  Epub epub(path, "/.pocketdeck-os");
   if (!epub.load(false, true, Epub::XLocationLoadMode::Skip)) {
     return {};
   }
@@ -501,6 +502,64 @@ bool selectRandomSleepImage(SleepImageMode mode, SleepImageSelection& selection,
 
 }  // namespace
 
+bool SleepActivity::rotationWake = false;
+
+bool SleepActivity::wallpaperRotationActive(const bool fromReader) {
+  if (CrossPointSettings::wallpaperRotationMinutes(SETTINGS.wallpaperRotation) == 0) return false;
+  return SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM ||
+         (SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM && !fromReader);
+}
+
+int SleepActivity::convertPendingJpegWallpapers(const int maxCount) {
+  std::string sleepDir;
+  if (maxCount <= 0 || !resolvePreferredSleepDirectory(sleepDir)) return 0;
+  FsFile dir;
+  if (!tryOpenSleepDirectory(dir, sleepDir, sleepDir)) return 0;
+  // Collect a few candidates first so only one directory handle is open while
+  // converting (the converter opens two files of its own).
+  constexpr int kBatch = 4;
+  std::string pending[kBatch];
+  int count = 0;
+  char name[256];
+  for (auto file = dir.openNextFile(); file && count < kBatch && count < maxCount; file = dir.openNextFile()) {
+    const bool isDir = file.isDirectory();
+    file.getName(name, sizeof(name));
+    file.close();
+    const std::string_view n(name);
+    if (isDir || n.empty() || n.front() == '.') continue;
+    if (!FsHelpers::checkFileExtension(n, ".jpg") && !FsHelpers::checkFileExtension(n, ".jpeg")) continue;
+    const std::string bmp = sleepDir + "/" + name + ".bmp";
+    if (Storage.exists(bmp.c_str())) continue;
+    pending[count++] = name;
+  }
+  dir.close();
+  int converted = 0;
+  for (int i = 0; i < count; ++i) {
+    const std::string src = sleepDir + "/" + pending[i];
+    const std::string dst = src + ".bmp";
+    const std::string tmp = dst + ".tmp";
+    FsFile in;
+    FsFile out;
+    if (!Storage.openFileForRead("SLP", src, in)) continue;
+    if (!Storage.openFileForWrite("SLP", tmp, out)) {
+      in.close();
+      continue;
+    }
+    LOG_INF("SLP", "Converting wallpaper %s", src.c_str());
+    const bool ok = JpegToBmpConverter::jpegFileToBmpStream(in, out, /*crop=*/true);
+    in.close();
+    out.close();
+    if (ok && Storage.rename(tmp.c_str(), dst.c_str())) {
+      ImageFolderIndex::invalidateForPath(dst.c_str());
+      ++converted;
+    } else {
+      LOG_ERR("SLP", "Wallpaper conversion failed: %s", src.c_str());
+      Storage.remove(tmp.c_str());
+    }
+  }
+  return converted;
+}
+
 void SleepActivity::onEnter() {
   Activity::onEnter();
   const bool renderQuickResume =
@@ -533,7 +592,7 @@ void SleepActivity::onEnter() {
   // X4 Pro and X4 Classic share a panel that can retain this high-contrast
   // transient update beneath the final OEM-style sleep refresh. Render only
   // the final sleep frame on that panel family.
-  const bool showSleepPopup = !BoardConfig::isX4Pro() && !CROSSINK_APP_DEVICE_X4CLASSIC;
+  const bool showSleepPopup = !BoardConfig::isX4Pro() && !CROSSINK_APP_DEVICE_X4CLASSIC && !rotationWake;
   // Show the popup in the orientation that was visible before reader exit restores
   // global settings. Reset to portrait afterwards so sleep screen layout stays unchanged.
   if (APP_STATE.lastSleepFromReader) {
@@ -575,6 +634,10 @@ void SleepActivity::onEnter() {
 }
 
 void SleepActivity::renderCustomSleepScreen() const {
+  // JPG wallpapers become .bmp copies a couple at a time, so a folder of new
+  // photos never makes one sleep take long.
+  convertPendingJpegWallpapers(2);
+
   const auto tryRenderSelection = [this](const SleepImageSelection& selection) {
     FsFile file;
     if (!Storage.openFileForRead("SLP", selection.path, file)) {

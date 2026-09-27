@@ -26,4 +26,9 @@ struct LibrarySummary {
   // Walks the SD card (skipping hidden folders and /tools) up to 6 levels
   // deep and at most 1000 books.
   static LibrarySummary scan();
+
+  // Same walk; also calls onOpenedBook(path, progress 0..100, ctx) for every
+  // book that has reading data on this device (used by Stats & export).
+  using BookFn = void (*)(const char* path, float progress, void* ctx);
+  static LibrarySummary scan(BookFn onOpenedBook, void* ctx);
 };

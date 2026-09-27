@@ -91,6 +91,7 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "activities/Activity.h"
 #include "activities/ActivityManager.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
+#include "activities/boot_sleep/SleepActivity.h"
 #include "activities/home/BookActions.h"
 #include "activities/reader/KOReaderSyncActivity.h"
 #include "activities/reader/ReadingStatsUtils.h"
@@ -969,7 +970,7 @@ bool handleX4ProHomeKeyShortcuts() {
   return true;
 }
 }  // namespace
-constexpr char SLEEP_FRAME_FILE[] = "/.crosspoint/sleep_frame.bin";
+constexpr char SLEEP_FRAME_FILE[] = "/.pocketdeck-os/sleep_frame.bin";
 
 static void saveSleepFrameBuffer() {
   HalFile file;
@@ -1062,6 +1063,48 @@ void mirrorWakeShortPressToNvs() {
 #endif
 }
 
+// PocketDeck-OS rotating wallpapers: with Sleep > Change wallpaper on and a
+// /sleep-image sleep screen, the device wakes itself on a timer, draws the
+// next wallpaper and goes straight back to sleep (see setup()). The power
+// button still wakes it normally. On boards whose sleep cuts battery power
+// (Xteink X4) the timer never fires and the wallpaper changes on each sleep.
+static void armWallpaperRotationTimer() {
+  const uint16_t minutes = CrossPointSettings::wallpaperRotationMinutes(SETTINGS.wallpaperRotation);
+  if (minutes == 0 || !SleepActivity::wallpaperRotationActive(APP_STATE.lastSleepFromReader)) return;
+#ifndef SIMULATOR
+  esp_sleep_enable_timer_wakeup(static_cast<uint64_t>(minutes) * 60ULL * 1000000ULL);
+#endif
+  LOG_INF("MAIN", "Wallpaper rotation: next wake in %u min", static_cast<unsigned>(minutes));
+}
+
+// PocketDeck-OS keeps its data in /.pocketdeck-os. A card that was used with
+// CrossInk / CrossPoint has it in /.crosspoint: move that folder (one FAT
+// rename, so books, progress, bookmarks, clippings, stats and settings all come
+// along), and give the settings file and stats backups their PocketDeck-OS
+// names. Nothing is ever overwritten: when both folders exist, PocketDeck-OS
+// keeps using its own and leaves the old one alone.
+static void migrateLegacyDataFolders() {
+  static constexpr char kOldData[] = "/.crosspoint";
+  static constexpr char kNewData[] = "/.pocketdeck-os";
+  if (!Storage.exists(kNewData) && Storage.exists(kOldData)) {
+    if (Storage.rename(kOldData, kNewData)) {
+      LOG_INF("MAIN", "Moved %s to %s", kOldData, kNewData);
+    } else {
+      LOG_ERR("MAIN", "Could not move %s to %s; starting with a fresh %s", kOldData, kNewData, kNewData);
+    }
+  }
+  static constexpr char kOldSettings[] = "/.pocketdeck-os/crossink-settings.json";
+  static constexpr char kNewSettings[] = "/.pocketdeck-os/pocketdeck-os-settings.json";
+  if (!Storage.exists(kNewSettings) && Storage.exists(kOldSettings) && !Storage.rename(kOldSettings, kNewSettings)) {
+    LOG_ERR("MAIN", "Could not rename %s", kOldSettings);
+  }
+  static constexpr char kOldBackups[] = "/.crossink-stats-backup";
+  static constexpr char kNewBackups[] = "/.pocketdeck-os-stats-backup";
+  if (!Storage.exists(kNewBackups) && Storage.exists(kOldBackups) && !Storage.rename(kOldBackups, kNewBackups)) {
+    LOG_ERR("MAIN", "Could not rename %s", kOldBackups);
+  }
+}
+
 // Enter deep sleep mode
 void enterDeepSleep(bool fromTimeout) {
   HalPowerManager::Lock powerLock;  // Ensure we are at normal CPU frequency for sleep preparation
@@ -1109,6 +1152,7 @@ void enterDeepSleep(bool fromTimeout) {
   putTiltSensorToSleepForDeepSleep();
   display.deepSleep();
   mirrorWakeShortPressToNvs();
+  armWallpaperRotationTimer();
   LOG_DBG("MAIN", "Entering deep sleep");
 
   powerManager.startDeepSleep(gpio);
@@ -1315,6 +1359,7 @@ void setup() {
     return;
   }
   logBootHeap("storage ready");
+  migrateLegacyDataFolders();
 
   HalSystem::checkPanic();
 
@@ -1340,6 +1385,16 @@ void setup() {
   UITheme::getInstance().reload();
   ButtonNavigator::setMappedInputManager(mappedInputManager);
   logBootHeap("boot state ready");
+
+  // PocketDeck-OS: a timer wake only swaps the sleep wallpaper. Draw the next
+  // image over the retained frame and sleep again without starting the UI.
+  if (rawWakeupCause == ESP_SLEEP_WAKEUP_TIMER && !isSilentReboot &&
+      SleepActivity::wallpaperRotationActive(APP_STATE.lastSleepFromReader)) {
+    LOG_INF("BOOT", "Wallpaper rotation wake");
+    setupDisplayAndFonts(/*seamless=*/true, /*loadReaderResources=*/false, /*useReaderRenderStack=*/false);
+    SleepActivity::setRotationWake(true);
+    enterDeepSleep(false);
+  }
   // Silent restarts are invisible recovery steps, so they always retain the
   // current light state rather than applying wake or schedule policy.
   const bool wasLightOnBeforeSleep = SETTINGS.frontlightOn != 0;

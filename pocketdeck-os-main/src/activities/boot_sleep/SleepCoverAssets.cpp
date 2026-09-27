@@ -74,21 +74,21 @@ bool prepareFullCoverForPath(const std::string& bookPath, const bool cropped, co
   }
 
   if (FsHelpers::hasEpubExtension(bookPath)) {
-    Epub epub(bookPath, "/.crosspoint");
+    Epub epub(bookPath, "/.pocketdeck-os");
     if (!epub.load(/*buildIfMissing=*/false, /*skipLoadingCss=*/true, Epub::XLocationLoadMode::Skip)) {
       return false;
     }
     return epub.generateCoverBmp(cropped, renderer, readerFontIdForRenderer(renderer), imageLevels);
   }
   if (FsHelpers::hasXtcExtension(bookPath)) {
-    Xtc xtc(bookPath, "/.crosspoint");
+    Xtc xtc(bookPath, "/.pocketdeck-os");
     if (!xtc.load()) {
       return false;
     }
     return xtc.generateCoverBmp();
   }
   if (FsHelpers::hasTxtExtension(bookPath) || FsHelpers::hasMarkdownExtension(bookPath)) {
-    Txt txt(bookPath, "/.crosspoint");
+    Txt txt(bookPath, "/.pocketdeck-os");
     return txt.generateCoverBmp(imageLevels);
   }
   return false;
@@ -100,7 +100,7 @@ bool prepareMinimalCoverForPath(const std::string& bookPath, const GfxRenderer* 
   }
 
   if (FsHelpers::hasEpubExtension(bookPath)) {
-    Epub epub(bookPath, "/.crosspoint");
+    Epub epub(bookPath, "/.pocketdeck-os");
     if (!epub.load(/*buildIfMissing=*/true, /*skipLoadingCss=*/true, Epub::XLocationLoadMode::Skip)) {
       return false;
     }
@@ -108,7 +108,7 @@ bool prepareMinimalCoverForPath(const std::string& bookPath, const GfxRenderer* 
                                          readerFontIdForRenderer(renderer));
   }
   if (FsHelpers::hasXtcExtension(bookPath)) {
-    Xtc xtc(bookPath, "/.crosspoint");
+    Xtc xtc(bookPath, "/.pocketdeck-os");
     if (!xtc.load()) {
       return false;
     }
@@ -116,7 +116,7 @@ bool prepareMinimalCoverForPath(const std::string& bookPath, const GfxRenderer* 
                                 static_cast<uint16_t>(kMinimalSleepCoverHeight));
   }
   if (FsHelpers::hasTxtExtension(bookPath) || FsHelpers::hasMarkdownExtension(bookPath)) {
-    Txt txt(bookPath, "/.crosspoint");
+    Txt txt(bookPath, "/.pocketdeck-os");
     return txt.generateCoverBmp();
   }
   return false;
@@ -128,7 +128,7 @@ bool prepareDashboardCoverForPath(const std::string& bookPath, const GfxRenderer
   }
 
   if (FsHelpers::hasEpubExtension(bookPath)) {
-    Epub epub(bookPath, "/.crosspoint");
+    Epub epub(bookPath, "/.pocketdeck-os");
     if (!epub.load(/*buildIfMissing=*/true, /*skipLoadingCss=*/true, Epub::XLocationLoadMode::Skip)) {
       return false;
     }
@@ -136,7 +136,7 @@ bool prepareDashboardCoverForPath(const std::string& bookPath, const GfxRenderer
                                          readerFontIdForRenderer(renderer));
   }
   if (FsHelpers::hasXtcExtension(bookPath)) {
-    Xtc xtc(bookPath, "/.crosspoint");
+    Xtc xtc(bookPath, "/.pocketdeck-os");
     if (!xtc.load()) {
       return false;
     }
@@ -144,7 +144,7 @@ bool prepareDashboardCoverForPath(const std::string& bookPath, const GfxRenderer
                                 static_cast<uint16_t>(kDashboardSleepCoverHeight));
   }
   if (FsHelpers::hasTxtExtension(bookPath) || FsHelpers::hasMarkdownExtension(bookPath)) {
-    Txt txt(bookPath, "/.crosspoint");
+    Txt txt(bookPath, "/.pocketdeck-os");
     return txt.generateCoverBmp();
   }
   return false;
@@ -152,13 +152,13 @@ bool prepareDashboardCoverForPath(const std::string& bookPath, const GfxRenderer
 
 std::string reusableCoverPathFor(const std::string& bookPath) {
   if (FsHelpers::hasEpubExtension(bookPath)) {
-    return Epub(bookPath, "/.crosspoint").getThumbBmpPath();
+    return Epub(bookPath, "/.pocketdeck-os").getThumbBmpPath();
   }
   if (FsHelpers::hasXtcExtension(bookPath)) {
-    return Xtc(bookPath, "/.crosspoint").getThumbBmpPath();
+    return Xtc(bookPath, "/.pocketdeck-os").getThumbBmpPath();
   }
   if (FsHelpers::hasTxtExtension(bookPath) || FsHelpers::hasMarkdownExtension(bookPath)) {
-    return Txt(bookPath, "/.crosspoint").getCoverBmpPath();
+    return Txt(bookPath, "/.pocketdeck-os").getCoverBmpPath();
   }
   return {};
 }
@@ -166,11 +166,11 @@ std::string reusableCoverPathFor(const std::string& bookPath) {
 std::string cachedCoverPathFor(const std::string& bookPath, const bool cropped, bool imageLevels) {
   std::string coverPath;
   if (FsHelpers::hasEpubExtension(bookPath)) {
-    coverPath = Epub(bookPath, "/.crosspoint").getCoverBmpPath(cropped, imageLevels);
+    coverPath = Epub(bookPath, "/.pocketdeck-os").getCoverBmpPath(cropped, imageLevels);
   } else if (FsHelpers::hasXtcExtension(bookPath)) {
-    coverPath = Xtc(bookPath, "/.crosspoint").getCoverBmpPath();
+    coverPath = Xtc(bookPath, "/.pocketdeck-os").getCoverBmpPath();
   } else if (FsHelpers::hasTxtExtension(bookPath) || FsHelpers::hasMarkdownExtension(bookPath)) {
-    coverPath = Txt(bookPath, "/.crosspoint").getCoverBmpPath(imageLevels);
+    coverPath = Txt(bookPath, "/.pocketdeck-os").getCoverBmpPath(imageLevels);
   }
 
   return fileExists(coverPath) ? coverPath : std::string{};
@@ -178,7 +178,7 @@ std::string cachedCoverPathFor(const std::string& bookPath, const bool cropped, 
 
 std::string cachedMinimalCoverPathFor(const std::string& bookPath) {
   if (FsHelpers::hasEpubExtension(bookPath)) {
-    const Epub epub(bookPath, "/.crosspoint");
+    const Epub epub(bookPath, "/.pocketdeck-os");
     const std::string coverPath = epub.getAdaptiveThumbBmpPath(kMinimalSleepCoverWidth, kMinimalSleepCoverHeight);
     return fileExists(coverPath) ? epub.getThumbBmpPath() : std::string{};
   }
@@ -191,7 +191,7 @@ std::string cachedMinimalCoverPathFor(const std::string& bookPath) {
 
 std::string cachedDashboardCoverPathFor(const std::string& bookPath) {
   if (FsHelpers::hasEpubExtension(bookPath)) {
-    const Epub epub(bookPath, "/.crosspoint");
+    const Epub epub(bookPath, "/.pocketdeck-os");
     const std::string coverPath = epub.getAdaptiveThumbBmpPath(kDashboardSleepCoverWidth, kDashboardSleepCoverHeight);
     return fileExists(coverPath) ? epub.getThumbBmpPath() : std::string{};
   }

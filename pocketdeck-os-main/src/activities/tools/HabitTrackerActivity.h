@@ -4,8 +4,10 @@
 #include "ToolsCommon.h"
 #include "activities/Activity.h"
 
-// Up to eight habits x seven days. Each row shows the week as blocks (filled = done)
-// plus the current streak. Data is stored per ISO week under /tools/habits.
+// Up to twelve habits x seven days. Each row shows the week as blocks (filled =
+// done) plus the current streak. Data is stored per ISO week under
+// /tools/habits. Hold Confirm for the habit menu: stats and graphs, add,
+// rename or delete a habit.
 class HabitTrackerActivity final : public Activity {
  public:
   explicit HabitTrackerActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
@@ -25,6 +27,11 @@ class HabitTrackerActivity final : public Activity {
   void saveIfDirty();
   void computeStreaks();
   bool isFuture(int dayIndex) const { return viewMonday_ + dayIndex > today_; }
+  void openMenu();
+  void addHabit();
+  void renameHabit();
+  void deleteHabit();
+  void reloadNames();
 
   tools::ToolInput input_;
   habits::Names names_ = {};

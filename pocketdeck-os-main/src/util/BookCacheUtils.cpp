@@ -52,13 +52,13 @@ constexpr char STATS_SUFFIX[] = ".bin";
 
 std::string getBookCachePath(const std::string& path) {
   if (FsHelpers::hasEpubExtension(path)) {
-    return Epub(path, "/.crosspoint").getCachePath();
+    return Epub(path, "/.pocketdeck-os").getCachePath();
   }
   if (FsHelpers::hasXtcExtension(path)) {
-    return Xtc(path, "/.crosspoint").getCachePath();
+    return Xtc(path, "/.pocketdeck-os").getCachePath();
   }
   if (FsHelpers::hasTxtExtension(path)) {
-    return Txt(path, "/.crosspoint").getCachePath();
+    return Txt(path, "/.pocketdeck-os").getCachePath();
   }
   return "";
 }
@@ -248,13 +248,13 @@ bool preserveUserStateFiles(const std::string& cachePath, const std::vector<Reso
 
 bool clearBookCacheForPath(const std::string& path) {
   if (FsHelpers::hasEpubExtension(path)) {
-    return Epub(path, "/.crosspoint").clearCache();
+    return Epub(path, "/.pocketdeck-os").clearCache();
   }
   if (FsHelpers::hasXtcExtension(path)) {
-    return Xtc(path, "/.crosspoint").clearCache();
+    return Xtc(path, "/.pocketdeck-os").clearCache();
   }
   if (FsHelpers::hasTxtExtension(path)) {
-    return Txt(path, "/.crosspoint").clearCache();
+    return Txt(path, "/.pocketdeck-os").clearCache();
   }
   return false;
 }

@@ -453,7 +453,7 @@ STR_REMOVE_READ_FROM_RECENTS: "הסר ספרים שנקראו מרשימת הא�
 STR_MOVE_FINISHED_TO_READ: "העבר ספרים שהסתיימו לתיקיית 'נקראו'"
 STR_AUTO_BACKUP_STATS: "גיבויים אוטומטיים"
 STR_BACKUP_NOW: "גבה עכשיו"
-STR_BACKUP_STATS_CONFIRM: "לשמור עותק ב-/.crossink-stats-backup/?"
+STR_BACKUP_STATS_CONFIRM: "לשמור עותק ב-/.pocketdeck-os-stats-backup/?"
 STR_BACKUP_STATS_DONE: "הגיבוי נשמר"
 STR_BACKUP_STATS_FAILED: "הגיבוי נכשל"
 STR_ALL_TIME_STATS: "סטטיסטיקה כוללת"

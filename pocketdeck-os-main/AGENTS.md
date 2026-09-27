@@ -173,10 +173,10 @@ SDK.
 
 ## Cache Format
 
-- EPUB cache lives under `.crosspoint/epub_<hash>/`.
+- EPUB cache lives under `.pocketdeck-os/epub_<hash>/`.
 - If you change binary cache layouts, bump the format version first and document it in `docs/file-formats.md`.
 - Cache identity is tied to the book path hash; moving or renaming a book creates a different cache.
-- Clear the relevant `.crosspoint/epub_<hash>/` cache when testing EPUB parser, layout, image, or binary cache format changes that may otherwise reuse stale output.
+- Clear the relevant `.pocketdeck-os/epub_<hash>/` cache when testing EPUB parser, layout, image, or binary cache format changes that may otherwise reuse stale output.
 
 ## Git Workflow
 

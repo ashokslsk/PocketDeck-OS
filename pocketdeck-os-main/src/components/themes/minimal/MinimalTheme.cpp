@@ -251,7 +251,7 @@ std::string coverPathForImageRect(const RecentBook& book, const Rect& imageRect)
   }
 
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub(book.path, "/.crosspoint").getAdaptiveThumbBmpPath(imageRect.width, imageRect.height);
+    return Epub(book.path, "/.pocketdeck-os").getAdaptiveThumbBmpPath(imageRect.width, imageRect.height);
   }
 
   std::string coverBmpPath = UITheme::getCoverThumbPath(book.coverBmpPath, imageRect.width, imageRect.height);

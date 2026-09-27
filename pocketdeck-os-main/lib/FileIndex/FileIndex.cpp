@@ -10,8 +10,8 @@
 #include <cstring>
 
 namespace {
-constexpr const char* INDEX_ROOT = "/.crosspoint";
-constexpr const char* INDEX_DIR = "/.crosspoint/fileindex";
+constexpr const char* INDEX_ROOT = "/.pocketdeck-os";
+constexpr const char* INDEX_DIR = "/.pocketdeck-os/fileindex";
 constexpr char MAGIC[4] = {'C', 'P', 'F', 'I'};
 constexpr uint8_t INDEX_VERSION = 1;
 constexpr size_t CHUNK_ENTRIES = 64;

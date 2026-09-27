@@ -1,6 +1,7 @@
 add_executable(ToolsCoreTest
   ToolsCoreTest.cpp
   ${REPO_ROOT}/src/activities/tools/ToolsStore.cpp
+  ${REPO_ROOT}/src/activities/tools/ToolsLog.cpp
 )
 
 target_include_directories(ToolsCoreTest PRIVATE

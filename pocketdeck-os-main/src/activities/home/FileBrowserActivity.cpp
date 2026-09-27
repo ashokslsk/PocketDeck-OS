@@ -25,6 +25,7 @@
 #include "MappedInputManager.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
 #include "activities/reader/EpubReaderActivity.h"
+#include "activities/settings/HelpTextActivity.h"
 #include "activities/settings/SettingsActivity.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/KeyboardEntryActivity.h"
@@ -115,10 +116,18 @@ bool hasFileMetadata(const std::string& path) {
          FsHelpers::hasMarkdownExtension(path);
 }
 
+// PocketDeck-OS: formats this firmware cannot open are listed anyway, and
+// opening one explains how to convert it, instead of the file silently not
+// appearing.
+bool isConvertOnlyFile(std::string_view filename) {
+  return FsHelpers::checkFileExtension(filename, ".pdf") || FsHelpers::checkFileExtension(filename, ".mobi") ||
+         FsHelpers::checkFileExtension(filename, ".azw") || FsHelpers::checkFileExtension(filename, ".azw3");
+}
+
 bool isSupportedBrowserFile(std::string_view filename) {
   return FsHelpers::hasEpubExtension(filename) || FsHelpers::hasXtcExtension(filename) ||
          FsHelpers::hasTxtExtension(filename) || FsHelpers::hasMarkdownExtension(filename) ||
-         FsHelpers::hasBmpExtension(filename) || FsHelpers::hasPngExtension(filename);
+         FsHelpers::hasBmpExtension(filename) || FsHelpers::hasPngExtension(filename) || isConvertOnlyFile(filename);
 }
 
 bool acceptCommon(const char* name, bool isDir) {
@@ -878,13 +887,13 @@ void FileBrowserActivity::renameFile(const std::string& oldPath, const std::stri
   std::string oldCachePath;
   const char* bookType = nullptr;
   if (FsHelpers::hasEpubExtension(oldPath)) {
-    oldCachePath = Epub::cachePathForFilePath(oldPath, "/.crosspoint");
+    oldCachePath = Epub::cachePathForFilePath(oldPath, "/.pocketdeck-os");
     bookType = "epub";
   } else if (FsHelpers::hasXtcExtension(oldPath)) {
-    oldCachePath = Xtc(oldPath, "/.crosspoint").getCachePath();
+    oldCachePath = Xtc(oldPath, "/.pocketdeck-os").getCachePath();
     bookType = "xtc";
   } else if (FsHelpers::hasTxtExtension(oldPath) || FsHelpers::hasMarkdownExtension(oldPath)) {
-    oldCachePath = Txt(oldPath, "/.crosspoint").getCachePath();
+    oldCachePath = Txt(oldPath, "/.pocketdeck-os").getCachePath();
     bookType = "txt";
   }
 
@@ -1065,6 +1074,10 @@ void FileBrowserActivity::activateSelected() {
   }
   if (isDirectory) {
     requestUpdate();
+  } else if (isConvertOnlyFile(fullPath)) {
+    startActivityForResult(std::make_unique<HelpTextActivity>(renderer, mappedInput, StrId::STR_FORMAT_CONVERT_TITLE,
+                                                              StrId::STR_FORMAT_CONVERT_BODY),
+                           [this](const ActivityResult&) { requestUpdate(); });
   } else {
     onSelectBook(fullPath);
   }

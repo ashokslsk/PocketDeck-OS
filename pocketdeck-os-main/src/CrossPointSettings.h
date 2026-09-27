@@ -560,6 +560,24 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   uint8_t uiScale = defaultUiScale();
   // Sunlight fading compensation
   uint8_t fadingFix = 0;
+  // PocketDeck-OS: Lyra Carousel shows the selected book's stats under a
+  // half-height carousel (1) or keeps the original large covers (0).
+  uint8_t carouselBookStats = 1;
+  // PocketDeck-OS: while asleep, show the next /sleep wallpaper every N
+  // minutes (WALLPAPER_ROTATION); needs Sleep Screen = Custom.
+  enum WALLPAPER_ROTATION : uint8_t {
+    WALLPAPER_ROTATE_OFF = 0,
+    WALLPAPER_ROTATE_15 = 1,
+    WALLPAPER_ROTATE_30 = 2,
+    WALLPAPER_ROTATE_60 = 3,
+    WALLPAPER_ROTATE_120 = 4,
+    WALLPAPER_ROTATION_COUNT
+  };
+  uint8_t wallpaperRotation = WALLPAPER_ROTATE_OFF;
+  static uint16_t wallpaperRotationMinutes(uint8_t value) {
+    static constexpr uint16_t kMinutes[] = {0, 15, 30, 60, 120};
+    return value < WALLPAPER_ROTATION_COUNT ? kMinutes[value] : 0;
+  }
   // Quick-return from footnotes when a footnote shortcut is active.
   uint8_t pwrBtnFootnoteBack = 1;
   // Use book's embedded CSS styles for EPUB rendering (1 = enabled, 0 = disabled)
@@ -708,7 +726,7 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
 
   bool saveToFile() const;
   bool loadFromFile();
-  static const char* getFilePath() { return "/.crosspoint/crossink-settings.json"; }
+  static const char* getFilePath() { return "/.pocketdeck-os/pocketdeck-os-settings.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc, bool importingCrossPoint = false);
 

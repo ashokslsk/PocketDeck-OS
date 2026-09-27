@@ -43,7 +43,7 @@ class WifiCredentialStore : public PersistableStore<WifiCredentialStore> {
   friend class PersistableStore<WifiCredentialStore>;
 
  public:
-  static const char* getFilePath() { return "/.crosspoint/wifi.json"; }
+  static const char* getFilePath() { return "/.pocketdeck-os/wifi.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc);
 

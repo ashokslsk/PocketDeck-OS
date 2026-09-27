@@ -6,45 +6,45 @@ https://docs.platformio.org/en/latest/core/installation/troubleshooting.html
 Processing simulator-X3 (platform: native)
 --------------------------------------------------------------------------------
 Verbose mode can be enabled via `-v, --verbose` option
-Language              Code  Own  Fallback  Unused  Data (B)
---------------------  ----  ---  --------  ------  --------
-English               EN    949  0         65      17618   
-العربية               AR    709  240       57      23656   
-Беларуская            BE    529  420       23      18141   
-Català                CA    584  365       23      13277   
-Valencià              CAV   565  384       18      12562   
-Čeština               CS    716  233       57      16376   
-Dansk                 DA    528  421       23      9424    
-Deutsch               DE    705  244       53      15047   
-Español               ES    706  243       57      16224   
-Suomi                 FI    517  432       23      10297   
-Français              FR    528  421       23      10339   
-עברית                 HE    521  428       17      13912   
-Magyar                HU    528  421       23      11327   
-Italiano              IT    595  354       30      12235   
-Қазақша               KK    527  422       23      17782   
-Lietuvių              LT    528  421       23      9915    
-Nederlands            NL    527  422       22      9721    
-Polski                PL    547  402       30      11046   
-Português (Brasil)    PT    705  244       57      15895   
-Português (Portugal)  PT2   799  150       62      19020   
-Română                RO    527  422       22      10804   
-Русский               RU    592  357       22      21051   
-Slovenščina           SI    528  421       23      10189   
-Slovenčina            SK    616  333       34      13826   
-Svenska               SV    581  368       22      11467   
-Türkçe                TR    527  422       22      10343   
-Українська            UK    581  368       29      21189   
-Tiếng Việt            VI    582  367       33      13630   
+Language              Code  Own   Fallback  Unused  Data (B)
+--------------------  ----  ----  --------  ------  --------
+English               EN    1088  0         65      22559   
+العربية               AR    709   379       57      23661   
+Беларуская            BE    529   559       23      18146   
+Català                CA    584   504       23      13282   
+Valencià              CAV   565   523       18      12567   
+Čeština               CS    716   372       57      16381   
+Dansk                 DA    528   560       23      9429    
+Deutsch               DE    705   383       53      15052   
+Español               ES    706   382       57      16229   
+Suomi                 FI    517   571       23      10302   
+Français              FR    528   560       23      10344   
+עברית                 HE    521   567       17      13917   
+Magyar                HU    528   560       23      11332   
+Italiano              IT    595   493       30      12240   
+Қазақша               KK    527   561       23      17787   
+Lietuvių              LT    528   560       23      9920    
+Nederlands            NL    527   561       22      9726    
+Polski                PL    547   541       30      11051   
+Português (Brasil)    PT    705   383       57      15900   
+Português (Portugal)  PT2   799   289       62      19025   
+Română                RO    527   561       22      10809   
+Русский               RU    592   496       22      21056   
+Slovenščina           SI    528   560       23      10194   
+Slovenčina            SK    616   472       34      13831   
+Svenska               SV    581   507       22      11472   
+Türkçe                TR    527   561       22      10348   
+Українська            UK    581   507       29      21194   
+Tiếng Việt            VI    582   506       33      13635   
 
-  Total: 949  |  Used in code: 884  |  Never used: 65
-  Flash: 396,313 B strings (deduped)  +  53,144 B offset tables  =  449,457 B
+  Total: 1088  |  Used in code: 1023  |  Never used: 65
+  Flash: 401,389 B strings (deduped)  +  60,928 B offset tables  =  462,317 B
 
   Stripping 65 unused string(s) from output.
 
 Code generation complete!
   Languages: 28
-  String keys: 884
+  String keys: 1023
 WARNING [git_branch.py]: git command failed (exit 128): fatal: not a git repository (or any of the parent directories): .git; short SHA suffix will be "unknown"
 WARNING [git_branch.py]: Could not read git working-tree state: Command '['git', 'status', '--porcelain', '--untracked-files=no']' returned non-zero exit status 128.; state will be "unknown"
 HomePageHtml          2889B ->   1158B gz
@@ -78,6 +78,7 @@ Dependency Graph
 |-- MemoryBudget
 |-- Memory
 |-- AppVersion
+|-- JpegToBmpConverter
 |-- Txt
 |-- OpdsParser
 |-- Utf8
@@ -87,13 +88,11 @@ Dependency Graph
 |-- EpdFont
 |-- FileIndex
 Building in release mode
-Compiling .pio/build/simulator-X3/src/activities/tools/DailyQuoteActivity.o
-Compiling .pio/build/simulator-X3/src/activities/tools/ToolsMenuActivity.o
-Compiling .pio/build/simulator-X3/src/simulator/SimulatorSmokeTest.o
+Compiling .pio/build/simulator-X3/src/RecentBooksStore.o
 Linking .pio/build/simulator-X3/program
-========================= [SUCCESS] Took 6.05 seconds =========================
+========================= [SUCCESS] Took 4.64 seconds =========================
 
 Environment    Status    Duration
 -------------  --------  ------------
-simulator-X3   SUCCESS   00:00:06.051
-========================= 1 succeeded in 00:00:06.051 =========================
+simulator-X3   SUCCESS   00:00:04.642
+========================= 1 succeeded in 00:00:04.642 =========================

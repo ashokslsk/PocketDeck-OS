@@ -555,7 +555,7 @@ inline SettingInfo buildHomeButtonActionSetting(const StrId nameId, uint8_t Cros
 // #1636) so the per-entry SettingInfo cost is paid once. Read-only consumers
 // can use it directly; mutable device UI lists use getSettingsList(), which
 // returns an owned copy and can add SD-card font and dictionary options.
-inline constexpr size_t BASE_SETTINGS_CAPACITY = 102;  // 100 regular entries plus two optional tilt entries.
+inline constexpr size_t BASE_SETTINGS_CAPACITY = 104;  // 102 regular entries plus two optional tilt entries.
 
 inline const std::vector<SettingInfo>& getBaseSettingsList() {
   static const std::vector<SettingInfo> baseList = [] {
@@ -608,6 +608,12 @@ inline const std::vector<SettingInfo>& getBaseSettingsList() {
                           {StrId::STR_LIST_VIEW, StrId::STR_GRID_VIEW}, "recentBooksView", StrId::STR_CAT_DISPLAY));
     add(SettingInfo::Toggle(StrId::STR_SUNLIGHT_FADING_FIX, &CrossPointSettings::fadingFix, "fadingFix",
                             StrId::STR_CAT_DISPLAY));
+    add(SettingInfo::Toggle(StrId::STR_CAROUSEL_BOOK_STATS, &CrossPointSettings::carouselBookStats, "carouselBookStats",
+                            StrId::STR_CAT_DISPLAY));
+    add(SettingInfo::Enum(StrId::STR_WALLPAPER_ROTATION, &CrossPointSettings::wallpaperRotation,
+                          {StrId::STR_STATE_OFF, StrId::STR_WALLPAPER_EVERY_15, StrId::STR_WALLPAPER_EVERY_30,
+                           StrId::STR_WALLPAPER_EVERY_60, StrId::STR_WALLPAPER_EVERY_120},
+                          "wallpaperRotation", StrId::STR_CAT_DISPLAY));
     add(SettingInfo::Toggle(StrId::STR_RESTORE_LIGHT_ON_WAKE, &CrossPointSettings::frontlightRestoreOnWake,
                             "frontlightRestoreOnWake", StrId::STR_CAT_DISPLAY));
     // Kept in the shared catalog for persistence and the web API. On-device,
@@ -1131,6 +1137,11 @@ inline std::vector<SettingInfo> buildBookReaderSettingsParentList(const std::vec
       std::remove_if(settings.begin(), settings.end(),
                      [](const SettingInfo& setting) { return setting.nameId == StrId::STR_DISABLE_TOUCHSCREEN; }),
       settings.end());
+  // PocketDeck-OS: tilt page turn is also reachable from inside a book. These
+  // are the same SETTINGS fields as Settings > Controls, so both stay in sync;
+  // they only exist when the device has a motion sensor (X3, X4 Pro, ...).
+  addSettingByName(settings, allSettings, StrId::STR_TILT_PAGE_TURN);
+  addSettingByName(settings, allSettings, StrId::STR_TILT_PAGE_TURN_DIRECTION);
   return settings;
 }
 
@@ -1294,7 +1305,7 @@ inline std::vector<SettingInfo> buildControlsSideButtonSettingsList(const std::v
 
 inline std::vector<SettingInfo> buildGroupedDisplaySettingsList(const std::vector<SettingInfo>& allSettings) {
   std::vector<SettingInfo> displaySettings;
-  displaySettings.reserve(9);
+  displaySettings.reserve(10);
 
   auto addDisplaySetting = [&](StrId nameId) {
     const auto it = std::find_if(allSettings.begin(), allSettings.end(),
@@ -1315,6 +1326,7 @@ inline std::vector<SettingInfo> buildGroupedDisplaySettingsList(const std::vecto
   addDisplaySetting(StrId::STR_REFRESH_FREQ);
   addDisplaySetting(StrId::STR_NIGHT_MODE);
   addDisplaySetting(StrId::STR_UI_THEME);
+  addDisplaySetting(StrId::STR_CAROUSEL_BOOK_STATS);  // used by the Lyra Carousel theme
   addDisplaySetting(StrId::STR_UI_SCALE);
   addDisplaySetting(StrId::STR_RECENT_BOOKS_VIEW);
   addDisplaySetting(StrId::STR_SUNLIGHT_FADING_FIX);
@@ -1343,7 +1355,7 @@ inline std::vector<SettingInfo> buildDisplayFrontlightSettingsList(const std::ve
 
 inline std::vector<SettingInfo> buildDisplaySleepSettingsList(const std::vector<SettingInfo>& allSettings) {
   std::vector<SettingInfo> sleepSettings;
-  sleepSettings.reserve(4);
+  sleepSettings.reserve(6);
 
   auto addSleepSetting = [&](StrId nameId, StrId displayNameId) {
     const auto it = std::find_if(allSettings.begin(), allSettings.end(),
@@ -1358,6 +1370,8 @@ inline std::vector<SettingInfo> buildDisplaySleepSettingsList(const std::vector<
   addSleepSetting(StrId::STR_SLEEP_COVER_MODE, StrId::STR_SLEEP_COVER_MODE_SHORT);
   addSleepSetting(StrId::STR_SLEEP_COVER_FILTER, StrId::STR_SLEEP_COVER_FILTER_SHORT);
   addSleepSetting(StrId::STR_QUICK_RESUME_TIMEOUT, StrId::STR_QUICK_RESUME_TIMEOUT);
+  addSleepSetting(StrId::STR_WALLPAPER_ROTATION, StrId::STR_WALLPAPER_ROTATION);
+  sleepSettings.push_back(SettingInfo::Action(StrId::STR_WALLPAPER_HELP, SettingAction::WallpaperHelp));
 
   return sleepSettings;
 }

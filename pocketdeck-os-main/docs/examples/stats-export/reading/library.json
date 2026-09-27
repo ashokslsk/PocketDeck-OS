@@ -1,0 +1,26 @@
+{
+  "feature": "reading-library",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "books": 5,
+  "folders_with_books": 2,
+  "opened": 4,
+  "not_opened": 1,
+  "in_progress": 3,
+  "finished": 0,
+  "average_progress_percent": 0.5,
+  "currently_reading": [
+    {
+      "title": "Pride and Prejudice",
+      "progress_percent": 0.5
+    },
+    {
+      "title": "The Adventures of Sherlock Holmes",
+      "progress_percent": 0.7
+    },
+    {
+      "title": "Frankenstein; or, the modern prometheus",
+      "progress_percent": 0.9
+    }
+  ]
+}

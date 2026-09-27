@@ -143,7 +143,7 @@ STR_REMOVE_READ_FROM_RECENTS: "Išvalyti perskaitytas knygas iš paskutinių są
 STR_MOVE_FINISHED_TO_READ: "Perkelti perskaitytas knygas į aplanką Read"
 STR_AUTO_BACKUP_STATS: "Automatinės atsarginės kopijos"
 STR_BACKUP_NOW: "Kurti atsarginę kopiją dabar"
-STR_BACKUP_STATS_CONFIRM: "Įrašyti kopiją į /.crossink-stats-backup/?"
+STR_BACKUP_STATS_CONFIRM: "Įrašyti kopiją į /.pocketdeck-os-stats-backup/?"
 STR_BACKUP_STATS_DONE: "Atsarginė kopija įrašyta"
 STR_BACKUP_STATS_FAILED: "Atsarginės kopijos sukurti nepavyko"
 STR_ALL_TIME_STATS: "Visų laikų statistika"

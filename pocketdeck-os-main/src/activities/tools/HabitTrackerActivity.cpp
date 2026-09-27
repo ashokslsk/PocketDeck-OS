@@ -3,10 +3,18 @@
 #include <GfxRenderer.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <Memory.h>
 
 #include <algorithm>
 #include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
 
+#include "HabitStatsActivity.h"
+#include "activities/util/ConfirmationActivity.h"
+#include "activities/util/KeyboardEntryActivity.h"
+#include "activities/util/OptionSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 
@@ -84,6 +92,118 @@ void HabitTrackerActivity::computeStreaks() {
   }
 }
 
+void HabitTrackerActivity::reloadNames() {
+  RenderLock lock(*this);
+  count_ = habits::loadNames(names_);
+  selHabit_ = std::min(selHabit_, count_ - 1);
+  habits::loadWeek(viewMonday_, names_, count_, bits_);
+  computeStreaks();
+}
+
+void HabitTrackerActivity::openMenu() {
+  saveIfDirty();
+  std::vector<std::string> options;
+  options.reserve(4);
+  options.emplace_back(std::string(tr(STR_TOOLS_HABIT_STATS)) + ": " + names_[selHabit_]);
+  if (count_ < habits::kMaxHabits) options.emplace_back(tr(STR_TOOLS_HABIT_ADD));
+  options.emplace_back(std::string(tr(STR_TOOLS_HABIT_RENAME)) + ": " + names_[selHabit_]);
+  if (count_ > 1) options.emplace_back(std::string(tr(STR_TOOLS_HABIT_DELETE)) + ": " + names_[selHabit_]);
+  const bool canAdd = count_ < habits::kMaxHabits;
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "HabitMenu",
+                                                           StrId::STR_TOOLS_HABIT_MENU, std::move(options), 0);
+  if (!picker) return;
+  startActivityForResult(std::move(picker), [this, canAdd](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (result.isCancelled || sel == nullptr) {
+      requestUpdate();
+      return;
+    }
+    int choice = sel->index;
+    if (choice == 0) {
+      auto stats = makeUniqueNoThrow<HabitStatsActivity>(renderer, mappedInput, names_[selHabit_]);
+      if (stats) {
+        startActivityForResult(std::move(stats), [this](const ActivityResult&) {
+          input_.reset(mappedInput);
+          transitionPending_ = true;
+          requestUpdate();
+        });
+      }
+      return;
+    }
+    if (!canAdd) ++choice;  // "Add" row was hidden
+    if (choice == 1) {
+      addHabit();
+    } else if (choice == 2) {
+      renameHabit();
+    } else {
+      deleteHabit();
+    }
+  });
+}
+
+void HabitTrackerActivity::addHabit() {
+  auto kb = makeUniqueNoThrow<KeyboardEntryActivity>(renderer, mappedInput, tr(STR_TOOLS_HABIT_NEW_NAME), "",
+                                                     habits::kNameCap - 1);
+  if (!kb) return;
+  startActivityForResult(std::move(kb), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    const auto* text = std::get_if<KeyboardResult>(&result.data);
+    if (!result.isCancelled && text != nullptr && !text->text.empty() && text->text.find('|') == std::string::npos &&
+        count_ < habits::kMaxHabits) {
+      snprintf(names_[count_], habits::kNameCap, "%s", text->text.c_str());
+      if (habits::saveNames(names_, count_ + 1)) {
+        reloadNames();
+        selHabit_ = count_ - 1;
+      }
+    }
+    requestUpdate();
+  });
+}
+
+void HabitTrackerActivity::renameHabit() {
+  auto kb = makeUniqueNoThrow<KeyboardEntryActivity>(renderer, mappedInput, tr(STR_TOOLS_HABIT_RENAME),
+                                                     names_[selHabit_], habits::kNameCap - 1);
+  if (!kb) return;
+  startActivityForResult(std::move(kb), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    const auto* text = std::get_if<KeyboardResult>(&result.data);
+    if (!result.isCancelled && text != nullptr && !text->text.empty() && text->text.find('|') == std::string::npos &&
+        text->text != names_[selHabit_]) {
+      char oldName[habits::kNameCap];
+      snprintf(oldName, sizeof(oldName), "%s", names_[selHabit_]);
+      snprintf(names_[selHabit_], habits::kNameCap, "%s", text->text.c_str());
+      if (habits::saveNames(names_, count_)) {
+        // Carry the ticks over so the renamed habit keeps its streak and graph.
+        habits::renameInHistory(today_, oldName, names_[selHabit_]);
+      }
+      reloadNames();
+    }
+    requestUpdate();
+  });
+}
+
+void HabitTrackerActivity::deleteHabit() {
+  if (count_ <= 1) return;
+  char heading[64];
+  snprintf(heading, sizeof(heading), "%s: %s", tr(STR_TOOLS_HABIT_DELETE), names_[selHabit_]);
+  auto confirm =
+      makeUniqueNoThrow<ConfirmationActivity>(renderer, mappedInput, heading, tr(STR_TOOLS_HABIT_DELETE_BODY));
+  if (!confirm) return;
+  startActivityForResult(std::move(confirm), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    if (!result.isCancelled) {
+      for (int i = selHabit_; i + 1 < count_; ++i) memcpy(names_[i], names_[i + 1], habits::kNameCap);
+      if (habits::saveNames(names_, count_ - 1)) reloadNames();
+    }
+    requestUpdate();
+  });
+}
+
 void HabitTrackerActivity::loop() {
   input_.poll(mappedInput);
   if (input_.backLong) {
@@ -121,9 +241,13 @@ void HabitTrackerActivity::loop() {
       selDay_ = 0;
     }
     requestUpdate();
+  } else if (input_.confirmLong) {
+    openMenu();
+    return;
   } else if (input_.confirm && !isFuture(selDay_)) {
     RenderLock lock(*this);
     bits_[selHabit_] ^= static_cast<uint8_t>(1U << selDay_);
+    habits::logToggle(viewMonday_ + selDay_, names_[selHabit_], (bits_[selHabit_] >> selDay_) & 1);
     dirty_ = true;
     dirtySinceMs_ = millis();
     computeStreaks();
@@ -159,7 +283,8 @@ void HabitTrackerActivity::render(RenderLock&&) {
   const int streakW = renderer.getTextWidth(UI_10_FONT_ID, "999d") + 8;
   const int gridX = content.x + nameW;
   const int gridW = content.width - nameW - streakW;
-  const int rowH = std::min(72, (content.height - headerH) / count_);
+  const int hintH = renderer.getLineHeight(SMALL_FONT_ID) + 4;
+  const int rowH = std::min(72, (content.height - headerH - hintH) / count_);
   const int cellW = gridW / 7;
   const int block = std::max(10, std::min(cellW - 8, rowH - 14));
 
@@ -217,6 +342,7 @@ void HabitTrackerActivity::render(RenderLock&&) {
     }
   }
 
+  renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - hintH + 2, tr(STR_TOOLS_HABIT_HOLD_HINT));
   const char* confirmLabel = isFuture(selDay_) ? "" : tr(STR_TOOLS_TOGGLE);
   tools::drawHints(renderer, mappedInput, tr(STR_BACK), confirmLabel, tr(STR_DIR_LEFT), tr(STR_DIR_RIGHT));
   const bool transition = transitionPending_;

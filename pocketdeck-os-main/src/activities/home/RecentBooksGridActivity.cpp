@@ -191,10 +191,10 @@ void calculateCoverFillCrop(const Bitmap& bitmap, float& cropX, float& cropY) {
 
 std::string getReusableCoverPath(const RecentBook& book) {
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub(book.path, "/.crosspoint").getThumbBmpPath();
+    return Epub(book.path, "/.pocketdeck-os").getThumbBmpPath();
   }
   if (FsHelpers::hasXtcExtension(book.path)) {
-    return Xtc(book.path, "/.crosspoint").getThumbBmpPath();
+    return Xtc(book.path, "/.pocketdeck-os").getThumbBmpPath();
   }
   return book.coverBmpPath;
 }
@@ -271,7 +271,7 @@ void RecentBooksGridActivity::loadPageCovers(int pageStart) {
     const std::string coverPath = UITheme::getCoverThumbPath(book.coverBmpPath, COVER_WIDTH, COVER_HEIGHT);
     if (needsCoverThumbGeneration(book, coverPath)) {
       if (FsHelpers::hasEpubExtension(book.path)) {
-        Epub epub(book.path, "/.crosspoint");
+        Epub epub(book.path, "/.pocketdeck-os");
         if (epub.load(true, true, Epub::XLocationLoadMode::Skip)) {
           if (!showingLoading) {
             showingLoading = true;
@@ -287,7 +287,7 @@ void RecentBooksGridActivity::loadPageCovers(int pageStart) {
           }
         }
       } else if (FsHelpers::hasXtcExtension(book.path)) {
-        Xtc xtc(book.path, "/.crosspoint");
+        Xtc xtc(book.path, "/.pocketdeck-os");
         if (xtc.load()) {
           if (!showingLoading) {
             showingLoading = true;

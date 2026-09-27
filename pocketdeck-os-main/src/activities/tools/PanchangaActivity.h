@@ -1,16 +1,20 @@
 #pragma once
 
+#include "PanchangaKannada.h"
 #include "PanchangaMath.h"
 #include "ToolsCommon.h"
 #include "activities/Activity.h"
 
-// Offline Kannada panchanga: tithi, vara, nakshatra, yoga, karana, masa,
-// samvatsara, sunrise/sunset, Rahu/Yamaganda/Gulika kaala, Abhijit muhurta,
-// festivals and a Moon-phase widget, for any date within 5 years of today.
+// Offline panchanga in Kannada or English: tithi, vara, nakshatra, yoga,
+// karana, masa, samvatsara, sunrise/sunset, Rahu/Yamaganda/Gulika kaala,
+// Abhijit muhurta, festivals and a Moon-phase widget, for any date within
+// 5 years of today.
 //
 // All Kannada text is pre-shaped (HarfBuzz + Noto Sans Kannada) into bitmaps
-// at build time; see scripts/panchanga/gen_kannada_bitmaps.py. Location comes
-// from /tools/panchanga.txt (default: Bengaluru, UTC+5:30).
+// at build time; see scripts/panchanga/gen_kannada_bitmaps.py. English names
+// (PanchangaEnglish.h) use the normal UI fonts. Location and language come
+// from /tools/panchanga.txt (default: Bengaluru, UTC+5:30, Kannada); hold
+// Confirm to switch the language on the device.
 class PanchangaActivity final : public Activity {
  public:
   explicit PanchangaActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
@@ -26,8 +30,15 @@ class PanchangaActivity final : public Activity {
   static constexpr int kAnimFrames = 5;
   static constexpr unsigned long kAnimFrameMs = 220;
 
+  enum class Sty : uint8_t { Label, Value, Title };
+
   void loadConfig();
-  static bool writeDefaults(FsFile& out, void* ctx);
+  bool saveConfig() const;
+  static bool writeConfig(FsFile& out, void* ctx);
+  void chooseLanguage();
+  // Draws one Panchanga string in the active language with its line box top at
+  // y (row top); returns its width. draw=false only measures.
+  int text(const kn::KnText& k, const char* e, int x, int y, Sty sty, bool draw = true) const;
   void selectDay(int32_t day);
   void startAnimation();
 
@@ -35,6 +46,7 @@ class PanchangaActivity final : public Activity {
   double lat_ = 12.9716, lon_ = 77.5946, tz_ = 5.5;
   bool defaultPlace_ = true;
   bool animate_ = true;
+  bool english_ = false;
   bool clockValid_ = false;
   int32_t today_ = 0;
   int32_t selected_ = 0;

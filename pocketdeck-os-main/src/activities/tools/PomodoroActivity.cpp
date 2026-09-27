@@ -3,12 +3,15 @@
 #include <GfxRenderer.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <Memory.h>
 
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
+#include "PomodoroStatsActivity.h"
+#include "ToolsLog.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 
@@ -135,6 +138,13 @@ void PomodoroActivity::switchPhase(const bool completedFocus) {
     }
     ++completedToday_;
     saveState();
+    // History for Stats & export: one line per finished focus session.
+    tlog::Stamp at;
+    if (tlog::now(at)) {
+      char fields[24];
+      snprintf(fields, sizeof(fields), "focus|%u", static_cast<unsigned>(focusMinutes_));
+      tlog::append("pomodoro", at, fields);
+    }
   }
   const bool wasFocus = phase_ == Phase::Focus;
   phase_ = wasFocus ? Phase::Break : Phase::Focus;
@@ -161,7 +171,18 @@ void PomodoroActivity::loop() {
     startOrPause();
   } else if (input_.confirmLong) {
     resetPhase();
-  } else if (input_.next() || input_.prev()) {
+  } else if (input_.left || input_.pageBack) {
+    // Stats; a running timer keeps counting underneath (it is millis-based).
+    auto stats = makeUniqueNoThrow<PomodoroStatsActivity>(renderer, mappedInput, running_);
+    if (stats) {
+      startActivityForResult(std::move(stats), [this](const ActivityResult&) {
+        input_.reset(mappedInput);
+        transitionPending_ = true;
+        requestUpdate();
+      });
+      return;
+    }
+  } else if (input_.next() || input_.up) {
     // Skip to the other phase without counting a completed focus.
     switchPhase(false);
     running_ = false;
@@ -226,7 +247,7 @@ void PomodoroActivity::render(RenderLock&&) {
   renderer.drawCenteredText(UI_10_FONT_ID, y, stats);
 
   tools::drawHints(renderer, mappedInput, tr(STR_BACK), running_ ? tr(STR_TOOLS_PAUSE) : tr(STR_START),
-                   tr(STR_TOOLS_SKIP), tr(STR_TOOLS_SKIP));
+                   tr(STR_TOOLS_POMO_STATS_SHORT), tr(STR_TOOLS_SKIP));
 
   // Per-second updates are fast partial refreshes; every five minutes of them
   // gets one clean refresh to clear e-ink ghosting.

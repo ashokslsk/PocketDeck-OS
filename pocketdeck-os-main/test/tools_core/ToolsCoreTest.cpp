@@ -2,9 +2,13 @@
 
 #include <cstring>
 #include <string>
+#include <vector>
 
+#include "PanchangaKannada.h"
 #include "SrsSchedule.h"
 #include "ToolsDate.h"
+#include "ToolsJson.h"
+#include "ToolsLog.h"
 #include "ToolsStore.h"
 
 namespace {
@@ -373,4 +377,157 @@ TEST(Panchanga, SamvatsaraAndAdhikaMasa) {
   const auto adhika = panchanga::compute(2026, 6, 1, kTz, kLat, kLon);
   EXPECT_TRUE(adhika.adhika);
   EXPECT_EQ(adhika.masa, 2);
+}
+
+// ---------------------------------------------------------------------------
+// Tracker logs (ToolsLog)
+// ---------------------------------------------------------------------------
+
+namespace {
+struct Collected {
+  std::vector<std::string> lines;
+};
+void collect(const tlog::Stamp& at, char* fields, void* ctx) {
+  char date[12];
+  tools::formatIsoDate(date, sizeof(date), at.day);
+  static_cast<Collected*>(ctx)->lines.push_back(std::string(date) + "@" + std::to_string(at.minute) + ":" + fields);
+}
+}  // namespace
+
+TEST_F(ToolsStoreTest, LogAppendsAtomicallyIntoMonthlyFiles) {
+  const int32_t sep30 = tools::daysFromCivil(2026, 9, 30);
+  const int32_t oct1 = sep30 + 1;
+  ASSERT_TRUE(tlog::append("habits", {sep30, 7 * 60 + 5}, "2026-09-30|Yoga|1"));
+  ASSERT_TRUE(tlog::append("habits", {sep30, 22 * 60}, "2026-09-30|Water|1"));
+  ASSERT_TRUE(tlog::append("habits", {oct1, 0}, "2026-10-01|Yoga|0"));
+  EXPECT_EQ(Storage.get("/tools/habits/log-2026-09.txt"),
+            "2026-09-30 07:05|2026-09-30|Yoga|1\n2026-09-30 22:00|2026-09-30|Water|1\n");
+  EXPECT_EQ(Storage.get("/tools/habits/log-2026-10.txt"), "2026-10-01 00:00|2026-10-01|Yoga|0\n");
+  EXPECT_FALSE(Storage.exists("/tools/habits/log-2026-09.txt.tmp"));
+  EXPECT_FALSE(Storage.exists("/tools/habits/log-2026-09.txt.bak"));
+
+  Collected all;
+  tlog::scan("habits", sep30, oct1, &collect, &all);
+  ASSERT_EQ(all.lines.size(), 3u);
+  EXPECT_EQ(all.lines[0], "2026-09-30@425:2026-09-30|Yoga|1");
+  EXPECT_EQ(all.lines[2], "2026-10-01@0:2026-10-01|Yoga|0");
+
+  Collected octOnly;
+  tlog::scan("habits", oct1, oct1, &collect, &octOnly);
+  ASSERT_EQ(octOnly.lines.size(), 1u);
+}
+
+TEST_F(ToolsStoreTest, LogScanSkipsMalformedLinesAndMissingMonths) {
+  Storage.put("/tools/mood/log-2026-08.txt",
+              "garbage\n2026-08-31 25:00|bad hour\n2026-08-31 21:10|2026-08-31|4|walk\n");
+  Collected got;
+  tlog::scan("mood", tools::daysFromCivil(2026, 6, 1), tools::daysFromCivil(2026, 9, 30), &collect, &got);
+  ASSERT_EQ(got.lines.size(), 1u);
+  EXPECT_EQ(got.lines[0], "2026-08-31@1270:2026-08-31|4|walk");
+}
+
+TEST(ToolsLog, NextFieldSplitsInPlace) {
+  char text[] = "a|bb||c";
+  char* cursor = text;
+  EXPECT_STREQ(tlog::nextField(&cursor), "a");
+  EXPECT_STREQ(tlog::nextField(&cursor), "bb");
+  EXPECT_STREQ(tlog::nextField(&cursor), "");
+  EXPECT_STREQ(tlog::nextField(&cursor), "c");
+  EXPECT_EQ(tlog::nextField(&cursor), nullptr);
+}
+
+// ---------------------------------------------------------------------------
+// Stats export JSON writer
+// ---------------------------------------------------------------------------
+
+TEST_F(ToolsStoreTest, JsonOutWritesValidNestedJson) {
+  ASSERT_TRUE(tools::writeFileAtomic(
+      "/stats/x.json",
+      [](FsFile& out, void*) {
+        tools::JsonOut j(out);
+        j.beginObject().str("name", "Yoga \"AM\"").num("streak", 12).dec("avg", 3.25, 2).null("gap");
+        j.beginArray("days").num(nullptr, 1).boolean(nullptr, true).endArray();
+        j.beginObject("empty").endObject();
+        j.endObject();
+        return j.ok();
+      },
+      nullptr));
+  EXPECT_EQ(Storage.get("/stats/x.json"),
+            "{\n  \"name\": \"Yoga \\\"AM\\\"\",\n  \"streak\": 12,\n  \"avg\": 3.25,\n  \"gap\": null,\n"
+            "  \"days\": [\n    1,\n    true\n  ],\n  \"empty\": {}\n}\n");
+  // And it reads back with the tools' own tokenizer.
+  FsFile f = Storage.open("/stats/x.json");
+  tools::JsonReader r(f);
+  char buf[32];
+  ASSERT_EQ(r.next(buf, sizeof(buf)), tools::JsonReader::Token::ObjectStart);
+  ASSERT_EQ(r.next(buf, sizeof(buf)), tools::JsonReader::Token::String);
+  EXPECT_STREQ(buf, "name");
+  ASSERT_EQ(r.next(buf, sizeof(buf)), tools::JsonReader::Token::Colon);
+  ASSERT_EQ(r.next(buf, sizeof(buf)), tools::JsonReader::Token::String);
+  EXPECT_STREQ(buf, "Yoga \"AM\"");
+}
+
+// ---------------------------------------------------------------------------
+// Kannada bitmaps (nibble run-length encoded)
+// ---------------------------------------------------------------------------
+
+namespace {
+// Same walk as PanchangaActivity's drawKn; returns bytes consumed and counts ink.
+size_t decodeKn(const kn::KnText& t, int& ink) {
+  const uint8_t* start = kn::kBits + t.offset;
+  const uint8_t* p = start;
+  const int total = t.w * t.h;
+  int pos = 0, run = 0;
+  bool isInk = false, high = true;
+  ink = 0;
+  while (pos < total) {
+    const uint8_t nib = high ? (*p >> 4) : (*p++ & 0x0F);
+    high = !high;
+    run += nib;
+    if (nib == 15) continue;
+    if (isInk) ink += run;
+    pos += run;
+    run = 0;
+    isInk = !isInk;
+  }
+  EXPECT_EQ(pos, total) << "runs overshoot the string at offset " << t.offset;
+  return static_cast<size_t>(p - start) + (high ? 0 : 1);
+}
+
+template <size_t N>
+void checkTable(const kn::KnText (&table)[N], std::vector<std::pair<uint32_t, size_t>>& spans) {
+  for (const auto& t : table) {
+    int ink = 0;
+    const size_t used = decodeKn(t, ink);
+    spans.emplace_back(t.offset, used);
+    if (t.w > 1) {
+      EXPECT_GT(ink, 0) << "blank Kannada string at offset " << t.offset;
+    }
+  }
+}
+}  // namespace
+
+TEST(PanchangaKannada, EveryStringDecodesInsideItsOwnBytes) {
+  std::vector<std::pair<uint32_t, size_t>> spans;
+  checkTable(kn::kWeekday, spans);
+  checkTable(kn::kGregorianMonth, spans);
+  checkTable(kn::kMasa, spans);
+  checkTable(kn::kSamvatsara, spans);
+  checkTable(kn::kTithi, spans);
+  checkTable(kn::kPaksha, spans);
+  checkTable(kn::kPakshaShort, spans);
+  checkTable(kn::kNakshatra, spans);
+  checkTable(kn::kNakshatraLabel, spans);
+  checkTable(kn::kYoga, spans);
+  checkTable(kn::kKarana, spans);
+  checkTable(kn::kSpecial, spans);
+  checkTable(kn::kLabel, spans);
+  checkTable(kn::kTitle, spans);
+  std::sort(spans.begin(), spans.end());
+  for (size_t i = 0; i < spans.size(); ++i) {
+    const size_t end = spans[i].first + spans[i].second;
+    const size_t limit = i + 1 < spans.size() ? spans[i + 1].first : sizeof(kn::kBits);
+    EXPECT_LE(end, limit) << "string at " << spans[i].first << " reads into the next one";
+  }
+  EXPECT_EQ(spans.back().first + spans.back().second, sizeof(kn::kBits));
 }

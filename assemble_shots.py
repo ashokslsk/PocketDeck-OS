@@ -2,7 +2,7 @@ import os, shutil, glob
 from PIL import Image, ImageDraw, ImageFont
 SP="/private/tmp/claude-501/-Users-ashok-Library-Application-Support-Claude-scratch-workspaces-9fbb4d3d-2663-4dcd-b22b-654bf7582786-e533bd95-93c8-45a5-94c8-6fab1c9482d0-scratch-2026-09-26-a24ec2/edfb3f92-85f7-4810-8e22-67e88b4e7394/scratchpad/simrun"
 OUT="pocketdeck-os-main/docs/screenshots"
-OVR={"11-view-bookmarks-row":"Clipping preview","12-bookmarks-list":"Clipping opened in the book (highlighted)"}
+OVR={"11-view-bookmarks-row":"Clipping preview","12-bookmarks-list":"Clipping opened in the book (highlighted)","02-home-after-import":"Home after import (progress restored)","01-import-restored":"Import on a fresh card","04-import-nothing-to-do":"Import on the same card (nothing overwritten)"}
 def cap(name):
     if name in OVR: return OVR[name]
     t=name[3:] if name[:2].isdigit() else name
@@ -13,28 +13,37 @@ def sec(section, names=None):
     if names: fs=[f for f in fs if f in names]
     return [(f"walk_{section}/shots/{f}", cap(f)) for f in fs]
 THEMES=[("pocketdeck","PocketDeck (new)"),("lyra","Lyra (default)"),("classic","Classic"),("lyra-extended","Lyra Extended"),
-        ("roundedraff","RoundedRaff"),("lyra-carousel","Lyra Carousel"),("minimal","Minimal"),("dashboard","Dashboard")]
+        ("roundedraff","RoundedRaff"),("lyra-carousel","Lyra Carousel (book stats)"),("minimal","Minimal"),("dashboard","Dashboard")]
 SLEEPS=[("light-default","PocketDeck-OS (default)"),("dark","PocketDeck-OS dark"),("page-overlay","Page with PocketDeck-OS card"),
         ("book-cover","Book cover"),("reading-stats","Reading stats"),("minimal","Minimal"),("minimal-stats","Minimal stats"),("dashboard","Dashboard")]
 S=[
  ("01-boot-and-sleep","Boot and sleep screens",[("walk_boot/shots/01-boot-splash","Boot splash")]+
-   [(f"walk_sleep_{k}/shots/sleep",f"Sleep: {n}") for k,n in SLEEPS]),
+   [(f"walk_sleep_{k}/shots/sleep",f"Sleep: {n}") for k,n in SLEEPS]+
+   [("walk_sleep_custom_jpg/shots/sleep","Sleep: custom wallpaper (JPG converted)"),("walk_sleep_custom_bmp/shots/sleep","Sleep: custom wallpaper (BMP)")]),
  ("02-home-and-library","Home and library",[x for x in sec("lib") if x[0].split('/')[-1][:2] in ("01","02","03")]+sec("lib2")+sec("lib3",["01-recent-books"])),
  ("03-reader-and-dictionary","Reader and dictionary",[x for x in sec("lib") if x[0].split('/')[-1][:2] not in ("01","02","03")]),
  ("04-bookmarks-and-clippings","Bookmarks and clippings",sec("bookmarks")),
  ("05-reading-stats","Reading stats and library dashboard",[x for x in sec("lib3") if "reading-stats" in x[0]]),
  ("06-file-transfer","File transfer",sec("transfer")),
- ("07-settings-and-about","Settings and About",sec("settings")),
+ ("07-settings-and-about","Settings and About",sec("settings")+sec("display_settings")+sec("sleep_settings")),
  ("08-themes","UI themes",[(f"walk_theme_{k}_{p}/shots/{p}",f"{n}: {p}") for k,n in THEMES for p in ("home","tools","settings")]),
- ("09-tools-launcher","Tools launcher",sec("tools_menu")),
- ("10-pomodoro","Pomodoro",sec("pomodoro")+sec("pomodoro_ring")),
- ("11-world-clock","World Clock",sec("worldclock")),
- ("12-habit-tracker","Habit Tracker",sec("habits")),
- ("13-flashcards","Flashcards",sec("flashcards")),
- ("14-daily-quote","Daily Quote",sec("quote")),
- ("15-knowledge","Knowledge",sec("knowledge")),
- ("16-panchanga","Panchanga (Kannada)",sec("panchanga")),
- ("17-today","Today",sec("today")),
+ ("09-carousel-book-stats","Lyra Carousel with book stats",[("walk_theme_lyra-carousel_home/shots/home","Book stats: bookmarks, highlights, look-ups")]+
+   [(f"walk_carousel_browse/shots/{n}",c) for n,c in (("01-second-book","Second book"),("02-third-book","Third book"))]+
+   [("walk_carousel_nostats/shots/home","Carousel book stats off (classic)")]),
+ ("10-tilt-and-formats","Tilt page turn and PDF / MOBI",sec("reader_tilt")+sec("convert_pdf")),
+ ("11-tools-launcher","Tools launcher",sec("tools_menu")),
+ ("12-pomodoro","Pomodoro",sec("pomodoro")+sec("pomodoro_ring")),
+ ("13-world-clock","World Clock",sec("worldclock")+sec("worldclock_cities")),
+ ("14-habit-tracker","Habit Tracker",sec("habits")),
+ ("15-medicine","Medicine and supplements",sec("medicine")),
+ ("16-mood","Mood",sec("mood")),
+ ("17-flashcards","Flashcards",sec("flashcards")),
+ ("18-daily-quote","Daily Quote",sec("quote")),
+ ("19-knowledge","Knowledge",sec("knowledge")),
+ ("20-panchanga","Panchanga (Kannada and English)",sec("panchanga")+sec("panchanga_en")),
+ ("21-today","Today",sec("today")),
+ ("22-stats-and-export","Stats & export",sec("stats")+sec("stats_import")),
+ ("23-upgrade-from-crossink","Upgrade from CrossInk (data folder moved)",sec("migration")),
 ]
 if os.path.exists(OUT): shutil.rmtree(OUT)
 os.makedirs(OUT)

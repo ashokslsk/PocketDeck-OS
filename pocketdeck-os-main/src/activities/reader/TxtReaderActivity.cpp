@@ -1057,7 +1057,7 @@ void TxtReaderActivity::savePageIndexCache() const {
 }
 
 bool TxtReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, GfxRenderer& renderer) {
-  Txt txt(filePath, "/.crosspoint");
+  Txt txt(filePath, "/.pocketdeck-os");
   if (!txt.load()) {
     LOG_DBG("SLP", "TXT: failed to load %s", filePath.c_str());
     return false;
