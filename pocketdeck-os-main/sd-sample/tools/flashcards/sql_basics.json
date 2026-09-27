@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Which clause filters groups after aggregation?",
+    "answer": "**HAVING**"
+  },
+  {
+    "question": "What does a LEFT JOIN keep?",
+    "answer": "Every row from the left table, with NULLs where the right side has no match."
+  },
+  {
+    "question": "How do you test for NULL?",
+    "answer": "`IS NULL` / `IS NOT NULL` (never `= NULL`)."
+  },
+  {
+    "question": "What does COUNT(*) count vs COUNT(col)?",
+    "answer": "COUNT(*) counts rows; COUNT(col) skips NULLs."
+  },
+  {
+    "question": "How do you remove duplicate rows from a result?",
+    "answer": "`SELECT DISTINCT ...`"
+  },
+  {
+    "question": "What is a primary key?",
+    "answer": "A column (or set) that uniquely identifies each row and cannot be NULL."
+  },
+  {
+    "question": "What does `ORDER BY price DESC` do?",
+    "answer": "Sorts by price from highest to lowest."
+  },
+  {
+    "question": "What is a foreign key?",
+    "answer": "A column that references a primary key in another table."
+  },
+  {
+    "question": "Which runs first: WHERE or SELECT?",
+    "answer": "**WHERE**. SELECT is evaluated after filtering and grouping."
+  },
+  {
+    "question": "What does COALESCE(a, b, c) return?",
+    "answer": "The first argument that is not NULL."
+  }
+]

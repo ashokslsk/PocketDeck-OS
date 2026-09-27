@@ -1,0 +1,25 @@
+{
+  "topic": "Python",
+  "cards": [
+    {
+      "question": "What are list comprehensions, and when should you use them?",
+      "answer": "A **list comprehension** builds a new list from an existing iterable in a single expression.\n\n# The basic form\n`[expression for item in iterable]`\n\n- `[x * 2 for x in nums]` doubles every number.\n- `[name.upper() for name in names]` transforms strings.\n\n# Filtering\nAdd a condition at the end to keep only some items:\n`[x for x in nums if x > 0]`\n\n# Nested loops\n`[(r, c) for r in rows for c in cols]` reads left to right, exactly like two nested `for` statements.\n\n# When to use them\n1. The logic is a simple transform and/or filter.\n2. You want a new list rather than modifying one in place.\n3. The whole thing still fits comfortably on one line.\n\n# When not to\n- The body needs several statements or side effects such as printing or writing files.\n- There are two or more conditions that make the line hard to read.\n- You only need to loop, not to build a list. Use a plain `for` loop.\n\n# Related forms\n- **Set comprehension:** `{w.lower() for w in words}`\n- **Dict comprehension:** `{k: v for k, v in pairs}`\n- **Generator expression:** `sum(x * x for x in range(10))` produces values lazily and uses constant memory.\n\n**Rule of thumb:** if a colleague needs more than a few seconds to read it, write the loop."
+    },
+    {
+      "question": "What is the difference between a list and a tuple?",
+      "answer": "Both are ordered sequences, but they are meant for different jobs.\n\n# Lists\n- **Mutable:** you can append, remove and reorder items.\n- Written with square brackets: `[1, 2, 3]`\n- Best for collections that grow or change, such as a to-do list.\n\n# Tuples\n- **Immutable:** once created, the items cannot change.\n- Written with parentheses: `(1, 2, 3)`. A single item needs a trailing comma: `(1,)`\n- Best for fixed records such as coordinates `(x, y)` or a database row.\n\n# Why immutability matters\n1. Tuples are **hashable** (if their items are), so they can be dictionary keys and set members.\n2. They signal intent: readers know the value will not change.\n3. They are slightly smaller and faster to create.\n\n# Unpacking\nBoth support unpacking: `name, age = (\"Asha\", 31)`\n\nChoose a list when the data is a collection of similar things, and a tuple when the position of each item carries meaning."
+    },
+    {
+      "question": "Why are mutable default arguments a trap?",
+      "answer": "A default value is evaluated **once**, when the function is defined, not every time it is called.\n\n`def add(item, bucket=[]):` creates one list that every call shares. The second call sees the item from the first call.\n\n# The fix\nUse `None` as the default and create the object inside the function:\n\n1. `def add(item, bucket=None):`\n2. `if bucket is None: bucket = []`\n3. `bucket.append(item)`\n\nThe same applies to dicts, sets and any other mutable object used as a default."
+    },
+    {
+      "question": "How do context managers work?",
+      "answer": "The `with` statement guarantees that cleanup code runs, even when an exception is raised.\n\n- `with open(path) as f:` closes the file for you.\n- `with lock:` releases a thread lock automatically.\n\n# Under the hood\nAn object is a context manager if it defines `__enter__` and `__exit__`. `with` calls `__enter__` at the start and always calls `__exit__` at the end.\n\n# Writing your own\nThe easiest way is `contextlib.contextmanager`:\n\n1. Decorate a generator function.\n2. Put setup code before a single **yield**.\n3. Put cleanup code after it, inside `try/finally` if it must always run.\n\nUse context managers for anything that must be released: files, sockets, locks, database transactions and temporary settings."
+    },
+    {
+      "question": "What does `is` compare, compared with `==`?",
+      "answer": "- `==` compares **values**: do the two objects hold equal data?\n- `is` compares **identity**: are they the very same object in memory?\n\nTwo separate lists `[1, 2]` and `[1, 2]` are equal (`==` is True) but not identical (`is` is False).\n\nUse `is` only for singletons such as `None`, `True` and `False`: write `if x is None:`. For everything else, use `==`."
+    }
+  ]
+}

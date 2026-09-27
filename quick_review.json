@@ -1,0 +1,10 @@
+[
+ {
+  "question": "What does len() return for a dict?",
+  "answer": "The number of **keys**."
+ },
+ {
+  "question": "Which clause filters groups after aggregation?",
+  "answer": "**HAVING** filters groups; WHERE filters rows before grouping."
+ }
+]

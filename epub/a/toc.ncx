@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng">
+  <head>
+    <meta content="2641a84e-e6fd-4a44-aca4-128312bad287" name="dtb:uid"/>
+    <meta content="2" name="dtb:depth"/>
+    <meta content="calibre (2.0.0)" name="dtb:generator"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>365 Best Inspirational Quotes: Daily Motivation For Your Best Year Ever: (Best Inspirational Quotes)</text>
+  </docTitle>
+  <navMap>
+    <navPoint class="chapter" id="num_1" playOrder="1">
+      <navLabel>
+        <text>YOUR DAILY DOSE OF INSPIRATION</text>
+      </navLabel>
+      <content src="text/part0000_split_004.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_2" playOrder="2">
+      <navLabel>
+        <text>BEST 365 QUOTATIONS</text>
+      </navLabel>
+      <content src="text/part0000_split_005.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_3" playOrder="3">
+      <navLabel>
+        <text>BONUS 1: HOW TO DISCOVER YOUR LIFE’S TRUE PURPOSE</text>
+      </navLabel>
+      <content src="text/part0000_split_061.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_4" playOrder="4">
+      <navLabel>
+        <text>BONUS 2: ONLINE VIDEO TRAINING: 6 Things Successful People Do To Get &amp; Stay Motivated</text>
+      </navLabel>
+      <content src="text/part0000_split_062.html"/>
+    </navPoint>
+    <navPoint class="chapter" id="num_5" playOrder="5">
+      <navLabel>
+        <text>Did You Like This Book?</text>
+      </navLabel>
+      <content src="text/part0000_split_063.html"/>
+    </navPoint>
+  </navMap>
+</ncx>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" xmlns:epub="http://www.idpf.org/2007/ops" version="2005-1" xml:lang="en">
+<head>
+<meta name="dtb:uid" content="9798886088168" />
+<meta name="dtb:depth" content="1" />
+<meta name="dtb:totalPageCount" content="276" />
+<meta name="dtb:maxPageNumber" content="0" />
+</head>
+<docTitle><text>A Year of Taoism</text></docTitle>
+<docAuthor><text>Elizabeth Reninger</text></docAuthor>
+<navMap>
+<navPoint id="nav1" playOrder="1"><navLabel><text>Cover </text></navLabel><content src="xhtml/cover.xhtml"/></navPoint>
+<navPoint id="nav2" playOrder="2"><navLabel><text>Title Page</text></navLabel><content src="xhtml/001_title.xhtml#page-iii"/></navPoint>
+<navPoint id="nav3" playOrder="3"><navLabel><text>Copyright</text></navLabel><content src="xhtml/002_copyright.xhtml"/></navPoint>
+<navPoint id="nav4" playOrder="4"><navLabel><text>Dedication</text></navLabel><content src="xhtml/003_dedication.xhtml"/></navPoint>
+<navPoint id="ji004_contents" playOrder="5"><navLabel><text>Contents</text></navLabel><content src="xhtml/004_contents.xhtml"/></navPoint>
+<navPoint id="ji005_FM_001" playOrder="6"><navLabel><text>Introduction</text></navLabel><content src="xhtml/005_FM_001.xhtml"/></navPoint>
+<navPoint id="ji006_FM_002" playOrder="7"><navLabel><text>Key Taoist Terms</text></navLabel><content src="xhtml/006_FM_002.xhtml"/></navPoint>
+<navPoint id="ji007_part_001" playOrder="8"><navLabel><text>JANUARY</text></navLabel><content src="xhtml/007_part_001.xhtml"/></navPoint>
+<navPoint id="ji009_part_002" playOrder="9"><navLabel><text>FEBRUARY</text></navLabel><content src="xhtml/009_part_002.xhtml"/></navPoint>
+<navPoint id="ji011_part_003" playOrder="10"><navLabel><text>MARCH</text></navLabel><content src="xhtml/011_part_003.xhtml"/></navPoint>
+<navPoint id="ji013_part_004" playOrder="11"><navLabel><text>APRIL</text></navLabel><content src="xhtml/013_part_004.xhtml"/></navPoint>
+<navPoint id="ji015_part_005" playOrder="12"><navLabel><text>MAY</text></navLabel><content src="xhtml/015_part_005.xhtml"/></navPoint>
+<navPoint id="ji017_part_006" playOrder="13"><navLabel><text>JUNE</text></navLabel><content src="xhtml/017_part_006.xhtml"/></navPoint>
+<navPoint id="ji019_part_007" playOrder="14"><navLabel><text>JULY</text></navLabel><content src="xhtml/019_part_007.xhtml"/></navPoint>
+<navPoint id="ji021_part_008" playOrder="15"><navLabel><text>AUGUST</text></navLabel><content src="xhtml/021_part_008.xhtml"/></navPoint>
+<navPoint id="ji023_part_009" playOrder="16"><navLabel><text>SEPTEMBER</text></navLabel><content src="xhtml/023_part_009.xhtml"/></navPoint>
+<navPoint id="ji025_part_010" playOrder="17"><navLabel><text>OCTOBER</text></navLabel><content src="xhtml/025_part_010.xhtml"/></navPoint>
+<navPoint id="ji027_part_011" playOrder="18"><navLabel><text>NOVEMBER</text></navLabel><content src="xhtml/027_part_011.xhtml"/></navPoint>
+<navPoint id="ji029_part_012" playOrder="19"><navLabel><text>DECEMBER</text></navLabel><content src="xhtml/029_part_012.xhtml"/></navPoint>
+<navPoint id="ji031_BM_001" playOrder="20"><navLabel><text>Resources</text></navLabel><content src="xhtml/031_BM_001.xhtml"/></navPoint>
+<navPoint id="ji032_BM_002" playOrder="21"><navLabel><text>References</text></navLabel><content src="xhtml/032_BM_002.xhtml"/></navPoint>
+<navPoint id="ji033_BM_003" playOrder="22"><navLabel><text>Acknowledgments</text></navLabel><content src="xhtml/033_BM_003.xhtml"/></navPoint>
+<navPoint id="ji034_BM_004" playOrder="23"><navLabel><text>About the Author</text></navLabel><content src="xhtml/034_BM_004.xhtml"/></navPoint>
+</navMap>
+</ncx>

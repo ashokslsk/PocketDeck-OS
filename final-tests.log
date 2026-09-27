@@ -1,0 +1,75 @@
+Running main() from /private/tmp/claude-501/-Users-ashok-Library-Application-Support-Claude-scratch-workspaces-9fbb4d3d-2663-4dcd-b22b-654bf7582786-e533bd95-93c8-45a5-94c8-6fab1c9482d0-scratch-2026-09-26-a24ec2/edfb3f92-85f7-4810-8e22-67e88b4e7394/scratchpad/tests/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 27 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from ToolsDate
+[ RUN      ] ToolsDate.EpochAndKnownDates
+[       OK ] ToolsDate.EpochAndKnownDates (0 ms)
+[ RUN      ] ToolsDate.CivilRoundTripEveryDayTo2099
+[       OK ] ToolsDate.CivilRoundTripEveryDayTo2099 (0 ms)
+[ RUN      ] ToolsDate.IsoWeeksAcrossYearBoundaries
+[       OK ] ToolsDate.IsoWeeksAcrossYearBoundaries (0 ms)
+[ RUN      ] ToolsDate.IsoDateFormatAndStrictParse
+[       OK ] ToolsDate.IsoDateFormatAndStrictParse (0 ms)
+[----------] 4 tests from ToolsDate (0 ms total)
+
+[----------] 5 tests from ToolsDst
+[ RUN      ] ToolsDst.UnitedStates
+[       OK ] ToolsDst.UnitedStates (0 ms)
+[ RUN      ] ToolsDst.Europe
+[       OK ] ToolsDst.Europe (0 ms)
+[ RUN      ] ToolsDst.AustraliaSouthernHemisphere
+[       OK ] ToolsDst.AustraliaSouthernHemisphere (0 ms)
+[ RUN      ] ToolsDst.NewZealand
+[       OK ] ToolsDst.NewZealand (0 ms)
+[ RUN      ] ToolsDst.NoRuleKeepsStandardOffset
+[       OK ] ToolsDst.NoRuleKeepsStandardOffset (0 ms)
+[----------] 5 tests from ToolsDst (0 ms total)
+
+[----------] 3 tests from Srs
+[ RUN      ] Srs.IntervalDoublesAndCaps
+[       OK ] Srs.IntervalDoublesAndCaps (0 ms)
+[ RUN      ] Srs.DueRules
+[       OK ] Srs.DueRules (0 ms)
+[ RUN      ] Srs.QuestionHashIsStableFnv1a
+[       OK ] Srs.QuestionHashIsStableFnv1a (0 ms)
+[----------] 3 tests from Srs (0 ms total)
+
+[----------] 10 tests from ToolsStoreTest
+[ RUN      ] ToolsStoreTest.ReadLineHandlesCrlfTruncationAndEof
+[       OK ] ToolsStoreTest.ReadLineHandlesCrlfTruncationAndEof (0 ms)
+[ RUN      ] ToolsStoreTest.ReadLineNeverSplitsUtf8
+[       OK ] ToolsStoreTest.ReadLineNeverSplitsUtf8 (0 ms)
+[ RUN      ] ToolsStoreTest.JsonReaderTokensEscapesAndUnicode
+[       OK ] ToolsStoreTest.JsonReaderTokensEscapesAndUnicode (0 ms)
+[ RUN      ] ToolsStoreTest.JsonReaderTruncatesWithoutSplittingCodePoints
+[       OK ] ToolsStoreTest.JsonReaderTruncatesWithoutSplittingCodePoints (0 ms)
+[ RUN      ] ToolsStoreTest.JsonReaderOffsetsSeekAndSkip
+[       OK ] ToolsStoreTest.JsonReaderOffsetsSeekAndSkip (0 ms)
+[ RUN      ] ToolsStoreTest.JsonWriterEscapesRoundTrip
+[       OK ] ToolsStoreTest.JsonWriterEscapesRoundTrip (0 ms)
+[ RUN      ] ToolsStoreTest.AtomicWriteCreatesAndReplaces
+[       OK ] ToolsStoreTest.AtomicWriteCreatesAndReplaces (0 ms)
+[ RUN      ] ToolsStoreTest.FailedWriterLeavesOriginalUntouched
+[       OK ] ToolsStoreTest.FailedWriterLeavesOriginalUntouched (0 ms)
+[ RUN      ] ToolsStoreTest.FailedFinalRenameRestoresOriginal
+[       OK ] ToolsStoreTest.FailedFinalRenameRestoresOriginal (0 ms)
+[ RUN      ] ToolsStoreTest.BackupIsRecoveredAfterInterruptedSwap
+[       OK ] ToolsStoreTest.BackupIsRecoveredAfterInterruptedSwap (0 ms)
+[----------] 10 tests from ToolsStoreTest (0 ms total)
+
+[----------] 5 tests from Panchanga
+[ RUN      ] Panchanga.AyanamshaMatchesDrik
+[       OK ] Panchanga.AyanamshaMatchesDrik (0 ms)
+[ RUN      ] Panchanga.September27_2026
+[       OK ] Panchanga.September27_2026 (0 ms)
+[ RUN      ] Panchanga.September27_2021
+[       OK ] Panchanga.September27_2021 (0 ms)
+[ RUN      ] Panchanga.FestivalsFollowDeciderTimes
+[       OK ] Panchanga.FestivalsFollowDeciderTimes (0 ms)
+[ RUN      ] Panchanga.SamvatsaraAndAdhikaMasa
+[       OK ] Panchanga.SamvatsaraAndAdhikaMasa (0 ms)
+[----------] 5 tests from Panchanga (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 27 tests from 5 test suites ran. (1 ms total)
+[  PASSED  ] 27 tests.

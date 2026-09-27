@@ -1,0 +1,2736 @@
+{
+ "kruse": [
+  {
+   "n": 1,
+   "q": "Your time is limited, so don’t waste it living someone else’s life.",
+   "a": "Steve Jobs",
+   "src": "kruse"
+  },
+  {
+   "n": 2,
+   "q": "I believe that the only courage anybody ever needs is the courage to follow your own dreams.",
+   "a": "Oprah Winfrey",
+   "src": "kruse"
+  },
+  {
+   "n": 3,
+   "q": "I’ve missed more than 9000 shots in my career. I’ve lost almost 300 games. 26 times I’ve been trusted to take the game winning shot and missed. I’ve failed over and over and over again in my life. And that is why I succeed.",
+   "a": "Michael Jordan",
+   "src": "kruse"
+  },
+  {
+   "n": 4,
+   "q": "Yesterday is history. Tomorrow is a mystery. Today is a gift. That’s why it’s called the present.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 5,
+   "q": "Don't wait. The time will never be just right.",
+   "a": "Napoleon Hill",
+   "src": "kruse"
+  },
+  {
+   "n": 6,
+   "q": "Life isn’t about getting and having, it’s about giving and being.",
+   "a": "Kevin Kruse",
+   "src": "kruse"
+  },
+  {
+   "n": 7,
+   "q": "If you can dream it, you can achieve it.",
+   "a": "Zig Ziglar",
+   "src": "kruse"
+  },
+  {
+   "n": 8,
+   "q": "How am I going to live today in order to create the tomorrow I'm committed to?",
+   "a": "Anthony Robbins",
+   "src": "kruse"
+  },
+  {
+   "n": 9,
+   "q": "Too many of us are not living our dreams because we are living our fears.",
+   "a": "Les Brown",
+   "src": "kruse"
+  },
+  {
+   "n": 10,
+   "q": "Build your own dreams, or someone else will hire you to build theirs.",
+   "a": "Farrah Gray",
+   "src": "kruse"
+  },
+  {
+   "n": 11,
+   "q": "I’ve learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel.",
+   "a": "Maya Angelou",
+   "src": "kruse"
+  },
+  {
+   "n": 12,
+   "q": "Life is 10% what happens to me and 90% of how I react to it.",
+   "a": "Charles Swindoll",
+   "src": "kruse"
+  },
+  {
+   "n": 13,
+   "q": "Go confidently in the direction of your dreams. Live the life you have imagined.",
+   "a": "Henry David Thoreau",
+   "src": "kruse"
+  },
+  {
+   "n": 14,
+   "q": "Life is what happens to you while you’re busy making other plans.",
+   "a": "John Lennon",
+   "src": "kruse"
+  },
+  {
+   "n": 15,
+   "q": "The best time to plant a tree was 20 years ago. The second best time is now.",
+   "a": "Chinese Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 16,
+   "q": "Whatever the mind of man can conceive and believe, it can achieve.",
+   "a": "Napoleon Hill",
+   "src": "kruse"
+  },
+  {
+   "n": 17,
+   "q": "Dream big and dare to fail.",
+   "a": "Norman Vaughan",
+   "src": "kruse"
+  },
+  {
+   "n": 18,
+   "q": "If you want to lift yourself up, lift up someone else.",
+   "a": "Booker T. Washington",
+   "src": "kruse"
+  },
+  {
+   "n": 19,
+   "q": "A good plan violently executed now is better than a perfect plan executed next week.",
+   "a": "George Patton",
+   "src": "kruse"
+  },
+  {
+   "n": 20,
+   "q": "Two roads diverged in a wood, and I",
+   "a": "I took the one less traveled by, And that has made all the difference. – Robert Frost",
+   "src": "kruse"
+  },
+  {
+   "n": 21,
+   "q": "A journey of a thousand miles must begin with a single step.",
+   "a": "Lao Tzu",
+   "src": "kruse"
+  },
+  {
+   "n": 22,
+   "q": "What would you do if you weren't afraid?",
+   "a": "Spencer Johnson",
+   "src": "kruse"
+  },
+  {
+   "n": 23,
+   "q": "Become the kind of leader that people would follow voluntarily; even if you had no title or position.",
+   "a": "Brian Tracy",
+   "src": "kruse"
+  },
+  {
+   "n": 24,
+   "q": "A goal without a plan is just a wish.",
+   "a": "Larry Elder",
+   "src": "kruse"
+  },
+  {
+   "n": 25,
+   "q": "Twenty years from now you will be more disappointed by the things that you didn’t do than by the ones you did do, so throw off the bowlines, sail away from safe harbor, catch the trade winds in your sails. Explore, Dream, Discover.",
+   "a": "Mark Twain",
+   "src": "kruse"
+  },
+  {
+   "n": 26,
+   "q": "A leader is best when people barely know he exists, when his work is done, his aim fulfilled, they will say: we did it ourselves.",
+   "a": "Lao Tzu",
+   "src": "kruse"
+  },
+  {
+   "n": 27,
+   "q": "A man who dares to waste one hour of life has not discovered the value of life.",
+   "a": "Charles Darwin",
+   "src": "kruse"
+  },
+  {
+   "n": 28,
+   "q": "A person who never made a mistake never tried anything new.",
+   "a": "Albert Einstein",
+   "src": "kruse"
+  },
+  {
+   "n": 29,
+   "q": "A truly rich man is one whose children run into his arms when his hands are empty.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 30,
+   "q": "A true leader has the confidence to stand alone, the courage to make tough decisions, and the compassion to listen to the needs of others.",
+   "a": "Douglas MacArthur",
+   "src": "kruse"
+  },
+  {
+   "n": 31,
+   "q": "All the forces in the world are not so powerful as an idea whose time has come.",
+   "a": "Victor Hugo",
+   "src": "kruse"
+  },
+  {
+   "n": 32,
+   "q": "Anyone can hold the helm when the sea is calm.",
+   "a": "Publilius Syrus",
+   "src": "kruse"
+  },
+  {
+   "n": 33,
+   "q": "A goal is not always meant to be reached; it often serves simply as something to aim at.",
+   "a": "Bruce Lee",
+   "src": "kruse"
+  },
+  {
+   "n": 34,
+   "q": "Definiteness of purpose is the starting point of all achievement.",
+   "a": "W. Clement Stone",
+   "src": "kruse"
+  },
+  {
+   "n": 35,
+   "q": "Fall seven times and stand up eight.",
+   "a": "Japanese Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 36,
+   "q": "If one advances confidently in the direction of his dreams, and endeavors to live the life he has imagined, he will meet with a success unexpected in common hours.",
+   "a": "Henry Thoreau",
+   "src": "kruse"
+  },
+  {
+   "n": 37,
+   "q": "Goals are dreams with deadlines.",
+   "a": "Diana Scharf Hunt",
+   "src": "kruse"
+  },
+  {
+   "n": 38,
+   "q": "I am not a product of my circumstances. I am a product of my decisions.",
+   "a": "Stephen Covey",
+   "src": "kruse"
+  },
+  {
+   "n": 39,
+   "q": "I cannot give you the formula for success, but I can give you the formula for failure, which is: Try to please everybody.",
+   "a": "Herbert Swope",
+   "src": "kruse"
+  },
+  {
+   "n": 40,
+   "q": "I recommend to you to take care of the minutes; for hours will take care of themselves.",
+   "a": "Lord Chesterfield",
+   "src": "kruse"
+  },
+  {
+   "n": 41,
+   "q": "If you’re offered a seat on a rocket ship, don’t ask what seat! Just get on.",
+   "a": "Sheryl Sandberg",
+   "src": "kruse"
+  },
+  {
+   "n": 42,
+   "q": "Impossible is a word to be found only in the dictionary of fools.",
+   "a": "Napoleon Bonaparte",
+   "src": "kruse"
+  },
+  {
+   "n": 43,
+   "q": "The only way to do great work is to love what you do.",
+   "a": "Steve Jobs",
+   "src": "kruse"
+  },
+  {
+   "n": 44,
+   "q": "It is better to have lived one day as a tiger than a thousand years as a sheep.",
+   "a": "Tibetan saying",
+   "src": "kruse"
+  },
+  {
+   "n": 45,
+   "q": "It’s not the years in your life that count. It’s the life in your years.",
+   "a": "Abraham Lincoln",
+   "src": "kruse"
+  },
+  {
+   "n": 46,
+   "q": "My interest in life comes from setting myself huge, apparently unachievable challenges and trying to rise above them.",
+   "a": "Richard Branson",
+   "src": "kruse"
+  },
+  {
+   "n": 47,
+   "q": "Lead me, follow me, or get out of my way.",
+   "a": "General George Patton",
+   "src": "kruse"
+  },
+  {
+   "n": 48,
+   "q": "Money is a wonderful thing, but it is possible to pay too high a price for it.",
+   "a": "Alexander Bloch",
+   "src": "kruse"
+  },
+  {
+   "n": 49,
+   "q": "If you’re going through hell, keep going!",
+   "a": "Winston Churchill",
+   "src": "kruse"
+  },
+  {
+   "n": 50,
+   "q": "Shoot for the moon. Even if you miss, you'll land among the stars.",
+   "a": "Les Brown",
+   "src": "kruse"
+  },
+  {
+   "n": 51,
+   "q": "Life is not measured by the number of breaths we take, but by the moments that take our breath away.",
+   "a": "Maya Angelou",
+   "src": "kruse"
+  },
+  {
+   "n": 52,
+   "q": "Not the cry, but the flight of a wild duck, leads the flock to fly and follow.",
+   "a": "Chinese Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 53,
+   "q": "Strive not to be a success, but rather to be of value.",
+   "a": "Albert Einstein",
+   "src": "kruse"
+  },
+  {
+   "n": 54,
+   "q": "Take care of the minutes and the hours will take care of themselves.",
+   "a": "Lord Chesterfield",
+   "src": "kruse"
+  },
+  {
+   "n": 55,
+   "q": "The greatest dreams are always unrealistic.",
+   "a": "Will Smith",
+   "src": "kruse"
+  },
+  {
+   "n": 56,
+   "q": "The mind is everything. What you think you become.",
+   "a": "Buddha",
+   "src": "kruse"
+  },
+  {
+   "n": 57,
+   "q": "The question isn’t who is going to let me; it’s who is going to stop me.",
+   "a": "Ayn Rand",
+   "src": "kruse"
+  },
+  {
+   "n": 58,
+   "q": "The two most important days in your life are the day you are born and the day you find out why.",
+   "a": "Mark Twain",
+   "src": "kruse"
+  },
+  {
+   "n": 59,
+   "q": "There are no traffic jams along the extra mile.",
+   "a": "Roger Staubach",
+   "src": "kruse"
+  },
+  {
+   "n": 60,
+   "q": "There is nothing so useless as doing efficiently that which should not be done at all.",
+   "a": "Peter Drucker",
+   "src": "kruse"
+  },
+  {
+   "n": 61,
+   "q": "There is only one way to avoid criticism: do nothing, say nothing, and be nothing.",
+   "a": "Aristotle",
+   "src": "kruse"
+  },
+  {
+   "n": 62,
+   "q": "Time is the coin of your life. It is the only coin you have, and only you can determine how it will be spent. Be careful lest you let other people spend it for you.",
+   "a": "Carl Sandburg",
+   "src": "kruse"
+  },
+  {
+   "n": 63,
+   "q": "We become what we think about.",
+   "a": "Earl Nightingale",
+   "src": "kruse"
+  },
+  {
+   "n": 64,
+   "q": "What’s money? A man is a success if he gets up in the morning and goes to bed at night and in between does what he wants to do.",
+   "a": "Bob Dylan",
+   "src": "kruse"
+  },
+  {
+   "n": 65,
+   "q": "Whatever you are, be a good one.",
+   "a": "Abraham Lincoln",
+   "src": "kruse"
+  },
+  {
+   "n": 66,
+   "q": "Whatever you can do, or dream you can, begin it. Boldness has genius, power and magic in it.",
+   "a": "Johann Wolfgang von Goethe",
+   "src": "kruse"
+  },
+  {
+   "n": 67,
+   "q": "Where there is no vision, the people perish.",
+   "a": "Proverbs 29:18",
+   "src": "kruse"
+  },
+  {
+   "n": 68,
+   "q": "When I was 5 years old, my mother always told me that happiness was the key to life. When I went to school, they asked me what I wanted to be when I grew up. I wrote down ‘happy’. They told me I didn’t understand the assignment, and I told them they didn’t understand life.",
+   "a": "John Lennon",
+   "src": "kruse"
+  },
+  {
+   "n": 69,
+   "q": "Whether you think you can or you think you can’t, you’re right.",
+   "a": "Henry Ford",
+   "src": "kruse"
+  },
+  {
+   "n": 70,
+   "q": "You become what you believe.",
+   "a": "Oprah Winfrey",
+   "src": "kruse"
+  },
+  {
+   "n": 71,
+   "q": "You miss 100% of the shots you don’t take.",
+   "a": "Wayne Gretzky",
+   "src": "kruse"
+  },
+  {
+   "n": 72,
+   "q": "You will never find time for anything. If you want time you must make it.",
+   "a": "Charles Buxton",
+   "src": "kruse"
+  },
+  {
+   "n": 73,
+   "q": "Change your thoughts and you change your world.",
+   "a": "Norman Vincent Peale",
+   "src": "kruse"
+  },
+  {
+   "n": 74,
+   "q": "Never doubt that a small group of thoughtful, concerned citizens can change world. Indeed it is the only thing that ever has.",
+   "a": "Margaret Mead",
+   "src": "kruse"
+  },
+  {
+   "n": 75,
+   "q": "Neither success nor failure are ever final.",
+   "a": "Roger Babson",
+   "src": "kruse"
+  },
+  {
+   "n": 76,
+   "q": "You are not defined by your past. You are prepared by your past.",
+   "a": "Joel Osteen",
+   "src": "kruse"
+  },
+  {
+   "n": 77,
+   "q": "Always do what you are afraid to do.",
+   "a": "Ralph Waldo Emerson",
+   "src": "kruse"
+  },
+  {
+   "n": 78,
+   "q": "We tend to forget that happiness doesn't come as a result of getting something we don't have, but rather recognizing and appreciating what we do have.",
+   "a": "Friedrich Koenig",
+   "src": "kruse"
+  },
+  {
+   "n": 79,
+   "q": "Nobody can go back and start a new beginning, but anyone can start today and make a new ending.",
+   "a": "Maria Robinson",
+   "src": "kruse"
+  },
+  {
+   "n": 80,
+   "q": "Seek opportunity, not security. A boat in a harbor is safe, but in time its bottom will rot out.",
+   "a": "H. Jackson Brown Jr .",
+   "src": "kruse"
+  },
+  {
+   "n": 81,
+   "q": "Don't worry about failure; you only have to be right once.",
+   "a": "Drew Houston",
+   "src": "kruse"
+  },
+  {
+   "n": 82,
+   "q": "I must follow the people. Am I not their leader?",
+   "a": "Benjamin Disraeli",
+   "src": "kruse"
+  },
+  {
+   "n": 83,
+   "q": "If you want to be happy, set a goal that commands your thoughts, liberates your energy and inspires your hopes.",
+   "a": "Andrew Carnegie",
+   "src": "kruse"
+  },
+  {
+   "n": 84,
+   "q": "People buy into the leader before they buy into the vision.",
+   "a": "John Maxwell",
+   "src": "kruse"
+  },
+  {
+   "n": 85,
+   "q": "Don't ask what the world needs. Ask what makes you come alive, and go do it. Because what the world needs is people who have come alive.",
+   "a": "Howard Thurman",
+   "src": "kruse"
+  },
+  {
+   "n": 86,
+   "q": "The art of leadership is saying no, not saying yes. It is very easy to say yes.",
+   "a": "Tony Blair",
+   "src": "kruse"
+  },
+  {
+   "n": 87,
+   "q": "To command is to serve, nothing more and nothing less.",
+   "a": "Andre Malraux",
+   "src": "kruse"
+  },
+  {
+   "n": 88,
+   "q": "We are too busy mopping the floor to turn off the faucet.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 89,
+   "q": "What you do has far greater impact than what you say.",
+   "a": "Stephen Covey",
+   "src": "kruse"
+  },
+  {
+   "n": 90,
+   "q": "You manage things; you lead people.",
+   "a": "Rear Admiral Grace Murray Hopper",
+   "src": "kruse"
+  },
+  {
+   "n": 91,
+   "q": "A day wasted on others is not wasted on one’s self.",
+   "a": "Charles Dickens",
+   "src": "kruse"
+  },
+  {
+   "n": 92,
+   "q": "A good leader is a person who takes a little more than his share of the blame and a little less than his share of the credit.",
+   "a": "John C. Maxwell",
+   "src": "kruse"
+  },
+  {
+   "n": 93,
+   "q": "A leader is a dealer in hope.",
+   "a": "Napoleon Bonaparte",
+   "src": "kruse"
+  },
+  {
+   "n": 94,
+   "q": "A leader is one who knows the way, goes the way, and shows the way.",
+   "a": "John C. Maxwell",
+   "src": "kruse"
+  },
+  {
+   "n": 95,
+   "q": "A leader takes people where they want to go. A great leader takes people where they don’t necessarily want to go, but ought to be.",
+   "a": "Rosalynn Carter",
+   "src": "kruse"
+  },
+  {
+   "n": 96,
+   "q": "A man who wants to lead the orchestra must turn his back on the crowd.",
+   "a": "Max Lucado",
+   "src": "kruse"
+  },
+  {
+   "n": 97,
+   "q": "All great achievements require time.",
+   "a": "Maya Angelou",
+   "src": "kruse"
+  },
+  {
+   "n": 98,
+   "q": "All successful people have a goal. No one can get anywhere unless he knows where he wants to go and what he wants to be or do.",
+   "a": "Norman Vincent Peale",
+   "src": "kruse"
+  },
+  {
+   "n": 99,
+   "q": "All that really belongs to us is time; even he who has nothing else has that.",
+   "a": "Baltasar Gracián",
+   "src": "kruse"
+  },
+  {
+   "n": 100,
+   "q": "All the flowers of all of the tomorrows are in the seeds of today.",
+   "a": "Chinese Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 101,
+   "q": "An unexamined life is not worth living.",
+   "a": "Socrates",
+   "src": "kruse"
+  },
+  {
+   "n": 102,
+   "q": "Arise, awake, stop not until your goal is achieved.",
+   "a": "Swami Vivekananda",
+   "src": "kruse"
+  },
+  {
+   "n": 103,
+   "q": "An average person with average talents and ambition and average education, can outstrip the most brilliant genius in our society, if that person has clear, focused goals.",
+   "a": "Mary Kay Ash",
+   "src": "kruse"
+  },
+  {
+   "n": 104,
+   "q": "Arriving at one goal is the starting point to another.",
+   "a": "John Dewey",
+   "src": "kruse"
+  },
+  {
+   "n": 105,
+   "q": "Ask and it will be given to you; search, and you will find; knock and the door will be opened for you.",
+   "a": "Jesus",
+   "src": "kruse"
+  },
+  {
+   "n": 106,
+   "q": "Be mindful of how you approach time. Watching the clock is not the same as watching the sun rise.",
+   "a": "Sophia Bedford–Pierce",
+   "src": "kruse"
+  },
+  {
+   "n": 107,
+   "q": "Before you are a leader, success is all about growing yourself. When you become a leader, success is all about growing others.",
+   "a": "Jack Welch",
+   "src": "kruse"
+  },
+  {
+   "n": 108,
+   "q": "Believe you can and you’re halfway there.",
+   "a": "Theodore Roosevelt",
+   "src": "kruse"
+  },
+  {
+   "n": 109,
+   "q": "Certain things catch your eye, but pursue only those that capture the heart.",
+   "a": "Ancient Indian Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 110,
+   "q": "Challenges are what make life interesting and overcoming them is what makes life meaningful.",
+   "a": "Joshua J. Marine",
+   "src": "kruse"
+  },
+  {
+   "n": 111,
+   "q": "Destiny is no matter of chance. It is a matter of choice. It is not a thing to be waited for; it is a thing to be achieved.",
+   "a": "William Jennings Bryan",
+   "src": "kruse"
+  },
+  {
+   "n": 112,
+   "q": "Discipline is the bridge between goals and accomplishment.",
+   "a": "Jim Rohn",
+   "src": "kruse"
+  },
+  {
+   "n": 113,
+   "q": "Do not confuse motion and progress. A rocking horse keeps moving but does not make any progress.",
+   "a": "Alfred A. Montapert",
+   "src": "kruse"
+  },
+  {
+   "n": 114,
+   "q": "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.",
+   "a": "Buddha",
+   "src": "kruse"
+  },
+  {
+   "n": 115,
+   "q": "Do what you can, where you are, with what you have.",
+   "a": "Teddy Roosevelt",
+   "src": "kruse"
+  },
+  {
+   "n": 116,
+   "q": "Do what you feel in your heart to be right",
+   "a": "for you’ll be criticized anyway. – Eleanor Roosevelt",
+   "src": "kruse"
+  },
+  {
+   "n": 117,
+   "q": "Don’t be fooled by the calendar. There are only as many days in the year as you make use of. One man gets only a week’s value out of a year while another man gets a full year’s value out of a week.",
+   "a": "Charles Richards",
+   "src": "kruse"
+  },
+  {
+   "n": 118,
+   "q": "Don’t be stomping on ants when you have elephants to feed.",
+   "a": "Peter Turla",
+   "src": "kruse"
+  },
+  {
+   "n": 119,
+   "q": "Don’t spend a dollar’s worth of time on a ten-cent decision.",
+   "a": "Peter Turla",
+   "src": "kruse"
+  },
+  {
+   "n": 120,
+   "q": "Dost thou love life? Then do not squander time, for that’s the stuff that life is made of.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 121,
+   "q": "Dreaming, after all, is a form of planning.",
+   "a": "Gloria Steinem",
+   "src": "kruse"
+  },
+  {
+   "n": 122,
+   "q": "Every child is an artist. The problem is how to remain an artist once he grows up.",
+   "a": "Pablo Picasso",
+   "src": "kruse"
+  },
+  {
+   "n": 123,
+   "q": "Education costs money. But then so does ignorance.",
+   "a": "Sir Claus Moser",
+   "src": "kruse"
+  },
+  {
+   "n": 124,
+   "q": "Eighty percent of success is showing up.",
+   "a": "Woody Allen",
+   "src": "kruse"
+  },
+  {
+   "n": 125,
+   "q": "Either write something worth reading or do something worth writing.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 126,
+   "q": "Earn your leadership every day.",
+   "a": "Michael Jordan",
+   "src": "kruse"
+  },
+  {
+   "n": 127,
+   "q": "Either you run the day, or the day runs you.",
+   "a": "Jim Rohn",
+   "src": "kruse"
+  },
+  {
+   "n": 128,
+   "q": "I am endlessly fascinated that playing football is considered a training ground for leadership, but raising children isn’t.",
+   "a": "Dee Dee Myers",
+   "src": "kruse"
+  },
+  {
+   "n": 129,
+   "q": "Every strike brings me closer to the next home run.",
+   "a": "Babe Ruth",
+   "src": "kruse"
+  },
+  {
+   "n": 130,
+   "q": "Everything you’ve ever wanted is on the other side of fear.",
+   "a": "George Adair",
+   "src": "kruse"
+  },
+  {
+   "n": 131,
+   "q": "Fear melts when you take action towards a goal you really want.",
+   "a": "Robert Allen",
+   "src": "kruse"
+  },
+  {
+   "n": 132,
+   "q": "Great leaders are not defined by the absence of weakness, but rather by the presence of clear strengths.",
+   "a": "John Zenger",
+   "src": "kruse"
+  },
+  {
+   "n": 133,
+   "q": "Half our life is spent trying to find something to do with the time we have rushed through life trying to save.",
+   "a": "Will Rogers",
+   "src": "kruse"
+  },
+  {
+   "n": 134,
+   "q": "Happiness is not something readymade. It comes from your own actions.",
+   "a": "Dalai Lama",
+   "src": "kruse"
+  },
+  {
+   "n": 135,
+   "q": "He who has great power should use it lightly.",
+   "a": "Seneca",
+   "src": "kruse"
+  },
+  {
+   "n": 136,
+   "q": "He who has never learned to obey cannot be a good commander.",
+   "a": "Aristotle",
+   "src": "kruse"
+  },
+  {
+   "n": 137,
+   "q": "How wonderful it is that nobody need wait a single moment before starting to improve the world.",
+   "a": "Anne Frank",
+   "src": "kruse"
+  },
+  {
+   "n": 138,
+   "q": "I am looking for a lot of men who have an infinite capacity to not know what can't be done.",
+   "a": "Henry Ford",
+   "src": "kruse"
+  },
+  {
+   "n": 139,
+   "q": "I didn’t fail the test. I just found 100 ways to do it wrong.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 140,
+   "q": "I have learned over the years that when one’s mind is made up, this diminishes fear.",
+   "a": "Rosa Parks",
+   "src": "kruse"
+  },
+  {
+   "n": 141,
+   "q": "I start with the premise that the function of leadership is to produce more leaders, not more followers.",
+   "a": "Ralph Nader",
+   "src": "kruse"
+  },
+  {
+   "n": 142,
+   "q": "I would rather die of passion than of boredom.",
+   "a": "Vincent van Gogh",
+   "src": "kruse"
+  },
+  {
+   "n": 143,
+   "q": "The purpose of our lives is to be happy.",
+   "a": "Dalai Lama",
+   "src": "kruse"
+  },
+  {
+   "n": 144,
+   "q": "If one is lucky, a solitary fantasy can totally transform one million realities.",
+   "a": "Maya Angelou",
+   "src": "kruse"
+  },
+  {
+   "n": 145,
+   "q": "If you aim at nothing, you will hit it every time.",
+   "a": "Zig Ziglar",
+   "src": "kruse"
+  },
+  {
+   "n": 146,
+   "q": "If you do what you’ve always done, you’ll get what you’ve always gotten.",
+   "a": "Tony Robbins",
+   "src": "kruse"
+  },
+  {
+   "n": 147,
+   "q": "If you hear a voice within you say “you cannot paint,” then by all means paint and that voice will be silenced.",
+   "a": "Vincent Van Gogh",
+   "src": "kruse"
+  },
+  {
+   "n": 148,
+   "q": "If you look at what you have in life, you’ll always have more. If you look at what you don’t have in life, you’ll never have enough.",
+   "a": "Oprah Winfrey",
+   "src": "kruse"
+  },
+  {
+   "n": 149,
+   "q": "If your actions inspire others to dream more, learn more, do more and become more, you are a leader.",
+   "a": "John Quincy Adams",
+   "src": "kruse"
+  },
+  {
+   "n": 150,
+   "q": "In matters of style, swim with the current; in matters of principle, stand like a rock.",
+   "a": "Thomas Jefferson",
+   "src": "kruse"
+  },
+  {
+   "n": 151,
+   "q": "Live fully. Love openly. Make a difference.",
+   "a": "Brendan Burchard",
+   "src": "kruse"
+  },
+  {
+   "n": 152,
+   "q": "In truth, people can generally make time for what they choose to do; it is not really the time but the will that is lacking.",
+   "a": "Sir John Lubbock",
+   "src": "kruse"
+  },
+  {
+   "n": 153,
+   "q": "It doesn't matter where you are coming from. All that matters is where you are going.",
+   "a": "Brian Tracy",
+   "src": "kruse"
+  },
+  {
+   "n": 154,
+   "q": "It is good to have an end to journey toward; but it is the journey that matters, in the end.",
+   "a": "Ernest Hemingway",
+   "src": "kruse"
+  },
+  {
+   "n": 155,
+   "q": "It’s better to do the right thing slowly than the wrong thing quickly.",
+   "a": "Peter Turla",
+   "src": "kruse"
+  },
+  {
+   "n": 156,
+   "q": "Know the true value of time; snatch, seize, and enjoy every moment of it. No idleness, no laziness, no procrastination; Never put off till tomorrow what you can do today.",
+   "a": "Lord Chesterfield",
+   "src": "kruse"
+  },
+  {
+   "n": 157,
+   "q": "Know your limits, but never stop trying to exceed them.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 158,
+   "q": "Lead and inspire people. Don’t try to manage and manipulate people. Inventories can be managed but people must be lead.",
+   "a": "Ross Perot",
+   "src": "kruse"
+  },
+  {
+   "n": 159,
+   "q": "Leaders aren’t born, they are made. And they are made just like anything else, through hard work. And that’s the price we’ll have to pay to achieve that goal, or any goal.",
+   "a": "Vince Lombardi",
+   "src": "kruse"
+  },
+  {
+   "n": 160,
+   "q": "Nothing is a waste of time if you use the experience wisely.",
+   "a": "Rodin",
+   "src": "kruse"
+  },
+  {
+   "n": 161,
+   "q": "Leadership does not always wear the harness of compromise.",
+   "a": "Woodrow Wilson",
+   "src": "kruse"
+  },
+  {
+   "n": 162,
+   "q": "Nothing is impossible, the word itself says, “I’m possible!”",
+   "a": "Audrey Hepburn",
+   "src": "kruse"
+  },
+  {
+   "n": 163,
+   "q": "Leadership is the art of getting someone else to do something you want done because he wants to do it.",
+   "a": "General Dwight Eisenhower",
+   "src": "kruse"
+  },
+  {
+   "n": 164,
+   "q": "Living without an aim is like sailing without a compass.",
+   "a": "Alexander Dumas",
+   "src": "kruse"
+  },
+  {
+   "n": 165,
+   "q": "Money, I can only gain or lose. But time I can only lose. So, I must spend it carefully.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 166,
+   "q": "Leadership is the capacity to translate vision into reality.",
+   "a": "Warren Bennis",
+   "src": "kruse"
+  },
+  {
+   "n": 167,
+   "q": "My responsibility is getting all my players playing for the name on the front of the jersey, not the one on the back.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 168,
+   "q": "Leadership is the key to 99 percent of all successful efforts.",
+   "a": "Erskine Bowles",
+   "src": "kruse"
+  },
+  {
+   "n": 169,
+   "q": "Life shrinks or expands in proportion to one’s courage.",
+   "a": "Anais Nin",
+   "src": "kruse"
+  },
+  {
+   "n": 170,
+   "q": "Leadership is unlocking people’s potential to become better.",
+   "a": "Bill Bradley",
+   "src": "kruse"
+  },
+  {
+   "n": 171,
+   "q": "Live each day as if it be your last.",
+   "a": "Marcus Aurelius",
+   "src": "kruse"
+  },
+  {
+   "n": 172,
+   "q": "Lost time is never found again.",
+   "a": "Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 173,
+   "q": "Map out your future, but do it in pencil.",
+   "a": "Jon Bon Jovi",
+   "src": "kruse"
+  },
+  {
+   "n": 174,
+   "q": "Men make history and not the other way around. In periods where there is no leadership, society stands still. Progress occurs when courageous, skillful leaders seize the opportunity to change things for the better.",
+   "a": "Harry S. Truman",
+   "src": "kruse"
+  },
+  {
+   "n": 175,
+   "q": "Nothing is ours except time.",
+   "a": "Johann Wolfgang von Goethe",
+   "src": "kruse"
+  },
+  {
+   "n": 176,
+   "q": "Obstacles are those frightful things you see when you take your eyes off your goal.",
+   "a": "Henry Ford",
+   "src": "kruse"
+  },
+  {
+   "n": 177,
+   "q": "Of course I'm ambitious. What's wrong with that? Otherwise you sleep all day.",
+   "a": "Ringo Starr",
+   "src": "kruse"
+  },
+  {
+   "n": 178,
+   "q": "One of the secrets of life is to make stepping-stones out of stumbling blocks.",
+   "a": "Jack Penn",
+   "src": "kruse"
+  },
+  {
+   "n": 179,
+   "q": "Our lives begin to end the day we become silent about things that matter.",
+   "a": "Martin Luther King Jr.",
+   "src": "kruse"
+  },
+  {
+   "n": 180,
+   "q": "Remember that not getting what you want is sometimes a wonderful stroke of luck.",
+   "a": "Dalai Lama",
+   "src": "kruse"
+  },
+  {
+   "n": 181,
+   "q": "Start where you are. Use what you have. Do what you can.",
+   "a": "Arthur Ashe",
+   "src": "kruse"
+  },
+  {
+   "n": 182,
+   "q": "The best revenge is massive success.",
+   "a": "Frank Sinatra",
+   "src": "kruse"
+  },
+  {
+   "n": 183,
+   "q": "The distance between insanity and genius is measured only by success.",
+   "a": "Bruce Feirstein",
+   "src": "kruse"
+  },
+  {
+   "n": 184,
+   "q": "The first responsibility of a leader is to define reality. The last is to say thank you. In between, the leader is a servant.",
+   "a": "Max DePree",
+   "src": "kruse"
+  },
+  {
+   "n": 185,
+   "q": "The key is in not spending time, but in investing it.",
+   "a": "Stephen R. Covey",
+   "src": "kruse"
+  },
+  {
+   "n": 186,
+   "q": "The most common way people give up their power is by thinking they don’t have any.",
+   "a": "Alice Walker",
+   "src": "kruse"
+  },
+  {
+   "n": 187,
+   "q": "The person who says it cannot be done should not interrupt the person who is doing it.",
+   "a": "Chinese Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 188,
+   "q": "The supreme quality of leadership is integrity.",
+   "a": "Dwight Eisenhower",
+   "src": "kruse"
+  },
+  {
+   "n": 189,
+   "q": "Time is money.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 190,
+   "q": "Time is what we want most, but what we use worst.",
+   "a": "William Penn",
+   "src": "kruse"
+  },
+  {
+   "n": 191,
+   "q": "Try not. Do or do not. There is no try.",
+   "a": "Yoda",
+   "src": "kruse"
+  },
+  {
+   "n": 192,
+   "q": "Until thought is linked with purpose there is no intelligent accomplishment.",
+   "a": "James Allen",
+   "src": "kruse"
+  },
+  {
+   "n": 193,
+   "q": "Until we can manage time, we can manage nothing else.",
+   "a": "Peter Drucker",
+   "src": "kruse"
+  },
+  {
+   "n": 194,
+   "q": "Until you value yourself, you will not value your time. Until you value your time, you will not do anything with it.",
+   "a": "M. Scott Peck",
+   "src": "kruse"
+  },
+  {
+   "n": 195,
+   "q": "Vision without action is a daydream. Action without vision is a nightmare.",
+   "a": "Japanese Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 196,
+   "q": "There is no such thing as failure. You either succeed or learn.",
+   "a": "Kevin Kruse",
+   "src": "kruse"
+  },
+  {
+   "n": 197,
+   "q": "We can easily forgive a child who is afraid of the dark; the real tragedy of life is when men are afraid of the light.",
+   "a": "Plato",
+   "src": "kruse"
+  },
+  {
+   "n": 198,
+   "q": "We can no more afford to spend major time on minor things than we can to spend minor time on major things.",
+   "a": "Jim Rohn",
+   "src": "kruse"
+  },
+  {
+   "n": 199,
+   "q": "When I stand before God at the end of my life, I would hope that I would not have a single bit of talent left and could say, I used everything you gave me.",
+   "a": "Erma Bombeck",
+   "src": "kruse"
+  },
+  {
+   "n": 200,
+   "q": "You can never cross the ocean until you have the courage to lose sight of the shore.",
+   "a": "Christopher Columbus",
+   "src": "kruse"
+  },
+  {
+   "n": 201,
+   "q": "You can’t fall if you don’t climb. But there’s no joy in living your whole life on the ground.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 202,
+   "q": "You may be disappointed if you fail, but you are doomed if you don’t try.",
+   "a": "Beverly Sills",
+   "src": "kruse"
+  },
+  {
+   "n": 203,
+   "q": "You must get good at one of two things. Planting in the spring or begging in the fall.",
+   "a": "Jim Rohn",
+   "src": "kruse"
+  },
+  {
+   "n": 204,
+   "q": "You take your life in your own hands, and what happens? A terrible thing, no one to blame.",
+   "a": "Erica Jong",
+   "src": "kruse"
+  },
+  {
+   "n": 205,
+   "q": "When I let go of what I am, I become what I might be.",
+   "a": "Lao Tzu",
+   "src": "kruse"
+  },
+  {
+   "n": 206,
+   "q": "Have the courage to follow your heart and intuition. They somehow already know what you truly want to become.",
+   "a": "Steve Jobs",
+   "src": "kruse"
+  },
+  {
+   "n": 207,
+   "q": "The death rate for people who play it safe and for people who live boldly is the same: 100%.",
+   "a": "Patti Digh",
+   "src": "kruse"
+  },
+  {
+   "n": 208,
+   "q": "There is no passion to be found playing small.",
+   "a": "Nelson Mandela",
+   "src": "kruse"
+  },
+  {
+   "n": 209,
+   "q": "Better three hours too soon, than one minute too late.",
+   "a": "William Shakespeare",
+   "src": "kruse"
+  },
+  {
+   "n": 210,
+   "q": "You can’t use up creativity. The more you use, the more you have.",
+   "a": "Maya Angelou",
+   "src": "kruse"
+  },
+  {
+   "n": 211,
+   "q": "A cowardly leader is the most dangerous of men.",
+   "a": "Stephen King",
+   "src": "kruse"
+  },
+  {
+   "n": 212,
+   "q": "A deadline is negative inspiration. Still, it's better than no inspiration at all.",
+   "a": "Rita Mae Brown",
+   "src": "kruse"
+  },
+  {
+   "n": 213,
+   "q": "A good general not only sees the way to victory; he also knows when victory is impossible.",
+   "a": "Polybius",
+   "src": "kruse"
+  },
+  {
+   "n": 214,
+   "q": "A great leader’s courage to fulfill his vision comes from passion, not position.",
+   "a": "John C. Maxwell",
+   "src": "kruse"
+  },
+  {
+   "n": 215,
+   "q": "A great person attracts great people and knows how to hold them together.",
+   "a": "Johann Wolfgang Von Goethe",
+   "src": "kruse"
+  },
+  {
+   "n": 216,
+   "q": "As long as I have a want, I have a reason for living. Satisfaction is death.",
+   "a": "George Bernard Shaw",
+   "src": "kruse"
+  },
+  {
+   "n": 217,
+   "q": "As we look ahead into the next century, leaders will be those who empower others.",
+   "a": "Bill Gates",
+   "src": "kruse"
+  },
+  {
+   "n": 218,
+   "q": "Between the great things we cannot do and the small things we will not do, the danger is that we shall do nothing.",
+   "a": "Adolphe Monod",
+   "src": "kruse"
+  },
+  {
+   "n": 219,
+   "q": "Difficulties increase the nearer we approach the goal.",
+   "a": "Johann Wolfgang von Goethe",
+   "src": "kruse"
+  },
+  {
+   "n": 220,
+   "q": "Don’t say you don’t have enough time. You have exactly the same number of hours per day that were given to Helen Keller, Pasteur, Michelangelo, Mother Teresa, Leonardo da Vinci, Thomas Jefferson, and Albert Einstein.",
+   "a": "H. Jackson Brown",
+   "src": "kruse"
+  },
+  {
+   "n": 221,
+   "q": "Don't be afraid to take a big step if one is indicated; you can't cross a chasm in two small jumps.",
+   "a": "David Lloyd George",
+   "src": "kruse"
+  },
+  {
+   "n": 222,
+   "q": "Education is the mother of leadership.",
+   "a": "Wendell Willkie",
+   "src": "kruse"
+  },
+  {
+   "n": 223,
+   "q": "If you want your children to turn out well, spend twice as much time with them, and half as much money.",
+   "a": "Abigail Van Buren",
+   "src": "kruse"
+  },
+  {
+   "n": 224,
+   "q": "Effective leadership is not about making speeches or being liked; leadership is defined by results not attributes.",
+   "a": "Peter Drucker",
+   "src": "kruse"
+  },
+  {
+   "n": 225,
+   "q": "Effective leadership is putting first things first. Effective management is discipline, carrying it out.",
+   "a": "Stephen Covey",
+   "src": "kruse"
+  },
+  {
+   "n": 226,
+   "q": "Even if you’re on the right track, you’ll get run over if you just sit there.",
+   "a": "Will Rogers",
+   "src": "kruse"
+  },
+  {
+   "n": 227,
+   "q": "Everything has beauty, but not everyone can see.",
+   "a": "Confucius",
+   "src": "kruse"
+  },
+  {
+   "n": 228,
+   "q": "Few things can help an individual more than to place responsibility on him, and to let him know that you trust him.",
+   "a": "Booker T. Washington",
+   "src": "kruse"
+  },
+  {
+   "n": 229,
+   "q": "For time and the world do not stand still. Change is the law of life. And those who look only to the past or the present are certain to miss the future.",
+   "a": "John F. Kennedy",
+   "src": "kruse"
+  },
+  {
+   "n": 230,
+   "q": "Gaining time is gaining everything in love, trade and war.",
+   "a": "John Shebbeare",
+   "src": "kruse"
+  },
+  {
+   "n": 231,
+   "q": "Goals are not only absolutely necessary to motivate us. They are essential to really keep us alive.",
+   "a": "Robert H. Schuller",
+   "src": "kruse"
+  },
+  {
+   "n": 232,
+   "q": "Goals determine what you're going to be.",
+   "a": "Julius Erving",
+   "src": "kruse"
+  },
+  {
+   "n": 233,
+   "q": "He that rises late must trot all day.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 234,
+   "q": "He who gains time gains everything.",
+   "a": "Benjamin Disraeli",
+   "src": "kruse"
+  },
+  {
+   "n": 235,
+   "q": "He who knows most grieves most for wasted time.",
+   "a": "Dante",
+   "src": "kruse"
+  },
+  {
+   "n": 236,
+   "q": "I am reminded how hollow the label of leadership sometimes is and how heroic followership can be.",
+   "a": "Warren Bennis",
+   "src": "kruse"
+  },
+  {
+   "n": 237,
+   "q": "I attribute my success to this: I never gave or took any excuse.",
+   "a": "Florence Nightingale",
+   "src": "kruse"
+  },
+  {
+   "n": 238,
+   "q": "I don’t think of the past. The only thing that matters is the everlasting present.",
+   "a": "Somerset Maugham",
+   "src": "kruse"
+  },
+  {
+   "n": 239,
+   "q": "I have been impressed with the urgency of doing. Knowing is not enough; we must apply. Being willing is not enough; we must do.",
+   "a": "Leonardo da Vinci",
+   "src": "kruse"
+  },
+  {
+   "n": 240,
+   "q": "If the wind will not serve, take to the oars.",
+   "a": "Latin Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 241,
+   "q": "If you don't have time to do it right you must have time to do it over.",
+   "a": "John Wooden",
+   "src": "kruse"
+  },
+  {
+   "n": 242,
+   "q": "If you don't know where you are going, you will probably end up somewhere else.",
+   "a": "Lawrence J. Peter",
+   "src": "kruse"
+  },
+  {
+   "n": 243,
+   "q": "If you have built castles in the air, your work need not be lost; that is where they should be. Now put the foundations under them.",
+   "a": "Henry David Thoreau",
+   "src": "kruse"
+  },
+  {
+   "n": 244,
+   "q": "In a day, when you don't come across any problems",
+   "a": "you can be sure that you are travelling in a wrong path. – Swami Vivekananda",
+   "src": "kruse"
+  },
+  {
+   "n": 245,
+   "q": "It is a mistake to look too far ahead. Only one link of the chain of destiny can be handled at a time.",
+   "a": "Winston Churchill",
+   "src": "kruse"
+  },
+  {
+   "n": 246,
+   "q": "It is absurd that a man should rule others, who cannot rule himself.",
+   "a": "Latin Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 247,
+   "q": "It is easier to go down a hill than up, but the view is best from the top.",
+   "a": "Arnold Bennett",
+   "src": "kruse"
+  },
+  {
+   "n": 248,
+   "q": "It is never too late to be who you might have been.",
+   "a": "George Eliot",
+   "src": "kruse"
+  },
+  {
+   "n": 249,
+   "q": "It is not what you do for your children, but what you have taught them to do for themselves, that will make them successful human beings.",
+   "a": "Ann Landers",
+   "src": "kruse"
+  },
+  {
+   "n": 250,
+   "q": "It’s not enough to be busy, so are the ants. The question is, what are we busy about?",
+   "a": "Henry David Thoreau",
+   "src": "kruse"
+  },
+  {
+   "n": 251,
+   "q": "It’s your place in the world; it’s your life. Go on and do all you can with it, and make it the life you want to live.",
+   "a": "Mae Jemison",
+   "src": "kruse"
+  },
+  {
+   "n": 252,
+   "q": "Leadership cannot just go along to get along. Leadership must meet the moral challenge of the day.",
+   "a": "Jesse Jackson",
+   "src": "kruse"
+  },
+  {
+   "n": 253,
+   "q": "Leadership is a potent combination of strategy and character. But if you must be without one, be without the strategy.",
+   "a": "Norman Schwarzkopf",
+   "src": "kruse"
+  },
+  {
+   "n": 254,
+   "q": "Life is full of obstacle illusions.",
+   "a": "Grant Frazier",
+   "src": "kruse"
+  },
+  {
+   "n": 255,
+   "q": "Look to the future, because that is where you'll spend the rest of your life.",
+   "a": "George Burns",
+   "src": "kruse"
+  },
+  {
+   "n": 256,
+   "q": "Management is efficiency in climbing the ladder of success; leadership determines whether the ladder is leaning against the right wall.",
+   "a": "Stephen Covey",
+   "src": "kruse"
+  },
+  {
+   "n": 257,
+   "q": "Never leave till tomorrow that which you can do today.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 258,
+   "q": "Never let yesterday use up today.",
+   "a": "Richard H. Nelson",
+   "src": "kruse"
+  },
+  {
+   "n": 259,
+   "q": "No man will make a great leader who wants to do it all himself, or to get all the credit for doing it.",
+   "a": "Andrew Carnegie",
+   "src": "kruse"
+  },
+  {
+   "n": 260,
+   "q": "Nothing else, perhaps, distinguishes effective executives as much as their tender loving care of time.",
+   "a": "Peter Drucker",
+   "src": "kruse"
+  },
+  {
+   "n": 261,
+   "q": "Nothing happens until something moves.",
+   "a": "Albert Einstein",
+   "src": "kruse"
+  },
+  {
+   "n": 262,
+   "q": "Once you have mastered time, you will understand how true it is that most people overestimate what they can accomplish in a year",
+   "a": "and underestimate what they can achieve in a decade. – Anthony Robbins",
+   "src": "kruse"
+  },
+  {
+   "n": 263,
+   "q": "Ordinary people think merely of spending time. Great people think of using it.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 264,
+   "q": "People often say that motivation doesn’t last. Well, neither does bathing. That’s why we recommend it daily.",
+   "a": "Zig Ziglar",
+   "src": "kruse"
+  },
+  {
+   "n": 265,
+   "q": "Realize that now, in this moment of time, you are creating. You are creating your next moment. That is what’s real.",
+   "a": "Sara Paddison",
+   "src": "kruse"
+  },
+  {
+   "n": 266,
+   "q": "Remember no one can make you feel inferior without your consent.",
+   "a": "Eleanor Roosevelt",
+   "src": "kruse"
+  },
+  {
+   "n": 267,
+   "q": "So much of what we call management consists in making it difficult for people to work.",
+   "a": "Peter Drucker",
+   "src": "kruse"
+  },
+  {
+   "n": 268,
+   "q": "The battles that count aren’t the ones for gold medals. The struggles within yourself",
+   "a": "the invisible battles inside all of us– that’s where it’s at. – Jesse Owens",
+   "src": "kruse"
+  },
+  {
+   "n": 269,
+   "q": "The future belongs to those who believe in the beauty of their dreams.",
+   "a": "Eleanor Roosevelt",
+   "src": "kruse"
+  },
+  {
+   "n": 270,
+   "q": "The great dividing line between success and failure can be expressed in five words: “I did not have time.”",
+   "a": "Franklin Field",
+   "src": "kruse"
+  },
+  {
+   "n": 271,
+   "q": "The higher goal a person pursues, the quicker his ability develops, and the more beneficial he will become to the society. I believe for sure that this is also a truth.",
+   "a": "Maksim Gorky",
+   "src": "kruse"
+  },
+  {
+   "n": 272,
+   "q": "The impossible is often the untried.",
+   "a": "Jim Goodwin",
+   "src": "kruse"
+  },
+  {
+   "n": 273,
+   "q": "The most difficult thing is the decision to act; the rest is merely tenacity.",
+   "a": "Amelia Earhart",
+   "src": "kruse"
+  },
+  {
+   "n": 274,
+   "q": "The most effective way to do it is to do it.",
+   "a": "Amelia Earhart",
+   "src": "kruse"
+  },
+  {
+   "n": 275,
+   "q": "The most important question to ask is, what am I becoming?",
+   "a": "Jim Rohn",
+   "src": "kruse"
+  },
+  {
+   "n": 276,
+   "q": "The time for action is now. It’s never too late to do something.",
+   "a": "Carl Sandburg",
+   "src": "kruse"
+  },
+  {
+   "n": 277,
+   "q": "The very essence of leadership is that you have to have a vision. It’s got to be a vision you articulate clearly and forcefully on every occasion. You can’t blow an uncertain trumpet.",
+   "a": "Reverend Theodore Hesburgh",
+   "src": "kruse"
+  },
+  {
+   "n": 278,
+   "q": "There are no shortcuts to any place worth going.",
+   "a": "Beverly Sills",
+   "src": "kruse"
+  },
+  {
+   "n": 279,
+   "q": "Though no one can go back and make a brand new start, anyone can start from now and make a brand new ending.",
+   "a": "Attributed to Carl Bard",
+   "src": "kruse"
+  },
+  {
+   "n": 280,
+   "q": "Time is a great teacher, but unfortunately it kills all its pupils.",
+   "a": "Hector Louis Berlioz",
+   "src": "kruse"
+  },
+  {
+   "n": 281,
+   "q": "Time lost is never found again.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 282,
+   "q": "To do great things is difficult; but to command great things is more difficult.",
+   "a": "Friedrich Nietzsche",
+   "src": "kruse"
+  },
+  {
+   "n": 283,
+   "q": "We must believe that we are gifted for something, and that this thing, at whatever cost, must be attained.",
+   "a": "Marie Curie",
+   "src": "kruse"
+  },
+  {
+   "n": 284,
+   "q": "What you get by achieving your goals is not as important as what you become by achieving your goals.",
+   "a": "Zig Ziglar",
+   "src": "kruse"
+  },
+  {
+   "n": 285,
+   "q": "While we are postponing, life speeds by.",
+   "a": "Seneca",
+   "src": "kruse"
+  },
+  {
+   "n": 286,
+   "q": "You can’t change the past, but you can ruin the present by worrying about the future.",
+   "a": "Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 287,
+   "q": "You cannot do a kindness too soon, for you never know how soon it will be too late.",
+   "a": "Ralph Waldo Emerson",
+   "src": "kruse"
+  },
+  {
+   "n": 288,
+   "q": "Every day of your working life is part of an interview for a job you don't even know you're going for yet.",
+   "a": "Adam Darowski",
+   "src": "kruse"
+  },
+  {
+   "n": 289,
+   "q": "Risk more than others think is safe. Care more than others think is wise. Dream more than others think is practical. Expect more than others think is possible.",
+   "a": "Claude Bissell",
+   "src": "kruse"
+  },
+  {
+   "n": 290,
+   "q": "You never know when a moment and a few sincere words can have an impact on a life.",
+   "a": "Zig Ziglar",
+   "src": "kruse"
+  },
+  {
+   "n": 291,
+   "q": "A hundred years from now it will not matter what my bank account was, the sort of house I lived in, or the kind of car I drove…but the world may be different because I was important in the life of a child.",
+   "a": "Forest Witcraft",
+   "src": "kruse"
+  },
+  {
+   "n": 292,
+   "q": "Establishing goals is all right if you don't let them deprive you of interesting detours.",
+   "a": "Doug Larson",
+   "src": "kruse"
+  },
+  {
+   "n": 293,
+   "q": "Great leaders are almost always great simplifiers, who can cut through argument, debate, and doubt to offer a solution everybody can understand.",
+   "a": "General Colin Powell",
+   "src": "kruse"
+  },
+  {
+   "n": 294,
+   "q": "He does not seem to me to be a free man who does not sometimes do nothing.",
+   "a": "Cicero",
+   "src": "kruse"
+  },
+  {
+   "n": 295,
+   "q": "He lives long that lives well; and time misspent is not lived but lost.",
+   "a": "Thomas Fuller",
+   "src": "kruse"
+  },
+  {
+   "n": 296,
+   "q": "I love deadlines. I like the whooshing sound they make as they fly by.",
+   "a": "Douglas Adams",
+   "src": "kruse"
+  },
+  {
+   "n": 297,
+   "q": "If it weren’t for the last minute, a lot of things wouldn’t get done.",
+   "a": "Michael S. Traylor",
+   "src": "kruse"
+  },
+  {
+   "n": 298,
+   "q": "If you want to make good use of your time, you’ve got to know what’s most important and then give it all you’ve got.",
+   "a": "Lee Iacocca",
+   "src": "kruse"
+  },
+  {
+   "n": 299,
+   "q": "If you would hit the mark, you must aim a little above it; every arrow that flies feels the attraction of earth.",
+   "a": "Henry Wadsworth Longfellow",
+   "src": "kruse"
+  },
+  {
+   "n": 300,
+   "q": "If you're bored with life",
+   "a": "–you don't get up every morning with a burning desire to do things ––you don't have enough goals. – Lou Holtz",
+   "src": "kruse"
+  },
+  {
+   "n": 301,
+   "q": "It is a most mortifying reflection for a man to consider what he has done, compared to what he might have done.",
+   "a": "Samuel Johnson",
+   "src": "kruse"
+  },
+  {
+   "n": 302,
+   "q": "It’s how we spend our time here and now, that really matters. If you are fed up with the way you have come to interact with time, change it.",
+   "a": "Marcia Wieder",
+   "src": "kruse"
+  },
+  {
+   "n": 303,
+   "q": "Leaders think and talk about the solutions. Followers think and talk about the problems.",
+   "a": "Brian Tracy",
+   "src": "kruse"
+  },
+  {
+   "n": 304,
+   "q": "Leadership and learning are indispensable to each other.",
+   "a": "John F. Kennedy",
+   "src": "kruse"
+  },
+  {
+   "n": 305,
+   "q": "Leadership is solving problems. The day soldiers stop bringing you their problems is the day you have stopped leading them. They have either lost confidence that you can help or concluded you do not care. Either case is a failure of leadership.",
+   "a": "General Colin Powell",
+   "src": "kruse"
+  },
+  {
+   "n": 306,
+   "q": "Lost wealth may be replaced by industry, lost knowledge by study, lost health by temperance or medicine, but lost time is gone forever.",
+   "a": "Samuel Smiles",
+   "src": "kruse"
+  },
+  {
+   "n": 307,
+   "q": "Management is about arranging and telling. Leadership is about nurturing and enhancing.",
+   "a": "Tom Peters",
+   "src": "kruse"
+  },
+  {
+   "n": 308,
+   "q": "Only those who will risk going too far can possibly find out how far one can go.",
+   "a": "T.S. Eliot",
+   "src": "kruse"
+  },
+  {
+   "n": 309,
+   "q": "Outstanding leaders go out of their way to boost the self",
+   "a": "esteem of their personnel. If people believe in themselves, it’s amazing what they can accomplish. – Sam Walton",
+   "src": "kruse"
+  },
+  {
+   "n": 310,
+   "q": "Perhaps when we find ourselves wanting everything, it is because we are dangerously close to wanting nothing.",
+   "a": "Sylvia Plath",
+   "src": "kruse"
+  },
+  {
+   "n": 311,
+   "q": "Some of the world's greatest feats were accomplished by people not smart enough to know they were impossible.",
+   "a": "Doug Larson",
+   "src": "kruse"
+  },
+  {
+   "n": 312,
+   "q": "Take a rest. A field that has rested yields a beautiful crop.",
+   "a": "Ovid",
+   "src": "kruse"
+  },
+  {
+   "n": 313,
+   "q": "Take the first step in faith. We don't need to see the whole staircase; we just need to take the first step.",
+   "a": "Martin Luther King Jr",
+   "src": "kruse"
+  },
+  {
+   "n": 314,
+   "q": "Teach thy tongue to say, “I do not know,” and thou shalt progress.",
+   "a": "Maimonides",
+   "src": "kruse"
+  },
+  {
+   "n": 315,
+   "q": "The best angle from which to approach any problem is the try",
+   "a": "angle. – Author Unknown",
+   "src": "kruse"
+  },
+  {
+   "n": 316,
+   "q": "The best executive is the one who has sense enough to pick good men to do what he wants done, and self",
+   "a": "restraint enough to keep from meddling with them while they do it. – Theodore Roosevelt",
+   "src": "kruse"
+  },
+  {
+   "n": 317,
+   "q": "The growth and development of people is the highest calling of leadership.",
+   "a": "Harvey Firestone",
+   "src": "kruse"
+  },
+  {
+   "n": 318,
+   "q": "The important thing in life is to have a great aim, and the determination to attain it.",
+   "a": "Johann Wolfgang von Goethe",
+   "src": "kruse"
+  },
+  {
+   "n": 319,
+   "q": "The key to successful leadership today is influence, not authority.",
+   "a": "Kenneth Blanchard",
+   "src": "kruse"
+  },
+  {
+   "n": 320,
+   "q": "The leader has to be practical and a realist yet must talk the language of the visionary and the idealist.",
+   "a": "Eric Hoffer",
+   "src": "kruse"
+  },
+  {
+   "n": 321,
+   "q": "The nation will find it very hard to look up to the leaders who are keeping their ears to the ground.",
+   "a": "Sir Winston Churchill",
+   "src": "kruse"
+  },
+  {
+   "n": 322,
+   "q": "The only person you are destined to become is the person you decide to be.",
+   "a": "Ralph Waldo Emerson",
+   "src": "kruse"
+  },
+  {
+   "n": 323,
+   "q": "The real pleasure of one's life is the devotion to a great objective of one's consideration.",
+   "a": "George Bernard Shaw",
+   "src": "kruse"
+  },
+  {
+   "n": 324,
+   "q": "The rung of a ladder was never meant to rest upon, but only to hold a man's foot long enough to enable him to put the other somewhat higher.",
+   "a": "Thomas Henry Huxley",
+   "src": "kruse"
+  },
+  {
+   "n": 325,
+   "q": "Every no gets me closer to a yes.",
+   "a": "Mark Cuban",
+   "src": "kruse"
+  },
+  {
+   "n": 326,
+   "q": "The time you enjoy wasting is not wasted time.",
+   "a": "Bertrand Russell",
+   "src": "kruse"
+  },
+  {
+   "n": 327,
+   "q": "The world is moving so fast these days that the man who says it can't be done is generally interrupted by someone doing it.",
+   "a": "Elbert Hubbard",
+   "src": "kruse"
+  },
+  {
+   "n": 328,
+   "q": "The worst days of those who enjoy what they do are better than the best days of those who don’t.",
+   "a": "Jim Rohn",
+   "src": "kruse"
+  },
+  {
+   "n": 329,
+   "q": "The young do not know enough to be prudent, and therefore they attempt the impossible",
+   "a": "and achieve it, generation after generation. – Pearl S. Buck",
+   "src": "kruse"
+  },
+  {
+   "n": 330,
+   "q": "This time, like all times, is a very good one, if we but know what to do with it.",
+   "a": "Ralph Waldo Emerson",
+   "src": "kruse"
+  },
+  {
+   "n": 331,
+   "q": "Those who make the worse use of their time are the first to complain of its shortness.",
+   "a": "Jean De La Bruyere",
+   "src": "kruse"
+  },
+  {
+   "n": 332,
+   "q": "Time is a great healer, but a poor beautician.",
+   "a": "Lucille Harper",
+   "src": "kruse"
+  },
+  {
+   "n": 333,
+   "q": "Time is really the only capital that any human being has, and the only thing he can’t afford to lose.",
+   "a": "Thomas Edison",
+   "src": "kruse"
+  },
+  {
+   "n": 334,
+   "q": "Time is the wisest counselor of all.",
+   "a": "Pericles",
+   "src": "kruse"
+  },
+  {
+   "n": 335,
+   "q": "Time will take your money, but money won't buy time.",
+   "a": "James Taylor",
+   "src": "kruse"
+  },
+  {
+   "n": 336,
+   "q": "To think too long about doing a thing often becomes its undoing.",
+   "a": "Eva Young",
+   "src": "kruse"
+  },
+  {
+   "n": 337,
+   "q": "To do two things at once is to do neither.",
+   "a": "Publius Syrus",
+   "src": "kruse"
+  },
+  {
+   "n": 338,
+   "q": "True leadership lies in guiding others to success. In ensuring that everyone is performing at their best, doing the work they are pledged to do and doing it well.",
+   "a": "Bill Owens",
+   "src": "kruse"
+  },
+  {
+   "n": 339,
+   "q": "What is not started today is never finished tomorrow.",
+   "a": "Johann Wolfgang von Goethe",
+   "src": "kruse"
+  },
+  {
+   "n": 340,
+   "q": "What may be done at any time will be done at no time.",
+   "a": "Scottish Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 341,
+   "q": "When everything seems to be going against you, remember that the airplane takes off against the wind, not with it.",
+   "a": "Henry Ford",
+   "src": "kruse"
+  },
+  {
+   "n": 342,
+   "q": "When I give a minister an order, I leave it to him to find the means to carry it out.",
+   "a": "Napoleon Bonaparte",
+   "src": "kruse"
+  },
+  {
+   "n": 343,
+   "q": "Work expands so as to fill the time available for its completion.",
+   "a": "Cyril Parkinson",
+   "src": "kruse"
+  },
+  {
+   "n": 344,
+   "q": "You gain strength, courage and confidence by every experience in which you really stop to look fear in the face. You must do the thing you think you cannot do.",
+   "a": "Eleanor Roosevelt",
+   "src": "kruse"
+  },
+  {
+   "n": 345,
+   "q": "You may delay, but time will not.",
+   "a": "Benjamin Franklin",
+   "src": "kruse"
+  },
+  {
+   "n": 346,
+   "q": "You must have long",
+   "a": "range goals to keep you from being frustrated by short–range failures. – Charles C. Noble",
+   "src": "kruse"
+  },
+  {
+   "n": 347,
+   "q": "Your goals are the road maps that guide you and show you what is possible for your life.",
+   "a": "Les Brown",
+   "src": "kruse"
+  },
+  {
+   "n": 348,
+   "q": "You cannot change your destination overnight, but you can change your direction overnight.",
+   "a": "Jim Rohn",
+   "src": "kruse"
+  },
+  {
+   "n": 349,
+   "q": "If you obey all the rules, you miss all the fun.",
+   "a": "Katharine Hepburn",
+   "src": "kruse"
+  },
+  {
+   "n": 350,
+   "q": "The best way to succeed is to double your failure rate.",
+   "a": "Thomas Watson",
+   "src": "kruse"
+  },
+  {
+   "n": 351,
+   "q": "This to shall pass.",
+   "a": "Proverb",
+   "src": "kruse"
+  },
+  {
+   "n": 352,
+   "q": "After climbing a great hill, one only finds that there are many more hills to climb.",
+   "a": "Nelson Mandela",
+   "src": "kruse"
+  },
+  {
+   "n": 353,
+   "q": "Winning isn’t everything, but wanting to win is.",
+   "a": "Vince Lombardi",
+   "src": "kruse"
+  },
+  {
+   "n": 354,
+   "q": "You can’t cross the sea merely by standing and staring at the water.",
+   "a": "Rabindranath Tagore",
+   "src": "kruse"
+  },
+  {
+   "n": 355,
+   "q": "You don’t lead by hitting people over the head",
+   "a": "that’s assault, not leadership. – Dwight Eisenhower",
+   "src": "kruse"
+  },
+  {
+   "n": 356,
+   "q": "You don’t lead by pointing and telling people some place to go. You lead by going to that place and making a case.",
+   "a": "Ken Kesey",
+   "src": "kruse"
+  },
+  {
+   "n": 357,
+   "q": "A competent leader can get efficient service from poor troops, while on the contrary an incapable leader can demoralize the best of troops.",
+   "a": "John Pershing",
+   "src": "kruse"
+  },
+  {
+   "n": 358,
+   "q": "A ruler should be slow to punish and swift to reward.",
+   "a": "Ovid",
+   "src": "kruse"
+  },
+  {
+   "n": 359,
+   "q": "A straight path never leads anywhere except to the objective.",
+   "a": "Andre Gide",
+   "src": "kruse"
+  },
+  {
+   "n": 360,
+   "q": "A wise person does at once, what a fool does at last. Both do the same thing; only at different times.",
+   "a": "Baltasar Gracián",
+   "src": "kruse"
+  },
+  {
+   "n": 361,
+   "q": "Work like there is someone working 24 hours a day to take it away from you.",
+   "a": "Mark Cuban",
+   "src": "kruse"
+  },
+  {
+   "n": 362,
+   "q": "The surest way to be late is to have plenty of time.",
+   "a": "Leo Kennedy",
+   "src": "kruse"
+  },
+  {
+   "n": 363,
+   "q": "The space you occupy and the authority you exercise may be measured with mathematical exactness by the service you render.",
+   "a": "Napoleon Hill",
+   "src": "kruse"
+  },
+  {
+   "n": 364,
+   "q": "If you only knock long enough and loud enough at the gate, you are sure to wake somebody up.",
+   "a": "Henry Longfellow",
+   "src": "kruse"
+  },
+  {
+   "n": 365,
+   "q": "By perseverance the snail reached the ark.",
+   "a": "Charles Spurgeon",
+   "src": "kruse"
+  }
+ ],
+ "tao": [
+  {
+   "md": [
+    1,
+    2
+   ],
+   "q": "The tallest tree begins as a tiny sprout. The tallest building starts with one shovel of dirt. A journey of a thousand miles starts with a single footstep.",
+   "a": "Tao Te Ching, Chapter 64",
+   "src": "tao"
+  },
+  {
+   "md": [
+    1,
+    8
+   ],
+   "q": "The Tao is like an empty container: it can never be emptied and can never be filled. Infinitely deep, it is the Source of all things.",
+   "a": "Tao Te Ching, Chapter 4",
+   "src": "tao"
+  },
+  {
+   "md": [
+    1,
+    14
+   ],
+   "q": "The supreme good is like water, which benefits all of creation without trying to compete with it.",
+   "a": "Tao Te Ching, Chapter 8",
+   "src": "tao"
+  },
+  {
+   "md": [
+    1,
+    20
+   ],
+   "q": "Fishes are born in water. Man is born in Tao. If fishes get ponds to live in, they thrive. If man gets Tao to live in, he may live his life in peace.",
+   "a": "Chuang Tzu (Translated By Herbert Giles)",
+   "src": "tao"
+  },
+  {
+   "md": [
+    1,
+    26
+   ],
+   "q": "[The Sages of old] were careful as someone crossing a frozen stream in winter. Alert as if surrounded on all sides by the enemy. Courteous as a guest. Fluid as melting ice. Whole as an uncarved block of wood. Receptive as a valley.",
+   "a": "Tao Te Ching, Chapter 15",
+   "src": "tao"
+  },
+  {
+   "md": [
+    2,
+    3
+   ],
+   "q": "Therefore the Master can act without doing anything and teach without saying a word. Things come her way and she does not stop them; things leave and she lets them go.",
+   "a": "Tao Te Ching, Chapter 2",
+   "src": "tao"
+  },
+  {
+   "md": [
+    2,
+    9
+   ],
+   "q": "The Master puts herself last; and finds herself in the place of authority. She detaches herself from all things; therefore she is united with all things.",
+   "a": "Tao Te Ching, Chapter 7",
+   "src": "tao"
+  },
+  {
+   "md": [
+    2,
+    15
+   ],
+   "q": "Both small and great things must equally possess form. The mind cannot picture to itself a thing without form, nor conceive a form of unlimited dimensions.",
+   "a": "Chuang Tzu (Translated By Herbert Giles)",
+   "src": "tao"
+  },
+  {
+   "md": [
+    2,
+    21
+   ],
+   "q": "Thirty spokes are joined together in a wheel, but it is the center hole that allows the wheel to function. We mold clay into a pot, but it is the emptiness inside that makes the vessel useful.",
+   "a": "Tao Te Ching, Chapter 11",
+   "src": "tao"
+  },
+  {
+   "md": [
+    2,
+    27
+   ],
+   "q": "If you open yourself to the Tao, the Tao will eagerly welcome you.",
+   "a": "Tao Te Ching, Chapter 23",
+   "src": "tao"
+  },
+  {
+   "md": [
+    3,
+    4
+   ],
+   "q": "It is all right to abandon compass and square if you are a mirror held up to real shapes.",
+   "a": "Lu Ji (Translated By Barnstone/Ping In The Art Of Writing: Teachings Of The Chinese Masters )",
+   "src": "tao"
+  },
+  {
+   "md": [
+    3,
+    8
+   ],
+   "q": "Those who stand on tiptoes do not stand firmly. Those who rush ahead don’t get very far. Those who try to outshine others dim their own light.",
+   "a": "Tao Te Ching, Chapter 24",
+   "src": "tao"
+  },
+  {
+   "md": [
+    3,
+    11
+   ],
+   "q": "Look at this window: it is nothing but a hole in the wall, but because of it the whole room is full of light. So, when the faculties are empty, the heart is full of light.",
+   "a": "Chuang Tzu (Translated By Thomas Merton, The Way Of Chu Ang Tzu )",
+   "src": "tao"
+  },
+  {
+   "md": [
+    3,
+    19
+   ],
+   "q": "All things end in the Tao just as the small streams and the largest rivers flow through valleys to the sea.",
+   "a": "Tao Te Ching, Chapter 32",
+   "src": "tao"
+  },
+  {
+   "md": [
+    3,
+    26
+   ],
+   "q": "The Tao is nameless and unchanging. Although it appears insignificant, nothing in the world can contain it.",
+   "a": "Tao Te Ching, Chapter 32",
+   "src": "tao"
+  },
+  {
+   "md": [
+    4,
+    3
+   ],
+   "q": "Love the whole world as if it were your self; then you will truly care for all things.",
+   "a": "Tao Te Ching, Chapter 13",
+   "src": "tao"
+  },
+  {
+   "md": [
+    4,
+    9
+   ],
+   "q": "The greatest virtue you can have comes from following only the Tao.",
+   "a": "Tao Te Ching, Chapter 21",
+   "src": "tao"
+  },
+  {
+   "md": [
+    4,
+    15
+   ],
+   "q": "To age with the sun and moon and be renewed by spring and summer, to conserve the seeds of growth in autumn and winter and to be nourished by the eternal breath of the Tao, these are the goals of the Taoist alchemists, the masters of the arts of health, longevity, and immortality.",
+   "a": "Eva Wong, Harmonizing Yin And Yang",
+   "src": "tao"
+  },
+  {
+   "md": [
+    4,
+    21
+   ],
+   "q": "When the Tao is forgotten, there is righteousness. When righteousness is forgotten, there is morality. When morality is forgotten, there is the law. The law is the husk of faith, and [blind] trust is the beginning of chaos.",
+   "a": "Tao Te Ching, Chapter 38",
+   "src": "tao"
+  },
+  {
+   "md": [
+    4,
+    27
+   ],
+   "q": "The Tao hides in the unnamed, Yet it alone nourishes and completes all things.",
+   "a": "Tao Te Ching, Chapter 41",
+   "src": "tao"
+  },
+  {
+   "md": [
+    5,
+    2
+   ],
+   "q": "The tao that can be described is not the eternal Tao. The name that can be spoken is not the eternal Name.",
+   "a": "Tao Te Ching, Chapter 1",
+   "src": "tao"
+  },
+  {
+   "md": [
+    5,
+    8
+   ],
+   "q": "For those who practice not-doing, everything will fall into place.",
+   "a": "Tao Te Ching, Chapter 3",
+   "src": "tao"
+  },
+  {
+   "md": [
+    5,
+    14
+   ],
+   "q": "The mind of the Sage, being in repose, becomes the mirror of the universe, the speculum of all creation.",
+   "a": "Chuang Tzu (Translated By Herbert Giles)",
+   "src": "tao"
+  },
+  {
+   "md": [
+    5,
+    20
+   ],
+   "q": "The knowledge and skills you have achieved are meant to be forgotten so you can float comfortably in emptiness, without obstruction.",
+   "a": "Bruce Lee",
+   "src": "tao"
+  },
+  {
+   "md": [
+    5,
+    27
+   ],
+   "q": "Can you focus your life-breath until you become supple as a newborn child?",
+   "a": "Tao Te Ching, Chapter 10",
+   "src": "tao"
+  },
+  {
+   "md": [
+    6,
+    2
+   ],
+   "q": "Whoever knows contentment will be at peace forever.",
+   "a": "Tao Te Ching, Chapter 46",
+   "src": "tao"
+  },
+  {
+   "md": [
+    6,
+    8
+   ],
+   "q": "Those who know others are intelligent; those who know themselves are truly wise. Those who master others are strong; those who master themselves have true power.",
+   "a": "Tao Te Ching, Chapter 33",
+   "src": "tao"
+  },
+  {
+   "md": [
+    6,
+    14
+   ],
+   "q": "To attain perfect happiness and harmony in life, [Chuang Tzu] says, you need not become a sage; it is sufficient to free your mind and flow along smoothly with the course of Tao.",
+   "a": "Livia Kohn, Chuang-Tzu: The Tao Of Perfect Happiness",
+   "src": "tao"
+  },
+  {
+   "md": [
+    6,
+    20
+   ],
+   "q": "One who is filled with the Tao is like a newborn child.",
+   "a": "Tao Te Ching, Chapter 55",
+   "src": "tao"
+  },
+  {
+   "md": [
+    6,
+    26
+   ],
+   "q": "Getting or losing: how to tell which is which? I lean here smiling softly to the breeze. The spider so pleased with his artful web has netted only fallen blossoms, not a single bug to eat.",
+   "a": "Yuan Mei (Translated By J. P. Seaton)",
+   "src": "tao"
+  },
+  {
+   "md": [
+    7,
+    1
+   ],
+   "q": "We should never forget: What we are looking for is what is looking.",
+   "a": "Wei Wu Wei, Posthumous Pieces",
+   "src": "tao"
+  },
+  {
+   "md": [
+    7,
+    7
+   ],
+   "q": "Because [Tao] is Great means it is everywhere. Being everywhere means it is eternal. Being eternal means everything returns to it.",
+   "a": "Tao Te Ching, Chapter 25",
+   "src": "tao"
+  },
+  {
+   "md": [
+    7,
+    14
+   ],
+   "q": "[The Master] is there to help all of creation, and doesn’t abandon even the smallest creature. This is called embracing the light.",
+   "a": "Tao Te Ching, Chapter 27",
+   "src": "tao"
+  },
+  {
+   "md": [
+    7,
+    21
+   ],
+   "q": "The soft and pliable overcomes the hard and inflexible.",
+   "a": "Tao Te Ching, Chapter 36",
+   "src": "tao"
+  },
+  {
+   "md": [
+    7,
+    28
+   ],
+   "q": "The highest good is not to seek to do good, but to allow yourself to become it.",
+   "a": "Tao Te Ching, Chapter 38",
+   "src": "tao"
+  },
+  {
+   "md": [
+    8,
+    3
+   ],
+   "q": "[The Tao] gives them life without wanting to posses them, and cares for them expecting nothing in return. It is their master, but it does not seek to dominate them. This is called the dark and mysterious virtue.",
+   "a": "Tao Te Ching, Chapter 51",
+   "src": "tao"
+  },
+  {
+   "md": [
+    8,
+    9
+   ],
+   "q": "The Tao never acts with force, yet there is nothing that it cannot do.",
+   "a": "Tao Te Ching, Chapter 37",
+   "src": "tao"
+  },
+  {
+   "md": [
+    8,
+    15
+   ],
+   "q": "Rivers and seas are rulers of the streams of hundreds of valleys because of the power of their low position.",
+   "a": "Tao Te Ching, Chapter 66",
+   "src": "tao"
+  },
+  {
+   "md": [
+    8,
+    21
+   ],
+   "q": "Act by not acting; do by not doing. Enjoy the plain and simple. Find that greatness in the small.",
+   "a": "Tao Te Ching, Chapter 63",
+   "src": "tao"
+  },
+  {
+   "md": [
+    8,
+    27
+   ],
+   "q": "Whether to oppose or conform is up to the mind; on the peaks of a thousand mountains, one sings and hums forever.",
+   "a": "Liu I-Ming (Translated By Thomas Cleary In Awakening To The Tao )",
+   "src": "tao"
+  },
+  {
+   "md": [
+    9,
+    2
+   ],
+   "q": "The rigid and stiff will be broken. The soft and yielding will overcome.",
+   "a": "Tao Te Ching, Chapter 76",
+   "src": "tao"
+  },
+  {
+   "md": [
+    9,
+    8
+   ],
+   "q": "The nondual reality that we’ve been searching for, is already present as our own awareness. This means it’s not a concept to be learned , it’s an ever-present actuality that is to be recognized .",
+   "a": "John Sefton, Identifying Nonduality",
+   "src": "tao"
+  },
+  {
+   "md": [
+    9,
+    15
+   ],
+   "q": "Stop talking, meditate in silence, blunt your sharpness, release your worries, harmonize your inner light, and become one with the dust. Doing this is called the dark and mysterious identity.",
+   "a": "Tao Te Ching, Chapter 56",
+   "src": "tao"
+  },
+  {
+   "md": [
+    9,
+    21
+   ],
+   "q": "Sometimes there is no sun or moon in the sky, but there is never an absence of the essence of seeing that sees the sun and moon.",
+   "a": "Liu Tung-Pin (Translated By Thomas Cleary In The Secret Of The Golden Flower )",
+   "src": "tao"
+  },
+  {
+   "md": [
+    9,
+    28
+   ],
+   "q": "One who seeks knowledge learns something new every day. One who seeks the Tao unlearns something new every day. Less and less remains until you arrive at non-action. When you arrive at non-action, nothing will be left undone.",
+   "a": "Tao Te Ching, Chapter 48",
+   "src": "tao"
+  },
+  {
+   "md": [
+    10,
+    3
+   ],
+   "q": "Look for it, and it can’t be seen. Listen for it, and it can’t be heard. Grasp for it, and it can’t be caught.",
+   "a": "Tao Te Ching, Chapter 14",
+   "src": "tao"
+  },
+  {
+   "md": [
+    10,
+    9
+   ],
+   "q": "Those who lead people by following the Tao don’t use weapons to enforce their will. Using force always leads to unseen troubles.",
+   "a": "Tao Te Ching, Chapter 30",
+   "src": "tao"
+  },
+  {
+   "md": [
+    10,
+    15
+   ],
+   "q": "Rank and precedence, which the vulgar prize, the Sage stolidly ignores. The revolutions of ten thousand years leave his unity unscathed. The universe itself may pass away, but he will flourish still.",
+   "a": "Chuang Tzu (Translated By Herbert Giles)",
+   "src": "tao"
+  },
+  {
+   "md": [
+    10,
+    21
+   ],
+   "q": "The spirit of emptiness is immortal. It is called the Great Mother because it gives birth to Heaven and Earth. It is like a vapor, barely seen but always present. Use it effortlessly.",
+   "a": "Tao Te Ching, Chapter 6",
+   "src": "tao"
+  },
+  {
+   "md": [
+    10,
+    27
+   ],
+   "q": "The master seeks no possessions. She learns by unlearning, thus she is able to understand all things. This gives her the ability to help all of creation.",
+   "a": "Tao Te Ching, Chapter 64",
+   "src": "tao"
+  },
+  {
+   "md": [
+    11,
+    3
+   ],
+   "q": "There are three jewels that I cherish: compassion, moderation, and humility.",
+   "a": "Tao Te Ching, Chapter 67",
+   "src": "tao"
+  },
+  {
+   "md": [
+    11,
+    9
+   ],
+   "q": "If you want to become whole, first let yourself become broken. If you want to become straight, first let yourself become twisted. If you want to become full, first let yourself become empty.",
+   "a": "Tao Te Ching, Chapter 22",
+   "src": "tao"
+  },
+  {
+   "md": [
+    11,
+    15
+   ],
+   "q": "If you invest everything in something that, by nature, is unstable, while there is nothing wrong with doing so, you must acknowledge that one day, you will have to let it go.",
+   "a": "Shi Heng Yi, Shaolin Temple Europe",
+   "src": "tao"
+  },
+  {
+   "md": [
+    11,
+    23
+   ],
+   "q": "Water is the softest and most yielding substance. Yet nothing is better than water, for overcoming the hard and rigid, because nothing can compete with it.",
+   "a": "Tao Te Ching, Chapter 78",
+   "src": "tao"
+  },
+  {
+   "md": [
+    11,
+    29
+   ],
+   "q": "In a hundred years, everyone we know will be just a pile of bones. What is there to gain in life, and what is there to lose in death?",
+   "a": "Lieh-Tzu (Translated By Eva Wong, Lieh-Tzu: A Taoist Guide To Practical Living )",
+   "src": "tao"
+  },
+  {
+   "md": [
+    12,
+    5
+   ],
+   "q": "Humanity follows the earth. Earth follows Heaven. Heaven follows the Tao. The Tao follows only itself.",
+   "a": "Tao Te Ching, Chapter 25",
+   "src": "tao"
+  },
+  {
+   "md": [
+    12,
+    11
+   ],
+   "q": "Being one with Tao, we are no longer concerned about losing our life because we know the Tao is constant and we are one with Tao.",
+   "a": "Tao Te Ching, Chapter 16",
+   "src": "tao"
+  },
+  {
+   "md": [
+    12,
+    17
+   ],
+   "q": "The Tao of Heaven nourishes by not forcing. The Tao of the Wise person acts by not competing.",
+   "a": "Tao Te Ching, Chapter 81",
+   "src": "tao"
+  },
+  {
+   "md": [
+    12,
+    22
+   ],
+   "q": "How does the Sage seat himself by the sun and moon, and hold the universe in his grasp? He blends everything into one harmonious whole, rejecting the confusion of this and that.",
+   "a": "Chuang Tzu (Translated By Herbert Giles)",
+   "src": "tao"
+  },
+  {
+   "md": [
+    12,
+    30
+   ],
+   "q": "The Tao is nearby, yet people seek wonderful doctrines far away.",
+   "a": "Liu I-Ming (Translated By Thomas Cleary In Awakening To The Tao )",
+   "src": "tao"
+  }
+ ]
+}

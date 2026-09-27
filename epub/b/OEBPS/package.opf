@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package version="3.0" unique-identifier="p9798886088168" prefix="rendition: http://www.idpf.org/vocab/rendition/# ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/" xmlns="http://www.idpf.org/2007/opf">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    <meta property="ibooks:specified-fonts">true</meta>
+    <dc:title id="t1">A Year of Taoism</dc:title>
+    <meta property="title-type" refines="#t1">main</meta>
+    <dc:creator id="creator01">Reninger, Elizabeth;</dc:creator>
+    <meta property="file-as" refines="#creator01">Reninger, Elizabeth</meta>
+    <meta property="role" refines="#creator01" scheme="marc:relators">aut</meta>
+    <meta property="display-seq" refines="#creator01">1</meta>
+    <dc:publisher>Callisto Media Inc.</dc:publisher>
+    <dc:date id="published">2022-09-27</dc:date>
+    <dc:rights>Copyright © 2022 by Rockridge Press</dc:rights>
+    <dc:source>9781685397296</dc:source>
+    <dc:type>Text</dc:type>
+    <dc:format>276 pages</dc:format>
+    <dc:language>en</dc:language>
+    <meta name="cover" content="cover-image"/>
+    <meta property="dcterms:modified">2023-11-29T11:14:22Z</meta>
+    <dc:identifier id="p9798886088168">30943425</dc:identifier>
+    <meta name="Sigil version" content="2.0.1"/>
+  </metadata>
+  <manifest>
+    <item id="cover" href="xhtml/cover.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji001_title" href="xhtml/001_title.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji002_copyright" href="xhtml/002_copyright.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji003_dedication" href="xhtml/003_dedication.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji004_contents" href="xhtml/004_contents.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji005_FM_001" href="xhtml/005_FM_001.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji006_FM_002" href="xhtml/006_FM_002.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji007_part_001" href="xhtml/007_part_001.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji008_chapter_001" href="xhtml/008_chapter_001.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji009_part_002" href="xhtml/009_part_002.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji010_chapter_002" href="xhtml/010_chapter_002.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji011_part_003" href="xhtml/011_part_003.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji012_chapter_003" href="xhtml/012_chapter_003.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji013_part_004" href="xhtml/013_part_004.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji014_chapter_004" href="xhtml/014_chapter_004.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji015_part_005" href="xhtml/015_part_005.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji016_chapter_005" href="xhtml/016_chapter_005.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji017_part_006" href="xhtml/017_part_006.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji018_chapter_006" href="xhtml/018_chapter_006.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji019_part_007" href="xhtml/019_part_007.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji020_chapter_007" href="xhtml/020_chapter_007.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji021_part_008" href="xhtml/021_part_008.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji022_chapter_008" href="xhtml/022_chapter_008.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji023_part_009" href="xhtml/023_part_009.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji024_chapter_009" href="xhtml/024_chapter_009.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji025_part_010" href="xhtml/025_part_010.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji026_chapter_010" href="xhtml/026_chapter_010.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji027_part_011" href="xhtml/027_part_011.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji028_chapter_011" href="xhtml/028_chapter_011.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji029_part_012" href="xhtml/029_part_012.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji030_chapter_012" href="xhtml/030_chapter_012.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji031_BM_001" href="xhtml/031_BM_001.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji032_BM_002" href="xhtml/032_BM_002.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji033_BM_003" href="xhtml/033_BM_003.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ji034_BM_004" href="xhtml/034_BM_004.xhtml" media-type="application/xhtml+xml"/>
+    <item id="nav" href="xhtml/nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    <item id="idGeneratedStyles_0.css" href="css/idGeneratedStyles.css" media-type="text/css"/>
+    <item id="Avenir-Roman.ttf" href="fonts/Avenir-Roman.ttf" media-type="application/vnd.ms-opentype"/>
+    <item id="Calps-Medium.ttf" href="fonts/Calps-Medium.ttf" media-type="application/vnd.ms-opentype"/>
+    <item id="ChaparralPro-Italic.OTF" href="fonts/ChaparralPro-Italic.OTF" media-type="application/vnd.ms-opentype"/>
+    <item id="ChaparralPro-LightIt.OTF" href="fonts/ChaparralPro-LightIt.OTF" media-type="application/vnd.ms-opentype"/>
+    <item id="ChaparralPro-Regular.OTF" href="fonts/ChaparralPro-Regular.OTF" media-type="application/vnd.ms-opentype"/>
+    <item id="DomaineDisplay-Black.otf" href="fonts/DomaineDisplay-Black.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="DomaineDisplay-Bold.otf" href="fonts/DomaineDisplay-Bold.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="DomaineDisplayNarrow-Regular.otf" href="fonts/DomaineDisplayNarrow-Regular.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="DomaineDisplayNarrow-RegularItalic.otf" href="fonts/DomaineDisplayNarrow-RegularItalic.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="MinionPro-Regular.otf" href="fonts/MinionPro-Regular.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="Mirai-Black.otf" href="fonts/Mirai-Black.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="Mirai-BlackItalic.otf" href="fonts/Mirai-BlackItalic.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="Mirai-Bold.otf" href="fonts/Mirai-Bold.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="Mirai-BoldItalic.otf" href="fonts/Mirai-BoldItalic.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="Mirai-Italic.otf" href="fonts/Mirai-Italic.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="Mirai-Regular.otf" href="fonts/Mirai-Regular.otf" media-type="application/vnd.ms-opentype"/>
+    <item id="jiArt-1.jpg" href="images/Art-1.jpg" media-type="image/jpeg"/>
+    <item id="jiArt_P268.jpg" href="images/Art_P268.jpg" media-type="image/jpeg"/>
+    <item id="cover-image" href="images/cover.jpg" media-type="image/jpeg"/>
+    <item id="jititle" href="images/title.jpg" media-type="image/jpeg"/>
+    <item id="x0dsc00531.jpg" href="images/0dsc00531.jpg" media-type="image/jpeg"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="cover"/>
+    <itemref idref="ji001_title"/>
+    <itemref idref="ji002_copyright"/>
+    <itemref idref="ji003_dedication"/>
+    <itemref idref="ji004_contents"/>
+    <itemref idref="ji005_FM_001"/>
+    <itemref idref="ji006_FM_002"/>
+    <itemref idref="ji007_part_001"/>
+    <itemref idref="ji008_chapter_001"/>
+    <itemref idref="ji009_part_002"/>
+    <itemref idref="ji010_chapter_002"/>
+    <itemref idref="ji011_part_003"/>
+    <itemref idref="ji012_chapter_003"/>
+    <itemref idref="ji013_part_004"/>
+    <itemref idref="ji014_chapter_004"/>
+    <itemref idref="ji015_part_005"/>
+    <itemref idref="ji016_chapter_005"/>
+    <itemref idref="ji017_part_006"/>
+    <itemref idref="ji018_chapter_006"/>
+    <itemref idref="ji019_part_007"/>
+    <itemref idref="ji020_chapter_007"/>
+    <itemref idref="ji021_part_008"/>
+    <itemref idref="ji022_chapter_008"/>
+    <itemref idref="ji023_part_009"/>
+    <itemref idref="ji024_chapter_009"/>
+    <itemref idref="ji025_part_010"/>
+    <itemref idref="ji026_chapter_010"/>
+    <itemref idref="ji027_part_011"/>
+    <itemref idref="ji028_chapter_011"/>
+    <itemref idref="ji029_part_012"/>
+    <itemref idref="ji030_chapter_012"/>
+    <itemref idref="ji031_BM_001"/>
+    <itemref idref="ji032_BM_002"/>
+    <itemref idref="ji033_BM_003"/>
+    <itemref idref="ji034_BM_004"/>
+  </spine>
+  <guide>
+    <reference type="cover" title="cover" href="xhtml/cover.xhtml"/>
+    <reference type="text" title="title" href="xhtml/001_title.xhtml"/>
+    <reference type="toc" title="contents" href="xhtml/004_contents.xhtml"/>
+  </guide>
+</package>

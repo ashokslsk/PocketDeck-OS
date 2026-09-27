@@ -1,0 +1,6 @@
+# World Clock cities (max 4): Name|UTC offset in standard time|DST rule
+# Offset: hours (+9, -5, +5:30) or minutes (330). DST rules: US, EU, AU, NZ, NONE
+New York|-5|US
+London|0|EU
+Tokyo|+9|NONE
+Sydney|+10|AU

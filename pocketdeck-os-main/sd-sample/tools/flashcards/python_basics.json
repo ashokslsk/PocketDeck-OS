@@ -1,0 +1,50 @@
+[
+  {
+    "question": "What does len() return for a dict?",
+    "answer": "The number of **keys**."
+  },
+  {
+    "question": "How do you reverse a list in place?",
+    "answer": "`items.reverse()`\n\n`items[::-1]` returns a reversed *copy*."
+  },
+  {
+    "question": "Difference between a list and a tuple?",
+    "answer": "Lists are **mutable**; tuples are **immutable** and can be dict keys."
+  },
+  {
+    "question": "What does `range(2, 10, 3)` produce?",
+    "answer": "2, 5, 8"
+  },
+  {
+    "question": "How do you open a file so it closes automatically?",
+    "answer": "`with open(path) as f:`"
+  },
+  {
+    "question": "What is `__init__`?",
+    "answer": "The initialiser method that runs when an object is created."
+  },
+  {
+    "question": "What does `enumerate()` give you?",
+    "answer": "Pairs of (index, item) while iterating."
+  },
+  {
+    "question": "How do you merge two dicts in Python 3.9+?",
+    "answer": "`a | b` (or `{**a, **b}`)"
+  },
+  {
+    "question": "What does `zip(a, b)` do?",
+    "answer": "Pairs items from both iterables, stopping at the shorter one."
+  },
+  {
+    "question": "What does `pass` do?",
+    "answer": "Nothing. It is a placeholder where a statement is required."
+  },
+  {
+    "question": "How do you catch any exception but keep its message?",
+    "answer": "`except Exception as e:` then use `str(e)`"
+  },
+  {
+    "question": "What is a set?",
+    "answer": "An unordered collection of **unique** items with fast membership tests."
+  }
+]
