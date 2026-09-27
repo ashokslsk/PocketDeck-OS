@@ -196,11 +196,11 @@ My goal with this fork was to maintain the core Crosspoint firmware while integr
 <table>
   <tr>
     <td align="center">
-      <img src="./docs/images/bitter-small-15-margin.jpg" alt="Font: Bitter, Size: 12 pt, Margin: 15" /><br/>
+      <img src="pocketdeck-os-main/docs/images/bitter-small-15-margin.jpg" alt="Font: Bitter, Size: 12 pt, Margin: 15" /><br/>
       <em>Font: Bitter, Size: 12 pt, Margin: 15</em>
     </td>
     <td align="center">
-      <img src="./docs/images/reading-stats.jpg" alt="Reading Stats with custom front button mapping shown" /><br/>
+      <img src="pocketdeck-os-main/docs/images/reading-stats.jpg" alt="Reading Stats with custom front button mapping shown" /><br/>
       <em>Reading Stats with custom front button mapping shown</em>
     </td>
   </tr>
