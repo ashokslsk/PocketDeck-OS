@@ -10,8 +10,8 @@ PocketDeck-OS is e-reader firmware for the Xteink X3 that keeps the reader in
 your pocket and adds a small deck of daily tools: Pomodoro, World Clock, Habit
 Tracker, spaced-repetition Flashcards, Daily Quote, Knowledge (paged Q&A), an
 offline Kannada Panchanga, and Today (to-dos). Reading Stats include a Library
-dashboard, and there are eight UI themes including the new PocketDeck theme. See [docs/productivity-tools.md](docs/productivity-tools.md) and the
-[screenshot walkthrough](docs/screenshots/README.md) of every screen.
+dashboard, and there are eight UI themes including the new PocketDeck theme. See [docs/productivity-tools.md](pocketdeck-os-main/docs/productivity-tools.md) and the
+[screenshot walkthrough](pocketdeck-os-main/docs/screenshots/README.md) of every screen.
 
 It is built on [CrossInk](https://github.com/uxjulia/CrossInk), which is itself
 a fork of [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader).
