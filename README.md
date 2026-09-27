@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/branding/pocketdeck-os-logo.png" alt="PocketDeck-OS" width="560">
+  <img src="pocketdeck-os-main/assets/branding/pocketdeck-os-logo.png" alt="PocketDeck-OS" width="560">
 </p>
 
 # PocketDeck-OS
