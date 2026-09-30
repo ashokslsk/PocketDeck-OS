@@ -15,43 +15,43 @@ LogoPng               2951B raw
 jszip_minJs          97630B ->  28379B gz
 Language              Code  Own   Fallback  Unused  Data (B)
 --------------------  ----  ----  --------  ------  --------
-English               EN    1088  0         65      22559   
-العربية               AR    709   379       57      23661   
-Беларуская            BE    529   559       23      18146   
-Català                CA    584   504       23      13282   
-Valencià              CAV   565   523       18      12567   
-Čeština               CS    716   372       57      16381   
-Dansk                 DA    528   560       23      9429    
-Deutsch               DE    705   383       53      15052   
-Español               ES    706   382       57      16229   
-Suomi                 FI    517   571       23      10302   
-Français              FR    528   560       23      10344   
-עברית                 HE    521   567       17      13917   
-Magyar                HU    528   560       23      11332   
-Italiano              IT    595   493       30      12240   
-Қазақша               KK    527   561       23      17787   
-Lietuvių              LT    528   560       23      9920    
-Nederlands            NL    527   561       22      9726    
-Polski                PL    547   541       30      11051   
-Português (Brasil)    PT    705   383       57      15900   
-Português (Portugal)  PT2   799   289       62      19025   
-Română                RO    527   561       22      10809   
-Русский               RU    592   496       22      21056   
-Slovenščina           SI    528   560       23      10194   
-Slovenčina            SK    616   472       34      13831   
-Svenska               SV    581   507       22      11472   
-Türkçe                TR    527   561       22      10348   
-Українська            UK    581   507       29      21194   
-Tiếng Việt            VI    582   506       33      13635   
+English               EN    1244  0         63      25061   
+العربية               AR    709   535       57      23661   
+Беларуская            BE    529   715       23      18146   
+Català                CA    584   660       23      13282   
+Valencià              CAV   565   679       18      12567   
+Čeština               CS    716   528       57      16381   
+Dansk                 DA    528   716       23      9429    
+Deutsch               DE    705   539       53      15052   
+Español               ES    706   538       57      16229   
+Suomi                 FI    517   727       23      10302   
+Français              FR    528   716       23      10344   
+עברית                 HE    521   723       17      13917   
+Magyar                HU    528   716       23      11332   
+Italiano              IT    595   649       30      12240   
+Қазақша               KK    527   717       23      17787   
+Lietuvių              LT    528   716       23      9920    
+Nederlands            NL    527   717       22      9726    
+Polski                PL    547   697       30      11051   
+Português (Brasil)    PT    705   539       57      15900   
+Português (Portugal)  PT2   799   445       62      19025   
+Română                RO    527   717       22      10809   
+Русский               RU    592   652       22      21056   
+Slovenščina           SI    528   716       23      10194   
+Slovenčina            SK    616   628       34      13831   
+Svenska               SV    581   663       22      11472   
+Türkçe                TR    527   717       22      10348   
+Українська            UK    581   663       29      21194   
+Tiếng Việt            VI    582   662       33      13635   
 
-  Total: 1088  |  Used in code: 1023  |  Never used: 65
-  Flash: 401,389 B strings (deduped)  +  60,928 B offset tables  =  462,317 B
+  Total: 1244  |  Used in code: 1181  |  Never used: 63
+  Flash: 403,891 B strings (deduped)  +  69,664 B offset tables  =  473,555 B
 
-  Stripping 65 unused string(s) from output.
+  Stripping 63 unused string(s) from output.
 
 Code generation complete!
   Languages: 28
-  String keys: 1023
+  String keys: 1181
 WARNING [git_branch.py]: git command failed (exit 128): fatal: not a git repository (or any of the parent directories): .git; short SHA suffix will be "unknown"
 WARNING [git_branch.py]: Could not read git working-tree state: Command '['git', 'status', '--porcelain', '--untracked-files=no']' returned non-zero exit status 128.; state will be "unknown"
 WARNING [git_branch.py]: git command failed (exit 128): fatal: not a git repository (or any of the parent directories): .git; branch suffix will be "unknown"
@@ -416,20 +416,20 @@ Compiling .pio/build/default/lib1dc/WebSockets/libb64/cencode.c.o
 Compiling .pio/build/default/lib1dc/WebSockets/libsha1/libsha1.c.o
 Generating LD script .pio/build/default/esp-idf/esp_system/ld/memory.ld.in
 Generating LD script .pio/build/default/esp-idf/esp_system/ld/sections.ld.in
-Generating LD script .pio/build/default/memory.ld
 Compiling .pio/build/default/app_trace/app_trace.c.o
+Generating LD script .pio/build/default/memory.ld
 Compiling .pio/build/default/app_trace/app_trace_util.c.o
 Compiling .pio/build/default/app_trace/host_file_io.c.o
 Compiling .pio/build/default/app_trace/port/port_uart.c.o
 Compiling .pio/build/default/app_update/esp_ota_ops.c.o
 Compiling .pio/build/default/app_update/esp_ota_app_desc.c.o
 Archiving .pio/build/default/esp-idf/app_trace/libapp_trace.a
-Indexing .pio/build/default/esp-idf/app_trace/libapp_trace.a
 Compiling .pio/build/default/bootloader_support/src/bootloader_common.c.o
+Indexing .pio/build/default/esp-idf/app_trace/libapp_trace.a
 Compiling .pio/build/default/bootloader_support/src/bootloader_common_loader.c.o
+Compiling .pio/build/default/bootloader_support/src/bootloader_clock_init.c.o
 Archiving .pio/build/default/esp-idf/app_update/libapp_update.a
 Indexing .pio/build/default/esp-idf/app_update/libapp_update.a
-Compiling .pio/build/default/bootloader_support/src/bootloader_clock_init.c.o
 Compiling .pio/build/default/bootloader_support/src/bootloader_mem.c.o
 Compiling .pio/build/default/bootloader_support/src/bootloader_random.c.o
 Compiling .pio/build/default/bootloader_support/src/bootloader_efuse.c.o
@@ -703,14 +703,14 @@ Compiling .pio/build/default/console/split_argv.c.o
 Compiling .pio/build/default/console/linenoise/linenoise.c.o
 Compiling .pio/build/default/console/esp_console_repl_chip.c.o
 Archiving .pio/build/default/esp-idf/cmock/libcmock.a
-Archiving .pio/build/default/esp-idf/chmorgan__esp-libhelix-mp3/libchmorgan__esp-libhelix-mp3.a
 Compiling .pio/build/default/console/argtable3/arg_cmd.c.o
+Archiving .pio/build/default/esp-idf/chmorgan__esp-libhelix-mp3/libchmorgan__esp-libhelix-mp3.a
 Indexing .pio/build/default/esp-idf/cmock/libcmock.a
 Compiling .pio/build/default/console/argtable3/arg_date.c.o
-Indexing .pio/build/default/esp-idf/bt/libbt.a
-Indexing .pio/build/default/esp-idf/chmorgan__esp-libhelix-mp3/libchmorgan__esp-libhelix-mp3.a
 Compiling .pio/build/default/console/argtable3/arg_dbl.c.o
+Indexing .pio/build/default/esp-idf/chmorgan__esp-libhelix-mp3/libchmorgan__esp-libhelix-mp3.a
 Compiling .pio/build/default/console/argtable3/arg_dstr.c.o
+Indexing .pio/build/default/esp-idf/bt/libbt.a
 Compiling .pio/build/default/console/argtable3/arg_end.c.o
 Compiling .pio/build/default/console/argtable3/arg_file.c.o
 Compiling .pio/build/default/console/argtable3/arg_hashtable.c.o
@@ -730,13 +730,13 @@ Compiling .pio/build/default/driver/deprecated/timer_legacy.c.o
 Compiling .pio/build/default/driver/i2c/i2c.c.o
 Compiling .pio/build/default/driver/deprecated/i2s_legacy.c.o
 Compiling .pio/build/default/driver/deprecated/rmt_legacy.c.o
+Archiving .pio/build/default/esp-idf/console/libconsole.a
 Compiling .pio/build/default/driver/deprecated/sigma_delta_legacy.c.o
 Compiling .pio/build/default/driver/deprecated/rtc_temperature_legacy.c.o
-Archiving .pio/build/default/esp-idf/console/libconsole.a
-Compiling .pio/build/default/driver/twai/twai.c.o
 Indexing .pio/build/default/esp-idf/console/libconsole.a
-Compiling .pio/build/default/efuse/esp32c3/esp_efuse_table.c.o
+Compiling .pio/build/default/driver/twai/twai.c.o
 Archiving .pio/build/default/esp-idf/cxx/libcxx.a
+Compiling .pio/build/default/efuse/esp32c3/esp_efuse_table.c.o
 Compiling .pio/build/default/efuse/esp32c3/esp_efuse_fields.c.o
 Indexing .pio/build/default/esp-idf/cxx/libcxx.a
 Compiling .pio/build/default/efuse/esp32c3/esp_efuse_rtc_calib.c.o
@@ -751,15 +751,13 @@ Compiling .pio/build/default/esp-tls/esp-tls-crypto/esp_tls_crypto.c.o
 Compiling .pio/build/default/esp-tls/esp_tls_error_capture.c.o
 Compiling .pio/build/default/esp-tls/esp_tls_platform_port.c.o
 Compiling .pio/build/default/esp-tls/esp_tls_mbedtls.c.o
-Compiling .pio/build/default/esp_adc/adc_oneshot.c.o
 Archiving .pio/build/default/esp-idf/efuse/libefuse.a
-Compiling .pio/build/default/esp_adc/adc_common.c.o
+Compiling .pio/build/default/esp_adc/adc_oneshot.c.o
 Indexing .pio/build/default/esp-idf/efuse/libefuse.a
+Compiling .pio/build/default/esp_adc/adc_common.c.o
 Compiling .pio/build/default/esp_adc/adc_cali.c.o
-Archiving .pio/build/default/esp-idf/driver/libdriver.a
 Compiling .pio/build/default/esp_adc/adc_cali_curve_fitting.c.o
 Compiling .pio/build/default/esp_adc/deprecated/esp_adc_cal_common_legacy.c.o
-Indexing .pio/build/default/esp-idf/driver/libdriver.a
 Compiling .pio/build/default/esp_adc/adc_continuous.c.o
 Compiling .pio/build/default/esp_adc/adc_monitor.c.o
 Compiling .pio/build/default/esp_adc/gdma/adc_dma.c.o
@@ -769,17 +767,19 @@ Compiling .pio/build/default/esp_adc/deprecated/esp32c3/esp_adc_cal_legacy.c.o
 Compiling .pio/build/default/esp_app_format/esp_app_desc.c.o
 Compiling .pio/build/default/esp_bootloader_format/esp_bootloader_desc.c.o
 Compiling .pio/build/default/esp_coex/src/coexist.c.o
-Archiving .pio/build/default/esp-idf/esp-tls/libesp-tls.a
 Compiling .pio/build/default/esp_coex/src/lib_printf.c.o
 Compiling .pio/build/default/esp_coex/esp32c3/esp_coex_adapter.c.o
-Indexing .pio/build/default/esp-idf/esp-tls/libesp-tls.a
-Compiling .pio/build/default/esp_coex/src/coexist_debug_diagram.c.o
 Archiving .pio/build/default/esp-idf/esp_app_format/libesp_app_format.a
-Archiving .pio/build/default/esp-idf/esp_adc/libesp_adc.a
+Archiving .pio/build/default/esp-idf/esp-tls/libesp-tls.a
 Archiving .pio/build/default/esp-idf/esp_bootloader_format/libesp_bootloader_format.a
+Compiling .pio/build/default/esp_coex/src/coexist_debug_diagram.c.o
 Indexing .pio/build/default/esp-idf/esp_app_format/libesp_app_format.a
-Compiling .pio/build/default/esp_coex/src/coexist_debug.c.o
+Indexing .pio/build/default/esp-idf/esp-tls/libesp-tls.a
 Indexing .pio/build/default/esp-idf/esp_bootloader_format/libesp_bootloader_format.a
+Archiving .pio/build/default/esp-idf/driver/libdriver.a
+Archiving .pio/build/default/esp-idf/esp_adc/libesp_adc.a
+Compiling .pio/build/default/esp_coex/src/coexist_debug.c.o
+Indexing .pio/build/default/esp-idf/driver/libdriver.a
 Indexing .pio/build/default/esp-idf/esp_adc/libesp_adc.a
 Compiling .pio/build/default/esp_common/src/esp_err_to_name.c.o
 Archiving .pio/build/default/esp-idf/esp_coex/libesp_coex.a
@@ -798,49 +798,49 @@ Indexing .pio/build/default/esp-idf/esp_driver_cam/libesp_driver_cam.a
 Compiling .pio/build/default/esp_driver_i2c/i2c_master.c.o
 Archiving .pio/build/default/esp-idf/esp_common/libesp_common.a
 Compiling .pio/build/default/esp_driver_i2c/i2c_common.c.o
-Indexing .pio/build/default/esp-idf/esp_common/libesp_common.a
 Compiling .pio/build/default/esp_driver_i2c/i2c_slave.c.o
+Indexing .pio/build/default/esp-idf/esp_common/libesp_common.a
 Compiling .pio/build/default/esp_driver_i2s/i2s_common.c.o
 Compiling .pio/build/default/esp_driver_i2s/i2s_std.c.o
 Compiling .pio/build/default/esp_driver_i2s/i2s_pdm.c.o
 Compiling .pio/build/default/esp_driver_i2s/i2s_tdm.c.o
-Archiving .pio/build/default/esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a
 Compiling .pio/build/default/esp_driver_i2s/i2s_platform.c.o
-Indexing .pio/build/default/esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a
+Archiving .pio/build/default/esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a
 Compiling .pio/build/default/esp_driver_ledc/src/ledc.c.o
-Compiling .pio/build/default/esp_driver_rmt/src/rmt_common.c.o
+Indexing .pio/build/default/esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a
 Archiving .pio/build/default/esp-idf/esp_driver_gpio/libesp_driver_gpio.a
+Indexing .pio/build/default/esp-idf/esp_driver_gpio/libesp_driver_gpio.a
+Compiling .pio/build/default/esp_driver_rmt/src/rmt_common.c.o
 Compiling .pio/build/default/esp_driver_rmt/src/rmt_encoder.c.o
 Compiling .pio/build/default/esp_driver_rmt/src/rmt_encoder_bytes.c.o
-Indexing .pio/build/default/esp-idf/esp_driver_gpio/libesp_driver_gpio.a
 Compiling .pio/build/default/esp_driver_rmt/src/rmt_encoder_copy.c.o
 Compiling .pio/build/default/esp_driver_rmt/src/rmt_encoder_simple.c.o
 Compiling .pio/build/default/esp_driver_rmt/src/rmt_rx.c.o
 Compiling .pio/build/default/esp_driver_rmt/src/rmt_tx.c.o
-Archiving .pio/build/default/esp-idf/esp_driver_i2c/libesp_driver_i2c.a
-Archiving .pio/build/default/esp-idf/esp_driver_i2s/libesp_driver_i2s.a
-Indexing .pio/build/default/esp-idf/esp_driver_i2c/libesp_driver_i2c.a
-Indexing .pio/build/default/esp-idf/esp_driver_i2s/libesp_driver_i2s.a
 Compiling .pio/build/default/esp_driver_sdm/src/sdm.c.o
 Compiling .pio/build/default/esp_driver_sdspi/src/sdspi_crc.c.o
 Compiling .pio/build/default/esp_driver_sdspi/src/sdspi_host.c.o
+Archiving .pio/build/default/esp-idf/esp_driver_i2s/libesp_driver_i2s.a
+Archiving .pio/build/default/esp-idf/esp_driver_i2c/libesp_driver_i2c.a
 Compiling .pio/build/default/esp_driver_sdspi/src/sdspi_transaction.c.o
+Indexing .pio/build/default/esp-idf/esp_driver_i2s/libesp_driver_i2s.a
+Indexing .pio/build/default/esp-idf/esp_driver_i2c/libesp_driver_i2c.a
 Compiling .pio/build/default/esp_driver_spi/src/gpspi/spi_common.c.o
 Compiling .pio/build/default/esp_driver_spi/src/gpspi/spi_master.c.o
 Compiling .pio/build/default/esp_driver_spi/src/gpspi/spi_slave.c.o
-Compiling .pio/build/default/esp_driver_spi/src/gpspi/spi_slave_hd.c.o
-Compiling .pio/build/default/esp_driver_tsens/src/temperature_sensor.c.o
 Archiving .pio/build/default/esp-idf/esp_driver_sdm/libesp_driver_sdm.a
-Compiling .pio/build/default/esp_driver_twai/esp_twai.c.o
+Compiling .pio/build/default/esp_driver_spi/src/gpspi/spi_slave_hd.c.o
 Indexing .pio/build/default/esp-idf/esp_driver_sdm/libesp_driver_sdm.a
+Compiling .pio/build/default/esp_driver_tsens/src/temperature_sensor.c.o
 Archiving .pio/build/default/esp-idf/esp_driver_ledc/libesp_driver_ledc.a
+Compiling .pio/build/default/esp_driver_twai/esp_twai.c.o
 Indexing .pio/build/default/esp-idf/esp_driver_ledc/libesp_driver_ledc.a
 Compiling .pio/build/default/esp_driver_twai/esp_twai_onchip.c.o
 Archiving .pio/build/default/esp-idf/esp_driver_rmt/libesp_driver_rmt.a
 Archiving .pio/build/default/esp-idf/esp_driver_sdspi/libesp_driver_sdspi.a
 Indexing .pio/build/default/esp-idf/esp_driver_rmt/libesp_driver_rmt.a
-Compiling .pio/build/default/esp_driver_uart/src/uart.c.o
 Indexing .pio/build/default/esp-idf/esp_driver_sdspi/libesp_driver_sdspi.a
+Compiling .pio/build/default/esp_driver_uart/src/uart.c.o
 Archiving .pio/build/default/esp-idf/esp_driver_tsens/libesp_driver_tsens.a
 Compiling .pio/build/default/esp_driver_uart/src/uart_wakeup.c.o
 Indexing .pio/build/default/esp-idf/esp_driver_tsens/libesp_driver_tsens.a
@@ -851,51 +851,51 @@ Compiling .pio/build/default/esp_driver_usb_serial_jtag/src/usb_serial_jtag_conn
 Compiling .pio/build/default/esp_driver_usb_serial_jtag/src/usb_serial_jtag_vfs.c.o
 Compiling .pio/build/default/esp_eth/src/esp_eth.c.o
 Compiling .pio/build/default/esp_eth/src/phy/esp_eth_phy_802_3.c.o
-Archiving .pio/build/default/esp-idf/esp_driver_spi/libesp_driver_spi.a
 Archiving .pio/build/default/esp-idf/esp_driver_twai/libesp_driver_twai.a
+Archiving .pio/build/default/esp-idf/esp_driver_spi/libesp_driver_spi.a
+Indexing .pio/build/default/esp-idf/esp_driver_twai/libesp_driver_twai.a
 Indexing .pio/build/default/esp-idf/esp_driver_spi/libesp_driver_spi.a
 Compiling .pio/build/default/esp_eth/src/esp_eth_netif_glue.c.o
-Indexing .pio/build/default/esp-idf/esp_driver_twai/libesp_driver_twai.a
 Compiling .pio/build/default/esp_eth/src/spi/dm9051/esp_eth_mac_dm9051.c.o
 Compiling .pio/build/default/esp_eth/src/spi/dm9051/esp_eth_phy_dm9051.c.o
 Compiling .pio/build/default/esp_eth/src/spi/w5500/esp_eth_mac_w5500.c.o
 Compiling .pio/build/default/esp_eth/src/spi/w5500/esp_eth_phy_w5500.c.o
 Compiling .pio/build/default/esp_eth/src/spi/ksz8851snl/esp_eth_mac_ksz8851snl.c.o
 Archiving .pio/build/default/esp-idf/esp_driver_usb_serial_jtag/libesp_driver_usb_serial_jtag.a
-Compiling .pio/build/default/esp_eth/src/spi/ksz8851snl/esp_eth_phy_ksz8851snl.c.o
 Indexing .pio/build/default/esp-idf/esp_driver_usb_serial_jtag/libesp_driver_usb_serial_jtag.a
+Compiling .pio/build/default/esp_eth/src/spi/ksz8851snl/esp_eth_phy_ksz8851snl.c.o
 Compiling .pio/build/default/esp_event/default_event_loop.c.o
 Compiling .pio/build/default/esp_event/esp_event.c.o
 Compiling .pio/build/default/esp_event/esp_event_private.c.o
 Compiling .pio/build/default/esp_gdbstub/src/gdbstub.c.o
 Compiling .pio/build/default/esp_gdbstub/src/gdbstub_transport.c.o
-Archiving .pio/build/default/esp-idf/esp_driver_uart/libesp_driver_uart.a
 Compiling .pio/build/default/esp_gdbstub/src/packet.c.o
 Compiling .pio/build/default/esp_gdbstub/src/port/riscv/gdbstub_riscv.c.o
-Indexing .pio/build/default/esp-idf/esp_driver_uart/libesp_driver_uart.a
+Archiving .pio/build/default/esp-idf/esp_driver_uart/libesp_driver_uart.a
 Compiling .pio/build/default/esp_gdbstub/src/port/riscv/rv_decode.c.o
+Indexing .pio/build/default/esp-idf/esp_driver_uart/libesp_driver_uart.a
 Compiling .pio/build/default/esp_hid/src/esp_hidd.c.o
 Compiling .pio/build/default/esp_hid/src/esp_hidh.c.o
-Compiling .pio/build/default/esp_hid/src/esp_hid_common.c.o
-Archiving .pio/build/default/esp-idf/esp_eth/libesp_eth.a
 Archiving .pio/build/default/esp-idf/esp_event/libesp_event.a
-Compiling .pio/build/default/esp_hid/src/nimble_hidd.c.o
-Indexing .pio/build/default/esp-idf/esp_eth/libesp_eth.a
+Compiling .pio/build/default/esp_hid/src/esp_hid_common.c.o
 Indexing .pio/build/default/esp-idf/esp_event/libesp_event.a
+Compiling .pio/build/default/esp_hid/src/nimble_hidd.c.o
 Archiving .pio/build/default/esp-idf/esp_gdbstub/libesp_gdbstub.a
+Archiving .pio/build/default/esp-idf/esp_eth/libesp_eth.a
 Compiling .pio/build/default/esp_hid/src/nimble_hidh.c.o
 Indexing .pio/build/default/esp-idf/esp_gdbstub/libesp_gdbstub.a
+Indexing .pio/build/default/esp-idf/esp_eth/libesp_eth.a
 Compiling .pio/build/default/esp_http_client/esp_http_client.c.o
 Compiling .pio/build/default/esp_http_client/lib/http_auth.c.o
 Compiling .pio/build/default/esp_http_client/lib/http_header.c.o
 Compiling .pio/build/default/esp_http_client/lib/http_utils.c.o
 Compiling .pio/build/default/esp_http_server/src/httpd_main.c.o
-Compiling .pio/build/default/esp_http_server/src/httpd_parse.c.o
 Archiving .pio/build/default/esp-idf/esp_hid/libesp_hid.a
+Compiling .pio/build/default/esp_http_server/src/httpd_parse.c.o
 Compiling .pio/build/default/esp_http_server/src/httpd_sess.c.o
 Compiling .pio/build/default/esp_http_server/src/httpd_txrx.c.o
-Indexing .pio/build/default/esp-idf/esp_hid/libesp_hid.a
 Compiling .pio/build/default/esp_http_server/src/httpd_uri.c.o
+Indexing .pio/build/default/esp-idf/esp_hid/libesp_hid.a
 Compiling .pio/build/default/esp_http_server/src/httpd_ws.c.o
 Compiling .pio/build/default/esp_http_server/src/util/ctrl_sock.c.o
 Compiling .pio/build/default/esp_https_ota/src/esp_https_ota.c.o
@@ -912,13 +912,13 @@ Compiling .pio/build/default/esp_hw_support/hw_random.c.o
 Indexing .pio/build/default/esp-idf/esp_http_server/libesp_http_server.a
 Indexing .pio/build/default/esp-idf/esp_https_server/libesp_https_server.a
 Compiling .pio/build/default/esp_hw_support/intr_alloc.c.o
-Archiving .pio/build/default/esp-idf/esp_http_client/libesp_http_client.a
 Archiving .pio/build/default/esp-idf/esp_https_ota/libesp_https_ota.a
 Compiling .pio/build/default/esp_hw_support/mac_addr.c.o
-Indexing .pio/build/default/esp-idf/esp_http_client/libesp_http_client.a
 Indexing .pio/build/default/esp-idf/esp_https_ota/libesp_https_ota.a
 Compiling .pio/build/default/esp_hw_support/periph_ctrl.c.o
+Archiving .pio/build/default/esp-idf/esp_http_client/libesp_http_client.a
 Compiling .pio/build/default/esp_hw_support/revision.c.o
+Indexing .pio/build/default/esp-idf/esp_http_client/libesp_http_client.a
 Compiling .pio/build/default/esp_hw_support/rtc_module.c.o
 Compiling .pio/build/default/esp_hw_support/regi2c_ctrl.c.o
 Compiling .pio/build/default/esp_hw_support/esp_gpio_reserve.c.o
@@ -969,13 +969,13 @@ Compiling .pio/build/default/esp_lcd/i2c/esp_lcd_panel_io_i2c_v1.c.o
 Compiling .pio/build/default/esp_lcd/i2c/esp_lcd_panel_io_i2c_v2.c.o
 Compiling .pio/build/default/esp_lcd/spi/esp_lcd_panel_io_spi.c.o
 Compiling .pio/build/default/esp_local_ctrl/src/esp_local_ctrl.c.o
+Archiving .pio/build/default/esp-idf/esp_hw_support/libesp_hw_support.a
 Compiling .pio/build/default/esp_local_ctrl/src/esp_local_ctrl_handler.c.o
 Compiling .pio/build/default/esp_local_ctrl/proto-c/esp_local_ctrl.pb-c.c.o
-Archiving .pio/build/default/esp-idf/esp_hw_support/libesp_hw_support.a
 Compiling .pio/build/default/esp_local_ctrl/src/esp_local_ctrl_transport_ble.c.o
+Indexing .pio/build/default/esp-idf/esp_hw_support/libesp_hw_support.a
 Compiling .pio/build/default/esp_local_ctrl/src/esp_local_ctrl_transport_httpd.c.o
 Compiling .pio/build/default/esp_mm/esp_mmu_map.c.o
-Indexing .pio/build/default/esp-idf/esp_hw_support/libesp_hw_support.a
 Compiling .pio/build/default/esp_mm/port/esp32c3/ext_mem_layout.c.o
 Compiling .pio/build/default/esp_mm/esp_cache_msync.c.o
 Archiving .pio/build/default/esp-idf/esp_lcd/libesp_lcd.a
@@ -986,13 +986,13 @@ Compiling .pio/build/default/esp_netif/esp_netif_handlers.c.o
 Compiling .pio/build/default/esp_netif/esp_netif_objects.c.o
 Compiling .pio/build/default/esp_netif/esp_netif_defaults.c.o
 Compiling .pio/build/default/esp_netif/lwip/esp_netif_lwip.c.o
-Archiving .pio/build/default/esp-idf/esp_local_ctrl/libesp_local_ctrl.a
-Archiving .pio/build/default/esp-idf/esp_mm/libesp_mm.a
 Compiling .pio/build/default/esp_netif/lwip/esp_netif_sntp.c.o
-Indexing .pio/build/default/esp-idf/esp_local_ctrl/libesp_local_ctrl.a
-Indexing .pio/build/default/esp-idf/esp_mm/libesp_mm.a
+Archiving .pio/build/default/esp-idf/esp_local_ctrl/libesp_local_ctrl.a
 Compiling .pio/build/default/esp_netif/lwip/esp_netif_lwip_defaults.c.o
+Archiving .pio/build/default/esp-idf/esp_mm/libesp_mm.a
+Indexing .pio/build/default/esp-idf/esp_local_ctrl/libesp_local_ctrl.a
 Compiling .pio/build/default/esp_netif/lwip/netif/wlanif.c.o
+Indexing .pio/build/default/esp-idf/esp_mm/libesp_mm.a
 Compiling .pio/build/default/esp_netif/lwip/netif/ethernetif.c.o
 Compiling .pio/build/default/esp_netif/lwip/netif/esp_pbuf_ref.c.o
 Compiling .pio/build/default/esp_netif/lwip/esp_netif_lwip_ppp.c.o
@@ -1007,26 +1007,26 @@ Compiling .pio/build/default/esp_phy/esp32c3/phy_init_data.c.o
 Compiling .pio/build/default/esp_phy/src/btbb_init.c.o
 Compiling .pio/build/default/esp_pm/pm_locks.c.o
 Compiling .pio/build/default/esp_pm/pm_trace.c.o
-Archiving .pio/build/default/esp-idf/esp_partition/libesp_partition.a
 Compiling .pio/build/default/esp_pm/pm_impl.c.o
-Indexing .pio/build/default/esp-idf/esp_partition/libesp_partition.a
+Archiving .pio/build/default/esp-idf/esp_partition/libesp_partition.a
 Compiling .pio/build/default/esp_psram/system_layer/esp_psram_mspi.c.o
 Compiling .pio/build/default/esp_ringbuf/ringbuf.c.o
+Indexing .pio/build/default/esp-idf/esp_partition/libesp_partition.a
 Compiling .pio/build/default/esp_rom/patches/esp_rom_sys.c.o
-Archiving .pio/build/default/esp-idf/esp_phy/libesp_phy.a
 Compiling .pio/build/default/esp_rom/patches/esp_rom_print.c.o
-Archiving .pio/build/default/esp-idf/esp_netif/libesp_netif.a
-Indexing .pio/build/default/esp-idf/esp_phy/libesp_phy.a
-Archiving .pio/build/default/esp-idf/esp_psram/libesp_psram.a
+Archiving .pio/build/default/esp-idf/esp_phy/libesp_phy.a
 Compiling .pio/build/default/esp_rom/patches/esp_rom_crc.c.o
-Indexing .pio/build/default/esp-idf/esp_netif/libesp_netif.a
-Indexing .pio/build/default/esp-idf/esp_psram/libesp_psram.a
+Archiving .pio/build/default/esp-idf/esp_psram/libesp_psram.a
+Indexing .pio/build/default/esp-idf/esp_phy/libesp_phy.a
 Compiling .pio/build/default/esp_rom/patches/esp_rom_uart.c.o
-Archiving .pio/build/default/esp-idf/esp_pm/libesp_pm.a
+Indexing .pio/build/default/esp-idf/esp_psram/libesp_psram.a
 Compiling .pio/build/default/esp_rom/patches/esp_rom_spiflash.c.o
-Indexing .pio/build/default/esp-idf/esp_pm/libesp_pm.a
+Archiving .pio/build/default/esp-idf/esp_netif/libesp_netif.a
+Archiving .pio/build/default/esp-idf/esp_pm/libesp_pm.a
 Compiling .pio/build/default/esp_rom/patches/esp_rom_efuse.c.o
 Compiling .pio/build/default/esp_rom/patches/esp_rom_gpio.c.o
+Indexing .pio/build/default/esp-idf/esp_netif/libesp_netif.a
+Indexing .pio/build/default/esp-idf/esp_pm/libesp_pm.a
 Compiling .pio/build/default/esp_rom/patches/esp_rom_systimer.c.o
 Compiling .pio/build/default/esp_security/src/init.c.o
 Compiling .pio/build/default/esp_security/src/esp_hmac.c.o
@@ -1041,10 +1041,10 @@ Compiling .pio/build/default/esp_system/crosscore_int.c.o
 Indexing .pio/build/default/esp-idf/esp_ringbuf/libesp_ringbuf.a
 Compiling .pio/build/default/esp_system/esp_ipc.c.o
 Compiling .pio/build/default/esp_system/esp_system_console.c.o
-Compiling .pio/build/default/esp_system/freertos_hooks.c.o
 Archiving .pio/build/default/esp-idf/esp_security/libesp_security.a
-Compiling .pio/build/default/esp_system/int_wdt.c.o
+Compiling .pio/build/default/esp_system/freertos_hooks.c.o
 Indexing .pio/build/default/esp-idf/esp_security/libesp_security.a
+Compiling .pio/build/default/esp_system/int_wdt.c.o
 Compiling .pio/build/default/esp_system/panic.c.o
 Compiling .pio/build/default/esp_system/esp_system.c.o
 Compiling .pio/build/default/esp_system/startup.c.o
@@ -1080,13 +1080,13 @@ Compiling .pio/build/default/esp_vfs_console/vfs_console.c.o
 Compiling .pio/build/default/esp_wifi/src/lib_printf.c.o
 Indexing .pio/build/default/esp-idf/esp_system/libesp_system.a
 Compiling .pio/build/default/esp_wifi/src/mesh_event.c.o
+Compiling .pio/build/default/esp_wifi/src/smartconfig.c.o
+Compiling .pio/build/default/esp_wifi/src/wifi_init.c.o
 Archiving .pio/build/default/esp-idf/esp_timer/libesp_timer.a
 Archiving .pio/build/default/esp-idf/esp_vfs_console/libesp_vfs_console.a
-Compiling .pio/build/default/esp_wifi/src/smartconfig.c.o
-Indexing .pio/build/default/esp-idf/esp_vfs_console/libesp_vfs_console.a
-Indexing .pio/build/default/esp-idf/esp_timer/libesp_timer.a
-Compiling .pio/build/default/esp_wifi/src/wifi_init.c.o
 Compiling .pio/build/default/esp_wifi/src/wifi_default.c.o
+Indexing .pio/build/default/esp-idf/esp_timer/libesp_timer.a
+Indexing .pio/build/default/esp-idf/esp_vfs_console/libesp_vfs_console.a
 Compiling .pio/build/default/esp_wifi/src/wifi_netif.c.o
 Compiling .pio/build/default/esp_wifi/src/wifi_default_ap.c.o
 Compiling .pio/build/default/esp_wifi/esp32c3/esp_adapter.c.o
@@ -1101,23 +1101,23 @@ Compiling .pio/build/default/espcoredump/src/core_dump_binary.c.o
 Compiling .pio/build/default/espcoredump/src/core_dump_sha.c.o
 Compiling .pio/build/default/espcoredump/src/core_dump_crc.c.o
 Compiling .pio/build/default/espcoredump/src/port/riscv/core_dump_port.c.o
-Archiving .pio/build/default/esp-idf/esp_wifi/libesp_wifi.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/common/misc/dsps_pwroftwo.cpp.o
-Indexing .pio/build/default/esp-idf/esp_wifi/libesp_wifi.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/common/misc/aes3_tie_log.c.o
+Archiving .pio/build/default/esp-idf/esp_wifi/libesp_wifi.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprod_f32_ae32.S.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprod_f32_m_ae32.S.o
+Indexing .pio/build/default/esp-idf/esp_wifi/libesp_wifi.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprode_f32_ae32.S.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprode_f32_m_ae32.S.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprod_f32_ansi.c.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprode_f32_ansi.c.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprod_f32_aes3.S.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprod_f32_arp4.S.o
-Archiving .pio/build/default/esp-idf/espcoredump/libespcoredump.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/float/dsps_dotprode_f32_arp4.S.o
+Archiving .pio/build/default/esp-idf/espcoredump/libespcoredump.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/fixed/dsps_dotprod_s16_ae32.S.o
-Indexing .pio/build/default/esp-idf/espcoredump/libespcoredump.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/fixed/dsps_dotprod_s16_m_ae32.S.o
+Indexing .pio/build/default/esp-idf/espcoredump/libespcoredump.a
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/fixed/dsps_dotprod_s16_ansi.c.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/fixed/dsps_dotprod_s16_arp4.S.o
 Compiling .pio/build/default/managed_components/espressif__esp-dsp/modules/dotprod/fixed/dsps_dp_s8_ansi.c.o
@@ -1322,21 +1322,21 @@ Compiling .pio/build/default/managed_components/espressif__esp-modbus/freemodbus
 Compiling .pio/build/default/managed_components/espressif__esp-modbus/freemodbus/common/esp_modbus_slave_serial.c.o
 Compiling .pio/build/default/managed_components/espressif__esp-zigbee-lib/src/compat/esp_log.c.o
 Compiling .pio/build/default/managed_components/espressif__esp-zigbee-lib/src/radio_spinel/esp_zigbee_radio_spinel_uart.c.o
-Archiving .pio/build/default/esp-idf/espressif__esp-dsp/libespressif__esp-dsp.a
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_primitives_freertos.cpp.o
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_api_target.cpp.o
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_uart.cpp.o
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_term_uart.cpp.o
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_netif.cpp.o
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_dte.cpp.o
-Archiving .pio/build/default/esp-idf/espressif__esp-modbus/libespressif__esp-modbus.a
 Archiving .pio/build/default/esp-idf/espressif__esp-zigbee-lib/libespressif__esp-zigbee-lib.a
-Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_dce.cpp.o
-Indexing .pio/build/default/esp-idf/espressif__esp-dsp/libespressif__esp-dsp.a
 Indexing .pio/build/default/esp-idf/espressif__esp-zigbee-lib/libespressif__esp-zigbee-lib.a
+Archiving .pio/build/default/esp-idf/espressif__esp-modbus/libespressif__esp-modbus.a
+Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_dce.cpp.o
 Indexing .pio/build/default/esp-idf/espressif__esp-modbus/libespressif__esp-modbus.a
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_api.cpp.o
+Archiving .pio/build/default/esp-idf/espressif__esp-dsp/libespressif__esp-dsp.a
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_c_api.cpp.o
+Indexing .pio/build/default/esp-idf/espressif__esp-dsp/libespressif__esp-dsp.a
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_factory.cpp.o
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_cmux.cpp.o
 Compiling .pio/build/default/managed_components/espressif__esp_modem/src/esp_modem_command_library.cpp.o
@@ -1387,10 +1387,8 @@ Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/s
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kdf/crypto_kdf.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kdf/hkdf/kdf_hkdf_sha256.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kdf/hkdf/kdf_hkdf_sha512.c.o
-Archiving .pio/build/default/esp-idf/espressif__esp_modem/libespressif__esp_modem.a
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kem/crypto_kem.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kem/mlkem768/kem_mlkem768.c.o
-Indexing .pio/build/default/esp-idf/espressif__esp_modem/libespressif__esp_modem.a
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kem/mlkem768/ref/kem_mlkem768_ref.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kem/xwing/kem_xwing.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_kx/crypto_kx.c.o
@@ -1400,9 +1398,11 @@ Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/s
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-core.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-encoding.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-avx2.c.o
+Archiving .pio/build/default/esp-idf/espressif__esp_modem/libespressif__esp_modem.a
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-avx512f.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-ref.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-ssse3.c.o
+Indexing .pio/build/default/esp-idf/espressif__esp_modem/libespressif__esp_modem.a
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/argon2.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/blake2b-long.c.o
 Compiling .pio/build/default/managed_components/espressif__libsodium/libsodium/src/libsodium/crypto_pwhash/argon2/pwhash_argon2i.c.o
@@ -1508,29 +1508,27 @@ Compiling .pio/build/default/managed_components/espressif__network_provisioning/
 Compiling .pio/build/default/managed_components/espressif__network_provisioning/src/scheme_ble.c.o
 Compiling .pio/build/default/managed_components/espressif__qrcode/esp_qrcode_main.c.o
 Compiling .pio/build/default/managed_components/espressif__qrcode/esp_qrcode_wrapper.c.o
-Archiving .pio/build/default/esp-idf/espressif__mdns/libespressif__mdns.a
 Compiling .pio/build/default/managed_components/espressif__qrcode/qrcodegen.c.o
-Indexing .pio/build/default/esp-idf/espressif__mdns/libespressif__mdns.a
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/work_queue.c.o
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/factory.c.o
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/time.c.o
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/timezone.c.o
+Archiving .pio/build/default/esp-idf/espressif__mdns/libespressif__mdns.a
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/utils.c.o
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/cmd_resp.c.o
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/console/rmaker_common_cmds.c.o
+Indexing .pio/build/default/esp-idf/espressif__mdns/libespressif__mdns.a
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/console/rmaker_console.c.o
-Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/esp-mqtt/esp-mqtt-glue.c.o
 managed_components/espressif__rmaker_common/src/time.c: In function 'esp_rmaker_time_sync_init':
 managed_components/espressif__rmaker_common/src/time.c:214:26: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
   214 |         sntp_server_name = CONFIG_ESP_RMAKER_SNTP_SERVER_NAME;
       |                          ^
-Archiving .pio/build/default/esp-idf/espressif__network_provisioning/libespressif__network_provisioning.a
+Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/esp-mqtt/esp-mqtt-glue.c.o
 Compiling .pio/build/default/managed_components/espressif__rmaker_common/src/create_APN3_PPI_string.c.o
 Compiling .pio/build/default/fatfs/diskio/diskio.c.o
 Compiling .pio/build/default/fatfs/diskio/diskio_rawflash.c.o
-Indexing .pio/build/default/esp-idf/espressif__network_provisioning/libespressif__network_provisioning.a
 Compiling .pio/build/default/fatfs/diskio/diskio_wl.c.o
-Compiling .pio/build/default/fatfs/src/ff.c.o
+Archiving .pio/build/default/esp-idf/espressif__network_provisioning/libespressif__network_provisioning.a
 managed_components/espressif__rmaker_common/src/create_APN3_PPI_string.c: In function 'platform_get_product_name':
 managed_components/espressif__rmaker_common/src/create_APN3_PPI_string.c:55:11: warning: return discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
    55 |     return(PPI_PRODUCT_NAME);
@@ -1568,14 +1566,16 @@ managed_components/espressif__rmaker_common/src/create_APN3_PPI_string.c:133:10:
 managed_components/espressif__rmaker_common/src/create_APN3_PPI_string.c:134:10: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
   134 |       {  "EX06" }, /* ESP32-S2 */
       |          ^~~~~~
+Compiling .pio/build/default/fatfs/src/ff.c.o
+Indexing .pio/build/default/esp-idf/espressif__network_provisioning/libespressif__network_provisioning.a
 Compiling .pio/build/default/fatfs/src/ffunicode.c.o
 Archiving .pio/build/default/esp-idf/espressif__qrcode/libespressif__qrcode.a
 Compiling .pio/build/default/fatfs/port/freertos/ffsystem.c.o
-Indexing .pio/build/default/esp-idf/espressif__qrcode/libespressif__qrcode.a
 Compiling .pio/build/default/fatfs/diskio/diskio_sdmmc.c.o
+Indexing .pio/build/default/esp-idf/espressif__qrcode/libespressif__qrcode.a
 Compiling .pio/build/default/fatfs/vfs/vfs_fat.c.o
-Archiving .pio/build/default/esp-idf/espressif__rmaker_common/libespressif__rmaker_common.a
 Compiling .pio/build/default/fatfs/vfs/vfs_fat_sdmmc.c.o
+Archiving .pio/build/default/esp-idf/espressif__rmaker_common/libespressif__rmaker_common.a
 Compiling .pio/build/default/fatfs/vfs/vfs_fat_spiflash.c.o
 Indexing .pio/build/default/esp-idf/espressif__rmaker_common/libespressif__rmaker_common.a
 Compiling .pio/build/default/base64.cpp.o
@@ -1593,10 +1593,10 @@ Compiling .pio/build/default/esp32-hal-i2c-ng.c.o
 Compiling .pio/build/default/esp32-hal-i2c-slave.c.o
 Compiling .pio/build/default/esp32-hal-ledc.c.o
 Compiling .pio/build/default/esp32-hal-log-wrapper.c.o
-Archiving .pio/build/default/esp-idf/fatfs/libfatfs.a
 Compiling .pio/build/default/esp32-hal-matrix.c.o
-Indexing .pio/build/default/esp-idf/fatfs/libfatfs.a
 Compiling .pio/build/default/esp32-hal-misc.c.o
+Archiving .pio/build/default/esp-idf/fatfs/libfatfs.a
+Indexing .pio/build/default/esp-idf/fatfs/libfatfs.a
 Compiling .pio/build/default/esp32-hal-periman.c.o
 Compiling .pio/build/default/esp32-hal-psram.c.o
 Compiling .pio/build/default/esp32-hal-rgb-led.c.o
@@ -1722,14 +1722,14 @@ Compiling .pio/build/default/PPP.cpp.o
 Compiling .pio/build/default/Preferences.cpp.o
 Compiling .pio/build/default/SD_MMC.cpp.o
 Compiling .pio/build/default/SD.cpp.o
-Compiling .pio/build/default/sd_diskio.cpp.o
-Compiling .pio/build/default/sd_diskio_crc.c.o
-Compiling .pio/build/default/SimpleBLE.cpp.o
-Compiling .pio/build/default/SPIFFS.cpp.o
 In file included from /Users/ashok/.platformio/packages/framework-arduinoespressif32/libraries/SD_MMC/src/SD_MMC.cpp:20:
 /Users/ashok/.platformio/packages/framework-arduinoespressif32/libraries/SD_MMC/src/SD_MMC.h:21:2: warning: #warning The SDMMC library requires a device with an SDIO Host [-Wcpp]
    21 | #warning The SDMMC library requires a device with an SDIO Host
       |  ^~~~~~~
+Compiling .pio/build/default/sd_diskio.cpp.o
+Compiling .pio/build/default/sd_diskio_crc.c.o
+Compiling .pio/build/default/SimpleBLE.cpp.o
+Compiling .pio/build/default/SPIFFS.cpp.o
 Compiling .pio/build/default/SPI.cpp.o
 Compiling .pio/build/default/Ticker.cpp.o
 Compiling .pio/build/default/Updater.cpp.o
@@ -1805,13 +1805,13 @@ Compiling .pio/build/default/hal/wdt_hal_iram.c.o
 Compiling .pio/build/default/hal/mmu_hal.c.o
 Compiling .pio/build/default/hal/cache_hal.c.o
 Compiling .pio/build/default/hal/color_hal.c.o
+Archiving .pio/build/default/esp-idf/freertos/libfreertos.a
+Indexing .pio/build/default/esp-idf/freertos/libfreertos.a
 Compiling .pio/build/default/hal/spi_flash_hal.c.o
 Compiling .pio/build/default/hal/spi_flash_hal_iram.c.o
 Compiling .pio/build/default/hal/spi_flash_encrypt_hal_iram.c.o
-Archiving .pio/build/default/esp-idf/freertos/libfreertos.a
 Compiling .pio/build/default/hal/esp32c3/clk_tree_hal.c.o
 Compiling .pio/build/default/hal/systimer_hal.c.o
-Indexing .pio/build/default/esp-idf/freertos/libfreertos.a
 Compiling .pio/build/default/hal/uart_hal.c.o
 Compiling .pio/build/default/hal/uart_hal_iram.c.o
 Compiling .pio/build/default/hal/gpio_hal.c.o
@@ -1820,7 +1820,6 @@ Compiling .pio/build/default/hal/ledc_hal.c.o
 Compiling .pio/build/default/hal/ledc_hal_iram.c.o
 Compiling .pio/build/default/hal/i2c_hal.c.o
 Compiling .pio/build/default/hal/i2c_hal_iram.c.o
-Archiving .pio/build/default/esp-idf/framework-arduinoespressif32/libframework-arduinoespressif32.a
 Compiling .pio/build/default/hal/rmt_hal.c.o
 Compiling .pio/build/default/hal/uhci_hal.c.o
 Compiling .pio/build/default/hal/twai_hal_v1.c.o
@@ -1829,6 +1828,7 @@ Compiling .pio/build/default/hal/gdma_hal_ahb_v1.c.o
 Compiling .pio/build/default/hal/i2s_hal.c.o
 Compiling .pio/build/default/hal/sdm_hal.c.o
 Compiling .pio/build/default/hal/adc_hal_common.c.o
+Archiving .pio/build/default/esp-idf/framework-arduinoespressif32/libframework-arduinoespressif32.a
 Compiling .pio/build/default/hal/adc_oneshot_hal.c.o
 Compiling .pio/build/default/hal/adc_hal.c.o
 Compiling .pio/build/default/hal/mpi_hal.c.o
@@ -1838,7 +1838,6 @@ Compiling .pio/build/default/hal/brownout_hal.c.o
 Compiling .pio/build/default/hal/spi_hal.c.o
 Compiling .pio/build/default/hal/spi_hal_iram.c.o
 Compiling .pio/build/default/hal/spi_slave_hal.c.o
-Indexing .pio/build/default/esp-idf/framework-arduinoespressif32/libframework-arduinoespressif32.a
 Compiling .pio/build/default/hal/spi_slave_hal_iram.c.o
 Compiling .pio/build/default/hal/spi_slave_hd_hal.c.o
 Compiling .pio/build/default/hal/spi_flash_hal_gpspi.c.o
@@ -1847,15 +1846,16 @@ Compiling .pio/build/default/hal/ds_hal.c.o
 Compiling .pio/build/default/hal/usb_serial_jtag_hal.c.o
 Compiling .pio/build/default/hal/xt_wdt_hal.c.o
 Compiling .pio/build/default/hal/esp32c3/rtc_cntl_hal.c.o
+Indexing .pio/build/default/esp-idf/framework-arduinoespressif32/libframework-arduinoespressif32.a
 Compiling .pio/build/default/heap/heap_caps_base.c.o
 Compiling .pio/build/default/heap/heap_caps.c.o
 Compiling .pio/build/default/heap/heap_caps_init.c.o
 Compiling .pio/build/default/heap/multi_heap.c.o
-Compiling .pio/build/default/heap/tlsf/tlsf.c.o
 Archiving .pio/build/default/esp-idf/hal/libhal.a
-Indexing .pio/build/default/esp-idf/hal/libhal.a
+Compiling .pio/build/default/heap/tlsf/tlsf.c.o
 Compiling .pio/build/default/heap/multi_heap_poisoning.c.o
 Compiling .pio/build/default/heap/port/memory_layout_utils.c.o
+Indexing .pio/build/default/esp-idf/hal/libhal.a
 Compiling .pio/build/default/heap/port/esp32c3/memory_layout.c.o
 Compiling .pio/build/default/http_parser/http_parser.c.o
 Compiling .pio/build/default/managed_components/joltwallet__littlefs/src/littlefs/lfs.c.o
@@ -1886,18 +1886,18 @@ Compiling .pio/build/default/lwip/lwip/src/api/api_lib.c.o
 Compiling .pio/build/default/lwip/lwip/src/api/api_msg.c.o
 Compiling .pio/build/default/lwip/lwip/src/api/err.c.o
 Compiling .pio/build/default/lwip/lwip/src/api/if_api.c.o
-Archiving .pio/build/default/esp-idf/json/libjson.a
 Archiving .pio/build/default/esp-idf/log/liblog.a
 Compiling .pio/build/default/lwip/lwip/src/api/netbuf.c.o
-Indexing .pio/build/default/esp-idf/json/libjson.a
-Archiving .pio/build/default/esp-idf/http_parser/libhttp_parser.a
 Indexing .pio/build/default/esp-idf/log/liblog.a
 Compiling .pio/build/default/lwip/lwip/src/api/netdb.c.o
-Indexing .pio/build/default/esp-idf/http_parser/libhttp_parser.a
 Compiling .pio/build/default/lwip/lwip/src/api/netifapi.c.o
 Compiling .pio/build/default/lwip/lwip/src/api/sockets.c.o
+Archiving .pio/build/default/esp-idf/http_parser/libhttp_parser.a
 Compiling .pio/build/default/lwip/lwip/src/api/tcpip.c.o
+Archiving .pio/build/default/esp-idf/json/libjson.a
+Indexing .pio/build/default/esp-idf/http_parser/libhttp_parser.a
 Compiling .pio/build/default/lwip/lwip/src/apps/sntp/sntp.c.o
+Indexing .pio/build/default/esp-idf/json/libjson.a
 Compiling .pio/build/default/lwip/lwip/src/apps/netbiosns/netbiosns.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/def.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/dns.c.o
@@ -1905,10 +1905,8 @@ Compiling .pio/build/default/lwip/lwip/src/core/inet_chksum.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/init.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/ip.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/mem.c.o
-Archiving .pio/build/default/esp-idf/joltwallet__littlefs/libjoltwallet__littlefs.a
 Compiling .pio/build/default/lwip/lwip/src/core/memp.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/netif.c.o
-Indexing .pio/build/default/esp-idf/joltwallet__littlefs/libjoltwallet__littlefs.a
 Compiling .pio/build/default/lwip/lwip/src/core/pbuf.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/raw.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/stats.c.o
@@ -1917,7 +1915,9 @@ Compiling .pio/build/default/lwip/lwip/src/core/tcp.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/tcp_in.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/tcp_out.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/timeouts.c.o
+Archiving .pio/build/default/esp-idf/joltwallet__littlefs/libjoltwallet__littlefs.a
 Compiling .pio/build/default/lwip/lwip/src/core/udp.c.o
+Indexing .pio/build/default/esp-idf/joltwallet__littlefs/libjoltwallet__littlefs.a
 Compiling .pio/build/default/lwip/lwip/src/core/ipv4/autoip.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/ipv4/dhcp.c.o
 Compiling .pio/build/default/lwip/lwip/src/core/ipv4/etharp.c.o
@@ -1990,11 +1990,11 @@ Compiling .pio/build/default/mqtt/esp-mqtt/lib/mqtt_outbox.c.o
 Compiling .pio/build/default/mqtt/esp-mqtt/lib/platform_esp32_idf.c.o
 Compiling .pio/build/default/newlib/src/init.c.o
 Compiling .pio/build/default/newlib/src/abort.c.o
-Archiving .pio/build/default/esp-idf/mbedtls/libmbedtls.a
 Compiling .pio/build/default/newlib/src/assert.c.o
 Compiling .pio/build/default/newlib/src/heap.c.o
-Indexing .pio/build/default/esp-idf/mbedtls/libmbedtls.a
+Archiving .pio/build/default/esp-idf/mbedtls/libmbedtls.a
 Compiling .pio/build/default/newlib/src/locks.c.o
+Indexing .pio/build/default/esp-idf/mbedtls/libmbedtls.a
 Compiling .pio/build/default/newlib/src/poll.c.o
 Archiving .pio/build/default/esp-idf/lwip/liblwip.a
 Compiling .pio/build/default/newlib/src/pthread.c.o
@@ -2016,12 +2016,12 @@ Compiling .pio/build/default/newlib/src/newlib_init.c.o
 Compiling .pio/build/default/nvs_flash/src/nvs_api.cpp.o
 Compiling .pio/build/default/nvs_flash/src/nvs_cxx_api.cpp.o
 Compiling .pio/build/default/nvs_flash/src/nvs_item_hash_list.cpp.o
-Compiling .pio/build/default/nvs_flash/src/nvs_page.cpp.o
-Compiling .pio/build/default/nvs_flash/src/nvs_pagemanager.cpp.o
 Archiving .pio/build/default/esp-idf/mqtt/libmqtt.a
+Compiling .pio/build/default/nvs_flash/src/nvs_page.cpp.o
 Archiving .pio/build/default/esp-idf/newlib/libnewlib.a
-Compiling .pio/build/default/nvs_flash/src/nvs_storage.cpp.o
 Indexing .pio/build/default/esp-idf/mqtt/libmqtt.a
+Compiling .pio/build/default/nvs_flash/src/nvs_pagemanager.cpp.o
+Compiling .pio/build/default/nvs_flash/src/nvs_storage.cpp.o
 Compiling .pio/build/default/nvs_flash/src/nvs_handle_simple.cpp.o
 Indexing .pio/build/default/esp-idf/newlib/libnewlib.a
 Compiling .pio/build/default/nvs_flash/src/nvs_handle_locked.cpp.o
@@ -2036,11 +2036,11 @@ Compiling .pio/build/default/nvs_flash/src/nvs_bootloader_aes.c.o
 Compiling .pio/build/default/nvs_flash/src/nvs_bootloader_xts_aes.c.o
 Compiling .pio/build/default/nvs_sec_provider/nvs_sec_provider.c.o
 Compiling .pio/build/default/openthread/src/spinel/esp_radio_spinel.cpp.o
-Archiving .pio/build/default/esp-idf/nvs_sec_provider/libnvs_sec_provider.a
 Compiling .pio/build/default/openthread/src/spinel/esp_radio_spinel_uart_interface.cpp.o
-Indexing .pio/build/default/esp-idf/nvs_sec_provider/libnvs_sec_provider.a
+Archiving .pio/build/default/esp-idf/nvs_sec_provider/libnvs_sec_provider.a
 Compiling .pio/build/default/openthread/src/port/esp_openthread_alarm.c.o
 Compiling .pio/build/default/openthread/src/port/esp_openthread_logging.c.o
+Indexing .pio/build/default/esp-idf/nvs_sec_provider/libnvs_sec_provider.a
 Compiling .pio/build/default/openthread/openthread/src/lib/spinel/example_vendor_hook.cpp.o
 Compiling .pio/build/default/openthread/openthread/src/lib/spinel/logger.cpp.o
 Compiling .pio/build/default/openthread/openthread/src/lib/spinel/radio_spinel.cpp.o
@@ -2058,8 +2058,8 @@ Compiling .pio/build/default/openthread/openthread/src/core/api/logging_api.cpp.
 Compiling .pio/build/default/openthread/openthread/src/core/common/error.cpp.o
 Compiling .pio/build/default/openthread/openthread/src/core/common/log.cpp.o
 Compiling .pio/build/default/openthread/openthread/src/core/common/string.cpp.o
-Compiling .pio/build/default/openthread/openthread/src/core/mac/mac_frame.cpp.o
 Archiving .pio/build/default/esp-idf/nvs_flash/libnvs_flash.a
+Compiling .pio/build/default/openthread/openthread/src/core/mac/mac_frame.cpp.o
 Compiling .pio/build/default/protobuf-c/protobuf-c/protobuf-c/protobuf-c.c.o
 Indexing .pio/build/default/esp-idf/nvs_flash/libnvs_flash.a
 Compiling .pio/build/default/protocomm/src/common/protocomm.c.o
@@ -2075,41 +2075,41 @@ Compiling .pio/build/default/protocomm/src/security/security1.c.o
 Compiling .pio/build/default/protocomm/src/security/security2.c.o
 Compiling .pio/build/default/protocomm/src/crypto/srp6a/esp_srp.c.o
 Compiling .pio/build/default/protocomm/src/crypto/srp6a/esp_srp_mpi.c.o
-Archiving .pio/build/default/esp-idf/openthread/libopenthread.a
 Compiling .pio/build/default/protocomm/src/transports/protocomm_nimble.c.o
 Compiling .pio/build/default/pthread/pthread.c.o
-Indexing .pio/build/default/esp-idf/openthread/libopenthread.a
 Compiling .pio/build/default/pthread/pthread_cond_var.c.o
 Compiling .pio/build/default/pthread/pthread_local_storage.c.o
 Compiling .pio/build/default/pthread/pthread_rwlock.c.o
+Archiving .pio/build/default/esp-idf/openthread/libopenthread.a
+Indexing .pio/build/default/esp-idf/openthread/libopenthread.a
 Compiling .pio/build/default/pthread/pthread_semaphore.c.o
 Compiling .pio/build/default/riscv/instruction_decode.c.o
 Compiling .pio/build/default/riscv/interrupt.c.o
 Compiling .pio/build/default/riscv/rv_utils.c.o
-Archiving .pio/build/default/esp-idf/protobuf-c/libprotobuf-c.a
 Compiling .pio/build/default/riscv/vectors.S.o
-Indexing .pio/build/default/esp-idf/protobuf-c/libprotobuf-c.a
 Compiling .pio/build/default/riscv/interrupt_intc.c.o
 Compiling .pio/build/default/riscv/vectors_intc.S.o
-Archiving .pio/build/default/esp-idf/pthread/libpthread.a
-Indexing .pio/build/default/esp-idf/pthread/libpthread.a
 Compiling .pio/build/default/rt/FreeRTOS_POSIX_mqueue.c.o
+Archiving .pio/build/default/esp-idf/pthread/libpthread.a
 Archiving .pio/build/default/esp-idf/protocomm/libprotocomm.a
-Archiving .pio/build/default/esp-idf/riscv/libriscv.a
 Compiling .pio/build/default/rt/FreeRTOS_POSIX_utils.c.o
+Indexing .pio/build/default/esp-idf/pthread/libpthread.a
+Archiving .pio/build/default/esp-idf/riscv/libriscv.a
 Indexing .pio/build/default/esp-idf/protocomm/libprotocomm.a
-Indexing .pio/build/default/esp-idf/riscv/libriscv.a
 Compiling .pio/build/default/sdmmc/sdmmc_cmd.c.o
+Indexing .pio/build/default/esp-idf/riscv/libriscv.a
 Compiling .pio/build/default/sdmmc/sdmmc_common.c.o
+Archiving .pio/build/default/esp-idf/protobuf-c/libprotobuf-c.a
 Compiling .pio/build/default/sdmmc/sdmmc_init.c.o
+Indexing .pio/build/default/esp-idf/protobuf-c/libprotobuf-c.a
 Compiling .pio/build/default/sdmmc/sdmmc_io.c.o
 Compiling .pio/build/default/sdmmc/sdmmc_mmc.c.o
+Archiving .pio/build/default/esp-idf/rt/librt.a
 Compiling .pio/build/default/sdmmc/sdmmc_sd.c.o
 Compiling .pio/build/default/sdmmc/sd_pwr_ctrl/sd_pwr_ctrl.c.o
-Archiving .pio/build/default/esp-idf/rt/librt.a
+Indexing .pio/build/default/esp-idf/rt/librt.a
 Compiling .pio/build/default/soc/lldesc.c.o
 Compiling .pio/build/default/soc/dport_access_common.c.o
-Indexing .pio/build/default/esp-idf/rt/librt.a
 Compiling .pio/build/default/soc/esp32c3/interrupts.c.o
 Compiling .pio/build/default/soc/esp32c3/gpio_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/uart_periph.c.o
@@ -2120,13 +2120,13 @@ Compiling .pio/build/default/soc/esp32c3/spi_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/ledc_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/rmt_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/sdm_periph.c.o
-Archiving .pio/build/default/esp-idf/sdmmc/libsdmmc.a
 Compiling .pio/build/default/soc/esp32c3/i2s_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/i2c_periph.c.o
-Indexing .pio/build/default/esp-idf/sdmmc/libsdmmc.a
 Compiling .pio/build/default/soc/esp32c3/temperature_sensor_periph.c.o
+Archiving .pio/build/default/esp-idf/sdmmc/libsdmmc.a
 Compiling .pio/build/default/soc/esp32c3/timer_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/mpi_periph.c.o
+Indexing .pio/build/default/esp-idf/sdmmc/libsdmmc.a
 Compiling .pio/build/default/soc/esp32c3/twai_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/wdt_periph.c.o
 Compiling .pio/build/default/soc/esp32c3/power_supply_periph.c.o
@@ -2180,30 +2180,30 @@ Compiling .pio/build/default/vfs/nullfs.c.o
 Compiling .pio/build/default/wear_levelling/Partition.cpp.o
 Compiling .pio/build/default/wear_levelling/SPI_Flash.cpp.o
 Compiling .pio/build/default/wear_levelling/WL_Ext_Perf.cpp.o
-Archiving .pio/build/default/esp-idf/spiffs/libspiffs.a
 Archiving .pio/build/default/esp-idf/tcp_transport/libtcp_transport.a
-Indexing .pio/build/default/esp-idf/spiffs/libspiffs.a
-Indexing .pio/build/default/esp-idf/tcp_transport/libtcp_transport.a
 Compiling .pio/build/default/wear_levelling/WL_Ext_Safe.cpp.o
+Indexing .pio/build/default/esp-idf/tcp_transport/libtcp_transport.a
 Compiling .pio/build/default/wear_levelling/WL_Flash.cpp.o
-Archiving .pio/build/default/esp-idf/unity/libunity.a
 Compiling .pio/build/default/wear_levelling/crc32.cpp.o
 Compiling .pio/build/default/wear_levelling/wear_levelling.cpp.o
-Indexing .pio/build/default/esp-idf/unity/libunity.a
 Compiling .pio/build/default/wifi_provisioning/src/wifi_config.c.o
+Archiving .pio/build/default/esp-idf/unity/libunity.a
 Compiling .pio/build/default/wifi_provisioning/src/wifi_scan.c.o
+Archiving .pio/build/default/esp-idf/spiffs/libspiffs.a
+Indexing .pio/build/default/esp-idf/unity/libunity.a
 Compiling .pio/build/default/wifi_provisioning/src/wifi_ctrl.c.o
+Indexing .pio/build/default/esp-idf/spiffs/libspiffs.a
 Compiling .pio/build/default/wifi_provisioning/src/manager.c.o
 Compiling .pio/build/default/wifi_provisioning/src/handlers.c.o
 Compiling .pio/build/default/wifi_provisioning/src/scheme_console.c.o
+Archiving .pio/build/default/esp-idf/vfs/libvfs.a
 Compiling .pio/build/default/wifi_provisioning/proto-c/wifi_config.pb-c.c.o
 Compiling .pio/build/default/wifi_provisioning/proto-c/wifi_scan.pb-c.c.o
-Archiving .pio/build/default/esp-idf/vfs/libvfs.a
+Indexing .pio/build/default/esp-idf/vfs/libvfs.a
 Compiling .pio/build/default/wifi_provisioning/proto-c/wifi_ctrl.pb-c.c.o
 Compiling .pio/build/default/wifi_provisioning/proto-c/wifi_constants.pb-c.c.o
-Indexing .pio/build/default/esp-idf/vfs/libvfs.a
-Compiling .pio/build/default/wifi_provisioning/src/scheme_softap.c.o
 Archiving .pio/build/default/esp-idf/wear_levelling/libwear_levelling.a
+Compiling .pio/build/default/wifi_provisioning/src/scheme_softap.c.o
 Compiling .pio/build/default/wifi_provisioning/src/scheme_ble.c.o
 Indexing .pio/build/default/esp-idf/wear_levelling/libwear_levelling.a
 Compiling .pio/build/default/wpa_supplicant/port/os_xtensa.c.o
@@ -2216,12 +2216,12 @@ Compiling .pio/build/default/wpa_supplicant/src/ap/pmksa_cache_auth.c.o
 Compiling .pio/build/default/wpa_supplicant/src/ap/sta_info.c.o
 Compiling .pio/build/default/wpa_supplicant/src/ap/ieee802_11.c.o
 Compiling .pio/build/default/wpa_supplicant/src/ap/comeback_token.c.o
+Archiving .pio/build/default/esp-idf/wifi_provisioning/libwifi_provisioning.a
 Compiling .pio/build/default/wpa_supplicant/src/common/sae.c.o
 Compiling .pio/build/default/wpa_supplicant/src/common/dragonfly.c.o
-Compiling .pio/build/default/wpa_supplicant/src/common/wpa_common.c.o
-Archiving .pio/build/default/esp-idf/wifi_provisioning/libwifi_provisioning.a
-Compiling .pio/build/default/wpa_supplicant/src/utils/bitfield.c.o
 Indexing .pio/build/default/esp-idf/wifi_provisioning/libwifi_provisioning.a
+Compiling .pio/build/default/wpa_supplicant/src/common/wpa_common.c.o
+Compiling .pio/build/default/wpa_supplicant/src/utils/bitfield.c.o
 Compiling .pio/build/default/wpa_supplicant/src/crypto/aes-siv.c.o
 Compiling .pio/build/default/wpa_supplicant/src/crypto/sha256-kdf.c.o
 Compiling .pio/build/default/wpa_supplicant/src/crypto/ccmp.c.o
@@ -2308,19 +2308,19 @@ Compiling .pio/build/default/mbedtls/mbedtls/library/aesce.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/aria.c.o
 Archiving .pio/build/default/esp-idf/mbedtls/mbedtls/3rdparty/everest/libeverest.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/asn1parse.c.o
-Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/3rdparty/everest/libeverest.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/asn1write.c.o
+Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/3rdparty/everest/libeverest.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/base64.c.o
-Archiving .pio/build/default/esp-idf/wpa_supplicant/libwpa_supplicant.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/bignum.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/bignum_core.c.o
+Archiving .pio/build/default/esp-idf/wpa_supplicant/libwpa_supplicant.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/bignum_mod.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/bignum_mod_raw.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/block_cipher.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/camellia.c.o
-Indexing .pio/build/default/esp-idf/wpa_supplicant/libwpa_supplicant.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/ccm.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/chacha20.c.o
+Indexing .pio/build/default/esp-idf/wpa_supplicant/libwpa_supplicant.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/chachapoly.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/cipher.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/cipher_wrap.c.o
@@ -2420,17 +2420,17 @@ Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_cookie.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_debug_helpers_generated.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_msg.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_ticket.c.o
-Archiving .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedcrypto.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_tls.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_tls12_client.c.o
+Archiving .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedcrypto.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_tls12_server.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_tls13_keys.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_tls13_server.c.o
-Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedcrypto.a
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_tls13_client.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/ssl_tls13_generic.c.o
 Compiling .pio/build/default/mbedtls/port/mbedtls_debug.c.o
 Compiling .pio/build/default/mbedtls/port/esp_platform_time.c.o
+Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedcrypto.a
 Compiling .pio/build/default/mbedtls/port/net_sockets.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/pkcs7.c.o
 Compiling .pio/build/default/mbedtls/mbedtls/library/x509.c.o
@@ -2446,10 +2446,10 @@ Compiling .pio/build/default/mbedtls/mbedtls/3rdparty/p256-m/p256-m/p256-m.c.o
 Generating partitions .pio/build/default/partitions.bin
 Archiving .pio/build/default/esp-idf/mbedtls/mbedtls/3rdparty/p256-m/libp256m.a
 Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/3rdparty/p256-m/libp256m.a
-Archiving .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedtls.a
-Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedtls.a
 Archiving .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedx509.a
+Archiving .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedtls.a
 Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedx509.a
+Indexing .pio/build/default/esp-idf/mbedtls/mbedtls/library/libmbedtls.a
 Generating project linker script .pio/build/default/sections.ld
 Linking .pio/build/default/firmware.elf
 Memory Type Usage Summary
@@ -2490,43 +2490,43 @@ LogoPng               2951B raw
 jszip_minJs          97630B ->  28379B gz
 Language              Code  Own   Fallback  Unused  Data (B)
 --------------------  ----  ----  --------  ------  --------
-English               EN    1088  0         65      22559   
-العربية               AR    709   379       57      23661   
-Беларуская            BE    529   559       23      18146   
-Català                CA    584   504       23      13282   
-Valencià              CAV   565   523       18      12567   
-Čeština               CS    716   372       57      16381   
-Dansk                 DA    528   560       23      9429    
-Deutsch               DE    705   383       53      15052   
-Español               ES    706   382       57      16229   
-Suomi                 FI    517   571       23      10302   
-Français              FR    528   560       23      10344   
-עברית                 HE    521   567       17      13917   
-Magyar                HU    528   560       23      11332   
-Italiano              IT    595   493       30      12240   
-Қазақша               KK    527   561       23      17787   
-Lietuvių              LT    528   560       23      9920    
-Nederlands            NL    527   561       22      9726    
-Polski                PL    547   541       30      11051   
-Português (Brasil)    PT    705   383       57      15900   
-Português (Portugal)  PT2   799   289       62      19025   
-Română                RO    527   561       22      10809   
-Русский               RU    592   496       22      21056   
-Slovenščina           SI    528   560       23      10194   
-Slovenčina            SK    616   472       34      13831   
-Svenska               SV    581   507       22      11472   
-Türkçe                TR    527   561       22      10348   
-Українська            UK    581   507       29      21194   
-Tiếng Việt            VI    582   506       33      13635   
+English               EN    1244  0         63      25061   
+العربية               AR    709   535       57      23661   
+Беларуская            BE    529   715       23      18146   
+Català                CA    584   660       23      13282   
+Valencià              CAV   565   679       18      12567   
+Čeština               CS    716   528       57      16381   
+Dansk                 DA    528   716       23      9429    
+Deutsch               DE    705   539       53      15052   
+Español               ES    706   538       57      16229   
+Suomi                 FI    517   727       23      10302   
+Français              FR    528   716       23      10344   
+עברית                 HE    521   723       17      13917   
+Magyar                HU    528   716       23      11332   
+Italiano              IT    595   649       30      12240   
+Қазақша               KK    527   717       23      17787   
+Lietuvių              LT    528   716       23      9920    
+Nederlands            NL    527   717       22      9726    
+Polski                PL    547   697       30      11051   
+Português (Brasil)    PT    705   539       57      15900   
+Português (Portugal)  PT2   799   445       62      19025   
+Română                RO    527   717       22      10809   
+Русский               RU    592   652       22      21056   
+Slovenščina           SI    528   716       23      10194   
+Slovenčina            SK    616   628       34      13831   
+Svenska               SV    581   663       22      11472   
+Türkçe                TR    527   717       22      10348   
+Українська            UK    581   663       29      21194   
+Tiếng Việt            VI    582   662       33      13635   
 
-  Total: 1088  |  Used in code: 1023  |  Never used: 65
-  Flash: 401,389 B strings (deduped)  +  60,928 B offset tables  =  462,317 B
+  Total: 1244  |  Used in code: 1181  |  Never used: 63
+  Flash: 403,891 B strings (deduped)  +  69,664 B offset tables  =  473,555 B
 
-  Stripping 65 unused string(s) from output.
+  Stripping 63 unused string(s) from output.
 
 Code generation complete!
   Languages: 28
-  String keys: 1023
+  String keys: 1181
 WARNING [git_branch.py]: git command failed (exit 128): fatal: not a git repository (or any of the parent directories): .git; short SHA suffix will be "unknown"
 WARNING [git_branch.py]: Could not read git working-tree state: Command '['git', 'status', '--porcelain', '--untracked-files=no']' returned non-zero exit status 128.; state will be "unknown"
 WARNING [git_branch.py]: git command failed (exit 128): fatal: not a git repository (or any of the parent directories): .git; branch suffix will be "unknown"
@@ -2961,6 +2961,7 @@ Compiling .pio/build/default/src/OpdsServerStore.cpp.o
 Compiling .pio/build/default/src/QuickActions.cpp.o
 Compiling .pio/build/default/src/RecentBooksStore.cpp.o
 Compiling .pio/build/default/src/SdCardFontSystem.cpp.o
+Compiling .pio/build/default/src/SettingsList.cpp.o
 Compiling .pio/build/default/src/WifiCredentialStore.cpp.o
 Compiling .pio/build/default/src/activities/Activity.cpp.o
 Compiling .pio/build/default/src/activities/ActivityManager.cpp.o
@@ -3051,18 +3052,26 @@ Compiling .pio/build/default/src/activities/tools/DailyCommandCenterActivity.cpp
 Compiling .pio/build/default/src/activities/tools/DailyQuoteActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/FlashcardsActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/HabitData.cpp.o
-Compiling .pio/build/default/src/activities/tools/HabitStatsActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/HabitSummary.cpp.o
 Compiling .pio/build/default/src/activities/tools/HabitTrackerActivity.cpp.o
+Compiling .pio/build/default/src/activities/tools/KannadaFont.cpp.o
+Compiling .pio/build/default/src/activities/tools/KannadaText.cpp.o
 Compiling .pio/build/default/src/activities/tools/KnowledgeCardActivity.cpp.o
+Compiling .pio/build/default/src/activities/tools/MantraLibrary.cpp.o
+Compiling .pio/build/default/src/activities/tools/MantrasActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/MedicineActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/MedicineData.cpp.o
 Compiling .pio/build/default/src/activities/tools/MoodActivity.cpp.o
+Compiling .pio/build/default/src/activities/tools/MoodHistoryActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/PanchangaActivity.cpp.o
+Compiling .pio/build/default/src/activities/tools/PanchangaCalendarActivity.cpp.o
+Compiling .pio/build/default/src/activities/tools/PanchangaFestivals.cpp.o
 Compiling .pio/build/default/src/activities/tools/PomodoroActivity.cpp.o
-Compiling .pio/build/default/src/activities/tools/PomodoroStatsActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/StatsActivity.cpp.o
 Compiling .pio/build/default/src/activities/tools/StatsExport.cpp.o
+Compiling .pio/build/default/src/activities/tools/ToolStatsActivity.cpp.o
+Compiling .pio/build/default/src/activities/tools/ToolStatsData.cpp.o
+Compiling .pio/build/default/src/activities/tools/ToolStatsPages.cpp.o
 Compiling .pio/build/default/src/activities/tools/ToolsCharts.cpp.o
 Compiling .pio/build/default/src/activities/tools/ToolsCommon.cpp.o
 Compiling .pio/build/default/src/activities/tools/ToolsLog.cpp.o
@@ -3111,6 +3120,8 @@ Compiling .pio/build/default/src/util/BatteryDiagnosticLog.cpp.o
 Compiling .pio/build/default/src/util/BookCacheUtils.cpp.o
 Compiling .pio/build/default/src/util/BookMoveUtils.cpp.o
 Compiling .pio/build/default/src/util/ButtonNavigator.cpp.o
+Compiling .pio/build/default/src/util/DictLayout.cpp.o
+Compiling .pio/build/default/src/util/Dictionary.cpp.o
 src/main.cpp: In function 'void notifyQuickLockChanged()':
 src/main.cpp:567:39: warning: narrowing conversion of '(((int)x) + ((((int){anonymous}::QuickLockBadgeBackdrop::SIZE) - ((int)icon_tabler_lock_28.freeink::Icon::w)) / 2))' from 'int' to 'int16_t' {aka 'short int'} [-Wnarrowing]
   567 |     target.bitmap(freeink::ui::Rect{x + (QuickLockBadgeBackdrop::SIZE - icon_tabler_lock_28.w) / 2,
@@ -3124,8 +3135,6 @@ src/main.cpp:569:57: warning: narrowing conversion of '(uint16_t)icon_tabler_loc
 src/main.cpp:569:80: warning: narrowing conversion of '(uint16_t)icon_tabler_lock_28.freeink::Icon::h' from 'uint16_t' {aka 'short unsigned int'} to 'int16_t' {aka 'short int'} [-Wnarrowing]
   569 |                                     icon_tabler_lock_28.w, icon_tabler_lock_28.h},
       |                                                            ~~~~~~~~~~~~~~~~~~~~^
-Compiling .pio/build/default/src/util/DictLayout.cpp.o
-Compiling .pio/build/default/src/util/Dictionary.cpp.o
 Compiling .pio/build/default/src/util/DictionaryLookupController.cpp.o
 Compiling .pio/build/default/src/util/DictionaryLookupWorker.cpp.o
 Compiling .pio/build/default/src/util/DictionaryRegistry.cpp.o
@@ -3206,44 +3215,44 @@ Memory Type Usage Summary
 ┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
 ┃ Memory Type/Section ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
 ┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
-│ Flash Data          │      3343328 │          │                │               │
-│    .rodata          │      3329376 │          │                │               │
+│ Flash Data          │      3306260 │          │                │               │
+│    .rodata          │      3292308 │          │                │               │
 │    .eh_frame        │        13696 │          │                │               │
 │    .appdesc         │          256 │          │                │               │
-│ Flash Code          │      2946040 │          │                │               │
-│    .text            │      2946040 │          │                │               │
-│ DRAM                │       128741 │    40.07 │         192555 │        321296 │
-│    .text            │        64192 │    19.98 │                │               │
-│    .bss             │        44368 │    13.81 │                │               │
-│    .data            │        20181 │     6.28 │                │               │
+│ Flash Code          │      2991810 │          │                │               │
+│    .text            │      2991810 │          │                │               │
+│ DRAM                │       128409 │    39.97 │         192887 │        321296 │
+│    .text            │        64156 │    19.97 │                │               │
+│    .bss             │        44496 │    13.85 │                │               │
+│    .data            │        19757 │     6.15 │                │               │
 │ RTC SLOW            │         5728 │    69.92 │           2464 │          8192 │
 │    .rtc_noinit      │         5708 │    69.68 │                │               │
 │    .text            │           20 │     0.24 │                │               │
 └─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
-Total image size: 6373761 bytes (.bin may be padded larger)
+Total image size: 6382003 bytes (.bin may be padded larger)
 Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.
-audit_app_touch_gate([".pio/build/default/firmware.elf"], [".pio/build/default/libe50/Wire/Wire.cpp.o", ".pio/build/default/lib218/BatteryMonitor/BatteryMonitor.cpp.o", ".pio/build/default/libe6f/InputManager/InputManager.cpp.o", ".pio/build/default/libe9d/SPI/SPI.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/FreeInkDisplay.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/bus/EpdBus.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Ed2208M5Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/It8951Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/LgfxEpdDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/M5OfficialDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/PaperMonoDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Ssd1677Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8179Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8253MurphyDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8253X3Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8279Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8279X4Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8279cA4Driver.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatDbg.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFile.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFilePrint.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFileWrite.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFormatter.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatName.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatPartition.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatVolume.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatDbg.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFile.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFileLFN.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFilePrint.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFileSFN.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFormatter.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatName.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatPartition.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatVolume.cpp.o", ".pio/build/default/libac8/SdFat/FreeStack.cpp.o", ".pio/build/default/libac8/SdFat/FsLib/FsFile.cpp.o", ".pio/build/default/libac8/SdFat/FsLib/FsNew.cpp.o", ".pio/build/default/libac8/SdFat/FsLib/FsVolume.cpp.o", ".pio/build/default/libac8/SdFat/MinimumSerial.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/PioSdio/PioSdioCard.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdCardInfo.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SdSpiCard.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiChipSelect.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiDue.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiSTM32Core.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiTeensy3.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/TeensySdio/TeensySdio.cpp.o", ".pio/build/default/libac8/SdFat/common/FmtNumber.cpp.o", ".pio/build/default/libac8/SdFat/common/FsCache.cpp.o", ".pio/build/default/libac8/SdFat/common/FsDateTime.cpp.o", ".pio/build/default/libac8/SdFat/common/FsName.cpp.o", ".pio/build/default/libac8/SdFat/common/FsStructs.cpp.o", ".pio/build/default/libac8/SdFat/common/FsUtf.cpp.o", ".pio/build/default/libac8/SdFat/common/PrintBasic.cpp.o", ".pio/build/default/libac8/SdFat/common/upcase.cpp.o", ".pio/build/default/libac8/SdFat/iostream/StdioStream.cpp.o", ".pio/build/default/libac8/SdFat/iostream/StreamBaseClass.cpp.o", ".pio/build/default/libac8/SdFat/iostream/istream.cpp.o", ".pio/build/default/libac8/SdFat/iostream/ostream.cpp.o", ".pio/build/default/libc44/SDCardManager/SDCardManager.cpp.o", ".pio/build/default/libc44/SDCardManager/SdmmcBlockDevice.cpp.o", ".pio/build/default/libb34/UsbMassStorage/UsbMassStorage.cpp.o", ".pio/build/default/lib422/XteinkDetect/XteinkDetect.cpp.o", ".pio/build/default/lib822/PowerManager/PowerManager.cpp.o", ".pio/build/default/lib226/Rtc/Rtc.cpp.o", ".pio/build/default/lib5ec/Imu/Imu.cpp.o", ".pio/build/default/lib818/Logging/Logging.cpp.o", ".pio/build/default/lib3ac/FrontlightManager/FrontlightManager.cpp.o", ".pio/build/default/lib1f0/Network/NetworkClient.cpp.o", ".pio/build/default/lib1f0/Network/NetworkEvents.cpp.o", ".pio/build/default/lib1f0/Network/NetworkInterface.cpp.o", ".pio/build/default/lib1f0/Network/NetworkManager.cpp.o", ".pio/build/default/lib1f0/Network/NetworkServer.cpp.o", ".pio/build/default/lib1f0/Network/NetworkUdp.cpp.o", ".pio/build/default/lib768/WiFi/AP.cpp.o", ".pio/build/default/lib768/WiFi/STA.cpp.o", ".pio/build/default/lib768/WiFi/WiFi.cpp.o", ".pio/build/default/lib768/WiFi/WiFiAP.cpp.o", ".pio/build/default/lib768/WiFi/WiFiGeneric.cpp.o", ".pio/build/default/lib768/WiFi/WiFiMulti.cpp.o", ".pio/build/default/lib768/WiFi/WiFiSTA.cpp.o", ".pio/build/default/lib768/WiFi/WiFiScan.cpp.o", ".pio/build/default/liba48/PNGdec/PNGdec.cpp.o", ".pio/build/default/liba48/PNGdec/adler32.c.o", ".pio/build/default/liba48/PNGdec/crc32.c.o", ".pio/build/default/liba48/PNGdec/infback.c.o", ".pio/build/default/liba48/PNGdec/inffast.c.o", ".pio/build/default/liba48/PNGdec/inflate.c.o", ".pio/build/default/liba48/PNGdec/inftrees.c.o", ".pio/build/default/liba48/PNGdec/s3_simd_rgb565.S.o", ".pio/build/default/liba48/PNGdec/zutil.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/bio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/conf.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/crl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/dtls.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/dtls13.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/internal.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/keys.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ocsp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/pk.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/quic.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/sniffer.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_asn1.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_bn.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_certman.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_crypto.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_load.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_misc.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_p7p12.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_sess.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/tls.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/tls13.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/wolfio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/x509.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/x509_str.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/aes.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/arc4.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/asm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/asn.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/async.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/bio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/blake2b.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/blake2s.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/camellia.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/chacha.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/chacha20_poly1305.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/cmac.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/coding.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/compress.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/cpuid.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/cryptocb.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/curve25519.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/curve448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/des3.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/dh.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/dilithium.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/dsa.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ecc.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ecc_fp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/eccsi.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ed25519.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ed448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/error.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/evp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ext_kyber.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ext_lms.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ext_xmss.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/falcon.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fe_448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fe_low_mem.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fe_operations.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fips.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fips_test.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ge_448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ge_low_mem.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ge_operations.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/hash.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/hmac.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/hpke.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/integer.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/kdf.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/logging.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/md2.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/md4.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/md5.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/memory.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/misc.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/pkcs12.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/pkcs7.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/poly1305.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_aes.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_mp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_sha.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_util.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp_sdk_mem_lib.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp_sdk_time_lib.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp_sdk_wifi_lib.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/atmel/atmel.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/pwdbased.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/random.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/rc2.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ripemd.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/rsa.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sakke.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/selftest.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha256.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha3.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha512.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/signature.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/siphash.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sm2.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sm3.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sm4.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_arm32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_arm64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_armthumb.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_c32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_c64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_cortexm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_dsp32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_int.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_arm32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_arm64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_armthumb.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_c32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_c64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_cortexm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_x86_64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_x86_64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sphincs.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/srp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/tfm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_dsp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_encrypt.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_kyber.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_kyber_poly.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_lms.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_lms_impl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_pkcs11.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_port.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_xmss.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_xmss_impl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfcrypt_first.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfcrypt_last.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfevent.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfmath.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfssl/bio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfssl/evp.c.o", ".pio/build/default/libb42/SecureNet/SecureClient.cpp.o", ".pio/build/default/libee7/NearbyTransfer/NearbyTransfer.cpp.o", ".pio/build/default/lib964/Utf8/Utf8.cpp.o", ".pio/build/default/libdda/uzlib/tinflate.c.o", ".pio/build/default/libdda/uzlib/uzlib_checksums.c.o", ".pio/build/default/libc44/InflateReader/InflateReader.cpp.o", ".pio/build/default/lib107/Memory/BuildScratch.cpp.o", ".pio/build/default/lib20f/FS/FS.cpp.o", ".pio/build/default/lib20f/FS/vfs_api.cpp.o", ".pio/build/default/libad0/Preferences/Preferences.cpp.o", ".pio/build/default/lib549/hal/HalClock.cpp.o", ".pio/build/default/lib549/hal/HalDisplay.cpp.o", ".pio/build/default/lib549/hal/HalFrontlight.cpp.o", ".pio/build/default/lib549/hal/HalGPIO.cpp.o", ".pio/build/default/lib549/hal/HalPowerManager.cpp.o", ".pio/build/default/lib549/hal/HalSpiBus.cpp.o", ".pio/build/default/lib549/hal/HalStorage.cpp.o", ".pio/build/default/lib549/hal/HalSystem.cpp.o", ".pio/build/default/lib549/hal/HalTiltSensor.cpp.o", ".pio/build/default/libb75/FsHelpers/FsHelpers.cpp.o", ".pio/build/default/libb75/FsHelpers/NaturalSort.cpp.o", ".pio/build/default/libe59/EpdFont/EpdFont.cpp.o", ".pio/build/default/libe59/EpdFont/EpdFontFamily.cpp.o", ".pio/build/default/libe59/EpdFont/FontDecompressor.cpp.o", ".pio/build/default/libe59/EpdFont/SdCardFont.cpp.o", ".pio/build/default/libe59/EpdFont/SdCardFontManager.cpp.o", ".pio/build/default/libe59/EpdFont/SdCardFontRegistry.cpp.o", ".pio/build/default/libc5c/MiniBidi/BidiUtils.cpp.o", ".pio/build/default/libc5c/MiniBidi/minibidi.c.o", ".pio/build/default/lib472/GfxRenderer/Bitmap.cpp.o", ".pio/build/default/lib472/GfxRenderer/BitmapHelpers.cpp.o", ".pio/build/default/lib472/GfxRenderer/FontCacheManager.cpp.o", ".pio/build/default/lib472/GfxRenderer/GfxRenderer.cpp.o", ".pio/build/default/lib92e/FreeInkUI/FreeInkUI.cpp.o", ".pio/build/default/lib82d/QRCode/qrcode.c.o", ".pio/build/default/lib201/JPEGDEC/JPEGDEC.cpp.o", ".pio/build/default/lib201/JPEGDEC/s3_simd_420.S.o", ".pio/build/default/lib201/JPEGDEC/s3_simd_444.S.o", ".pio/build/default/lib201/JPEGDEC/s3_simd_dequant.S.o", ".pio/build/default/lib659/Ethernet/ETH.cpp.o", ".pio/build/default/lib30f/NetworkClientSecure/NetworkClientSecure.cpp.o", ".pio/build/default/lib30f/NetworkClientSecure/ssl_client.cpp.o", ".pio/build/default/lib1dc/WebSockets/SocketIOclient.cpp.o", ".pio/build/default/lib1dc/WebSockets/WebSockets.cpp.o", ".pio/build/default/lib1dc/WebSockets/WebSocketsClient.cpp.o", ".pio/build/default/lib1dc/WebSockets/WebSocketsServer.cpp.o", ".pio/build/default/lib1dc/WebSockets/libb64/cdecode.c.o", ".pio/build/default/lib1dc/WebSockets/libb64/cencode.c.o", ".pio/build/default/lib1dc/WebSockets/libsha1/libsha1.c.o", ".pio/build/default/lib1dc/Serialization/ObfuscationUtils.cpp.o", ".pio/build/default/lib1dc/Serialization/PersistableStore.cpp.o", ".pio/build/default/libcc4/I18n/I18n.cpp.o", ".pio/build/default/libcc4/I18n/I18nStrings.cpp.o", ".pio/build/default/lib746/miniz/InflateStream.cpp.o", ".pio/build/default/lib746/miniz/miniz_impl.c.o", ".pio/build/default/lib170/ZipFile/ZipFile.cpp.o", ".pio/build/default/lib5db/expat/xmlparse.c.o", ".pio/build/default/lib5db/expat/xmlrole.c.o", ".pio/build/default/lib5db/expat/xmltok.c.o", ".pio/build/default/lib336/JpegToBmpConverter/JpegToBmpConverter.cpp.o", ".pio/build/default/lib93c/PngToBmpConverter/PngToBmpConverter.cpp.o", ".pio/build/default/lib55a/Epub/Epub.cpp.o", ".pio/build/default/lib55a/Epub/Epub/BookMetadataCache.cpp.o", ".pio/build/default/lib55a/Epub/Epub/Page.cpp.o", ".pio/build/default/lib55a/Epub/Epub/ParsedText.cpp.o", ".pio/build/default/lib55a/Epub/Epub/Section.cpp.o", ".pio/build/default/lib55a/Epub/Epub/blocks/ImageBlock.cpp.o", ".pio/build/default/lib55a/Epub/Epub/blocks/TextBlock.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/ImageDecoderFactory.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/ImageDimsProbe.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/ImageToFramebufferDecoder.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/JpegToFramebufferConverter.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/PngToFramebufferConverter.cpp.o", ".pio/build/default/lib55a/Epub/Epub/css/CssParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/htmlEntities.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/HyphenationCommon.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/Hyphenator.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/LanguageRegistry.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/LiangHyphenation.cpp.o", ".pio/build/default/lib55a/Epub/Epub/image/PxcV2.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/ChapterHtmlSlimParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/ContainerParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/ContentOpfParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/PreviewBlockLocator.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/TocNavParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/TocNcxParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/tables/CompactTableLayout.cpp.o", ".pio/build/default/lib3ed/Xtc/Xtc.cpp.o", ".pio/build/default/lib3ed/Xtc/Xtc/XtcParser.cpp.o", ".pio/build/default/lib325/Txt/Txt.cpp.o", ".pio/build/default/lib35d/OpdsParser/OpdsParser.cpp.o", ".pio/build/default/lib35d/OpdsParser/OpdsStream.cpp.o", ".pio/build/default/lib668/KOReaderSync/ChapterXPathResolver.cpp.o", ".pio/build/default/lib668/KOReaderSync/KOReaderCredentialStore.cpp.o", ".pio/build/default/lib668/KOReaderSync/KOReaderDocumentId.cpp.o", ".pio/build/default/lib668/KOReaderSync/KOReaderSyncClient.cpp.o", ".pio/build/default/lib668/KOReaderSync/ProgressMapper.cpp.o", ".pio/build/default/lib7ef/ESPmDNS/ESPmDNS.cpp.o", ".pio/build/default/libd52/AsyncUDP/AsyncUDP.cpp.o", ".pio/build/default/libbd5/DNSServer/DNSServer.cpp.o", ".pio/build/default/lib8d0/DictHtmlRenderer/DictHtmlRenderer.cpp.o", ".pio/build/default/lib99e/JsonParser/ReleaseJsonParser.cpp.o", ".pio/build/default/lib99e/JsonParser/StreamingJsonParser.cpp.o", ".pio/build/default/lib48f/FileIndex/FileIndex.cpp.o", ".pio/build/default/lib4c8/Hash/PBKDF2_HMACBuilder.cpp.o", ".pio/build/default/lib4c8/Hash/SHA1Builder.cpp.o", ".pio/build/default/lib4c8/Hash/SHA2Builder.cpp.o", ".pio/build/default/lib4c8/Hash/SHA3Builder.cpp.o", ".pio/build/default/lib80e/WebServer/Parsing.cpp.o", ".pio/build/default/lib80e/WebServer/WebServer.cpp.o", ".pio/build/default/lib80e/WebServer/detail/mimetable.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/AuthenticationMiddleware.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/CorsMiddleware.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/LoggingMiddleware.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/MiddlewareChain.cpp.o", ".pio/build/default/src/BookmarkStore.cpp.o", ".pio/build/default/src/ClippingStore.cpp.o", ".pio/build/default/src/CrossPointSettings.cpp.o", ".pio/build/default/src/CrossPointState.cpp.o", ".pio/build/default/src/FontInstaller.cpp.o", ".pio/build/default/src/MappedInputManager.cpp.o", ".pio/build/default/src/OpdsServerStore.cpp.o", ".pio/build/default/src/QuickActions.cpp.o", ".pio/build/default/src/RecentBooksStore.cpp.o", ".pio/build/default/src/SdCardFontSystem.cpp.o", ".pio/build/default/src/WifiCredentialStore.cpp.o", ".pio/build/default/src/activities/Activity.cpp.o", ".pio/build/default/src/activities/ActivityManager.cpp.o", ".pio/build/default/src/activities/boot_sleep/BootActivity.cpp.o", ".pio/build/default/src/activities/boot_sleep/ImageFolderIndex.cpp.o", ".pio/build/default/src/activities/boot_sleep/SleepActivity.cpp.o", ".pio/build/default/src/activities/boot_sleep/SleepCoverAssets.cpp.o", ".pio/build/default/src/activities/browser/OpdsBookBrowserActivity.cpp.o", ".pio/build/default/src/activities/home/AlertActivity.cpp.o", ".pio/build/default/src/activities/home/BookActions.cpp.o", ".pio/build/default/src/activities/home/CrashActivity.cpp.o", ".pio/build/default/src/activities/home/FileBrowserActionActivity.cpp.o", ".pio/build/default/src/activities/home/FileBrowserActivity.cpp.o", ".pio/build/default/src/activities/home/HomeActivity.cpp.o", ".pio/build/default/src/activities/home/RecentBookProgress.cpp.o", ".pio/build/default/src/activities/home/RecentBooksActivity.cpp.o", ".pio/build/default/src/activities/home/RecentBooksGridActivity.cpp.o", ".pio/build/default/src/activities/home/SavedItemsHomeActivity.cpp.o", ".pio/build/default/src/activities/network/CalibreConnectActivity.cpp.o", ".pio/build/default/src/activities/network/CrossPointWebServerActivity.cpp.o", ".pio/build/default/src/activities/network/NearbyBookTransferActivity.cpp.o", ".pio/build/default/src/activities/network/NearbyStatsSyncActivity.cpp.o", ".pio/build/default/src/activities/network/NetworkModeSelectionActivity.cpp.o", ".pio/build/default/src/activities/network/UsbDriveActivity.cpp.o", ".pio/build/default/src/activities/network/WifiSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/BookInsights.cpp.o", ".pio/build/default/src/activities/reader/BookReadingStats.cpp.o", ".pio/build/default/src/activities/reader/BookStatsActivity.cpp.o", ".pio/build/default/src/activities/reader/BookStatsView.cpp.o", ".pio/build/default/src/activities/reader/ClipSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/ControlsOptionsActivity.cpp.o", ".pio/build/default/src/activities/reader/DictionaryDefinitionActivity.cpp.o", ".pio/build/default/src/activities/reader/DictionarySuggestionsActivity.cpp.o", ".pio/build/default/src/activities/reader/DictionaryWordSelectActivity.cpp.o", ".pio/build/default/src/activities/reader/EndOfBookOptions.cpp.o", ".pio/build/default/src/activities/reader/EpubGrayscale.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderBookmarkListActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderChapterSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderClippingListActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderFootnotesActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderMenuActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderPercentSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderTouchMenuActivity.cpp.o", ".pio/build/default/src/activities/reader/GlobalReadingStats.cpp.o", ".pio/build/default/src/activities/reader/KOReaderSyncActivity.cpp.o", ".pio/build/default/src/activities/reader/LibraryStats.cpp.o", ".pio/build/default/src/activities/reader/LookedUpWordsActivity.cpp.o", ".pio/build/default/src/activities/reader/NearbyBookPositionSyncActivity.cpp.o", ".pio/build/default/src/activities/reader/QrDisplayActivity.cpp.o", ".pio/build/default/src/activities/reader/ReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/ReaderOptionsActivity.cpp.o", ".pio/build/default/src/activities/reader/ReadingStatsUtils.cpp.o", ".pio/build/default/src/activities/reader/StatsBackup.cpp.o", ".pio/build/default/src/activities/reader/TxtReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/XtcReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/XtcReaderChapterSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/XtcReaderMenuActivity.cpp.o", ".pio/build/default/src/activities/settings/AboutActivity.cpp.o", ".pio/build/default/src/activities/settings/BackupStatsActivity.cpp.o", ".pio/build/default/src/activities/settings/ButtonRemapActivity.cpp.o", ".pio/build/default/src/activities/settings/ClearCacheActivity.cpp.o", ".pio/build/default/src/activities/settings/ClockOffsetActivity.cpp.o", ".pio/build/default/src/activities/settings/ClockSyncActivity.cpp.o", ".pio/build/default/src/activities/settings/DictionarySelectActivity.cpp.o", ".pio/build/default/src/activities/settings/FontDownloadActivity.cpp.o", ".pio/build/default/src/activities/settings/FontSelectionActivity.cpp.o", ".pio/build/default/src/activities/settings/FrontlightTimePickerActivity.cpp.o", ".pio/build/default/src/activities/settings/HelpTextActivity.cpp.o", ".pio/build/default/src/activities/settings/KOReaderAuthActivity.cpp.o", ".pio/build/default/src/activities/settings/KOReaderSettingsActivity.cpp.o", ".pio/build/default/src/activities/settings/KeyboardLayoutsActivity.cpp.o", ".pio/build/default/src/activities/settings/OpdsServerListActivity.cpp.o", ".pio/build/default/src/activities/settings/OpdsSettingsActivity.cpp.o", ".pio/build/default/src/activities/settings/OtaUpdateActivity.cpp.o", ".pio/build/default/src/activities/settings/QuickActionsActivity.cpp.o", ".pio/build/default/src/activities/settings/SdFirmwareUpdateActivity.cpp.o", ".pio/build/default/src/activities/settings/SettingsActivity.cpp.o", ".pio/build/default/src/activities/settings/StatusBarSettingsActivity.cpp.o", ".pio/build/default/src/activities/tools/DailyCommandCenterActivity.cpp.o", ".pio/build/default/src/activities/tools/DailyQuoteActivity.cpp.o", ".pio/build/default/src/activities/tools/FlashcardsActivity.cpp.o", ".pio/build/default/src/activities/tools/HabitData.cpp.o", ".pio/build/default/src/activities/tools/HabitStatsActivity.cpp.o", ".pio/build/default/src/activities/tools/HabitSummary.cpp.o", ".pio/build/default/src/activities/tools/HabitTrackerActivity.cpp.o", ".pio/build/default/src/activities/tools/KnowledgeCardActivity.cpp.o", ".pio/build/default/src/activities/tools/MedicineActivity.cpp.o", ".pio/build/default/src/activities/tools/MedicineData.cpp.o", ".pio/build/default/src/activities/tools/MoodActivity.cpp.o", ".pio/build/default/src/activities/tools/PanchangaActivity.cpp.o", ".pio/build/default/src/activities/tools/PomodoroActivity.cpp.o", ".pio/build/default/src/activities/tools/PomodoroStatsActivity.cpp.o", ".pio/build/default/src/activities/tools/StatsActivity.cpp.o", ".pio/build/default/src/activities/tools/StatsExport.cpp.o", ".pio/build/default/src/activities/tools/ToolsCharts.cpp.o", ".pio/build/default/src/activities/tools/ToolsCommon.cpp.o", ".pio/build/default/src/activities/tools/ToolsLog.cpp.o", ".pio/build/default/src/activities/tools/ToolsMenuActivity.cpp.o", ".pio/build/default/src/activities/tools/ToolsStore.cpp.o", ".pio/build/default/src/activities/tools/WorldClockActivity.cpp.o", ".pio/build/default/src/activities/util/BmpViewerActivity.cpp.o", ".pio/build/default/src/activities/util/ConfirmationActivity.cpp.o", ".pio/build/default/src/activities/util/FrontlightPanelActivity.cpp.o", ".pio/build/default/src/activities/util/FullScreenMessageActivity.cpp.o", ".pio/build/default/src/activities/util/IntervalSelectionActivity.cpp.o", ".pio/build/default/src/activities/util/KeyboardEntryActivity.cpp.o", ".pio/build/default/src/activities/util/KeyboardLayoutSet.cpp.o", ".pio/build/default/src/activities/util/OptionSelectionActivity.cpp.o", ".pio/build/default/src/clippings/ClipTextBuilder.cpp.o", ".pio/build/default/src/clippings/ClippingsManager.cpp.o", ".pio/build/default/src/components/CompactHeader.cpp.o", ".pio/build/default/src/components/HeaderDate.cpp.o", ".pio/build/default/src/components/TouchActionButtons.cpp.o", ".pio/build/default/src/components/TouchHeaderBackButton.cpp.o", ".pio/build/default/src/components/TouchRegistry.cpp.o", ".pio/build/default/src/components/UITheme.cpp.o", ".pio/build/default/src/components/themes/BaseTheme.cpp.o", ".pio/build/default/src/components/themes/dashboard/DashboardTheme.cpp.o", ".pio/build/default/src/components/themes/lyra/Lyra3CoversTheme.cpp.o", ".pio/build/default/src/components/themes/lyra/LyraCarouselTheme.cpp.o", ".pio/build/default/src/components/themes/lyra/LyraTheme.cpp.o", ".pio/build/default/src/components/themes/minimal/MinimalTheme.cpp.o", ".pio/build/default/src/components/themes/pocketdeck/PocketDeckTheme.cpp.o", ".pio/build/default/src/components/themes/roundedraff/RoundedRaffTheme.cpp.o", ".pio/build/default/src/main.cpp.o", ".pio/build/default/src/network/CrossPointWebServer.cpp.o", ".pio/build/default/src/network/FirmwareBoardTag.cpp.o", ".pio/build/default/src/network/FirmwareFlasher.cpp.o", ".pio/build/default/src/network/HttpDownloader.cpp.o", ".pio/build/default/src/network/OtaBootSwitch.cpp.o", ".pio/build/default/src/network/OtaUpdater.cpp.o", ".pio/build/default/src/network/UsbSerialFileTransfer.cpp.o", ".pio/build/default/src/network/WebDAVHandler.cpp.o", ".pio/build/default/src/platform/UsbDisabledClassCallbacks.cpp.o", ".pio/build/default/src/platform/UsbSerialJtagHandoff.cpp.o", ".pio/build/default/src/platform/skip_efuse_blk_check.c.o", ".pio/build/default/src/simulator/SimulatorHomeKeyInput.cpp.o", ".pio/build/default/src/simulator/SimulatorSmokeTest.cpp.o", ".pio/build/default/src/util/BatteryDiagnosticLog.cpp.o", ".pio/build/default/src/util/BookCacheUtils.cpp.o", ".pio/build/default/src/util/BookMoveUtils.cpp.o", ".pio/build/default/src/util/ButtonNavigator.cpp.o", ".pio/build/default/src/util/DictLayout.cpp.o", ".pio/build/default/src/util/Dictionary.cpp.o", ".pio/build/default/src/util/DictionaryLookupController.cpp.o", ".pio/build/default/src/util/DictionaryLookupWorker.cpp.o", ".pio/build/default/src/util/DictionaryRegistry.cpp.o", ".pio/build/default/src/util/LookupHistory.cpp.o", ".pio/build/default/src/util/NextBookFinder.cpp.o", ".pio/build/default/src/util/QrUtils.cpp.o", ".pio/build/default/src/util/ScreenshotUtil.cpp.o", ".pio/build/default/src/util/StringUtils.cpp.o", ".pio/build/default/src/util/UrlUtils.cpp.o", ".pio/build/default/src/util/WordSelectNavigator.cpp.o"])
+audit_app_touch_gate([".pio/build/default/firmware.elf"], [".pio/build/default/libe50/Wire/Wire.cpp.o", ".pio/build/default/lib218/BatteryMonitor/BatteryMonitor.cpp.o", ".pio/build/default/libe6f/InputManager/InputManager.cpp.o", ".pio/build/default/libe9d/SPI/SPI.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/FreeInkDisplay.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/bus/EpdBus.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Ed2208M5Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/It8951Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/LgfxEpdDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/M5OfficialDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/PaperMonoDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Ssd1677Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8179Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8253MurphyDriver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8253X3Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8279Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8279X4Driver.cpp.o", ".pio/build/default/lib700/FreeInkDisplay/driver/Uc8279cA4Driver.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatDbg.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFile.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFilePrint.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFileWrite.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatFormatter.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatName.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatPartition.cpp.o", ".pio/build/default/libac8/SdFat/ExFatLib/ExFatVolume.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatDbg.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFile.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFileLFN.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFilePrint.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFileSFN.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatFormatter.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatName.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatPartition.cpp.o", ".pio/build/default/libac8/SdFat/FatLib/FatVolume.cpp.o", ".pio/build/default/libac8/SdFat/FreeStack.cpp.o", ".pio/build/default/libac8/SdFat/FsLib/FsFile.cpp.o", ".pio/build/default/libac8/SdFat/FsLib/FsNew.cpp.o", ".pio/build/default/libac8/SdFat/FsLib/FsVolume.cpp.o", ".pio/build/default/libac8/SdFat/MinimumSerial.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/PioSdio/PioSdioCard.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdCardInfo.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SdSpiCard.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiChipSelect.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiDue.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiSTM32Core.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/SdSpiCard/SpiDriver/SdSpiTeensy3.cpp.o", ".pio/build/default/libac8/SdFat/SdCard/TeensySdio/TeensySdio.cpp.o", ".pio/build/default/libac8/SdFat/common/FmtNumber.cpp.o", ".pio/build/default/libac8/SdFat/common/FsCache.cpp.o", ".pio/build/default/libac8/SdFat/common/FsDateTime.cpp.o", ".pio/build/default/libac8/SdFat/common/FsName.cpp.o", ".pio/build/default/libac8/SdFat/common/FsStructs.cpp.o", ".pio/build/default/libac8/SdFat/common/FsUtf.cpp.o", ".pio/build/default/libac8/SdFat/common/PrintBasic.cpp.o", ".pio/build/default/libac8/SdFat/common/upcase.cpp.o", ".pio/build/default/libac8/SdFat/iostream/StdioStream.cpp.o", ".pio/build/default/libac8/SdFat/iostream/StreamBaseClass.cpp.o", ".pio/build/default/libac8/SdFat/iostream/istream.cpp.o", ".pio/build/default/libac8/SdFat/iostream/ostream.cpp.o", ".pio/build/default/libc44/SDCardManager/SDCardManager.cpp.o", ".pio/build/default/libc44/SDCardManager/SdmmcBlockDevice.cpp.o", ".pio/build/default/libb34/UsbMassStorage/UsbMassStorage.cpp.o", ".pio/build/default/lib422/XteinkDetect/XteinkDetect.cpp.o", ".pio/build/default/lib822/PowerManager/PowerManager.cpp.o", ".pio/build/default/lib226/Rtc/Rtc.cpp.o", ".pio/build/default/lib5ec/Imu/Imu.cpp.o", ".pio/build/default/lib818/Logging/Logging.cpp.o", ".pio/build/default/lib3ac/FrontlightManager/FrontlightManager.cpp.o", ".pio/build/default/lib1f0/Network/NetworkClient.cpp.o", ".pio/build/default/lib1f0/Network/NetworkEvents.cpp.o", ".pio/build/default/lib1f0/Network/NetworkInterface.cpp.o", ".pio/build/default/lib1f0/Network/NetworkManager.cpp.o", ".pio/build/default/lib1f0/Network/NetworkServer.cpp.o", ".pio/build/default/lib1f0/Network/NetworkUdp.cpp.o", ".pio/build/default/lib768/WiFi/AP.cpp.o", ".pio/build/default/lib768/WiFi/STA.cpp.o", ".pio/build/default/lib768/WiFi/WiFi.cpp.o", ".pio/build/default/lib768/WiFi/WiFiAP.cpp.o", ".pio/build/default/lib768/WiFi/WiFiGeneric.cpp.o", ".pio/build/default/lib768/WiFi/WiFiMulti.cpp.o", ".pio/build/default/lib768/WiFi/WiFiSTA.cpp.o", ".pio/build/default/lib768/WiFi/WiFiScan.cpp.o", ".pio/build/default/liba48/PNGdec/PNGdec.cpp.o", ".pio/build/default/liba48/PNGdec/adler32.c.o", ".pio/build/default/liba48/PNGdec/crc32.c.o", ".pio/build/default/liba48/PNGdec/infback.c.o", ".pio/build/default/liba48/PNGdec/inffast.c.o", ".pio/build/default/liba48/PNGdec/inflate.c.o", ".pio/build/default/liba48/PNGdec/inftrees.c.o", ".pio/build/default/liba48/PNGdec/s3_simd_rgb565.S.o", ".pio/build/default/liba48/PNGdec/zutil.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/bio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/conf.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/crl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/dtls.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/dtls13.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/internal.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/keys.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ocsp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/pk.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/quic.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/sniffer.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_asn1.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_bn.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_certman.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_crypto.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_load.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_misc.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_p7p12.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/ssl_sess.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/tls.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/tls13.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/wolfio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/x509.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/src/x509_str.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/aes.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/arc4.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/asm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/asn.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/async.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/bio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/blake2b.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/blake2s.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/camellia.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/chacha.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/chacha20_poly1305.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/cmac.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/coding.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/compress.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/cpuid.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/cryptocb.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/curve25519.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/curve448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/des3.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/dh.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/dilithium.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/dsa.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ecc.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ecc_fp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/eccsi.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ed25519.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ed448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/error.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/evp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ext_kyber.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ext_lms.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ext_xmss.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/falcon.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fe_448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fe_low_mem.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fe_operations.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fips.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/fips_test.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ge_448.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ge_low_mem.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ge_operations.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/hash.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/hmac.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/hpke.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/integer.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/kdf.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/logging.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/md2.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/md4.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/md5.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/memory.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/misc.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/pkcs12.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/pkcs7.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/poly1305.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_aes.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_mp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_sha.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp32_util.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp_sdk_mem_lib.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp_sdk_time_lib.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/Espressif/esp_sdk_wifi_lib.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/port/atmel/atmel.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/pwdbased.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/random.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/rc2.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/ripemd.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/rsa.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sakke.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/selftest.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha256.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha3.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sha512.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/signature.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/siphash.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sm2.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sm3.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sm4.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_arm32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_arm64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_armthumb.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_c32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_c64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_cortexm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_dsp32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_int.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_arm32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_arm64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_armthumb.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_c32.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_c64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_cortexm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_sm2_x86_64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sp_x86_64.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/sphincs.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/srp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/tfm.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_dsp.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_encrypt.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_kyber.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_kyber_poly.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_lms.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_lms_impl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_pkcs11.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_port.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_xmss.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wc_xmss_impl.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfcrypt_first.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfcrypt_last.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfevent.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfcrypt/src/wolfmath.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfssl/bio.c.o", ".pio/build/default/lib4ee/Arduino-wolfSSL/wolfssl/evp.c.o", ".pio/build/default/libb42/SecureNet/SecureClient.cpp.o", ".pio/build/default/libee7/NearbyTransfer/NearbyTransfer.cpp.o", ".pio/build/default/lib964/Utf8/Utf8.cpp.o", ".pio/build/default/libdda/uzlib/tinflate.c.o", ".pio/build/default/libdda/uzlib/uzlib_checksums.c.o", ".pio/build/default/libc44/InflateReader/InflateReader.cpp.o", ".pio/build/default/lib107/Memory/BuildScratch.cpp.o", ".pio/build/default/lib20f/FS/FS.cpp.o", ".pio/build/default/lib20f/FS/vfs_api.cpp.o", ".pio/build/default/libad0/Preferences/Preferences.cpp.o", ".pio/build/default/lib549/hal/HalClock.cpp.o", ".pio/build/default/lib549/hal/HalDisplay.cpp.o", ".pio/build/default/lib549/hal/HalFrontlight.cpp.o", ".pio/build/default/lib549/hal/HalGPIO.cpp.o", ".pio/build/default/lib549/hal/HalPowerManager.cpp.o", ".pio/build/default/lib549/hal/HalSpiBus.cpp.o", ".pio/build/default/lib549/hal/HalStorage.cpp.o", ".pio/build/default/lib549/hal/HalSystem.cpp.o", ".pio/build/default/lib549/hal/HalTiltSensor.cpp.o", ".pio/build/default/libb75/FsHelpers/FsHelpers.cpp.o", ".pio/build/default/libb75/FsHelpers/NaturalSort.cpp.o", ".pio/build/default/libe59/EpdFont/EpdFont.cpp.o", ".pio/build/default/libe59/EpdFont/EpdFontFamily.cpp.o", ".pio/build/default/libe59/EpdFont/FontDecompressor.cpp.o", ".pio/build/default/libe59/EpdFont/SdCardFont.cpp.o", ".pio/build/default/libe59/EpdFont/SdCardFontManager.cpp.o", ".pio/build/default/libe59/EpdFont/SdCardFontRegistry.cpp.o", ".pio/build/default/libc5c/MiniBidi/BidiUtils.cpp.o", ".pio/build/default/libc5c/MiniBidi/minibidi.c.o", ".pio/build/default/lib472/GfxRenderer/Bitmap.cpp.o", ".pio/build/default/lib472/GfxRenderer/BitmapHelpers.cpp.o", ".pio/build/default/lib472/GfxRenderer/FontCacheManager.cpp.o", ".pio/build/default/lib472/GfxRenderer/GfxRenderer.cpp.o", ".pio/build/default/lib92e/FreeInkUI/FreeInkUI.cpp.o", ".pio/build/default/lib82d/QRCode/qrcode.c.o", ".pio/build/default/lib201/JPEGDEC/JPEGDEC.cpp.o", ".pio/build/default/lib201/JPEGDEC/s3_simd_420.S.o", ".pio/build/default/lib201/JPEGDEC/s3_simd_444.S.o", ".pio/build/default/lib201/JPEGDEC/s3_simd_dequant.S.o", ".pio/build/default/lib659/Ethernet/ETH.cpp.o", ".pio/build/default/lib30f/NetworkClientSecure/NetworkClientSecure.cpp.o", ".pio/build/default/lib30f/NetworkClientSecure/ssl_client.cpp.o", ".pio/build/default/lib1dc/WebSockets/SocketIOclient.cpp.o", ".pio/build/default/lib1dc/WebSockets/WebSockets.cpp.o", ".pio/build/default/lib1dc/WebSockets/WebSocketsClient.cpp.o", ".pio/build/default/lib1dc/WebSockets/WebSocketsServer.cpp.o", ".pio/build/default/lib1dc/WebSockets/libb64/cdecode.c.o", ".pio/build/default/lib1dc/WebSockets/libb64/cencode.c.o", ".pio/build/default/lib1dc/WebSockets/libsha1/libsha1.c.o", ".pio/build/default/lib1dc/Serialization/ObfuscationUtils.cpp.o", ".pio/build/default/lib1dc/Serialization/PersistableStore.cpp.o", ".pio/build/default/libcc4/I18n/I18n.cpp.o", ".pio/build/default/libcc4/I18n/I18nStrings.cpp.o", ".pio/build/default/lib746/miniz/InflateStream.cpp.o", ".pio/build/default/lib746/miniz/miniz_impl.c.o", ".pio/build/default/lib170/ZipFile/ZipFile.cpp.o", ".pio/build/default/lib5db/expat/xmlparse.c.o", ".pio/build/default/lib5db/expat/xmlrole.c.o", ".pio/build/default/lib5db/expat/xmltok.c.o", ".pio/build/default/lib336/JpegToBmpConverter/JpegToBmpConverter.cpp.o", ".pio/build/default/lib93c/PngToBmpConverter/PngToBmpConverter.cpp.o", ".pio/build/default/lib55a/Epub/Epub.cpp.o", ".pio/build/default/lib55a/Epub/Epub/BookMetadataCache.cpp.o", ".pio/build/default/lib55a/Epub/Epub/Page.cpp.o", ".pio/build/default/lib55a/Epub/Epub/ParsedText.cpp.o", ".pio/build/default/lib55a/Epub/Epub/Section.cpp.o", ".pio/build/default/lib55a/Epub/Epub/blocks/ImageBlock.cpp.o", ".pio/build/default/lib55a/Epub/Epub/blocks/TextBlock.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/ImageDecoderFactory.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/ImageDimsProbe.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/ImageToFramebufferDecoder.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/JpegToFramebufferConverter.cpp.o", ".pio/build/default/lib55a/Epub/Epub/converters/PngToFramebufferConverter.cpp.o", ".pio/build/default/lib55a/Epub/Epub/css/CssParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/htmlEntities.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/HyphenationCommon.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/Hyphenator.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/LanguageRegistry.cpp.o", ".pio/build/default/lib55a/Epub/Epub/hyphenation/LiangHyphenation.cpp.o", ".pio/build/default/lib55a/Epub/Epub/image/PxcV2.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/ChapterHtmlSlimParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/ContainerParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/ContentOpfParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/PreviewBlockLocator.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/TocNavParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/parsers/TocNcxParser.cpp.o", ".pio/build/default/lib55a/Epub/Epub/tables/CompactTableLayout.cpp.o", ".pio/build/default/lib3ed/Xtc/Xtc.cpp.o", ".pio/build/default/lib3ed/Xtc/Xtc/XtcParser.cpp.o", ".pio/build/default/lib325/Txt/Txt.cpp.o", ".pio/build/default/lib35d/OpdsParser/OpdsParser.cpp.o", ".pio/build/default/lib35d/OpdsParser/OpdsStream.cpp.o", ".pio/build/default/lib668/KOReaderSync/ChapterXPathResolver.cpp.o", ".pio/build/default/lib668/KOReaderSync/KOReaderCredentialStore.cpp.o", ".pio/build/default/lib668/KOReaderSync/KOReaderDocumentId.cpp.o", ".pio/build/default/lib668/KOReaderSync/KOReaderSyncClient.cpp.o", ".pio/build/default/lib668/KOReaderSync/ProgressMapper.cpp.o", ".pio/build/default/lib7ef/ESPmDNS/ESPmDNS.cpp.o", ".pio/build/default/libd52/AsyncUDP/AsyncUDP.cpp.o", ".pio/build/default/libbd5/DNSServer/DNSServer.cpp.o", ".pio/build/default/lib8d0/DictHtmlRenderer/DictHtmlRenderer.cpp.o", ".pio/build/default/lib99e/JsonParser/ReleaseJsonParser.cpp.o", ".pio/build/default/lib99e/JsonParser/StreamingJsonParser.cpp.o", ".pio/build/default/lib48f/FileIndex/FileIndex.cpp.o", ".pio/build/default/lib4c8/Hash/PBKDF2_HMACBuilder.cpp.o", ".pio/build/default/lib4c8/Hash/SHA1Builder.cpp.o", ".pio/build/default/lib4c8/Hash/SHA2Builder.cpp.o", ".pio/build/default/lib4c8/Hash/SHA3Builder.cpp.o", ".pio/build/default/lib80e/WebServer/Parsing.cpp.o", ".pio/build/default/lib80e/WebServer/WebServer.cpp.o", ".pio/build/default/lib80e/WebServer/detail/mimetable.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/AuthenticationMiddleware.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/CorsMiddleware.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/LoggingMiddleware.cpp.o", ".pio/build/default/lib80e/WebServer/middleware/MiddlewareChain.cpp.o", ".pio/build/default/src/BookmarkStore.cpp.o", ".pio/build/default/src/ClippingStore.cpp.o", ".pio/build/default/src/CrossPointSettings.cpp.o", ".pio/build/default/src/CrossPointState.cpp.o", ".pio/build/default/src/FontInstaller.cpp.o", ".pio/build/default/src/MappedInputManager.cpp.o", ".pio/build/default/src/OpdsServerStore.cpp.o", ".pio/build/default/src/QuickActions.cpp.o", ".pio/build/default/src/RecentBooksStore.cpp.o", ".pio/build/default/src/SdCardFontSystem.cpp.o", ".pio/build/default/src/SettingsList.cpp.o", ".pio/build/default/src/WifiCredentialStore.cpp.o", ".pio/build/default/src/activities/Activity.cpp.o", ".pio/build/default/src/activities/ActivityManager.cpp.o", ".pio/build/default/src/activities/boot_sleep/BootActivity.cpp.o", ".pio/build/default/src/activities/boot_sleep/ImageFolderIndex.cpp.o", ".pio/build/default/src/activities/boot_sleep/SleepActivity.cpp.o", ".pio/build/default/src/activities/boot_sleep/SleepCoverAssets.cpp.o", ".pio/build/default/src/activities/browser/OpdsBookBrowserActivity.cpp.o", ".pio/build/default/src/activities/home/AlertActivity.cpp.o", ".pio/build/default/src/activities/home/BookActions.cpp.o", ".pio/build/default/src/activities/home/CrashActivity.cpp.o", ".pio/build/default/src/activities/home/FileBrowserActionActivity.cpp.o", ".pio/build/default/src/activities/home/FileBrowserActivity.cpp.o", ".pio/build/default/src/activities/home/HomeActivity.cpp.o", ".pio/build/default/src/activities/home/RecentBookProgress.cpp.o", ".pio/build/default/src/activities/home/RecentBooksActivity.cpp.o", ".pio/build/default/src/activities/home/RecentBooksGridActivity.cpp.o", ".pio/build/default/src/activities/home/SavedItemsHomeActivity.cpp.o", ".pio/build/default/src/activities/network/CalibreConnectActivity.cpp.o", ".pio/build/default/src/activities/network/CrossPointWebServerActivity.cpp.o", ".pio/build/default/src/activities/network/NearbyBookTransferActivity.cpp.o", ".pio/build/default/src/activities/network/NearbyStatsSyncActivity.cpp.o", ".pio/build/default/src/activities/network/NetworkModeSelectionActivity.cpp.o", ".pio/build/default/src/activities/network/UsbDriveActivity.cpp.o", ".pio/build/default/src/activities/network/WifiSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/BookInsights.cpp.o", ".pio/build/default/src/activities/reader/BookReadingStats.cpp.o", ".pio/build/default/src/activities/reader/BookStatsActivity.cpp.o", ".pio/build/default/src/activities/reader/BookStatsView.cpp.o", ".pio/build/default/src/activities/reader/ClipSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/ControlsOptionsActivity.cpp.o", ".pio/build/default/src/activities/reader/DictionaryDefinitionActivity.cpp.o", ".pio/build/default/src/activities/reader/DictionarySuggestionsActivity.cpp.o", ".pio/build/default/src/activities/reader/DictionaryWordSelectActivity.cpp.o", ".pio/build/default/src/activities/reader/EndOfBookOptions.cpp.o", ".pio/build/default/src/activities/reader/EpubGrayscale.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderBookmarkListActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderChapterSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderClippingListActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderFootnotesActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderMenuActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderPercentSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/EpubReaderTouchMenuActivity.cpp.o", ".pio/build/default/src/activities/reader/GlobalReadingStats.cpp.o", ".pio/build/default/src/activities/reader/KOReaderSyncActivity.cpp.o", ".pio/build/default/src/activities/reader/LibraryStats.cpp.o", ".pio/build/default/src/activities/reader/LookedUpWordsActivity.cpp.o", ".pio/build/default/src/activities/reader/NearbyBookPositionSyncActivity.cpp.o", ".pio/build/default/src/activities/reader/QrDisplayActivity.cpp.o", ".pio/build/default/src/activities/reader/ReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/ReaderOptionsActivity.cpp.o", ".pio/build/default/src/activities/reader/ReadingStatsUtils.cpp.o", ".pio/build/default/src/activities/reader/StatsBackup.cpp.o", ".pio/build/default/src/activities/reader/TxtReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/XtcReaderActivity.cpp.o", ".pio/build/default/src/activities/reader/XtcReaderChapterSelectionActivity.cpp.o", ".pio/build/default/src/activities/reader/XtcReaderMenuActivity.cpp.o", ".pio/build/default/src/activities/settings/AboutActivity.cpp.o", ".pio/build/default/src/activities/settings/BackupStatsActivity.cpp.o", ".pio/build/default/src/activities/settings/ButtonRemapActivity.cpp.o", ".pio/build/default/src/activities/settings/ClearCacheActivity.cpp.o", ".pio/build/default/src/activities/settings/ClockOffsetActivity.cpp.o", ".pio/build/default/src/activities/settings/ClockSyncActivity.cpp.o", ".pio/build/default/src/activities/settings/DictionarySelectActivity.cpp.o", ".pio/build/default/src/activities/settings/FontDownloadActivity.cpp.o", ".pio/build/default/src/activities/settings/FontSelectionActivity.cpp.o", ".pio/build/default/src/activities/settings/FrontlightTimePickerActivity.cpp.o", ".pio/build/default/src/activities/settings/HelpTextActivity.cpp.o", ".pio/build/default/src/activities/settings/KOReaderAuthActivity.cpp.o", ".pio/build/default/src/activities/settings/KOReaderSettingsActivity.cpp.o", ".pio/build/default/src/activities/settings/KeyboardLayoutsActivity.cpp.o", ".pio/build/default/src/activities/settings/OpdsServerListActivity.cpp.o", ".pio/build/default/src/activities/settings/OpdsSettingsActivity.cpp.o", ".pio/build/default/src/activities/settings/OtaUpdateActivity.cpp.o", ".pio/build/default/src/activities/settings/QuickActionsActivity.cpp.o", ".pio/build/default/src/activities/settings/SdFirmwareUpdateActivity.cpp.o", ".pio/build/default/src/activities/settings/SettingsActivity.cpp.o", ".pio/build/default/src/activities/settings/StatusBarSettingsActivity.cpp.o", ".pio/build/default/src/activities/tools/DailyCommandCenterActivity.cpp.o", ".pio/build/default/src/activities/tools/DailyQuoteActivity.cpp.o", ".pio/build/default/src/activities/tools/FlashcardsActivity.cpp.o", ".pio/build/default/src/activities/tools/HabitData.cpp.o", ".pio/build/default/src/activities/tools/HabitSummary.cpp.o", ".pio/build/default/src/activities/tools/HabitTrackerActivity.cpp.o", ".pio/build/default/src/activities/tools/KannadaFont.cpp.o", ".pio/build/default/src/activities/tools/KannadaText.cpp.o", ".pio/build/default/src/activities/tools/KnowledgeCardActivity.cpp.o", ".pio/build/default/src/activities/tools/MantraLibrary.cpp.o", ".pio/build/default/src/activities/tools/MantrasActivity.cpp.o", ".pio/build/default/src/activities/tools/MedicineActivity.cpp.o", ".pio/build/default/src/activities/tools/MedicineData.cpp.o", ".pio/build/default/src/activities/tools/MoodActivity.cpp.o", ".pio/build/default/src/activities/tools/MoodHistoryActivity.cpp.o", ".pio/build/default/src/activities/tools/PanchangaActivity.cpp.o", ".pio/build/default/src/activities/tools/PanchangaCalendarActivity.cpp.o", ".pio/build/default/src/activities/tools/PanchangaFestivals.cpp.o", ".pio/build/default/src/activities/tools/PomodoroActivity.cpp.o", ".pio/build/default/src/activities/tools/StatsActivity.cpp.o", ".pio/build/default/src/activities/tools/StatsExport.cpp.o", ".pio/build/default/src/activities/tools/ToolStatsActivity.cpp.o", ".pio/build/default/src/activities/tools/ToolStatsData.cpp.o", ".pio/build/default/src/activities/tools/ToolStatsPages.cpp.o", ".pio/build/default/src/activities/tools/ToolsCharts.cpp.o", ".pio/build/default/src/activities/tools/ToolsCommon.cpp.o", ".pio/build/default/src/activities/tools/ToolsLog.cpp.o", ".pio/build/default/src/activities/tools/ToolsMenuActivity.cpp.o", ".pio/build/default/src/activities/tools/ToolsStore.cpp.o", ".pio/build/default/src/activities/tools/WorldClockActivity.cpp.o", ".pio/build/default/src/activities/util/BmpViewerActivity.cpp.o", ".pio/build/default/src/activities/util/ConfirmationActivity.cpp.o", ".pio/build/default/src/activities/util/FrontlightPanelActivity.cpp.o", ".pio/build/default/src/activities/util/FullScreenMessageActivity.cpp.o", ".pio/build/default/src/activities/util/IntervalSelectionActivity.cpp.o", ".pio/build/default/src/activities/util/KeyboardEntryActivity.cpp.o", ".pio/build/default/src/activities/util/KeyboardLayoutSet.cpp.o", ".pio/build/default/src/activities/util/OptionSelectionActivity.cpp.o", ".pio/build/default/src/clippings/ClipTextBuilder.cpp.o", ".pio/build/default/src/clippings/ClippingsManager.cpp.o", ".pio/build/default/src/components/CompactHeader.cpp.o", ".pio/build/default/src/components/HeaderDate.cpp.o", ".pio/build/default/src/components/TouchActionButtons.cpp.o", ".pio/build/default/src/components/TouchHeaderBackButton.cpp.o", ".pio/build/default/src/components/TouchRegistry.cpp.o", ".pio/build/default/src/components/UITheme.cpp.o", ".pio/build/default/src/components/themes/BaseTheme.cpp.o", ".pio/build/default/src/components/themes/dashboard/DashboardTheme.cpp.o", ".pio/build/default/src/components/themes/lyra/Lyra3CoversTheme.cpp.o", ".pio/build/default/src/components/themes/lyra/LyraCarouselTheme.cpp.o", ".pio/build/default/src/components/themes/lyra/LyraTheme.cpp.o", ".pio/build/default/src/components/themes/minimal/MinimalTheme.cpp.o", ".pio/build/default/src/components/themes/pocketdeck/PocketDeckTheme.cpp.o", ".pio/build/default/src/components/themes/roundedraff/RoundedRaffTheme.cpp.o", ".pio/build/default/src/main.cpp.o", ".pio/build/default/src/network/CrossPointWebServer.cpp.o", ".pio/build/default/src/network/FirmwareBoardTag.cpp.o", ".pio/build/default/src/network/FirmwareFlasher.cpp.o", ".pio/build/default/src/network/HttpDownloader.cpp.o", ".pio/build/default/src/network/OtaBootSwitch.cpp.o", ".pio/build/default/src/network/OtaUpdater.cpp.o", ".pio/build/default/src/network/UsbSerialFileTransfer.cpp.o", ".pio/build/default/src/network/WebDAVHandler.cpp.o", ".pio/build/default/src/platform/UsbDisabledClassCallbacks.cpp.o", ".pio/build/default/src/platform/UsbSerialJtagHandoff.cpp.o", ".pio/build/default/src/platform/skip_efuse_blk_check.c.o", ".pio/build/default/src/simulator/SimulatorHomeKeyInput.cpp.o", ".pio/build/default/src/simulator/SimulatorSmokeTest.cpp.o", ".pio/build/default/src/util/BatteryDiagnosticLog.cpp.o", ".pio/build/default/src/util/BookCacheUtils.cpp.o", ".pio/build/default/src/util/BookMoveUtils.cpp.o", ".pio/build/default/src/util/ButtonNavigator.cpp.o", ".pio/build/default/src/util/DictLayout.cpp.o", ".pio/build/default/src/util/Dictionary.cpp.o", ".pio/build/default/src/util/DictionaryLookupController.cpp.o", ".pio/build/default/src/util/DictionaryLookupWorker.cpp.o", ".pio/build/default/src/util/DictionaryRegistry.cpp.o", ".pio/build/default/src/util/LookupHistory.cpp.o", ".pio/build/default/src/util/NextBookFinder.cpp.o", ".pio/build/default/src/util/QrUtils.cpp.o", ".pio/build/default/src/util/ScreenshotUtil.cpp.o", ".pio/build/default/src/util/StringUtils.cpp.o", ".pio/build/default/src/util/UrlUtils.cpp.o", ".pio/build/default/src/util/WordSelectNavigator.cpp.o"])
 App touch gate audit passed: no app touch symbols in non-touch firmware
 Retrieving maximum program size .pio/build/default/firmware.elf
 Checking size .pio/build/default/firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [==        ]  19.7% (used 64552 bytes from 327680 bytes)
-Flash: [==========]  97.0% (used 6359789 bytes from 6553600 bytes)
+RAM:   [==        ]  19.6% (used 64256 bytes from 327680 bytes)
+Flash: [==========]  97.2% (used 6368031 bytes from 6553600 bytes)
 Building .pio/build/default/firmware.bin
 esptool v5.1.2
 Creating ESP32C3 image...
 Merged 2 ELF sections.
 Successfully created ESP32C3 image.
 check_firmware_size([".pio/build/default/firmware.bin"], [".pio/build/default/firmware.elf"])
-Firmware image fits OTA app partition: 6373920 bytes <= 6553600 bytes (179680 bytes free)
+Firmware image fits OTA app partition: 6382160 bytes <= 6553600 bytes (171440 bytes free)
 rename_firmware([".pio/build/default/firmware.bin"], [".pio/build/default/firmware.elf"])
 Firmware copied to: .pio/build/default/firmware-x3-x4.bin
-======================== [SUCCESS] Took 102.63 seconds ========================
+======================== [SUCCESS] Took 117.01 seconds ========================
 
 Environment    Status    Duration
 -------------  --------  ------------
-default        SUCCESS   00:01:42.630
-========================= 1 succeeded in 00:01:42.630 =========================
+default        SUCCESS   00:01:57.013
+========================= 1 succeeded in 00:01:57.013 =========================
 *** Original Arduino "idf_component.yml" restored ***
 Building .pio/build/default/firmware.bin
 esptool v5.1.2
@@ -3251,12 +3260,12 @@ Creating ESP32C3 image...
 Merged 2 ELF sections.
 Successfully created ESP32C3 image.
 check_firmware_size([".pio/build/default/firmware.bin"], [".pio/build/default/firmware.elf"])
-Firmware image fits OTA app partition: 6373920 bytes <= 6553600 bytes (179680 bytes free)
+Firmware image fits OTA app partition: 6382160 bytes <= 6553600 bytes (171440 bytes free)
 rename_firmware([".pio/build/default/firmware.bin"], [".pio/build/default/firmware.elf"])
 Firmware copied to: .pio/build/default/firmware-x3-x4.bin
-======================== [SUCCESS] Took 213.58 seconds ========================
+======================== [SUCCESS] Took 227.90 seconds ========================
 
 Environment    Status    Duration
 -------------  --------  ------------
-default        SUCCESS   00:03:33.576
-========================= 1 succeeded in 00:03:33.576 =========================
+default        SUCCESS   00:03:47.898
+========================= 1 succeeded in 00:03:47.898 =========================

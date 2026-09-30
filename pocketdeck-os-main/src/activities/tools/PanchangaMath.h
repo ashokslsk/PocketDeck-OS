@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -244,10 +245,17 @@ inline double vsopSum(const VsopTerm (&terms)[N], const double tau) {
   return s;
 }
 
-// Delta T (TT - UT) in days, Espenak & Meeus polynomial for 2005-2050.
+// Delta T (TT - UT) in days, interpolated from the Espenak & Meeus (NASA)
+// polynomials sampled every 10 years (within 0.7 s over 1976-2075,
+// the Panchanga's 1976-2075 range).
 inline double deltaTDays(const double jd) {
-  const double y = 2000.0 + (jd - 2451545.0) / 365.25 - 2000.0;
-  return (62.92 + 0.32217 * y + 0.005589 * y * y) / 86400.0;
+  static constexpr float kSeconds[] = {40.2f, 50.5f, 56.9f, 63.9f,  66.7f,  71.6f,
+                                       77.6f, 84.7f, 93.0f, 113.7f, 135.0f, 156.9f};  // 1970..2080
+  const double y = 2000.0 + (jd - 2451545.0) / 365.25;
+  const double pos = std::clamp((y - 1970.0) / 10.0, 0.0, 10.999);
+  const int i = static_cast<int>(pos);
+  const double f = pos - i;
+  return (kSeconds[i] + (kSeconds[i + 1] - kSeconds[i]) * f) / 86400.0;
 }
 
 // Apparent geocentric ecliptic longitude of the Sun (VSOP87, ~1 arcsecond).

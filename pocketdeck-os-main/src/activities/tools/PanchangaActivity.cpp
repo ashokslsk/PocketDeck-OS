@@ -6,6 +6,7 @@
 #include <Memory.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -14,8 +15,9 @@
 #include <utility>
 #include <vector>
 
+#include "KannadaText.h"
+#include "PanchangaCalendarActivity.h"
 #include "PanchangaEnglish.h"
-#include "PanchangaKannada.h"
 #include "activities/util/OptionSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -24,47 +26,27 @@ constexpr char PanchangaActivity::kConfigPath[];
 
 namespace {
 constexpr int kTimeFont = UI_12_FONT_ID;
-
-// Blits a pre-shaped Kannada string with its line box top at y; returns width.
-// The pixels are nibble run-length encoded (scripts/panchanga/kn_rle.py), so
-// they are decoded straight from flash while drawing: no buffer is needed.
-int drawKn(const GfxRenderer& r, const kn::KnText& t, const int x, const int y) {
-  const uint8_t* p = kn::kBits + t.offset;
-  const int total = t.w * t.h;
-  int pos = 0;
-  int run = 0;
-  bool ink = false;
-  bool high = true;
-  while (pos < total) {
-    const uint8_t nib = high ? (*p >> 4) : (*p++ & 0x0F);
-    high = !high;
-    run += nib;
-    if (nib == 15) continue;
-    if (ink) {
-      for (int i = pos; i < pos + run && i < total; ++i) r.drawPixel(x + i % t.w, y + i / t.w, true);
-    }
-    pos += run;
-    run = 0;
-    ink = !ink;
-  }
-  return t.w;
-}
+// Row line box: the Kannada value face (21 px bold) is 30 px tall; English
+// rows use the same box so both languages share one layout.
+constexpr int kLineH = 30;
 
 // Every English table mirrors its Kannada twin entry for entry.
-static_assert(sizeof(en::kWeekday) / sizeof(en::kWeekday[0]) == sizeof(kn::kWeekday) / sizeof(kn::kWeekday[0]));
-static_assert(sizeof(en::kGregorianMonth) / sizeof(en::kGregorianMonth[0]) ==
-              sizeof(kn::kGregorianMonth) / sizeof(kn::kGregorianMonth[0]));
-static_assert(sizeof(en::kMasa) / sizeof(en::kMasa[0]) == sizeof(kn::kMasa) / sizeof(kn::kMasa[0]));
-static_assert(sizeof(en::kSamvatsara) / sizeof(en::kSamvatsara[0]) ==
-              sizeof(kn::kSamvatsara) / sizeof(kn::kSamvatsara[0]));
-static_assert(sizeof(en::kTithi) / sizeof(en::kTithi[0]) == sizeof(kn::kTithi) / sizeof(kn::kTithi[0]));
-static_assert(sizeof(en::kNakshatra) / sizeof(en::kNakshatra[0]) == sizeof(kn::kNakshatra) / sizeof(kn::kNakshatra[0]));
-static_assert(sizeof(en::kYoga) / sizeof(en::kYoga[0]) == sizeof(kn::kYoga) / sizeof(kn::kYoga[0]));
-static_assert(sizeof(en::kKarana) / sizeof(en::kKarana[0]) == sizeof(kn::kKarana) / sizeof(kn::kKarana[0]));
-static_assert(sizeof(en::kSpecial) / sizeof(en::kSpecial[0]) == sizeof(kn::kSpecial) / sizeof(kn::kSpecial[0]));
-static_assert(sizeof(en::kLabel) / sizeof(en::kLabel[0]) == sizeof(kn::kLabel) / sizeof(kn::kLabel[0]));
+template <typename A, typename B>
+constexpr bool sameSize(const A&, const B&) {
+  return sizeof(A) / sizeof(const char*) == sizeof(B) / sizeof(const char*);
+}
+static_assert(sameSize(en::kWeekday, kn::kWeekday));
+static_assert(sameSize(en::kGregorianMonth, kn::kGregorianMonth));
+static_assert(sameSize(en::kMasa, kn::kMasa));
+static_assert(sameSize(en::kSamvatsara, kn::kSamvatsara));
+static_assert(sameSize(en::kTithi, kn::kTithi));
+static_assert(sameSize(en::kNakshatra, kn::kNakshatra));
+static_assert(sameSize(en::kYoga, kn::kYoga));
+static_assert(sameSize(en::kKarana, kn::kKarana));
+static_assert(sameSize(en::kSpecial, kn::kSpecial));
+static_assert(sameSize(en::kLabel, kn::kLabel));
 
-// Latin text (digits, punctuation) vertically centred on a Kannada line box.
+// Latin text (digits, punctuation) vertically centred on a row line box.
 int drawLatin(const GfxRenderer& r, const int x, const int lineTop, const int lineH, const char* text,
               const bool bold = true) {
   const int fh = r.getLineHeight(kTimeFont);
@@ -87,6 +69,31 @@ int tithiName(const int tithi) {
   if (tithi == 14) return 14;
   if (tithi == 29) return 15;
   return tithi % 15;
+}
+
+// The festival-file festival an engine festival corresponds to, or -1.
+int mappedOf(const panchanga::Special s) {
+  using S = panchanga::Special;
+  switch (s) {
+    case S::Ugadi:
+      return festivals::kUgadi;
+    case S::Janmashtami:
+      return festivals::kJanmashtami;
+    case S::GaneshaChaturthi:
+      return festivals::kGaneshaChaturthi;
+    case S::NavaratriStart:
+      return festivals::kNavaratriStart;
+    case S::Vijayadashami:
+      return festivals::kVijayadashami;
+    case S::Deepavali:
+      return festivals::kDeepavali;
+    case S::MahaShivaratri:
+      return festivals::kShivaratri;
+    case S::MakaraSankranti:
+      return festivals::kMakaraSankranti;
+    default:
+      return -1;
+  }
 }
 
 // Moon disc with a terminator ellipse; the dark side is a dense dither so the
@@ -112,9 +119,12 @@ void drawMoon(const GfxRenderer& r, const int cx, const int cy, const int radius
 }
 }  // namespace
 
+int32_t PanchangaActivity::firstDay() { return tools::daysFromCivil(1976, 1, 1); }
+int32_t PanchangaActivity::lastDay() { return tools::daysFromCivil(2075, 12, 31); }
+
 bool PanchangaActivity::writeConfig(FsFile& out, void* ctx) {
   const auto* self = static_cast<const PanchangaActivity*>(ctx);
-  char body[320];
+  char body[360];
   snprintf(body, sizeof(body),
            "# PocketDeck-OS Panchanga settings\n"
            "# lat/lon in decimal degrees (north/east positive), tz in hours from UTC.\n"
@@ -123,7 +133,7 @@ bool PanchangaActivity::writeConfig(FsFile& out, void* ctx) {
            "tz=%g\n"
            "# animate=0 turns off the Moon phase sweep\n"
            "animate=%d\n"
-           "# lang=kn (Kannada) or lang=en (English); hold Confirm in the tool to switch\n"
+           "# lang=kn (Kannada, needs /tools/fonts/kannada.knf) or lang=en (English)\n"
            "lang=%s\n",
            self->lat_, self->lon_, self->tz_, self->animate_ ? 1 : 0, self->english_ ? "en" : "kn");
   return tools::writeText(out, body);
@@ -162,50 +172,132 @@ void PanchangaActivity::loadConfig() {
   defaultPlace_ = std::fabs(lat_ - 12.9716) < 0.01 && std::fabs(lon_ - 77.5946) < 0.01;
 }
 
-void PanchangaActivity::chooseLanguage() {
+bool PanchangaActivity::kannadaMode() const { return !english_ && kannadaFont_; }
+
+void PanchangaActivity::openMenu() {
+  enum Action : uint8_t { Today, Calendar, Jump, Details, Language, PrevMonth, NextMonth, Animation };
   std::vector<std::string> options;
-  options.reserve(2);
-  options.emplace_back(tr(STR_TOOLS_LANG_KANNADA));
-  options.emplace_back(tr(STR_TOOLS_LANG_ENGLISH));
-  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "PanchangaLanguage",
-                                                           StrId::STR_TOOLS_PANCHANGA_LANGUAGE, std::move(options),
-                                                           english_ ? 1 : 0);
+  std::array<Action, 8> actions{};
+  options.reserve(actions.size());
+  auto add = [&](const char* label, const Action a) {
+    actions[options.size()] = a;
+    options.emplace_back(label);
+  };
+  add(tr(STR_TOOLS_PANCH_GO_TODAY), Today);
+  add(tr(STR_TOOLS_PANCH_CALENDAR), Calendar);
+  add(tr(STR_TOOLS_PANCH_JUMP), Jump);
+  add(tr(STR_TOOLS_PANCH_ABOUT_DAY), Details);
+  add(english_ ? tr(STR_TOOLS_PANCH_TO_KANNADA) : tr(STR_TOOLS_PANCH_TO_ENGLISH), Language);
+  add(tr(STR_TOOLS_PANCH_PREV_MONTH), PrevMonth);
+  add(tr(STR_TOOLS_PANCH_NEXT_MONTH), NextMonth);
+  add(animate_ ? tr(STR_TOOLS_PANCH_ANIM_OFF) : tr(STR_TOOLS_PANCH_ANIM_ON), Animation);
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "PanchangaMenu",
+                                                           StrId::STR_TOOLS_PANCHANGA, std::move(options), 0);
   if (!picker) {
-    LOG_ERR("PANCH", "OOM creating language picker");
+    LOG_ERR("PANCH", "OOM creating menu");
     return;
   }
-  startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
+  startActivityForResult(std::move(picker), [this, actions](const ActivityResult& result) {
     input_.reset(mappedInput);
     transitionPending_ = true;
-    if (!result.isCancelled) {
-      const auto* selection = std::get_if<OptionSelectionResult>(&result.data);
-      if (selection != nullptr && (selection->index == 1) != english_) {
-        english_ = selection->index == 1;
-        if (!saveConfig()) LOG_ERR("PANCH", "Could not save %s", kConfigPath);
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (!result.isCancelled && sel != nullptr && sel->index < actions.size()) {
+      switch (actions[sel->index]) {
+        case Today: {
+          RenderLock lock(*this);
+          selectDay(today_);
+          startAnimation();
+          break;
+        }
+        case Calendar:
+          openCalendar(false);
+          return;
+        case Jump:
+          openCalendar(true);
+          return;
+        case Details:
+          openDetails();
+          break;
+        case Language: {
+          RenderLock lock(*this);
+          english_ = !english_;
+          if (!saveConfig()) LOG_ERR("PANCH", "Could not save %s", kConfigPath);
+          loadDayNames();
+          break;
+        }
+        case PrevMonth: {
+          RenderLock lock(*this);
+          selectDay(selected_ - 30);
+          startAnimation();
+          break;
+        }
+        case NextMonth: {
+          RenderLock lock(*this);
+          selectDay(selected_ + 30);
+          startAnimation();
+          break;
+        }
+        case Animation:
+          animate_ = !animate_;
+          if (!saveConfig()) LOG_ERR("PANCH", "Could not save %s", kConfigPath);
+          break;
       }
     }
     requestUpdate();
   });
 }
 
-int PanchangaActivity::text(const kn::KnText& k, const char* e, const int x, const int y, const Sty sty,
+void PanchangaActivity::openCalendar(const bool jump) {
+  auto cal = makeUniqueNoThrow<PanchangaCalendarActivity>(renderer, mappedInput, selected_, today_, english_, jump);
+  if (!cal) {
+    LOG_ERR("PANCH", "OOM creating calendar");
+    return;
+  }
+  startActivityForResult(std::move(cal), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    const auto* picked = std::get_if<IntervalResult>(&result.data);
+    if (!result.isCancelled && picked != nullptr) {
+      RenderLock lock(*this);
+      selectDay(static_cast<int32_t>(picked->value));
+      startAnimation();
+    }
+    requestUpdate();
+  });
+}
+
+void PanchangaActivity::openDetails() {
+  screen_ = Screen::Details;
+  detailsTop_ = 0;
+  transitionPending_ = true;
+}
+
+int PanchangaActivity::text(const char* k, const char* e, const int x, const int y, const Sty sty,
                             const bool draw) const {
-  if (!english_) {
-    // Kannada labels use a smaller face than values; nudge them onto the same baseline.
-    if (draw) drawKn(renderer, k, x, y + (sty == Sty::Label ? 2 : 0));
-    return k.w;
+  char utf8[160];
+  return textUtf8(kannadaMode() ? kn::toUtf8(k, utf8, sizeof(utf8)) : k, e, x, y, sty, draw);
+}
+
+int PanchangaActivity::textUtf8(const char* k, const char* e, const int x, const int y, const Sty sty,
+                                const bool draw) const {
+  if (kannadaMode()) {
+    const auto style = sty == Sty::Label   ? kannada::Style::Label
+                       : sty == Sty::Title ? kannada::Style::Title
+                                           : kannada::Style::Value;
+    // Labels use a smaller face than values; put them on the same baseline.
+    const int nudge = sty == Sty::Label ? kannada::lineHeight(renderer, kannada::Style::Value) -
+                                              kannada::lineHeight(renderer, kannada::Style::Label) - 1
+                                        : 0;
+    return draw ? kannada::draw(renderer, x, y + nudge, k, style) : kannada::width(renderer, k, style);
   }
   const int font = sty == Sty::Label ? UI_10_FONT_ID : UI_12_FONT_ID;
   const auto style = sty == Sty::Label ? EpdFontFamily::REGULAR : EpdFontFamily::BOLD;
-  if (draw) {
-    const int lineH = kn::kWeekday[0].h;
-    renderer.drawText(font, x, y + (lineH - renderer.getLineHeight(font)) / 2 + 1, e, true, style);
-  }
+  if (draw) renderer.drawText(font, x, y + (kLineH - renderer.getLineHeight(font)) / 2 + 1, e, true, style);
   return renderer.getTextWidth(font, e, style);
 }
 
 void PanchangaActivity::selectDay(const int32_t day) {
-  selected_ = std::clamp(day, today_ - kRangeDays, today_ + kRangeDays);
+  selected_ = std::clamp(day, firstDay(), lastDay());
   uint16_t y = 0;
   uint8_t m = 0, d = 0;
   tools::civilFromDays(selected_, y, m, d);
@@ -218,6 +310,41 @@ void PanchangaActivity::selectDay(const int32_t day) {
   }
   moonElongation_ = panchanga::elongation(when);
   moonNakshatra_ = static_cast<int>(panchanga::moonSidereal(when) / (360.0 / 27.0)) % 27;
+  loadDayNames();
+}
+
+// Festival-file entries first, then calculated festivals and observances that
+// no file covers for this year.
+void PanchangaActivity::loadDayNames() {
+  nameCount_ = 0;
+  festivals::Ref refs[kMaxDayNames];
+  const size_t n = indexPending_ ? 0 : calendar_.find(selected_, selected_, refs, kMaxDayNames);
+  festivals::Entry e;
+  for (size_t i = 0; i < n && nameCount_ < kMaxDayNames; ++i) {
+    if (!calendar_.read(refs[i], e, false)) continue;
+    DayName& d = names_[nameCount_++];
+    snprintf(d.kannada, sizeof(d.kannada), "%s", e.kannada[0] ? e.kannada : e.english);
+    snprintf(d.english, sizeof(d.english), "%s", e.english[0] ? e.english : e.kannada);
+    d.holiday = e.holiday == 1;
+    d.layer = true;
+    d.special = -1;
+    d.ref = refs[i];
+  }
+  const uint16_t mask = calendar_.yearMask(day_.year);
+  panchanga::Special sp[4];
+  const int count = panchanga::specials(day_, sp, 4);
+  for (int i = 0; i < count && nameCount_ < kMaxDayNames; ++i) {
+    const int mapped = mappedOf(sp[i]);
+    if (mapped >= 0 && (mask & (1u << mapped))) continue;  // a festival file decides this one
+    DayName& d = names_[nameCount_++];
+    const int idx = static_cast<int>(sp[i]);
+    kn::toUtf8(kn::kSpecial[idx], d.kannada, sizeof(d.kannada));
+    snprintf(d.english, sizeof(d.english), "%s", en::kSpecial[idx]);
+    d.holiday = false;
+    d.layer = false;
+    d.special = static_cast<int8_t>(idx);
+    d.ref = {};
+  }
 }
 
 void PanchangaActivity::startAnimation() {
@@ -231,9 +358,11 @@ void PanchangaActivity::onEnter() {
   input_.reset(mappedInput);
   tools::ensureToolsDirs();
   loadConfig();
+  kannadaFont_ = kannada::acquire();
   tools::DateTime local;
   clockValid_ = tools::getTimeAtOffset(static_cast<int16_t>(tz_ * 60.0), local);
   today_ = clockValid_ ? tools::daysOf(local) : 0;
+  indexPending_ = true;
   if (clockValid_) {
     selectDay(today_);
     startAnimation();
@@ -242,10 +371,39 @@ void PanchangaActivity::onEnter() {
   requestUpdate();
 }
 
+void PanchangaActivity::onExit() {
+  kannada::release();
+  Activity::onExit();
+}
+
 void PanchangaActivity::loop() {
   input_.poll(mappedInput);
   if (input_.backLong) {
     tools::exitToHome();
+    return;
+  }
+  if (indexPending_) {
+    // After the first frame: check the festival files (and rebuild their
+    // index if they changed), then show the day's festivals.
+    calendar_.refresh();
+    RenderLock lock(*this);
+    indexPending_ = false;
+    if (clockValid_) loadDayNames();
+    requestUpdate();
+    return;
+  }
+  if (screen_ == Screen::Details) {
+    if (input_.back) {
+      screen_ = Screen::Main;
+      transitionPending_ = true;
+      requestUpdate();
+    } else if ((input_.down || input_.pageForward || input_.right) && detailsTop_ + 1 < nameCount_) {
+      ++detailsTop_;
+      requestUpdate();
+    } else if ((input_.up || input_.pageBack || input_.left) && detailsTop_ > 0) {
+      --detailsTop_;
+      requestUpdate();
+    }
     return;
   }
   if (input_.back) {
@@ -259,8 +417,11 @@ void PanchangaActivity::loop() {
   if (input_.right) target += 1;
   if (input_.up || input_.pageBack) target -= 30;
   if (input_.down || input_.pageForward) target += 30;
-  if (input_.confirm) target = today_;
-  if (target != selected_ || input_.confirm) {
+  if (input_.confirm) {
+    openMenu();
+    return;
+  }
+  if (target != selected_) {
     {
       RenderLock lock(*this);  // day_ is read by render()
       selectDay(target);
@@ -269,10 +430,7 @@ void PanchangaActivity::loop() {
     requestUpdate();
     return;
   }
-  if (input_.confirmLong) {
-    chooseLanguage();
-    return;
-  }
+
   if (animFrame_ < kAnimFrames && millis() - animLastMs_ >= kAnimFrameMs) {
     animLastMs_ = millis();
     ++animFrame_;
@@ -281,21 +439,29 @@ void PanchangaActivity::loop() {
 }
 
 void PanchangaActivity::render(RenderLock&&) {
-  // Both languages share one layout; L()/V() pick the Kannada bitmap and the
-  // English string for the same table entry.
-  const auto L = [](const kn::Label l) -> std::pair<const kn::KnText&, const char*> {
-    return {kn::kLabel[static_cast<int>(l)], en::kLabel[static_cast<int>(l)]};
-  };
+  if (screen_ == Screen::Details) {
+    renderDetails();
+  } else {
+    renderMain();
+  }
+  const bool transition = transitionPending_;
+  transitionPending_ = false;
+  renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);
+}
+
+void PanchangaActivity::renderMain() {
   const auto label = [&](const kn::Label l, const int x, const int y, const bool draw = true) {
-    const auto p = L(l);
-    return text(p.first, p.second, x, y, Sty::Label, draw);
+    const int i = static_cast<int>(l);
+    return text(kn::kLabel[i], en::kLabel[i], x, y, Sty::Label, draw);
   };
 
-  const Rect content = tools::drawFrame(renderer, english_ ? en::kTitle : "");
-  if (!english_) {
+  const Rect content = tools::drawFrame(renderer, kannadaMode() ? "" : en::kTitle);
+  if (kannadaMode()) {
     const auto& metrics = UITheme::getInstance().getMetrics();
-    const kn::KnText& title = kn::kTitle[0];
-    drawKn(renderer, title, content.x, metrics.topPadding + (metrics.headerHeight - title.h) / 2);
+    const int th = kannada::lineHeight(renderer, kannada::Style::Title);
+    char title[48];
+    kannada::draw(renderer, content.x, metrics.topPadding + (metrics.headerHeight - th) / 2,
+                  kn::toUtf8(kn::kTitle, title, sizeof(title)), kannada::Style::Title);
   }
 
   if (!clockValid_) {
@@ -303,14 +469,17 @@ void PanchangaActivity::render(RenderLock&&) {
     label(kn::Label::ClockNotSet, (renderer.getScreenWidth() - w) / 2, content.y + content.height / 2 - 34);
     renderer.drawCenteredText(UI_10_FONT_ID, content.y + content.height / 2 + 10, tr(STR_TOOLS_SYNC_FROM_WORLD_CLOCK));
     tools::drawHints(renderer, mappedInput, tr(STR_BACK), "", "", "");
-    renderer.displayBuffer(tools::transitionRefresh());
-    transitionPending_ = false;
+    return;
+  }
+  if (indexPending_) {
+    renderer.drawCenteredText(UI_12_FONT_ID, content.y + content.height / 2 - 12, tr(STR_TOOLS_PANCH_INDEXING));
+    tools::drawHints(renderer, mappedInput, tr(STR_BACK), "", "", "");
     return;
   }
 
   const int x0 = content.x;
   const int right = content.x + content.width;
-  const int lineH = kn::kWeekday[0].h;
+  const int lineH = kLineH;
   const int rowH = lineH + 4;
   int y = content.y;
   char buf[32];
@@ -363,7 +532,7 @@ void PanchangaActivity::render(RenderLock&&) {
       const int tw = label(kn::Label::Today, 0, 0, false);
       renderer.fillRoundedRect(x - 2, y + 2, tw + 12, lineH - 2, 6, Color::Black);
       renderer.invertRect(x - 2, y + 2, tw + 12, lineH - 2);
-      label(kn::Label::Today, x + 4, english_ ? y : y - 2);
+      label(kn::Label::Today, x + 4, kannadaMode() ? y - 2 : y);
       renderer.invertRect(x - 2, y + 2, tw + 12, lineH - 2);
     }
   }
@@ -380,7 +549,7 @@ void PanchangaActivity::render(RenderLock&&) {
     const int bw = renderer.getTextWidth(SMALL_FONT_ID, buf, EpdFontFamily::BOLD);
     const int lx = moonCx - (lw + 4 + bw) / 2;
     const int ly = moonCy + moonR + 4;
-    label(kn::Label::Light, lx, english_ ? ly - 6 : ly - 6);
+    label(kn::Label::Light, lx, ly - 6);
     renderer.drawText(SMALL_FONT_ID, lx + lw + 4, ly + 4, buf, true, EpdFontFamily::BOLD);
   }
   y += rowH + 8;
@@ -393,13 +562,13 @@ void PanchangaActivity::render(RenderLock&&) {
   for (const kn::Label l : {kn::Label::Tithi, kn::Label::Nakshatra, kn::Label::Yoga, kn::Label::Karana}) {
     labelW = std::max(labelW, label(l, 0, 0, false));
   }
-  const int valueX = x0 + std::max(english_ ? 0 : 104, labelW + 12);
-  auto element = [&](const kn::Label l, const kn::KnText* k1, const char* e1, const kn::KnText* k2, const char* e2,
+  const int valueX = x0 + std::max(kannadaMode() ? 104 : 0, labelW + 12);
+  auto element = [&](const kn::Label l, const char* k1, const char* e1, const char* k2, const char* e2,
                      const double endJd) {
     label(l, x0, y);
     int x = valueX;
-    if (k1 != nullptr) x += text(*k1, e1, x, y, Sty::Value) + 6;
-    if (k2 != nullptr) x += text(*k2, e2, x, y, Sty::Value);
+    if (k1 != nullptr) x += text(k1, e1, x, y, Sty::Value) + 6;
+    if (k2 != nullptr) x += text(k2, e2, x, y, Sty::Value);
     // Width of the end-time block on the right; a long name pushes it down a row.
     int endW = 0;
     if (endJd >= day_.nextSunriseJd) {
@@ -425,7 +594,7 @@ void PanchangaActivity::render(RenderLock&&) {
     const int tw = renderer.getTextWidth(kTimeFont, t, EpdFontFamily::REGULAR);
     const double midnightJd = panchanga::julianDay(day_.year, day_.month, day_.day, 24.0 - tz_);
     const bool nextDay = endJd >= midnightJd;
-    if (english_) {
+    if (!kannadaMode()) {
       // "upto 03:04 next day"
       int ux = right;
       if (nextDay) ux -= label(kn::Label::Tomorrow, 0, 0, false);
@@ -447,12 +616,12 @@ void PanchangaActivity::render(RenderLock&&) {
   const int paksha = day_.tithi < 15 ? 0 : 1;
   const int tithi = tithiName(day_.tithi);
   // English uses "Krishna Pratipada" (as Drik does) so the name fits beside its end time.
-  element(kn::Label::Tithi, &kn::kPaksha[paksha], english_ ? en::kPakshaShort[paksha] : en::kPaksha[paksha],
-          &kn::kTithi[tithi], en::kTithi[tithi], day_.tithiEndJd);
-  element(kn::Label::Nakshatra, &kn::kNakshatra[day_.nakshatra], en::kNakshatra[day_.nakshatra], nullptr, nullptr,
+  element(kn::Label::Tithi, kn::kPaksha[paksha], kannadaMode() ? en::kPaksha[paksha] : en::kPakshaShort[paksha],
+          kn::kTithi[tithi], en::kTithi[tithi], day_.tithiEndJd);
+  element(kn::Label::Nakshatra, kn::kNakshatra[day_.nakshatra], en::kNakshatra[day_.nakshatra], nullptr, nullptr,
           day_.nakshatraEndJd);
-  element(kn::Label::Yoga, &kn::kYoga[day_.yoga], en::kYoga[day_.yoga], nullptr, nullptr, day_.yogaEndJd);
-  element(kn::Label::Karana, &kn::kKarana[day_.karana], en::kKarana[day_.karana], nullptr, nullptr, day_.karanaEndJd);
+  element(kn::Label::Yoga, kn::kYoga[day_.yoga], en::kYoga[day_.yoga], nullptr, nullptr, day_.yogaEndJd);
+  element(kn::Label::Karana, kn::kKarana[day_.karana], en::kKarana[day_.karana], nullptr, nullptr, day_.karanaEndJd);
   y += 4;
   renderer.fillRect(x0, y, content.width, 2);
   y += 8;
@@ -486,25 +655,51 @@ void PanchangaActivity::render(RenderLock&&) {
   renderer.fillRect(x0, y, content.width, 2);
   y += 8;
 
-  // --- Special days (up to two, festivals first) and Moon details.
+  // --- Special days: festival files first, then calculated ones (two rows at most).
   {
     label(kn::Label::Special, x0, y);
-    panchanga::Special sp[2];
-    const int count = panchanga::specials(day_, sp, 2);
-    int x = x0 + 150;
-    if (count == 0) label(kn::Label::NoSpecial, x, y);
-    for (int i = 0; i < count; ++i) {
-      const int idx = static_cast<int>(sp[i]);
-      const int vw = text(kn::kSpecial[idx], en::kSpecial[idx], 0, 0, Sty::Value, false);
+    const int startX = x0 + 150;
+    int x = startX;
+    int rows = 1;
+    bool holiday = false;
+    int shown = 0;
+    if (nameCount_ == 0) label(kn::Label::NoSpecial, x, y);
+    for (int i = 0; i < nameCount_; ++i) {
+      const DayName& d = names_[i];
+      holiday = holiday || d.holiday;
+      const char* k = kannada::hasKannada(d.kannada) ? d.kannada : d.english;
+      const int vw = textUtf8(k, d.english, 0, 0, Sty::Value, false);
       if (i > 0) {
         if (x + 10 + vw > right) {
+          if (rows == 2) break;
+          ++rows;
           y += rowH;
-          x = x0 + 150;
+          x = startX;
         } else {
           x += drawLatin(renderer, x, y, lineH, ",") + 8;
         }
       }
-      x += text(kn::kSpecial[idx], en::kSpecial[idx], x, y, Sty::Value);
+      x += textUtf8(k, d.english, x, y, Sty::Value);
+      ++shown;
+    }
+    if (shown < nameCount_) {
+      snprintf(buf, sizeof(buf), " +%d", nameCount_ - shown);
+      drawLatin(renderer, std::min(x, right - 40), y, lineH, buf);
+    }
+    if (holiday) {
+      // Public holiday pill under the names.
+      y += rowH;
+      char holidayKn[24];
+      const char* h =
+          kannadaMode() ? kn::toUtf8(kn::kHoliday, holidayKn, sizeof(holidayKn)) : tr(STR_TOOLS_PANCH_HOLIDAY);
+      const int hw =
+          kannadaMode() ? kannada::width(renderer, h, kannada::Style::Label) : renderer.getTextWidth(UI_10_FONT_ID, h);
+      renderer.fillRoundedRect(startX, y + 3, hw + 16, lineH - 6, 8, Color::Black);
+      if (kannadaMode()) {
+        kannada::draw(renderer, startX + 8, y, h, kannada::Style::Label, false);
+      } else {
+        renderer.drawText(UI_10_FONT_ID, startX + 8, y + 5, h, false);
+      }
     }
     y += rowH;
   }
@@ -516,7 +711,7 @@ void PanchangaActivity::render(RenderLock&&) {
     x += text(kn::kPakshaShort[moonPaksha], en::kPakshaShort[moonPaksha], x, y, Sty::Label) + 6;
     x += text(kn::kTithi[tithiName(moonTithi)], en::kTithi[tithiName(moonTithi)], x, y, Sty::Value) + 20;
     x += label(kn::Label::MoonNakshatra, x, y) + 6;
-    const kn::KnText& nk = kn::kNakshatraLabel[moonNakshatra_];
+    const char* nk = kn::kNakshatra[moonNakshatra_];
     const char* ne = en::kNakshatra[moonNakshatra_];
     if (x + text(nk, ne, 0, 0, Sty::Label, false) > right) {
       y += rowH;
@@ -524,14 +719,77 @@ void PanchangaActivity::render(RenderLock&&) {
     }
     text(nk, ne, x, y, Sty::Label);
   }
-  y += rowH + 6;
-  if (y + renderer.getLineHeight(SMALL_FONT_ID) < content.y + content.height) {
-    renderer.drawCenteredText(SMALL_FONT_ID, y, tr(STR_TOOLS_PANCHANGA_HOLD_HINT));
+  if (!english_ && !kannadaFont_) {
+    renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - renderer.getLineHeight(SMALL_FONT_ID),
+                              tr(STR_TOOLS_PANCH_KN_MISSING));
   }
 
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_TODAY), tr(STR_TOOLS_PREV_DAY),
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_MENU), tr(STR_TOOLS_PREV_DAY),
                    tr(STR_TOOLS_NEXT_DAY));
-  const bool transition = transitionPending_;
-  transitionPending_ = false;
-  renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);
+}
+
+// "About this day": every festival and holiday for the selected date with its
+// type, holiday status, place, notes and significance.
+void PanchangaActivity::renderDetails() {
+  const Rect content = tools::drawFrame(renderer, tr(STR_TOOLS_PANCH_ABOUT_DAY));
+  const int x0 = content.x;
+  const int w = content.width;
+  int y = content.y;
+  char buf[64];
+  // Date line.
+  {
+    snprintf(buf, sizeof(buf), "%s, %d %s %d", en::kWeekday[day_.vara], day_.day, en::kGregorianMonth[day_.month - 1],
+             day_.year);
+    renderer.drawText(UI_12_FONT_ID, x0, y, buf, true, EpdFontFamily::BOLD);
+    y += renderer.getLineHeight(UI_12_FONT_ID) + 10;
+  }
+  if (nameCount_ == 0) {
+    renderer.drawText(UI_12_FONT_ID, x0, y, en::kLabel[static_cast<int>(kn::Label::NoSpecial)]);
+  }
+  const int bottom = content.y + content.height - 4;
+  auto paragraph = [&](const char* label, const char* value) {
+    if (value == nullptr || value[0] == '\0') return;
+    char line[300];
+    snprintf(line, sizeof(line), "%s: %s", label, value);
+    kannada::Line lines[6];
+    const size_t n = kannada::wrap(renderer, line, kannada::Style::Label, w, lines, 6);
+    for (size_t i = 0; i < n && i < 6 && y + 26 < bottom; ++i) {
+      kannada::draw(renderer, x0, y, line + lines[i].start, kannada::Style::Label, true, lines[i].length);
+      y += 26;
+    }
+  };
+  festivals::Entry e;
+  for (int i = detailsTop_; i < nameCount_ && y + 60 < bottom; ++i) {
+    const DayName& d = names_[i];
+    // Name in both scripts.
+    if (kannadaFont_ && kannada::hasKannada(d.kannada)) {
+      kannada::draw(renderer, x0, y, d.kannada, kannada::Style::Title);
+      y += kannada::lineHeight(renderer, kannada::Style::Title) + 2;
+    }
+    renderer.drawText(UI_12_FONT_ID, x0, y, d.english, true, EpdFontFamily::BOLD);
+    y += renderer.getLineHeight(UI_12_FONT_ID) + 4;
+    if (d.layer && calendar_.read(d.ref, e, true)) {
+      snprintf(buf, sizeof(buf), "%s%s%s", e.type, e.type[0] ? "  |  " : "",
+               e.holiday == 1 ? tr(STR_TOOLS_PANCH_HOLIDAY) : (e.holiday == 0 ? tr(STR_TOOLS_PANCH_NOT_HOLIDAY) : ""));
+      renderer.drawText(UI_10_FONT_ID, x0, y, buf);
+      y += renderer.getLineHeight(UI_10_FONT_ID) + 4;
+      paragraph(tr(STR_TOOLS_PANCH_PLACE), e.scope);
+      paragraph(tr(STR_TOOLS_PANCH_NOTE), e.note);
+      paragraph(tr(STR_TOOLS_PANCH_MEANING), e.significance);
+      snprintf(buf, sizeof(buf), "%s: %s", tr(STR_TOOLS_PANCH_SOURCE), calendar_.layerName(d.ref.loc >> 28));
+      renderer.drawText(SMALL_FONT_ID, x0, y, buf);
+      y += renderer.getLineHeight(SMALL_FONT_ID) + 4;
+    } else if (!d.layer) {
+      renderer.drawText(UI_10_FONT_ID, x0, y, tr(STR_TOOLS_PANCH_CALCULATED));
+      y += renderer.getLineHeight(UI_10_FONT_ID) + 4;
+    }
+    renderer.drawLine(x0, y + 4, x0 + w, y + 4);
+    y += 14;
+  }
+  if (nameCount_ > 1) {
+    snprintf(buf, sizeof(buf), "%d / %d", detailsTop_ + 1, nameCount_);
+    renderer.drawText(SMALL_FONT_ID, x0 + w - renderer.getTextWidth(SMALL_FONT_ID, buf), content.y, buf);
+  }
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), "", nameCount_ > 1 ? tr(STR_TOOLS_PREVIOUS) : "",
+                   nameCount_ > 1 ? tr(STR_TOOLS_NEXT) : "");
 }

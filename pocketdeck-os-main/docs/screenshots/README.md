@@ -19,18 +19,20 @@ Captured headlessly with the simulator's `CROSSPOINT_SIM_INPUT_SCRIPT` / `CROSSP
 - [09. Lyra Carousel with book stats](#09-lyra-carousel-with-book-stats) (4)
 - [10. Tilt page turn and PDF / MOBI](#10-tilt-page-turn-and-pdf-mobi) (6)
 - [11. Tools launcher](#11-tools-launcher) (1)
-- [12. Pomodoro](#12-pomodoro) (10)
+- [12. Pomodoro](#12-pomodoro) (11)
 - [13. World Clock](#13-world-clock) (6)
-- [14. Habit Tracker](#14-habit-tracker) (9)
-- [15. Medicine and supplements](#15-medicine-and-supplements) (8)
-- [16. Mood](#16-mood) (5)
-- [17. Flashcards](#17-flashcards) (10)
-- [18. Daily Quote](#18-daily-quote) (6)
-- [19. Knowledge](#19-knowledge) (9)
-- [20. Panchanga (Kannada and English)](#20-panchanga-kannada-and-english) (9)
-- [21. Today](#21-today) (4)
-- [22. Stats & export](#22-stats-export) (6)
-- [23. Upgrade from CrossInk (data folder moved)](#23-upgrade-from-crossink-data-folder-moved) (2)
+- [14. Habit Tracker](#14-habit-tracker) (10)
+- [15. Medicine and supplements](#15-medicine-and-supplements) (17)
+- [16. Mood](#16-mood) (8)
+- [17. Flashcards](#17-flashcards) (12)
+- [18. Daily Quote](#18-daily-quote) (11)
+- [19. Knowledge](#19-knowledge) (10)
+- [20. Panchanga: calendar 1976-2075, festivals, Kannada and English](#20-panchanga-calendar-1976-2075-festivals-kannada-and-english) (21)
+- [21. Mantras and japa counter](#21-mantras-and-japa-counter) (18)
+- [22. Kannada in your own JSON files](#22-kannada-in-your-own-json-files) (3)
+- [23. Today](#23-today) (5)
+- [24. Stats & export](#24-stats-export) (6)
+- [25. Upgrade from CrossInk (data folder moved)](#25-upgrade-from-crossink-data-folder-moved) (2)
 
 
 ## 01. Boot and sleep screens
@@ -169,13 +171,13 @@ Captured headlessly with the simulator's `CROSSPOINT_SIM_INPUT_SCRIPT` / `CROSSP
 |---|---|---|---|
 | **01** Ready | **02** Running | **03** Running seconds | **04** Paused |
 
-| ![Reset](12-pomodoro/05-reset.png) | ![Break phase](12-pomodoro/06-break-phase.png) | ![Pomodoro stats](12-pomodoro/07-pomodoro-stats.png) | ![Ring quarter](12-pomodoro/08-ring-quarter.png) |
+| ![Reset](12-pomodoro/05-reset.png) | ![Break phase](12-pomodoro/06-break-phase.png) | ![Pomodoro stats](12-pomodoro/07-pomodoro-stats.png) | ![Stats exported](12-pomodoro/08-stats-exported.png) |
 |---|---|---|---|
-| **05** Reset | **06** Break phase | **07** Pomodoro stats | **08** Ring quarter |
+| **05** Reset | **06** Break phase | **07** Pomodoro stats | **08** Stats exported |
 
-| ![Ring half](12-pomodoro/09-ring-half.png) | ![Ring three quarters](12-pomodoro/10-ring-three-quarters.png) |
-|---|---|
-| **09** Ring half | **10** Ring three quarters |
+| ![Ring quarter](12-pomodoro/09-ring-quarter.png) | ![Ring half](12-pomodoro/10-ring-half.png) | ![Ring three quarters](12-pomodoro/11-ring-three-quarters.png) |
+|---|---|---|
+| **09** Ring quarter | **10** Ring half | **11** Ring three quarters |
 
 ## 13. World Clock
 
@@ -193,13 +195,13 @@ Captured headlessly with the simulator's `CROSSPOINT_SIM_INPUT_SCRIPT` / `CROSSP
 |---|---|---|---|
 | **01** Nine habits | **02** Ticked today | **03** Yoga ticked | **04** Coconut water ticked |
 
-| ![Habit menu](14-habit-tracker/05-habit-menu.png) | ![Coconut water stats](14-habit-tracker/06-coconut-water-stats.png) | ![Yoga stats](14-habit-tracker/07-yoga-stats.png) | ![Add habit keyboard](14-habit-tracker/08-add-habit-keyboard.png) |
+| ![Habit menu](14-habit-tracker/05-habit-menu.png) | ![Coconut water stats](14-habit-tracker/06-coconut-water-stats.png) | ![Stats exported](14-habit-tracker/07-stats-exported.png) | ![Yoga stats](14-habit-tracker/08-yoga-stats.png) |
 |---|---|---|---|
-| **05** Habit menu | **06** Coconut water stats | **07** Yoga stats | **08** Add habit keyboard |
+| **05** Habit menu | **06** Coconut water stats | **07** Stats exported | **08** Yoga stats |
 
-| ![Previous week](14-habit-tracker/09-previous-week.png) |
-|---|
-| **09** Previous week |
+| ![Add habit keyboard](14-habit-tracker/09-add-habit-keyboard.png) | ![Previous week](14-habit-tracker/10-previous-week.png) |
+|---|---|
+| **09** Add habit keyboard | **10** Previous week |
 
 ## 15. Medicine and supplements
 
@@ -207,9 +209,21 @@ Captured headlessly with the simulator's `CROSSPOINT_SIM_INPUT_SCRIPT` / `CROSSP
 |---|---|---|---|
 | **01** Courses | **02** Evening dose ticked | **03** Course menu | **04** Paracetamol details |
 
-| ![Vitamin d details](15-medicine/05-vitamin-d-details.png) | ![Completed course](15-medicine/06-completed-course.png) | ![Stopped course](15-medicine/07-stopped-course.png) | ![Add course name](15-medicine/08-add-course-name.png) |
+| ![Details exported](15-medicine/05-details-exported.png) | ![Vitamin d details](15-medicine/06-vitamin-d-details.png) | ![Completed course](15-medicine/07-completed-course.png) | ![Stopped course](15-medicine/08-stopped-course.png) |
 |---|---|---|---|
-| **05** Vitamin d details | **06** Completed course | **07** Stopped course | **08** Add course name |
+| **05** Details exported | **06** Vitamin d details | **07** Completed course | **08** Stopped course |
+
+| ![Add course name](15-medicine/09-add-course-name.png) | ![Name typed](15-medicine/10-name-typed.png) | ![Ok key](15-medicine/11-ok-key.png) | ![Doses per day](15-medicine/12-doses-per-day.png) |
+|---|---|---|---|
+| **09** Add course name | **10** Name typed | **11** Ok key | **12** Doses per day |
+
+| ![Food](15-medicine/13-food.png) | ![Length](15-medicine/14-length.png) | ![Starts](15-medicine/15-starts.png) | ![Course summary](15-medicine/16-course-summary.png) |
+|---|---|---|---|
+| **13** Food | **14** Length | **15** Starts | **16** Course summary |
+
+| ![Course added](15-medicine/17-course-added.png) |
+|---|
+| **17** Course added |
 
 ## 16. Mood
 
@@ -217,23 +231,23 @@ Captured headlessly with the simulator's `CROSSPOINT_SIM_INPUT_SCRIPT` / `CROSSP
 |---|---|---|---|
 | **01** Mood today | **02** Choose great | **03** Mood saved | **04** Yesterday with note |
 
-| ![Note keyboard](16-mood/05-note-keyboard.png) |
-|---|
-| **05** Note keyboard |
+| ![Mood menu](16-mood/05-mood-menu.png) | ![History and notes](16-mood/06-history-and-notes.png) | ![Mood stats](16-mood/07-mood-stats.png) | ![Note keyboard](16-mood/08-note-keyboard.png) |
+|---|---|---|---|
+| **05** Mood menu | **06** History and notes | **07** Mood stats | **08** Note keyboard |
 
 ## 17. Flashcards
 
-| ![Decks](17-flashcards/01-decks.png) | ![Question](17-flashcards/02-question.png) | ![Answer](17-flashcards/03-answer.png) | ![Next question](17-flashcards/04-next-question.png) |
+| ![Decks](17-flashcards/01-decks.png) | ![Flashcard stats](17-flashcards/02-flashcard-stats.png) | ![Question](17-flashcards/03-question.png) | ![Answer](17-flashcards/04-answer.png) |
 |---|---|---|---|
-| **01** Decks | **02** Question | **03** Answer | **04** Next question |
+| **01** Decks | **02** Flashcard stats | **03** Question | **04** Answer |
 
-| ![Answer](17-flashcards/05-answer.png) | ![Forgot card returns](17-flashcards/06-forgot-card-returns.png) | ![Session complete](17-flashcards/07-session-complete.png) | ![Deck list again](17-flashcards/08-deck-list-again.png) |
+| ![Next question](17-flashcards/05-next-question.png) | ![Answer](17-flashcards/06-answer.png) | ![Forgot card returns](17-flashcards/07-forgot-card-returns.png) | ![Session complete](17-flashcards/08-session-complete.png) |
 |---|---|---|---|
-| **05** Answer | **06** Forgot card returns | **07** Session complete | **08** Deck list again |
+| **05** Next question | **06** Answer | **07** Forgot card returns | **08** Session complete |
 
-| ![Sql question](17-flashcards/09-sql-question.png) | ![Sql answer](17-flashcards/10-sql-answer.png) |
-|---|---|
-| **09** Sql question | **10** Sql answer |
+| ![Stats after session](17-flashcards/09-stats-after-session.png) | ![Deck list again](17-flashcards/10-deck-list-again.png) | ![Sql question](17-flashcards/11-sql-question.png) | ![Sql answer](17-flashcards/12-sql-answer.png) |
+|---|---|---|---|
+| **09** Stats after session | **10** Deck list again | **11** Sql question | **12** Sql answer |
 
 ## 18. Daily Quote
 
@@ -241,57 +255,105 @@ Captured headlessly with the simulator's `CROSSPOINT_SIM_INPUT_SCRIPT` / `CROSSP
 |---|---|---|---|
 | **01** Todays quote | **02** Long quote page 1 | **03** Long quote page 2 | **04** Next day |
 
-| ![Taoist quote](18-daily-quote/05-taoist-quote.png) | ![Shuffle](18-daily-quote/06-shuffle.png) |
-|---|---|
-| **05** Taoist quote | **06** Shuffle |
+| ![Quote menu](18-daily-quote/05-quote-menu.png) | ![Saved to favourites](18-daily-quote/06-saved-to-favourites.png) | ![Taoist quote](18-daily-quote/07-taoist-quote.png) | ![My favourites](18-daily-quote/08-my-favourites.png) |
+|---|---|---|---|
+| **05** Quote menu | **06** Saved to favourites | **07** Taoist quote | **08** My favourites |
+
+| ![Next favourite](18-daily-quote/09-next-favourite.png) | ![Back to daily](18-daily-quote/10-back-to-daily.png) | ![Quote stats](18-daily-quote/11-quote-stats.png) |
+|---|---|---|
+| **09** Next favourite | **10** Back to daily | **11** Quote stats |
 
 ## 19. Knowledge
 
-| ![Topics](19-knowledge/01-topics.png) | ![Question of the day](19-knowledge/02-question-of-the-day.png) | ![Question](19-knowledge/03-question.png) | ![Answer page 1](19-knowledge/04-answer-page-1.png) |
+| ![Topics](19-knowledge/01-topics.png) | ![Knowledge stats](19-knowledge/02-knowledge-stats.png) | ![Question of the day](19-knowledge/03-question-of-the-day.png) | ![Question](19-knowledge/04-question.png) |
 |---|---|---|---|
-| **01** Topics | **02** Question of the day | **03** Question | **04** Answer page 1 |
+| **01** Topics | **02** Knowledge stats | **03** Question of the day | **04** Question |
 
-| ![Answer page 2](19-knowledge/05-answer-page-2.png) | ![Answer page 3](19-knowledge/06-answer-page-3.png) | ![Next question](19-knowledge/07-next-question.png) | ![Answer](19-knowledge/08-answer.png) |
+| ![Answer page 1](19-knowledge/05-answer-page-1.png) | ![Answer page 2](19-knowledge/06-answer-page-2.png) | ![Answer page 3](19-knowledge/07-answer-page-3.png) | ![Next question](19-knowledge/08-next-question.png) |
 |---|---|---|---|
-| **05** Answer page 2 | **06** Answer page 3 | **07** Next question | **08** Answer |
+| **05** Answer page 1 | **06** Answer page 2 | **07** Answer page 3 | **08** Next question |
 
-| ![Topics again](19-knowledge/09-topics-again.png) |
+| ![Next question right](19-knowledge/09-next-question-right.png) | ![Topics again](19-knowledge/10-topics-again.png) |
+|---|---|
+| **09** Next question right | **10** Topics again |
+
+## 20. Panchanga: calendar 1976-2075, festivals, Kannada and English
+
+| ![Today](20-panchanga/01-today.png) | ![Next day](20-panchanga/02-next-day.png) | ![Menu](20-panchanga/03-menu.png) | ![Calendar](20-panchanga/04-calendar.png) |
+|---|---|---|---|
+| **01** Today | **02** Next day | **03** Menu | **04** Calendar |
+
+| ![Calendar next month](20-panchanga/05-calendar-next-month.png) | ![Calendar day selected](20-panchanga/06-calendar-day-selected.png) | ![Opened from calendar](20-panchanga/07-opened-from-calendar.png) | ![About this day](20-panchanga/08-about-this-day.png) |
+|---|---|---|---|
+| **05** Calendar next month | **06** Calendar day selected | **07** Opened from calendar | **08** About this day |
+
+| ![Go to month and year](20-panchanga/09-go-to-month-and-year.png) | ![Decade row](20-panchanga/10-decade-row.png) | ![1970s](20-panchanga/11-1970s.png) | ![Month row](20-panchanga/12-month-row.png) |
+|---|---|---|---|
+| **09** Go to month and year | **10** Decade row | **11** 1970s | **12** Month row |
+
+| ![Calendar 1980](20-panchanga/13-calendar-1980.png) | ![Panchanga 1980](20-panchanga/14-panchanga-1980.png) | ![Menu](20-panchanga/15-menu.png) | ![English today](20-panchanga/16-english-today.png) |
+|---|---|---|---|
+| **13** Calendar 1980 | **14** Panchanga 1980 | **15** Menu | **16** English today |
+
+| ![English calendar](20-panchanga/17-english-calendar.png) | ![English calendar next month](20-panchanga/18-english-calendar-next-month.png) | ![English calendar day](20-panchanga/19-english-calendar-day.png) | ![English opened day](20-panchanga/20-english-opened-day.png) |
+|---|---|---|---|
+| **17** English calendar | **18** English calendar next month | **19** English calendar day | **20** English opened day |
+
+| ![English about this day](20-panchanga/21-english-about-this-day.png) |
 |---|
-| **09** Topics again |
+| **21** English about this day |
 
-## 20. Panchanga (Kannada and English)
+## 21. Mantras and japa counter
 
-| ![Today](20-panchanga/01-today.png) | ![Next day](20-panchanga/02-next-day.png) | ![Deepavali 2026](20-panchanga/03-deepavali-2026.png) | ![Ugadi 2027](20-panchanga/04-ugadi-2027.png) |
+| ![Home](21-mantras/01-home.png) | ![Todays mantra](21-mantras/02-todays-mantra.png) | ![Page 2](21-mantras/03-page-2.png) | ![Japa](21-mantras/04-japa.png) |
 |---|---|---|---|
-| **01** Today | **02** Next day | **03** Deepavali 2026 | **04** Ugadi 2027 |
+| **01** Home | **02** Todays mantra | **03** Page 2 | **04** Japa |
 
-| ![Back to today](20-panchanga/05-back-to-today.png) | ![Language picker](20-panchanga/06-language-picker.png) | ![English today](20-panchanga/07-english-today.png) | ![English next day](20-panchanga/08-english-next-day.png) |
+| ![Japa counting](21-mantras/05-japa-counting.png) | ![Home after japa](21-mantras/06-home-after-japa.png) | ![Daily ritual](21-mantras/07-daily-ritual.png) | ![Ritual step 1](21-mantras/08-ritual-step-1.png) |
 |---|---|---|---|
-| **05** Back to today | **06** Language picker | **07** English today | **08** English next day |
+| **05** Japa counting | **06** Home after japa | **07** Daily ritual | **08** Ritual step 1 |
 
-| ![English deepavali 2026](20-panchanga/09-english-deepavali-2026.png) |
+| ![Ritual step 2](21-mantras/09-ritual-step-2.png) | ![Deities](21-mantras/10-deities.png) | ![Vishnu mantras](21-mantras/11-vishnu-mantras.png) | ![Mantra](21-mantras/12-mantra.png) |
+|---|---|---|---|
+| **09** Ritual step 2 | **10** Deities | **11** Vishnu mantras | **12** Mantra |
+
+| ![Ritual categories](21-mantras/13-ritual-categories.png) | ![Kavacha](21-mantras/14-kavacha.png) | ![Kavacha about](21-mantras/15-kavacha-about.png) | ![Kavacha reading](21-mantras/16-kavacha-reading.png) |
+|---|---|---|---|
+| **13** Ritual categories | **14** Kavacha | **15** Kavacha about | **16** Kavacha reading |
+
+| ![Japa stats](21-mantras/17-japa-stats.png) | ![Settings](21-mantras/18-settings.png) |
+|---|---|
+| **17** Japa stats | **18** Settings |
+
+## 22. Kannada in your own JSON files
+
+| ![Kannada question](22-kannada-in-your-files/01-kannada-question.png) | ![Kannada answer](22-kannada-in-your-files/02-kannada-answer.png) | ![Kannada answer list](22-kannada-in-your-files/03-kannada-answer-list.png) |
+|---|---|---|
+| **01** Kannada question | **02** Kannada answer | **03** Kannada answer list |
+
+## 23. Today
+
+| ![Today](23-today/01-today.png) | ![Task completed](23-today/02-task-completed.png) | ![Today stats](23-today/03-today-stats.png) | ![Add task row](23-today/04-add-task-row.png) |
+|---|---|---|---|
+| **01** Today | **02** Task completed | **03** Today stats | **04** Add task row |
+
+| ![New task keyboard](23-today/05-new-task-keyboard.png) |
 |---|
-| **09** English deepavali 2026 |
+| **05** New task keyboard |
 
-## 21. Today
+## 24. Stats & export
 
-| ![Today](21-today/01-today.png) | ![Task completed](21-today/02-task-completed.png) | ![Add task row](21-today/03-add-task-row.png) | ![New task keyboard](21-today/04-new-task-keyboard.png) |
-|---|---|---|---|
-| **01** Today | **02** Task completed | **03** Add task row | **04** New task keyboard |
-
-## 22. Stats & export
-
-| ![Stats and export](22-stats-and-export/01-stats-and-export.png) | ![Export finished](22-stats-and-export/02-export-finished.png) | ![Import confirm](22-stats-and-export/03-import-confirm.png) | ![Import on the same card (nothing overwritten)](22-stats-and-export/04-import-on-the-same-card-nothing-overwritten.png) |
+| ![Stats and export](24-stats-and-export/01-stats-and-export.png) | ![Export finished](24-stats-and-export/02-export-finished.png) | ![Import confirm](24-stats-and-export/03-import-confirm.png) | ![Import on the same card (nothing overwritten)](24-stats-and-export/04-import-on-the-same-card-nothing-overwritten.png) |
 |---|---|---|---|
 | **01** Stats and export | **02** Export finished | **03** Import confirm | **04** Import on the same card (nothing overwritten) |
 
-| ![Import on a fresh card](22-stats-and-export/05-import-on-a-fresh-card.png) | ![Home after import (progress restored)](22-stats-and-export/06-home-after-import-progress-restored.png) |
+| ![Import on a fresh card](24-stats-and-export/05-import-on-a-fresh-card.png) | ![Home after import (progress restored)](24-stats-and-export/06-home-after-import-progress-restored.png) |
 |---|---|
 | **05** Import on a fresh card | **06** Home after import (progress restored) |
 
-## 23. Upgrade from CrossInk (data folder moved)
+## 25. Upgrade from CrossInk (data folder moved)
 
-| ![Home after migration](23-upgrade-from-crossink/01-home-after-migration.png) | ![Saved items after migration](23-upgrade-from-crossink/02-saved-items-after-migration.png) |
+| ![Home after migration](25-upgrade-from-crossink/01-home-after-migration.png) | ![Saved items after migration](25-upgrade-from-crossink/02-saved-items-after-migration.png) |
 |---|---|
 | **01** Home after migration | **02** Saved items after migration |
 

@@ -14,6 +14,9 @@ struct BookInsights {
   bool valid = false;
 
   static BookInsights load(const std::string& bookPath);
+  // Cheap change marker for cache keys: header counts plus the look-up
+  // history's size, without reading the history itself.
+  static std::string signature(const std::string& bookPath);
 };
 
 struct BookReadingStats;

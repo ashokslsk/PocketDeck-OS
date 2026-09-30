@@ -16,6 +16,7 @@
 #include "HabitSummary.h"
 #include "MedicineData.h"
 #include "RecentBooksStore.h"
+#include "ToolStatsData.h"
 #include "ToolsCharts.h"
 #include "ToolsCommon.h"
 #include "ToolsJson.h"
@@ -28,9 +29,15 @@
 
 namespace statsx {
 
+using tstats::averageMinute;
+using tstats::clearSeries;
+using tstats::DaySeries;
+using tstats::DeckTotals;
+using tstats::kHistoryDays;
+using tstats::onDeck;
+
 namespace {
 constexpr char kRoot[] = "/stats";
-constexpr int kHistoryDays = 90;
 constexpr size_t kHexChunkBytes = 128;  // 256 hex characters per JSON string
 
 struct Clock {
@@ -240,93 +247,11 @@ bool writeMeds(FsFile& out, void* p) {
 // ---------------------------------------------------------------------------
 // Mood, Pomodoro, Today, Flashcards: per-day series from the logs
 // ---------------------------------------------------------------------------
-struct DaySeries {
-  int32_t firstDay = 0;
-  int16_t a[kHistoryDays] = {};  // per-feature meaning (see each scanner)
-  int16_t b[kHistoryDays] = {};
-  int16_t minute[kHistoryDays] = {};
-};
-
-void clearSeries(DaySeries& s, const int32_t today, const int16_t fill) {
-  s.firstDay = today - (kHistoryDays - 1);
-  std::fill(s.a, s.a + kHistoryDays, fill);
-  std::fill(s.b, s.b + kHistoryDays, fill);
-  std::fill(s.minute, s.minute + kHistoryDays, charts::kNoValue);
-}
-
-// mood: a = mood 1..5 (latest wins), minute = time logged (same day)
-void onMood(const tlog::Stamp& at, char* fields, void* p) {
-  auto* s = static_cast<DaySeries*>(p);
-  char* cursor = fields;
-  const char* date = tlog::nextField(&cursor);
-  const char* mood = tlog::nextField(&cursor);
-  int32_t day = 0;
-  if (date == nullptr || mood == nullptr || !tools::parseIsoDate(date, day)) return;
-  const int idx = day - s->firstDay;
-  const int m = atoi(mood);
-  if (idx < 0 || idx >= kHistoryDays || m < 1 || m > 5) return;
-  s->a[idx] = static_cast<int16_t>(m);
-  s->minute[idx] = day == at.day ? at.minute : charts::kNoValue;
-}
-
-// pomodoro: a = sessions, b = focus minutes, minute = first session time
-void onPomodoro(const tlog::Stamp& at, char* fields, void* p) {
-  auto* s = static_cast<DaySeries*>(p);
-  char* cursor = fields;
-  const char* kind = tlog::nextField(&cursor);
-  const char* minutes = tlog::nextField(&cursor);
-  const int idx = at.day - s->firstDay;
-  if (kind == nullptr || strcmp(kind, "focus") != 0 || idx < 0 || idx >= kHistoryDays) return;
-  ++s->a[idx];
-  s->b[idx] = static_cast<int16_t>(s->b[idx] + (minutes != nullptr ? atoi(minutes) : 0));
-  if (s->minute[idx] == charts::kNoValue) s->minute[idx] = at.minute;
-}
-
-// today: a = done, b = total (for the day the list belonged to)
-void onToday(const tlog::Stamp&, char* fields, void* p) {
-  auto* s = static_cast<DaySeries*>(p);
-  char* cursor = fields;
-  const char* date = tlog::nextField(&cursor);
-  const char* done = tlog::nextField(&cursor);
-  const char* total = tlog::nextField(&cursor);
-  int32_t day = 0;
-  if (date == nullptr || done == nullptr || total == nullptr || !tools::parseIsoDate(date, day)) return;
-  const int idx = day - s->firstDay;
-  if (idx < 0 || idx >= kHistoryDays) return;
-  s->a[idx] = static_cast<int16_t>(atoi(done));
-  s->b[idx] = static_cast<int16_t>(atoi(total));
-}
-
-// flashcards: a = cards reviewed, b = remembered
-void onFlashcards(const tlog::Stamp& at, char* fields, void* p) {
-  auto* s = static_cast<DaySeries*>(p);
-  char* cursor = fields;
-  tlog::nextField(&cursor);  // deck
-  const char* reviewed = tlog::nextField(&cursor);
-  const char* remembered = tlog::nextField(&cursor);
-  const int idx = at.day - s->firstDay;
-  if (reviewed == nullptr || remembered == nullptr || idx < 0 || idx >= kHistoryDays) return;
-  s->a[idx] = static_cast<int16_t>(s->a[idx] + atoi(reviewed));
-  s->b[idx] = static_cast<int16_t>(s->b[idx] + atoi(remembered));
-  if (s->minute[idx] == charts::kNoValue) s->minute[idx] = at.minute;
-}
-
 struct SeriesCtx {
   const Clock* clock;
   DaySeries* series;
   uint16_t items;
 };
-
-int averageMinute(const DaySeries& s) {
-  long sum = 0;
-  int n = 0;
-  for (const int16_t m : s.minute) {
-    if (m == charts::kNoValue) continue;
-    sum += m;
-    ++n;
-  }
-  return n > 0 ? static_cast<int>(sum / n) : -1;
-}
 
 // cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
 bool writeMood(FsFile& out, void* p) {
@@ -469,41 +394,11 @@ bool writeToday(FsFile& out, void* p) {
 }
 
 // Per-deck totals need a second pass over the log.
-struct DeckTotals {
-  static constexpr int kMaxDecks = 16;
-  char name[kMaxDecks][32] = {};
-  uint16_t sessions[kMaxDecks] = {};
-  uint32_t reviewed[kMaxDecks] = {};
-  uint32_t remembered[kMaxDecks] = {};
-  uint32_t forgot[kMaxDecks] = {};
-  int count = 0;
-};
-
-void onDeck(const tlog::Stamp&, char* fields, void* p) {
-  auto* t = static_cast<DeckTotals*>(p);
-  char* cursor = fields;
-  const char* deck = tlog::nextField(&cursor);
-  const char* reviewed = tlog::nextField(&cursor);
-  const char* remembered = tlog::nextField(&cursor);
-  const char* forgot = tlog::nextField(&cursor);
-  if (deck == nullptr || reviewed == nullptr || remembered == nullptr || forgot == nullptr) return;
-  int i = 0;
-  while (i < t->count && strcmp(t->name[i], deck) != 0) ++i;
-  if (i == t->count) {
-    if (t->count >= DeckTotals::kMaxDecks) return;
-    snprintf(t->name[i], sizeof(t->name[i]), "%s", deck);
-    ++t->count;
-  }
-  ++t->sessions[i];
-  t->reviewed[i] += static_cast<uint32_t>(atoi(reviewed));
-  t->remembered[i] += static_cast<uint32_t>(atoi(remembered));
-  t->forgot[i] += static_cast<uint32_t>(atoi(forgot));
-}
-
 struct FlashCtx {
   const Clock* clock;
   DaySeries* series;
   DeckTotals* decks;
+  tstats::SrsSummary* srs;
   uint16_t items;
 };
 
@@ -526,6 +421,15 @@ bool writeFlashcards(FsFile& out, void* p) {
   j.num("cards_reviewed_last_90_days", reviewed).num("cards_remembered_last_90_days", remembered);
   j.num("recall_percent", reviewed > 0 ? remembered * 100 / reviewed : 0).num("study_days_last_90", studyDays);
   minuteValue(j, "usual_study_time", averageMinute(s));
+  const tstats::SrsSummary& m = *ctx->srs;
+  j.num("cards", m.totalCards()).num("cards_seen", m.totalReviewed()).num("cards_mastered_21_days", m.totalMastered());
+  j.num("cards_due_today", m.totalDue());
+  j.beginArray("mastery");
+  for (int i = 0; i < m.count; ++i) {
+    j.beginObject().str("deck", m.name[i]).num("cards", m.cards[i]).num("seen", m.reviewed[i]);
+    j.num("mastered", m.mastered[i]).num("due_today", m.due[i] + std::max(0, m.cards[i] - m.reviewed[i])).endObject();
+  }
+  j.endArray();
   j.beginArray("decks");
   for (int i = 0; i < d.count; ++i) {
     j.beginObject().str("deck", d.name[i]).num("sessions", d.sessions[i]).num("reviewed", d.reviewed[i]);
@@ -540,6 +444,147 @@ bool writeFlashcards(FsFile& out, void* p) {
     char date[12];
     dayKey(date, s.firstDay + i);
     j.beginObject().str("date", date).num("reviewed", s.a[i]).num("remembered", s.b[i]).endObject();
+  }
+  j.endArray();
+  j.endObject();
+  return j.ok();
+}
+
+struct KnowledgeCtx {
+  const Clock* clock;
+  DaySeries* series;
+  tstats::KnowledgeCoverage* cover;
+  uint16_t items;
+};
+
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
+bool writeKnowledge(FsFile& out, void* p) {
+  auto* ctx = static_cast<KnowledgeCtx*>(p);
+  const DaySeries& s = *ctx->series;
+  const tstats::KnowledgeCoverage& c = *ctx->cover;
+  tools::JsonOut j(out);
+  j.beginObject();
+  header(j, *ctx->clock, "knowledge");
+  j.num("answers_opened_today", s.a[kHistoryDays - 1]).num("answers_opened_last_7_days", tstats::sumLast(s.a, 7));
+  j.num("answers_opened_last_30_days", tstats::sumLast(s.a, 30)).num("study_streak_days", tstats::streak(s.a));
+  minuteValue(j, "usual_study_time", averageMinute(s));
+  j.beginArray("topics");
+  for (int i = 0; i < c.count; ++i) {
+    j.beginObject().str("topic", c.topic[i]).num("questions", c.total[i]).num("questions_opened", c.seen[i]);
+    j.num("coverage_percent", c.total[i] > 0 ? c.seen[i] * 100 / c.total[i] : 0).endObject();
+    ++ctx->items;
+  }
+  j.endArray();
+  j.beginArray("days");
+  for (int i = 0; i < kHistoryDays; ++i) {
+    if (s.a[i] <= 0) continue;
+    char date[12];
+    dayKey(date, s.firstDay + i);
+    j.beginObject().str("date", date).num("answers_opened", s.a[i]).endObject();
+  }
+  j.endArray();
+  j.endObject();
+  return j.ok();
+}
+
+struct QuotesCtx {
+  const Clock* clock;
+  DaySeries* series;
+  uint16_t items;
+};
+
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
+bool writeQuotes(FsFile& out, void* p) {
+  auto* ctx = static_cast<QuotesCtx*>(p);
+  const DaySeries& s = *ctx->series;
+  tools::JsonOut j(out);
+  j.beginObject();
+  header(j, *ctx->clock, "quotes");
+  j.num("days_opened_last_30", tstats::sumLast(s.a, 30)).num("days_opened_last_90", tstats::sumLast(s.a, 90));
+  j.num("streak_days", tstats::streak(s.a));
+  minuteValue(j, "usual_time", averageMinute(s));
+  j.beginArray("favourites");
+  FsFile f;
+  if (Storage.exists(tstats::kFavouritesPath) && Storage.openFileForRead("STX", tstats::kFavouritesPath, f)) {
+    char line[512];
+    while (tools::readLine(f, line, sizeof(line)) >= 0) {
+      if (line[0] == '\0' || line[0] == '#') continue;
+      char* bar = strchr(line, '|');
+      const char* text = bar != nullptr ? bar + 1 : line;
+      if (bar != nullptr) *bar = '\0';
+      j.beginObject().str("date", bar != nullptr ? line : "").str("quote", text).endObject();
+      ++ctx->items;
+    }
+    f.close();
+  }
+  j.endArray();
+  j.endObject();
+  return j.ok();
+}
+
+// ---------------------------------------------------------------------------
+// Mantras (japa counter)
+// ---------------------------------------------------------------------------
+struct JapaTotals {
+  static constexpr int kMax = 48;
+  char key[kMax][24] = {};
+  uint32_t count[kMax] = {};
+  uint16_t sessions[kMax] = {};
+  int n = 0;
+};
+
+// "count|category|mantra|text": totals per deity or ritual category.
+void onJapaTotals(const tlog::Stamp&, char* fields, void* p) {
+  auto* t = static_cast<JapaTotals*>(p);
+  char* cursor = fields;
+  const char* count = tlog::nextField(&cursor);
+  const char* category = tlog::nextField(&cursor);
+  if (count == nullptr || category == nullptr) return;
+  int i = 0;
+  while (i < t->n && strcmp(t->key[i], category) != 0) ++i;
+  if (i == t->n) {
+    if (t->n >= JapaTotals::kMax) return;
+    snprintf(t->key[t->n++], sizeof(t->key[0]), "%s", category);
+  }
+  t->count[i] += static_cast<uint32_t>(std::max(0, atoi(count)));
+  ++t->sessions[i];
+}
+
+struct MantrasCtx {
+  const Clock* clock;
+  DaySeries* series;
+  const JapaTotals* totals;
+  uint16_t items;
+};
+
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
+bool writeMantras(FsFile& out, void* p) {
+  auto* ctx = static_cast<MantrasCtx*>(p);
+  const DaySeries& s = *ctx->series;
+  tools::JsonOut j(out);
+  j.beginObject();
+  header(j, *ctx->clock, "mantras");
+  const int month = tstats::sumLast(s.a, 30);
+  j.num("japa_today", s.a[tstats::kHistoryDays - 1]).num("japa_last_30_days", month);
+  j.num("japa_last_90_days", tstats::sumLast(s.a, 90)).num("malas_of_108_last_30_days", month / 108);
+  j.num("streak_days", tstats::streak(s.a));
+  minuteValue(j, "usual_time", averageMinute(s));
+  j.beginArray("by_deity_or_ritual");
+  for (int i = 0; i < ctx->totals->n; ++i) {
+    j.beginObject()
+        .str("category", ctx->totals->key[i])
+        .num("japa", static_cast<int>(ctx->totals->count[i]))
+        .num("sessions", ctx->totals->sessions[i])
+        .endObject();
+  }
+  j.endArray();
+  j.beginArray("days");
+  for (int i = 0; i < tstats::kHistoryDays; ++i) {
+    if (s.a[i] <= 0) continue;
+    char date[12];
+    dayKey(date, s.firstDay + i);
+    j.beginObject().str("date", date).num("japa", s.a[i]).num("sessions", s.b[i]).endObject();
+    ++ctx->items;
   }
   j.endArray();
   j.endObject();
@@ -811,7 +856,10 @@ bool writeReadme(FsFile& out, void*) {
                           "mood/mood.json              daily moods (1-5) with averages\n"
                           "pomodoro/pomodoro.json      focus sessions per day\n"
                           "today/today.json            to-dos done per day\n"
-                          "flashcards/flashcards.json  study sessions per deck and day\n"
+                          "flashcards/flashcards.json  study sessions per deck and day, mastery\n"
+                          "knowledge/knowledge.json    answers opened per day, topic coverage\n"
+                          "quotes/quotes.json          days opened, favourite quotes\n"
+                          "mantras/mantras.json        japa counts per day and per deity or ritual\n"
                           "reading/library.json        books on the card, opened, finished\n"
                           "reading/global.json         total reading time, sessions, streaks\n"
                           "reading/books/*.json        one file per book: progress, time read,\n"
@@ -847,85 +895,121 @@ const char* featureFolder(const Feature f) {
       return "today";
     case Feature::Flashcards:
       return "flashcards";
+    case Feature::Knowledge:
+      return "knowledge";
+    case Feature::Quotes:
+      return "quotes";
+    case Feature::Mantras:
+      return "mantras";
     default:
       return "reading";
   }
+}
+
+namespace {
+FeatureResult exportOne(const Feature f, const Clock& clock) {
+  FeatureResult r;
+  if (f != Feature::Reading && !clock.valid) return r;  // tool stats need dates
+  if (f == Feature::Habits) {
+    HabitsCtx h{&clock, 0};
+    return {writeJson("habits", "habits.json", &writeHabits, &h), h.items};
+  }
+  if (f == Feature::Medicine) {
+    // Course and dose scratch live on the heap only for this export.
+    auto courses = makeUniqueNoThrow<meds::Course[]>(meds::kMaxCourses);
+    auto doses = makeUniqueNoThrow<int16_t[]>(meds::kMaxDays * meds::kMaxDoses);
+    if (!courses || !doses) return r;
+    MedsCtx m{&clock, 0, courses.get(), doses.get()};
+    return {writeJson("medicine", "medicine.json", &writeMeds, &m), m.items};
+  }
+  if (f == Feature::Reading) {
+    bool ok = ensureFolder("reading") && ensureFolder("reading/books");
+    BooksWalk walk{&clock, 0, 0};
+    const LibrarySummary summary = LibrarySummary::scan(&onBook, &walk);
+    LibraryCtx lib{&clock, &summary};
+    ok = writeJson("reading", "library.json", &writeLibrary, &lib) && ok;
+    ok = writeJson("reading", "global.json", &writeGlobal, &clock) && ok;
+    return {ok && walk.failed == 0, walk.written};
+  }
+  auto series = makeUniqueNoThrow<DaySeries>();
+  if (!series) return r;
+  switch (f) {
+    case Feature::Mood: {
+      tstats::scanSeries("mood", clock.today, &tstats::onMood, *series, charts::kNoValue);
+      SeriesCtx c{&clock, series.get(), 0};
+      return {writeJson("mood", "mood.json", &writeMood, &c), c.items};
+    }
+    case Feature::Pomodoro: {
+      tstats::scanSeries("pomodoro", clock.today, &tstats::onPomodoro, *series);
+      SeriesCtx c{&clock, series.get(), 0};
+      return {writeJson("pomodoro", "pomodoro.json", &writePomodoro, &c), c.items};
+    }
+    case Feature::Today: {
+      tstats::scanSeries("today", clock.today, &tstats::onToday, *series);
+      SeriesCtx c{&clock, series.get(), 0};
+      return {writeJson("today", "today.json", &writeToday, &c), c.items};
+    }
+    case Feature::Flashcards: {
+      tstats::scanSeries("flashcards", clock.today, &tstats::onFlashcards, *series);
+      auto decks = makeUniqueNoThrow<DeckTotals>();
+      auto srs = makeUniqueNoThrow<tstats::SrsSummary>();
+      if (!decks || !srs) return r;
+      tlog::scan("flashcards", series->firstDay, clock.today, &tstats::onDeck, decks.get());
+      tstats::summarizeSrs(clock.today, *srs);
+      FlashCtx c{&clock, series.get(), decks.get(), srs.get(), 0};
+      return {writeJson("flashcards", "flashcards.json", &writeFlashcards, &c), c.items};
+    }
+    case Feature::Knowledge: {
+      tstats::scanSeries("knowledge", clock.today, &tstats::onKnowledge, *series);
+      auto cover = makeUniqueNoThrow<tstats::KnowledgeCoverage>();
+      if (!cover) return r;
+      tstats::summarizeKnowledge(clock.today, *cover);
+      KnowledgeCtx c{&clock, series.get(), cover.get(), 0};
+      return {writeJson("knowledge", "knowledge.json", &writeKnowledge, &c), c.items};
+    }
+    case Feature::Quotes: {
+      tstats::scanSeries("quotes", clock.today, &tstats::onQuotes, *series);
+      QuotesCtx c{&clock, series.get(), 0};
+      return {writeJson("quotes", "quotes.json", &writeQuotes, &c), c.items};
+    }
+    case Feature::Mantras: {
+      tstats::scanSeries("mantras", clock.today, &tstats::onMantras, *series);
+      auto totals = makeUniqueNoThrow<JapaTotals>();
+      if (!totals) return r;
+      tlog::scan("mantras", series->firstDay, clock.today, &onJapaTotals, totals.get());
+      MantrasCtx c{&clock, series.get(), totals.get(), 0};
+      return {writeJson("mantras", "mantras.json", &writeMantras, &c), c.items};
+    }
+    default:
+      return r;
+  }
+}
+
+bool prepareRoot() {
+  if (!Storage.ensureDirectoryExists(kRoot)) {
+    LOG_ERR("STX", "Cannot create %s", kRoot);
+    return false;
+  }
+  tools::writeFileAtomic("/stats/README.txt", &writeReadme, nullptr);
+  return true;
+}
+}  // namespace
+
+FeatureResult exportFeature(const Feature f) {
+  if (!prepareRoot()) return {};
+  return exportOne(f, readClock());
 }
 
 ExportReport exportAll(const ProgressFn progress, void* pctx) {
   ExportReport report;
   const Clock clock = readClock();
   report.clockValid = clock.valid;
-  if (!Storage.ensureDirectoryExists(kRoot)) {
-    LOG_ERR("STX", "Cannot create %s", kRoot);
-    return report;
-  }
-  tools::writeFileAtomic("/stats/README.txt", &writeReadme, nullptr);
-  auto done = [&](const Feature f, const bool ok, const uint16_t items) {
-    report.features[static_cast<int>(f)] = {ok, items};
+  if (!prepareRoot()) return report;
+  for (int i = 0; i < static_cast<int>(Feature::Count); ++i) {
+    const auto f = static_cast<Feature>(i);
+    report.features[i] = exportOne(f, clock);
     if (progress != nullptr) progress(f, pctx);
-  };
-
-  if (clock.valid) {
-    HabitsCtx h{&clock, 0};
-    done(Feature::Habits, writeJson("habits", "habits.json", &writeHabits, &h), h.items);
-
-    // Course and dose scratch live on the heap only for this export.
-    auto courses = makeUniqueNoThrow<meds::Course[]>(meds::kMaxCourses);
-    auto doses = makeUniqueNoThrow<int16_t[]>(meds::kMaxDays * meds::kMaxDoses);
-    if (courses && doses) {
-      MedsCtx m{&clock, 0, courses.get(), doses.get()};
-      done(Feature::Medicine, writeJson("medicine", "medicine.json", &writeMeds, &m), m.items);
-    } else {
-      done(Feature::Medicine, false, 0);
-    }
-    courses.reset();
-    doses.reset();
-
-    auto series = makeUniqueNoThrow<DaySeries>();
-    if (series) {
-      clearSeries(*series, clock.today, charts::kNoValue);
-      tlog::scan("mood", series->firstDay, clock.today, &onMood, series.get());
-      SeriesCtx mood{&clock, series.get(), 0};
-      done(Feature::Mood, writeJson("mood", "mood.json", &writeMood, &mood), mood.items);
-
-      clearSeries(*series, clock.today, 0);
-      tlog::scan("pomodoro", series->firstDay, clock.today, &onPomodoro, series.get());
-      SeriesCtx pomo{&clock, series.get(), 0};
-      done(Feature::Pomodoro, writeJson("pomodoro", "pomodoro.json", &writePomodoro, &pomo), pomo.items);
-
-      clearSeries(*series, clock.today, 0);
-      tlog::scan("today", series->firstDay, clock.today, &onToday, series.get());
-      SeriesCtx today{&clock, series.get(), 0};
-      done(Feature::Today, writeJson("today", "today.json", &writeToday, &today), today.items);
-
-      clearSeries(*series, clock.today, 0);
-      tlog::scan("flashcards", series->firstDay, clock.today, &onFlashcards, series.get());
-      auto decks = makeUniqueNoThrow<DeckTotals>();
-      if (decks) {
-        tlog::scan("flashcards", series->firstDay, clock.today, &onDeck, decks.get());
-        FlashCtx f{&clock, series.get(), decks.get(), 0};
-        done(Feature::Flashcards, writeJson("flashcards", "flashcards.json", &writeFlashcards, &f), f.items);
-      } else {
-        done(Feature::Flashcards, false, 0);
-      }
-    } else {
-      for (const Feature f : {Feature::Mood, Feature::Pomodoro, Feature::Today, Feature::Flashcards}) {
-        done(f, false, 0);
-      }
-    }
-  } else {
-    LOG_ERR("STX", "Clock not set: exporting reading data only");
   }
-
-  // Reading: library + global + one file per opened book.
-  bool readingOk = ensureFolder("reading") && ensureFolder("reading/books");
-  BooksWalk walk{&clock, 0, 0};
-  const LibrarySummary summary = LibrarySummary::scan(&onBook, &walk);
-  LibraryCtx lib{&clock, &summary};
-  readingOk = writeJson("reading", "library.json", &writeLibrary, &lib) && readingOk;
-  readingOk = writeJson("reading", "global.json", &writeGlobal, &clock) && readingOk;
-  done(Feature::Reading, readingOk && walk.failed == 0, walk.written);
   return report;
 }
 

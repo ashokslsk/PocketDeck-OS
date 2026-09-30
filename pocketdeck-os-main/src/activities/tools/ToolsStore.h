@@ -27,6 +27,20 @@ void recoverFromBackup(const char* path);
 int readLine(FsFile& file, char* buf, size_t cap);
 
 bool writeText(FsFile& out, const char* text);
+
+// Little-endian fields in the tools' binary cache files.
+inline uint16_t le16(const uint8_t* p) { return static_cast<uint16_t>(p[0] | (p[1] << 8)); }
+inline uint32_t le32(const uint8_t* p) {
+  return static_cast<uint32_t>(p[0]) | (static_cast<uint32_t>(p[1]) << 8) | (static_cast<uint32_t>(p[2]) << 16) |
+         (static_cast<uint32_t>(p[3]) << 24);
+}
+inline void putLe16(uint8_t* p, const uint16_t v) {
+  p[0] = static_cast<uint8_t>(v);
+  p[1] = static_cast<uint8_t>(v >> 8);
+}
+inline void putLe32(uint8_t* p, const uint32_t v) {
+  for (int i = 0; i < 4; ++i) p[i] = static_cast<uint8_t>(v >> (8 * i));
+}
 bool writeJsonString(FsFile& out, const char* text);
 
 // Minimal pull tokenizer for JSON read straight from the SD card, so large

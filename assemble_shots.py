@@ -40,10 +40,12 @@ S=[
  ("17-flashcards","Flashcards",sec("flashcards")),
  ("18-daily-quote","Daily Quote",sec("quote")),
  ("19-knowledge","Knowledge",sec("knowledge")),
- ("20-panchanga","Panchanga (Kannada and English)",sec("panchanga")+sec("panchanga_en")),
- ("21-today","Today",sec("today")),
- ("22-stats-and-export","Stats & export",sec("stats")+sec("stats_import")),
- ("23-upgrade-from-crossink","Upgrade from CrossInk (data folder moved)",sec("migration")),
+ ("20-panchanga","Panchanga: calendar 1976-2075, festivals, Kannada and English",sec("panchanga")+sec("panchanga_en")),
+ ("21-mantras","Mantras and japa counter",sec("mantras")),
+ ("22-kannada-in-your-files","Kannada in your own JSON files",sec("kn_knowledge")),
+ ("23-today","Today",sec("today")),
+ ("24-stats-and-export","Stats & export",sec("stats")+sec("stats_import")),
+ ("25-upgrade-from-crossink","Upgrade from CrossInk (data folder moved)",sec("migration")),
 ]
 if os.path.exists(OUT): shutil.rmtree(OUT)
 os.makedirs(OUT)

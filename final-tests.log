@@ -1,5 +1,5 @@
 Running main() from /private/tmp/claude-501/-Users-ashok-Library-Application-Support-Claude-scratch-workspaces-9fbb4d3d-2663-4dcd-b22b-654bf7582786-e533bd95-93c8-45a5-94c8-6fab1c9482d0-scratch-2026-09-26-a24ec2/edfb3f92-85f7-4810-8e22-67e88b4e7394/scratchpad/tests/_deps/googletest-src/googletest/src/gtest_main.cc
-[==========] Running 32 tests from 7 test suites.
+[==========] Running 37 tests from 9 test suites.
 [----------] Global test environment set-up.
 [----------] 4 tests from ToolsDate
 [ RUN      ] ToolsDate.EpochAndKnownDates
@@ -81,11 +81,27 @@ Running main() from /private/tmp/claude-501/-Users-ashok-Library-Application-Sup
 [       OK ] ToolsLog.NextFieldSplitsInPlace (0 ms)
 [----------] 1 test from ToolsLog (0 ms total)
 
-[----------] 1 test from PanchangaKannada
-[ RUN      ] PanchangaKannada.EveryStringDecodesInsideItsOwnBytes
-[       OK ] PanchangaKannada.EveryStringDecodesInsideItsOwnBytes (0 ms)
-[----------] 1 test from PanchangaKannada (0 ms total)
+[----------] 3 tests from KannadaFont
+[ RUN      ] KannadaFont.ShapesLikeHarfBuzz
+[       OK ] KannadaFont.ShapesLikeHarfBuzz (85 ms)
+[ RUN      ] KannadaFont.StopsAtLatinAndDrawsEveryGlyph
+[       OK ] KannadaFont.StopsAtLatinAndDrawsEveryGlyph (79 ms)
+[ RUN      ] KannadaFont.MissingFileFallsBack
+[       OK ] KannadaFont.MissingFileFallsBack (0 ms)
+[----------] 3 tests from KannadaFont (164 ms total)
+
+[----------] 2 tests from Festivals
+[ RUN      ] Festivals.IndexesLayersAndReadsEntries
+[       OK ] Festivals.IndexesLayersAndReadsEntries (0 ms)
+[ RUN      ] Festivals.MappedNames
+[       OK ] Festivals.MappedNames (0 ms)
+[----------] 2 tests from Festivals (0 ms total)
+
+[----------] 1 test from Mantras
+[ RUN      ] Mantras.IndexesDeitiesRitualsAndKavacha
+[       OK ] Mantras.IndexesDeitiesRitualsAndKavacha (5 ms)
+[----------] 1 test from Mantras (5 ms total)
 
 [----------] Global test environment tear-down
-[==========] 32 tests from 7 test suites ran. (2 ms total)
-[  PASSED  ] 32 tests.
+[==========] 37 tests from 9 test suites ran. (172 ms total)
+[  PASSED  ] 37 tests.

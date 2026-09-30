@@ -50,6 +50,7 @@ class FlashcardsActivity final : public Activity {
   void grade(bool wasRemembered);
   void closeDeck();
   void logSession();
+  void openStats();
   void deckPath(char* buf, size_t len) const;
   void indexPath(char* buf, size_t len) const;
 

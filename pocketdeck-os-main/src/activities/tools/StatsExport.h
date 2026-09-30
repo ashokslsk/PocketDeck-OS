@@ -11,7 +11,10 @@
 //   /stats/mood/mood.json              daily moods, notes, averages
 //   /stats/pomodoro/pomodoro.json      focus sessions per day
 //   /stats/today/today.json            to-dos done per day
-//   /stats/flashcards/flashcards.json  study sessions per deck and day
+//   /stats/flashcards/flashcards.json  study sessions per deck and day, mastery
+//   /stats/knowledge/knowledge.json    answers opened per day, topic coverage
+//   /stats/quotes/quotes.json          days opened, favourite quotes
+//   /stats/mantras/mantras.json        japa counts per day and per deity or ritual
 //   /stats/reading/library.json        whole-library summary
 //   /stats/reading/global.json         all-books reading totals and streaks
 //   /stats/reading/books/<book>.json   one file per book: progress, time,
@@ -22,7 +25,19 @@
 // Everything is streamed to the card; nothing is loaded whole.
 namespace statsx {
 
-enum class Feature : uint8_t { Habits, Medicine, Mood, Pomodoro, Today, Flashcards, Reading, Count };
+enum class Feature : uint8_t {
+  Habits,
+  Medicine,
+  Mood,
+  Pomodoro,
+  Today,
+  Flashcards,
+  Knowledge,
+  Quotes,
+  Mantras,
+  Reading,
+  Count
+};
 
 struct FeatureResult {
   bool ok = false;
@@ -38,6 +53,8 @@ struct ExportReport {
 // repaint; may be null.
 using ProgressFn = void (*)(Feature done, void* ctx);
 ExportReport exportAll(ProgressFn progress, void* ctx);
+// Exports one feature (the Export button on each tool's stats page).
+FeatureResult exportFeature(Feature f);
 
 struct ImportReport {
   uint16_t books = 0;     // book files found in /stats/reading/books

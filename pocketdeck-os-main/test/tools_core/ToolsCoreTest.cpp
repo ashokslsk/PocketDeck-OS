@@ -1,10 +1,15 @@
 #include <gtest/gtest.h>
 
 #include <cstring>
+#include <fstream>
+#include <iterator>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "PanchangaKannada.h"
+#include "KannadaFont.h"
+#include "MantraLibrary.h"
+#include "PanchangaFestivals.h"
 #include "SrsSchedule.h"
 #include "ToolsDate.h"
 #include "ToolsJson.h"
@@ -468,66 +473,183 @@ TEST_F(ToolsStoreTest, JsonOutWritesValidNestedJson) {
 }
 
 // ---------------------------------------------------------------------------
-// Kannada bitmaps (nibble run-length encoded)
+// Kannada shaping from the SD card font (sd-sample/tools/fonts/kannada.knf)
 // ---------------------------------------------------------------------------
 
 namespace {
-// Same walk as PanchangaActivity's drawKn; returns bytes consumed and counts ink.
-size_t decodeKn(const kn::KnText& t, int& ink) {
-  const uint8_t* start = kn::kBits + t.offset;
-  const uint8_t* p = start;
-  const int total = t.w * t.h;
-  int pos = 0, run = 0;
-  bool isInk = false, high = true;
-  ink = 0;
-  while (pos < total) {
-    const uint8_t nib = high ? (*p >> 4) : (*p++ & 0x0F);
-    high = !high;
-    run += nib;
-    if (nib == 15) continue;
-    if (isInk) ink += run;
-    pos += run;
-    run = 0;
-    isInk = !isInk;
-  }
-  EXPECT_EQ(pos, total) << "runs overshoot the string at offset " << t.offset;
-  return static_cast<size_t>(p - start) + (high ? 0 : 1);
-}
+struct GoldenGlyph {
+  uint16_t id;
+  int16_t advance;
+};
+struct Golden {
+  const char* text;
+  size_t count;
+  GoldenGlyph glyphs[24];
+};
+// HarfBuzz output for these strings (scripts/kannada/build_kannada_font.py --golden).
+const Golden kGolden[] = {
+#include "kannada_golden.inc"
+};
 
-template <size_t N>
-void checkTable(const kn::KnText (&table)[N], std::vector<std::pair<uint32_t, size_t>>& spans) {
-  for (const auto& t : table) {
-    int ink = 0;
-    const size_t used = decodeKn(t, ink);
-    spans.emplace_back(t.offset, used);
-    if (t.w > 1) {
-      EXPECT_GT(ink, 0) << "blank Kannada string at offset " << t.offset;
-    }
-  }
+bool loadFont() {
+  std::ifstream in(std::string(REPO_ROOT_DIR) + "/sd-sample/tools/fonts/kannada.knf", std::ios::binary);
+  if (!in) return false;
+  std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  Storage.put(kannada::kFontPath, bytes);
+  return true;
 }
 }  // namespace
 
-TEST(PanchangaKannada, EveryStringDecodesInsideItsOwnBytes) {
-  std::vector<std::pair<uint32_t, size_t>> spans;
-  checkTable(kn::kWeekday, spans);
-  checkTable(kn::kGregorianMonth, spans);
-  checkTable(kn::kMasa, spans);
-  checkTable(kn::kSamvatsara, spans);
-  checkTable(kn::kTithi, spans);
-  checkTable(kn::kPaksha, spans);
-  checkTable(kn::kPakshaShort, spans);
-  checkTable(kn::kNakshatra, spans);
-  checkTable(kn::kNakshatraLabel, spans);
-  checkTable(kn::kYoga, spans);
-  checkTable(kn::kKarana, spans);
-  checkTable(kn::kSpecial, spans);
-  checkTable(kn::kLabel, spans);
-  checkTable(kn::kTitle, spans);
-  std::sort(spans.begin(), spans.end());
-  for (size_t i = 0; i < spans.size(); ++i) {
-    const size_t end = spans[i].first + spans[i].second;
-    const size_t limit = i + 1 < spans.size() ? spans[i + 1].first : sizeof(kn::kBits);
-    EXPECT_LE(end, limit) << "string at " << spans[i].first << " reads into the next one";
+TEST(KannadaFont, ShapesLikeHarfBuzz) {
+  Storage.reset();
+  ASSERT_TRUE(loadFont()) << "build the font first: scripts/kannada/build_kannada_font.py";
+  kannada::Font font;
+  ASSERT_TRUE(font.open());
+  for (const Golden& g : kGolden) {
+    kannada::Glyph out[64];
+    size_t used = 0;
+    const size_t n = font.shape(g.text, strlen(g.text), kannada::Style::Label, out, 64, &used);
+    EXPECT_EQ(used, strlen(g.text)) << g.text;
+    ASSERT_EQ(n, g.count) << g.text;
+    for (size_t i = 0; i < n; ++i) {
+      EXPECT_EQ(out[i].id, g.glyphs[i].id) << g.text << " glyph " << i;
+      EXPECT_EQ(out[i].advance, g.glyphs[i].advance) << g.text << " glyph " << i;
+    }
   }
-  EXPECT_EQ(spans.back().first + spans.back().second, sizeof(kn::kBits));
+}
+
+TEST(KannadaFont, StopsAtLatinAndDrawsEveryGlyph) {
+  Storage.reset();
+  ASSERT_TRUE(loadFont());
+  kannada::Font font;
+  ASSERT_TRUE(font.open());
+  const char* text = "\xe0\xb2\x93\xe0\xb2\x82 Om";  // "ಓಂ Om"
+  kannada::Glyph out[16];
+  size_t used = 0;
+  const size_t n = font.shape(text, strlen(text), kannada::Style::Title, out, 16, &used);
+  EXPECT_EQ(n, 3u);     // o, anusvara, space
+  EXPECT_EQ(used, 7u);  // stops before the Latin "Om"
+  for (size_t i = 0; i < n; ++i) {
+    kannada::GlyphBitmap b;
+    EXPECT_TRUE(font.bitmap(kannada::Style::Title, out[i].id, b));
+  }
+  EXPECT_FALSE(font.covers('O'));
+  EXPECT_TRUE(font.covers(0x0964));  // danda
+}
+
+TEST(KannadaFont, MissingFileFallsBack) {
+  Storage.reset();
+  kannada::Font font;
+  EXPECT_FALSE(font.open());
+  kannada::Glyph out[4];
+  size_t used = 99;
+  EXPECT_EQ(font.shape("abc", 3, kannada::Style::Label, out, 4, &used), 0u);
+  EXPECT_EQ(used, 0u);
+}
+
+// ---------------------------------------------------------------------------
+// Festival layers (PanchangaFestivals)
+// ---------------------------------------------------------------------------
+
+TEST(Festivals, IndexesLayersAndReadsEntries) {
+  Storage.reset();
+  Storage.ensureDirectoryExists("/tools");
+  Storage.ensureDirectoryExists("/tools/panchanga");
+  Storage.ensureDirectoryExists(festivals::kDir);
+  Storage.ensureDirectoryExists("/tools/.cache");
+  Storage.put(std::string(festivals::kDir) + "/a-master.json",
+              R"({"calendar_title": "x", "notes": ["n1", "n2"], "festivals": [
+                {"date": "2020-10-25", "english_name": "Vijayadashami / Dasara", "kannada_name": "ವಿಜಯದಶಮಿ",
+                 "type": "festival", "is_public_holiday": true, "region": "Karnataka",
+                 "significance": "Victory of good."},
+                {"date": "2020-01-15", "english_name": "Makara Sankranti", "type": "festival",
+                 "is_public_holiday": false, "region": true}
+              ]})");
+  Storage.put(std::string(festivals::kDir) + "/b-mysuru.json",
+              R"([{"date": "2020-10-26", "english_name": "Mysuru Dasara", "location_scope": "Mysuru",
+                   "date_note": "Procession date."}])");
+  festivals::Calendar cal;
+  ASSERT_TRUE(cal.refresh());
+  EXPECT_EQ(cal.count(), 3u);
+  EXPECT_EQ(cal.layerCount(), 2);
+  festivals::Ref refs[4];
+  const int32_t oct25 = tools::daysFromCivil(2020, 10, 25);
+  ASSERT_EQ(cal.find(oct25, oct25 + 1, refs, 4), 2u);
+  festivals::Entry e;
+  ASSERT_TRUE(cal.read(refs[0], e, true));
+  EXPECT_STREQ(e.english, "Vijayadashami / Dasara");
+  EXPECT_EQ(e.holiday, 1);
+  EXPECT_STREQ(e.scope, "Karnataka");
+  EXPECT_STREQ(e.significance, "Victory of good.");
+  ASSERT_TRUE(cal.read(refs[1], e, true));
+  EXPECT_STREQ(e.english, "Mysuru Dasara");
+  EXPECT_STREQ(e.scope, "Mysuru");
+  EXPECT_STREQ(e.note, "Procession date.");
+  // The master layer decides Vijayadashami and Sankranti in 2020; Mysuru Dasara is its own event.
+  const uint16_t mask = cal.yearMask(2020);
+  EXPECT_TRUE(mask & (1u << festivals::kVijayadashami));
+  EXPECT_TRUE(mask & (1u << festivals::kMakaraSankranti));
+  EXPECT_FALSE(mask & (1u << festivals::kUgadi));
+  EXPECT_EQ(cal.yearMask(2021), 0);
+  // A changed layer is re-indexed; an unchanged card reuses the index.
+  Storage.put(std::string(festivals::kDir) + "/b-mysuru.json", "[]");
+  festivals::Calendar again;
+  ASSERT_TRUE(again.refresh());
+  EXPECT_EQ(again.count(), 2u);
+}
+
+TEST(Festivals, MappedNames) {
+  EXPECT_EQ(festivals::mappedFestival("Ganesh Chaturthi"), festivals::kGaneshaChaturthi);
+  EXPECT_EQ(festivals::mappedFestival("Krishna Janmashtami"), festivals::kJanmashtami);
+  EXPECT_EQ(festivals::mappedFestival("Mysuru Dasara"), -1);
+  EXPECT_EQ(festivals::mappedFestival("Republic Day"), -1);
+}
+
+// ---------------------------------------------------------------------------
+// Mantra library (the sample collection in sd-sample/tools/mantras)
+// ---------------------------------------------------------------------------
+
+TEST(Mantras, IndexesDeitiesRitualsAndKavacha) {
+  Storage.reset();
+  std::ifstream in(std::string(REPO_ROOT_DIR) + "/sd-sample/tools/mantras/mantras.json", std::ios::binary);
+  ASSERT_TRUE(in);
+  std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  Storage.ensureDirectoryExists("/tools");
+  Storage.ensureDirectoryExists(mantras::kDir);
+  Storage.put(mantras::kLibraryPath, bytes);
+  mantras::Library lib;
+  ASSERT_TRUE(lib.open());
+  EXPECT_EQ(lib.countOf(mantras::Kind::Deity), 35);
+  EXPECT_EQ(lib.countOf(mantras::Kind::Ritual), 14);
+  EXPECT_EQ(lib.countOf(mantras::Kind::KavachaSection), 8);
+  EXPECT_EQ(lib.kavachaCount(), 1);
+  EXPECT_GE(lib.mantraCount(), 800);
+
+  const int vishnu = lib.findDeity("vishnu");
+  ASSERT_GE(vishnu, 0);
+  mantras::Category c;
+  ASSERT_TRUE(lib.category(static_cast<uint16_t>(vishnu), c));
+  EXPECT_STREQ(c.english, "Vishnu");
+  EXPECT_EQ(c.count, 20);
+  auto m = std::make_unique<mantras::Mantra>();
+  ASSERT_TRUE(lib.read(c.first, *m));
+  EXPECT_NE(m->kannada[0], '\0');
+  EXPECT_NE(m->english[0], '\0');
+
+  // Rituals follow their "sequence": the morning routine starts with Karagre Vasate.
+  const int morning = lib.findCategory(mantras::Kind::Ritual, 0);
+  ASSERT_TRUE(lib.category(static_cast<uint16_t>(morning), c));
+  EXPECT_STREQ(c.english, "Morning routine");
+  ASSERT_TRUE(lib.read(c.first, *m));
+  EXPECT_EQ(std::string(m->english).rfind("Karagre", 0), 0u) << m->english;
+  EXPECT_EQ(lib.categoryOf(c.first), morning);
+
+  char about[2048];
+  EXPECT_TRUE(lib.kavachaAbout(0, false, about, sizeof(about)));
+  EXPECT_NE(std::string(about).find("Rishi"), std::string::npos) << about;
+
+  // A second open reuses the index.
+  mantras::Library again;
+  ASSERT_TRUE(again.open());
+  EXPECT_EQ(again.mantraCount(), lib.mantraCount());
 }

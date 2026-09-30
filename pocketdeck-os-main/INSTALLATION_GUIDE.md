@@ -94,9 +94,12 @@ From `sd-sample/` copy these folders to the **root** of the SD card:
 ```
 SD card (root)
 ├── tools/            sample quotes, flashcards, knowledge, habits, settings
+│   ├── fonts/        kannada.knf (21.8 MB): Kannada text for Panchanga, Mantras and your files
+│   ├── panchanga/festivals/  karnataka-1976-2075.json (festival and holiday calendar)
+│   ├── mantras/      mantras.json (35 deities, daily/ritual mantras, kavacha)
 │   ├── quotes.txt
 │   ├── flashcards/   ai_concepts.json, python_basics.json, sql_basics.json
-│   ├── knowledge/    AI.json, Python.json, SQL.json
+│   ├── knowledge/    AI.json, Python.json, SQL.json, Panchanga_Kannada.json
 │   ├── habits/       habits.txt
 │   ├── worldclock.txt, pomodoro.txt, daily.json
 ├── sleep/            example wallpapers (.bmp and .jpg)
@@ -104,8 +107,15 @@ SD card (root)
 ```
 
 Nothing breaks if you skip this. Each tool creates its own files and folders
-the first time you open it, but Quote, Flashcards and Knowledge have nothing to
-show until they have content.
+the first time you open it, but Quote, Flashcards, Knowledge and Mantras have
+nothing to show until they have content, and Kannada text needs
+`tools/fonts/kannada.knf` (without it the Panchanga shows English).
+
+> **The Kannada font is on the card, not in the firmware.** Copy
+> `tools/fonts/kannada.knf` with a card reader (it is 21.8 MB, which is slow
+> over WiFi). Keep the name and folder exactly as shown. The first time you
+> open Panchanga and Mantras they spend a few seconds preparing an index of
+> the festival and mantra files; after that they open at once.
 
 **Folders PocketDeck-OS creates for you:** `/tools`, `/tools/.cache`,
 `/tools/habits`, `/tools/medicine`, `/tools/mood`, `/tools/pomodoro`,
@@ -127,10 +137,18 @@ Habits, Medicine, Mood, Pomodoro stats, Quote-of-the-day and Panchanga need the 
 | Carousel with book stats | Settings > Display > UI Theme = **Lyra Carousel**; **Carousel book stats** on (default) or off for big covers |
 | Tilt page turn | Inside a book: Menu > **Book Options** > **Tilt Page Turn** (also Menu > gear > Controls, and Settings > Controls) |
 | Rotating wallpaper | Put pictures in `/sleep`, then Settings > Display > Sleep Screen: **Wallpaper = Custom**, **Change wallpaper = Every 30 min**. Help: **How to add wallpapers** in the same menu |
-| Panchanga language | Tools > Panchanga, **hold Confirm**, choose Kannada or English |
-| World Clock cities | Tools > World Clock, **hold Confirm**, pick a city slot, pick a city |
-| Habits | Tools > Habit Tracker, **hold Confirm** > Add a new habit (e.g. "Tender coconut water") |
-| Medicine course | Tools > Medicine, **Confirm** (or hold Confirm > Add a course): name, doses per day, length, start |
+| Panchanga language | Tools > Panchanga (second in the list), **Confirm (Menu)** > Switch to English / Kannada |
+| Pick any date 1976-2075 | Tools > Panchanga > **Menu > Calendar** (Left/Right day, Up/Down month, Confirm opens it) or **Menu > Go to month and year** (decade, year, month) |
+| Mantras | Tools > Mantras: **Left (Settings)** for meanings (Kannada and English, Kannada only, English only), mala size (108/54/27) and the daily ritual |
+| Pomodoro seconds | Shown by default (MM:SS). To save battery, add `seconds=0` to `/tools/pomodoro.txt` for whole minutes |
+| World Clock cities | Tools > World Clock, **Left (Cities)**, pick a city slot, pick a city |
+| Habits | Tools > Habit Tracker, **Left (Menu)** > Add a new habit (e.g. "Tender coconut water") |
+| Medicine course | Tools > Medicine, **Confirm** (or **Left (Menu)** > Add a course): name, doses per day, before/after food, length, start, then check the summary |
+| Favourite quotes | Tools > Daily Quote, **Confirm (Menu)** > Save as favourite |
+
+Every tool's hint bar names each button, and no two buttons share a name.
+**Left** opens a tool's **Menu** or **Stats** page; **Right** is always
+**Next**. Each stats page has an **Export** button for that tool.
 
 ---
 
@@ -170,7 +188,7 @@ One quote per line, UTF-8 text:
 
 - `YYYY-MM-DD|…` shows on that exact date.
 - `MM-DD|…` shows on that day every year.
-- `*|…` has no date: it only appears as a random pick. Random picks (**Shuffle**, or a day with no dated quote) come from the whole file.
+- `*|…` has no date: it only appears as a random pick. Random picks (**Menu > Random quote**, or a day with no dated quote) come from the whole file.
 - Text after ` — ` (space, em dash, space) is shown as the author.
 - Keep one line per quote. Up to 2,048 bytes per line; long quotes page with Up/Down.
 
@@ -222,11 +240,83 @@ Questions with longer, paged answers. The topic list shows file names.
 | File | Format |
 | --- | --- |
 | `/tools/habits/habits.txt` | one habit name per line, up to 12 |
-| `/tools/medicine/courses.txt` | `id\|name\|doses per day\|days\|start YYYY-MM-DD\|stopped or -\|times` e.g. `c1\|Paracetamol\|3\|4\|2026-09-27\|-\|08:00,13:00,19:00` |
+| `/tools/medicine/courses.txt` | `id\|name\|doses per day\|days\|start YYYY-MM-DD\|stopped or -\|times\|food` e.g. `c1\|Paracetamol\|3\|4\|2026-09-27\|-\|08:00,13:00,19:00\|after` (food: `before`, `after`, `with` or `-`; older 7-field lines still work) |
+| `/tools/quotes/favorites.txt` | favourite quotes, one per line (written by the device) |
 | `/tools/worldclock.txt` | `Name\|+5:30\|NONE` (DST rules: US, EU, AU, NZ, NONE), max 4 lines |
 | `/tools/panchanga.txt` | `lat=`, `lon=`, `tz=`, `animate=1`, `lang=kn` or `lang=en` |
 
-### 3.6 Wallpapers → `/sleep/`
+### 3.6 Festival calendars → `/tools/panchanga/festivals/*.json`
+
+Every `.json` file in this folder is one **layer**, and all layers show on a date:
+
+| Layer (example file) | What it holds |
+| --- | --- |
+| `karnataka-1976-2075.json` (included) | Master calendar: festivals, jayantis, vratas and state holidays |
+| `mysuru.json` (your own) | Venue dates, e.g. "Mysuru Dasara" when it differs from Vijayadashami |
+| `holidays-2027.json` (your own) | This year's government holiday notification |
+
+Format: `{"festivals": [ {...}, ... ]}` (or just the list). Each entry needs a
+`"date": "YYYY-MM-DD"` and a name; the rest is shown when present:
+
+```json
+{"festivals": [
+  {"date": "2020-10-26", "kannada_name": "ಮೈಸೂರು ದಸರಾ", "english_name": "Mysuru Dasara",
+   "type": "festival", "is_public_holiday": true, "location_scope": "Mysuru",
+   "date_note": "Procession date; differs from the general Vijayadashami date."}
+]}
+```
+
+- Up to 8 files and 6,000 entries in total. A file is re-read automatically
+  when it is added, removed or changes size.
+- For Ugadi, Janmashtami, Ganesh Chaturthi, Navaratri, Vijayadashami, Deepavali,
+  Shivaratri and Makara Sankranti, a year that a layer lists uses **the layer's
+  date**; years it does not list (and the monthly Ekadashi, Hunnime, Amavasya
+  and Sankashti) come from the Panchanga's own calculation. "Mysuru Dasara"
+  counts as its own event, so it never hides Vijayadashami.
+- **Menu > About this day** shows every entry for a date with its type,
+  holiday status, place, note, meaning and the file it came from.
+
+### 3.7 Mantras → `/tools/mantras/mantras.json`
+
+The included file has 35 deities (20 mantras each), 100 daily and ritual
+mantras in 14 categories, and the Sri Vishwakarma Kavacham. To use your own,
+keep the same structure:
+
+```json
+{"vedic_mantras_collection": {
+   "vishnu": {"deity_kannada": "ವಿಷ್ಣು", "deity_english": "Vishnu",
+              "mantras": [{"kannada": "ಓಂ ನಮೋ ನಾರಾಯಣಾಯ", "english": "Om Namo Narayanaya",
+                           "meaning_english": "...", "meaning_kannada": "..."}]},
+   "additional_ritualistic_mantras": {"mantras": [
+     {"kannada": "...", "english": "...", "category": "Morning routine", "sequence": 1,
+      "use": "Waking in the morning"}]}},
+ "kavacha_collection": [{"name_kannada": "...", "name_english": "...",
+   "rishi": {"kannada": "...", "english": "..."},
+   "sections": {"dhyana": {"title_kannada": "...", "title_english": "...", "mantras": [...]}}}]}
+```
+
+- **Deities** come from `vedic_mantras_collection`; **daily and ritual
+  mantras** are grouped by `"category"` in order of `"sequence"`; each
+  **kavacha** lists its sections, an **About** page (rishi, chandas, devata,
+  beeja, shakti, keelaka, phalashruti) and **Read** (the whole kavacha).
+- **Today's mantra** is the weekday's deity (Sunday Surya, Monday Shiva, Tuesday
+  Hanuman, Wednesday Vishnu, Thursday Dattatreya, Friday Lakshmi, Saturday
+  Venkateshwara) with a new mantra each week. Change the deities with the
+  `days=` line in `/tools/mantras/settings.txt`.
+- **Start daily ritual** plays one ritual category (default "Morning routine");
+  choose another with **Left (Change)**.
+- **Japa counter:** Confirm or the side buttons count; Left undoes; Right
+  resets (after asking). Every session is logged in
+  `/tools/mantras/log-YYYY-MM.txt`; each full mala is saved at once.
+
+### 3.8 Kannada in your own files
+
+Quotes, flashcards and knowledge files can be written in Kannada (UTF-8), or
+mix Kannada and English; they are drawn with the Kannada font. Formatting
+(`# heading`, `- bullet`, `1.` lists, `**bold**`) works the same. The sample
+`knowledge/Panchanga_Kannada.json` shows the format.
+
+### 3.9 Wallpapers → `/sleep/`
 
 - `.bmp` shows at once; `.jpg` is converted once into a `.bmp` copy next to it (two per sleep).
 - The best size for the X3 is 528 × 792 pixels, portrait. Grayscale with good contrast looks best on e-ink.
@@ -244,17 +334,20 @@ Questions with longer, paged answers. The topic list shows file names.
 /stats/habits/habits.json         /stats/pomodoro/pomodoro.json
 /stats/medicine/medicine.json     /stats/today/today.json
 /stats/mood/mood.json             /stats/flashcards/flashcards.json
+/stats/knowledge/knowledge.json   /stats/quotes/quotes.json
+/stats/mantras/mantras.json
 /stats/reading/library.json       /stats/reading/global.json
 /stats/reading/books/<book>.json  (one per book)
 ```
 
+Each tool's own stats page also has **Export** (Confirm) for just that tool.
 Copy `/stats` and `/tools` to your computer as a backup.
 
 ### Moving books to another card or device
 
 1. On the old card: **Tools > Stats & export > Confirm**.
 2. Copy the books (in the **same folders**) and the `/stats` folder to the new card.
-3. On the new card: **Tools > Stats & export**, **hold Confirm**, then **Confirm**.
+3. On the new card: **Tools > Stats & export**, press **Left (Import)**, then confirm.
    Progress, reading time, bookmarks, clippings and looked-up words come back.
    Anything already on the new card is never overwritten.
 

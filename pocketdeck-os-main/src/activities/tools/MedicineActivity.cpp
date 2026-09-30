@@ -59,37 +59,46 @@ bool MedicineActivity::todayIndex(const meds::Course& c, int& index) const {
 }
 
 void MedicineActivity::openMenu() {
+  enum Action : uint8_t { Add, Details, Stop, Delete };
   std::vector<std::string> options;
+  std::vector<uint8_t> actions;
   options.reserve(4);
-  options.emplace_back(tr(STR_TOOLS_MED_ADD));
-  const bool hasCourse = count_ > 0;
-  const bool canStop = hasCourse && meds::statusOf(courses_[selected_], today_) == meds::Status::Active;
-  if (hasCourse) {
-    options.emplace_back(std::string(tr(STR_TOOLS_MED_DETAILS)) + ": " + courses_[selected_].name);
-    if (canStop) options.emplace_back(std::string(tr(STR_TOOLS_MED_STOP)) + ": " + courses_[selected_].name);
-    options.emplace_back(std::string(tr(STR_TOOLS_MED_DELETE)) + ": " + courses_[selected_].name);
+  actions.reserve(4);
+  auto add = [&](const Action a, std::string label) {
+    options.push_back(std::move(label));
+    actions.push_back(a);
+  };
+  if (count_ > 0) {
+    const meds::Course& c = courses_[selected_];
+    add(Details, std::string(tr(STR_TOOLS_MED_DETAILS)) + ": " + c.name);
+    if (meds::statusOf(c, today_) == meds::Status::Active) add(Stop, std::string(tr(STR_TOOLS_MED_STOP)) + ": " + c.name);
   }
+  if (count_ < meds::kMaxCourses) add(Add, tr(STR_TOOLS_MED_ADD));
+  if (count_ > 0) add(Delete, std::string(tr(STR_TOOLS_MED_DELETE)) + ": " + courses_[selected_].name);
   auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "MedicineMenu",
                                                            StrId::STR_TOOLS_MEDICINE, std::move(options), 0);
   if (!picker) return;
-  startActivityForResult(std::move(picker), [this, canStop](const ActivityResult& result) {
+  startActivityForResult(std::move(picker), [this, actions](const ActivityResult& result) {
     input_.reset(mappedInput);
     transitionPending_ = true;
     const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
-    if (result.isCancelled || sel == nullptr) {
+    if (result.isCancelled || sel == nullptr || sel->index >= actions.size()) {
       requestUpdate();
       return;
     }
-    int choice = sel->index;
-    if (choice >= 2 && !canStop) ++choice;  // "Stop" row was hidden
-    if (choice == 0) {
-      addCourseName();
-    } else if (choice == 1) {
-      openDetails();
-    } else if (choice == 2) {
-      stopCourse();
-    } else {
-      deleteCourse();
+    switch (actions[sel->index]) {
+      case Add:
+        addCourseName();
+        break;
+      case Details:
+        openDetails();
+        break;
+      case Stop:
+        stopCourse();
+        break;
+      default:
+        deleteCourse();
+        break;
     }
   });
 }
@@ -136,6 +145,29 @@ void MedicineActivity::addCourseDoses() {
     }
     draft_.doses = static_cast<uint8_t>(sel->index + 1);
     meds::defaultSlots(draft_.doses, draft_.slotMinute);
+    addCourseFood();
+  });
+}
+
+void MedicineActivity::addCourseFood() {
+  std::vector<std::string> options;
+  options.reserve(meds::FoodCount);
+  options.emplace_back(tr(STR_TOOLS_MED_FOOD_AFTER));
+  options.emplace_back(tr(STR_TOOLS_MED_FOOD_BEFORE));
+  options.emplace_back(tr(STR_TOOLS_MED_FOOD_WITH));
+  options.emplace_back(tr(STR_TOOLS_MED_FOOD_ANY));
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "MedicineFood",
+                                                           StrId::STR_TOOLS_MED_FOOD, std::move(options), 0);
+  if (!picker) return;
+  startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (result.isCancelled || sel == nullptr) {
+      requestUpdate();
+      return;
+    }
+    static constexpr uint8_t kRowFood[] = {meds::FoodAfter, meds::FoodBefore, meds::FoodWith, meds::FoodAny};
+    draft_.food = kRowFood[sel->index < 4 ? sel->index : 3];
     addCourseDays();
   });
 }
@@ -171,15 +203,62 @@ void MedicineActivity::addCourseStart() {
   if (!picker) return;
   startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
     input_.reset(mappedInput);
-    transitionPending_ = true;
     const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
-    if (!result.isCancelled && sel != nullptr && count_ < meds::kMaxCourses) {
-      draft_.start = today_ + (sel->index == 1 ? 1 : 0);
+    if (result.isCancelled || sel == nullptr) {
+      transitionPending_ = true;
+      requestUpdate();
+      return;
+    }
+    draft_.start = today_ + (sel->index == 1 ? 1 : 0);
+    confirmCourse();
+  });
+}
+
+void MedicineActivity::confirmCourse() {
+  // "Starts Mon 28 Sep, ends Fri 2 Oct. 3 a day at 08:00, 13:00, 19:00,
+  //  after food. 12 doses in all."
+  char start[16], end[16];
+  tools::formatShortDate(start, sizeof(start), draft_.start);
+  tools::formatShortDate(end, sizeof(end), draft_.lastDay());
+  std::string body;
+  body.reserve(200);
+  body += tr(STR_TOOLS_MED_STARTS);
+  body += " ";
+  body += tools::weekdayShortName(tools::weekdayMon0(draft_.start));
+  body += " ";
+  body += start;
+  body += ", ";
+  body += tr(STR_TOOLS_MED_ENDS_LOWER);
+  body += " ";
+  body += tools::weekdayShortName(tools::weekdayMon0(draft_.lastDay()));
+  body += " ";
+  body += end;
+  body += ". ";
+  body += std::to_string(draft_.doses) + " " + tr(STR_TOOLS_MED_PER_DAY) + ":";
+  for (int d = 0; d < draft_.doses; ++d) {
+    char hm[8];
+    charts::formatMinute(hm, sizeof(hm), draft_.slotMinute[d]);
+    body += d == 0 ? " " : ", ";
+    body += meds::slotName(draft_.doses, d);
+    body += " ";
+    body += hm;
+  }
+  if (draft_.food != meds::FoodAny) {
+    body += ", ";
+    body += meds::foodLabel(draft_.food);
+  }
+  body += ". " + std::to_string(draft_.doses * draft_.days) + " " + tr(STR_TOOLS_MED_DOSES_IN_ALL);
+  const std::string heading = std::string(tr(STR_TOOLS_MED_ADD)) + ": " + draft_.name + ".";
+  auto confirm = makeUniqueNoThrow<ConfirmationActivity>(renderer, mappedInput, heading, body);
+  if (!confirm) return;
+  startActivityForResult(std::move(confirm), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    if (!result.isCancelled && count_ < meds::kMaxCourses) {
       meds::makeId(draft_.id, draft_.name, today_, nowMinute_);
       RenderLock lock(*this);
       courses_[count_] = draft_;
       if (meds::save(courses_, count_ + 1)) {
-        selected_ = count_;
         reload();
         selected_ = count_ - 1;
       }
@@ -295,9 +374,16 @@ void MedicineActivity::loop() {
     return;
   }
   if (screen_ == Screen::Details) {
-    if (input_.back || input_.confirm) {
+    if (exportState_ == 1) {
+      exportState_ = statsx::exportFeature(statsx::Feature::Medicine).ok ? 2 : 3;
+      requestUpdate();
+    } else if (input_.back) {
       screen_ = Screen::List;
+      exportState_ = 0;
       transitionPending_ = true;
+      requestUpdate();
+    } else if (input_.confirm) {
+      exportState_ = 1;
       requestUpdate();
     }
     return;
@@ -307,7 +393,7 @@ void MedicineActivity::loop() {
     return;
   }
   if (!clockValid_) return;
-  if (input_.confirmLong) {
+  if (input_.leftUp) {
     openMenu();
     return;
   }
@@ -323,9 +409,8 @@ void MedicineActivity::loop() {
     selected_ = (selected_ + 1) % count_;
     slot_ = 0;
     requestUpdate();
-  } else if (input_.left || input_.right) {
-    const int doses = courses_[selected_].doses;
-    slot_ = (slot_ + (input_.left ? doses - 1 : 1)) % doses;
+  } else if (input_.right) {
+    slot_ = (slot_ + 1) % courses_[selected_].doses;
     requestUpdate();
   } else if (input_.confirm) {
     meds::Course& c = courses_[selected_];
@@ -366,8 +451,9 @@ void MedicineActivity::renderList(const Rect& content) {
     // Day count stops at the stop day (or the planned end) once a course is over.
     const int dayNo =
         std::clamp(static_cast<int>(std::min<int32_t>(today_, c.endDay()) - c.start + 1), 0, static_cast<int>(c.days));
-    snprintf(line, sizeof(line), "%s %d / %u  -  %d / %d %s", tr(STR_TOOLS_MED_DAY), dayNo,
-             static_cast<unsigned>(c.days), c.takenCount(), c.doses * c.days, tr(STR_TOOLS_MED_DOSES_TAKEN));
+    snprintf(line, sizeof(line), "%s %d / %u  -  %d / %d %s%s%s", tr(STR_TOOLS_MED_DAY), dayNo,
+             static_cast<unsigned>(c.days), c.takenCount(), c.doses * c.days, tr(STR_TOOLS_MED_DOSES_TAKEN),
+             c.food != meds::FoodAny ? "  -  " : "", meds::foodLabel(c.food));
     renderer.drawText(UI_10_FONT_ID, content.x, y + nameH + 2, line);
     int idx = 0;
     if (!todayIndex(c, idx)) {
@@ -399,6 +485,22 @@ void MedicineActivity::renderList(const Rect& content) {
 void MedicineActivity::renderDetails(const Rect& content) {
   const meds::Course& c = courses_[selected_];
   int y = content.y;
+  {
+    // "3 a day: 08:00, 13:00, 19:00 - After food"
+    std::string when = std::to_string(c.doses) + " " + tr(STR_TOOLS_MED_PER_DAY) + ":";
+    for (int d = 0; d < c.doses; ++d) {
+      char hm[8];
+      charts::formatMinute(hm, sizeof(hm), c.slotMinute[d]);
+      when += d == 0 ? " " : ", ";
+      when += hm;
+    }
+    if (c.food != meds::FoodAny) {
+      when += "  -  ";
+      when += meds::foodLabel(c.food);
+    }
+    renderer.drawText(UI_10_FONT_ID, content.x, y, when.c_str(), true, EpdFontFamily::BOLD);
+    y += renderer.getLineHeight(UI_10_FONT_ID) + 8;
+  }
   y += charts::statGrid(renderer, Rect{content.x, y, content.width, 0}, 2, stats_, 10) + 8;
   // Dose grid: one column per day, one row per dose; filled = taken,
   // outlined = missed, dotted = still to come.
@@ -436,14 +538,20 @@ void MedicineActivity::render(RenderLock&&) {
     renderer.drawCenteredText(UI_10_FONT_ID, content.y + content.height / 2 + 10, tr(STR_TOOLS_SYNC_FROM_WORLD_CLOCK));
     tools::drawHints(renderer, mappedInput, tr(STR_BACK), "", "", "");
   } else if (details) {
-    renderDetails(content);
-    tools::drawHints(renderer, mappedInput, tr(STR_BACK), "", "", "");
+    const int footH = renderer.getLineHeight(SMALL_FONT_ID) + 4;
+    renderDetails(Rect{content.x, content.y, content.width, content.height - footH});
+    char foot[64];
+    snprintf(foot, sizeof(foot), "%s",
+             exportState_ == 1   ? tr(STR_TOOLS_STATS_EXPORTING)
+             : exportState_ == 2 ? tr(STR_TOOLS_STATS_SAVED_MEDICINE)
+             : exportState_ == 3 ? tr(STR_TOOLS_STATS_EXPORT_FAILED)
+                                 : tr(STR_TOOLS_STATS_EXPORT_MEDICINE_HINT));
+    renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - footH + 2, foot);
+    tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_STATS_EXPORT), "", "");
   } else {
-    const int hintH = renderer.getLineHeight(SMALL_FONT_ID) + 4;
-    renderList(Rect{content.x + 8, content.y, content.width - 8, content.height - hintH});
-    renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - hintH + 2, tr(STR_TOOLS_MED_HOLD_HINT));
-    tools::drawHints(renderer, mappedInput, tr(STR_BACK), count_ > 0 ? tr(STR_TOOLS_TOGGLE) : tr(STR_TOOLS_MED_ADD),
-                     tr(STR_DIR_LEFT), tr(STR_DIR_RIGHT));
+    renderList(Rect{content.x + 8, content.y, content.width - 8, content.height});
+    tools::drawHints(renderer, mappedInput, tr(STR_BACK), count_ > 0 ? tr(STR_TOOLS_MED_TICK) : tr(STR_TOOLS_MED_ADD),
+                     tr(STR_TOOLS_MENU), count_ > 0 ? tr(STR_TOOLS_MED_NEXT_DOSE) : "");
   }
   const bool transition = transitionPending_;
   transitionPending_ = false;

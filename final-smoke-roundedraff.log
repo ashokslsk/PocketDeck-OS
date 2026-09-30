@@ -1,4 +1,4 @@
-Running simulator smoke test with isolated fs_: /var/folders/h9/qcmb2q1n1tv0vgdr93b298680000gn/T/crossink-sim-smoke-7sxesnwp/fs_
+Running simulator smoke test with isolated fs_: /var/folders/h9/qcmb2q1n1tv0vgdr93b298680000gn/T/crossink-sim-smoke-d6lqvch3/fs_
 [0] [INF] [BOOT] Reset diagnostic: reset=0(UNKNOWN) sleepWake=0(UNDEFINED)
 [0] [INF] [MAIN] Hardware detect: X4
 [0] [INF] [BOOT] Post-GPIO diagnostic: device=X4 usb=1 silentReboot=0 silentTarget=0
@@ -11,29 +11,26 @@ SIMRESOURCE mode=off calibrated=0 internal=1048576/1048576 largest=1048576 psram
 [0] [DBG] [BOOTMEM] boot state ready: free=1048576 maxAlloc=1048576
 [0] [DBG] [MAIN] Starting CrossInk version 1.6.0
 [0] [INF] [MEM] Boot: heap free=1048576 total=1048576 min=1048576 maxAlloc=1048576
-[0] [DBG] [ACT] Render task started with 16384-byte stack
-[0] [DBG] [SDFS] SD font resolver ready; discovery deferred until requested
-[0] [DBG] [BOOTMEM] display and selected fonts ready: free=1048576 maxAlloc=1048576
-[0] [DBG] [ACT] Entering activity: Boot
+[1] [DBG] [ACT] Render task started with 16384-byte stack
+[1] [DBG] [SDFS] SD font resolver ready; discovery deferred until requested
+[1] [DBG] [BOOTMEM] display and selected fonts ready: free=1048576 maxAlloc=1048576
+[1] [DBG] [ACT] Entering activity: Boot
 [SIM] open failed: ./fs_/.bootscreen (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/bootscreen (flags=0x0 errno=2 No such file or directory)
-[2] [DBG] [ACT] Exiting activity: Boot
-[2] [DBG] [ACT] Entering activity: Home
+[3] [DBG] [ACT] Exiting activity: Boot
+[3] [DBG] [ACT] Entering activity: Home
 [SIM] open failed: ./fs_/.pocketdeck-os/global_stats.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/global_stats.bin.bak (flags=0x0 errno=2 No such file or directory)
-[2] [DBG] [GSTATS] Global stats missing or corrupt, starting fresh
+[3] [DBG] [GSTATS] Global stats missing or corrupt, starting fresh
 [SIM] open failed: ./fs_/.pocketdeck-os/synced_stats (flags=0x0 errno=2 No such file or directory)
-[2] [INF] [SMOKE] Starting simulator smoke test
-[3] [DBG] [CPS] Settings loaded from file
-[3] [DBG] [CPS] Settings loaded from file
-[3] [DBG] [CPS] Settings loaded from file
-[3] [DBG] [CPS] Settings loaded from file
-[3] [DBG] [CPS] Settings loaded from file
-[3] [DBG] [CPS] Settings loaded from file
+[3] [INF] [SMOKE] Starting simulator smoke test
 [4] [DBG] [CPS] Settings loaded from file
 [4] [DBG] [CPS] Settings loaded from file
 [4] [DBG] [CPS] Settings loaded from file
 [4] [DBG] [CPS] Settings loaded from file
+[4] [DBG] [CPS] Settings loaded from file
+[4] [DBG] [CPS] Settings loaded from file
+[5] [DBG] [CPS] Settings loaded from file
 [5] [DBG] [CPS] Settings loaded from file
 [5] [DBG] [CPS] Settings loaded from file
 [6] [DBG] [CPS] Settings loaded from file
@@ -41,190 +38,197 @@ SIMRESOURCE mode=off calibrated=0 internal=1048576/1048576 largest=1048576 psram
 [6] [DBG] [CPS] Settings loaded from file
 [7] [DBG] [CPS] Settings loaded from file
 [7] [DBG] [CPS] Settings loaded from file
-[7] [DBG] [UI] Using RoundedRaff theme
-[7] [INF] [SMOKE] Using theme index 3
-[23] [DBG] [ACT] Exiting activity: Home
-[23] [DBG] [ACT] Entering activity: Home
+[7] [DBG] [CPS] Settings loaded from file
+[8] [DBG] [CPS] Settings loaded from file
+[8] [DBG] [CPS] Settings loaded from file
+[8] [DBG] [UI] Using RoundedRaff theme
+[8] [INF] [SMOKE] Using theme index 3
+[28] [DBG] [ACT] Exiting activity: Home
+[28] [DBG] [ACT] Entering activity: Home
 [SIM] open failed: ./fs_/.pocketdeck-os/global_stats.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/global_stats.bin.bak (flags=0x0 errno=2 No such file or directory)
-[23] [DBG] [GSTATS] Global stats missing or corrupt, starting fresh
+[28] [DBG] [GSTATS] Global stats missing or corrupt, starting fresh
 [SIM] open failed: ./fs_/.pocketdeck-os/synced_stats (flags=0x0 errno=2 No such file or directory)
-[56] [INF] [SMOKE] Rendering Home
-[89] [DBG] [ACT] Exiting activity: Home
-[89] [DBG] [ACT] Entering activity: Tools
-[119] [INF] [SMOKE] Rendering Tools
-[152] [DBG] [ACT] Exiting activity: Tools
-[152] [DBG] [ACT] Entering activity: DailyCommandCenter
-[182] [INF] [SMOKE] Rendering Tools: Today
-[216] [DBG] [ACT] Exiting activity: DailyCommandCenter
-[216] [DBG] [ACT] Entering activity: Pomodoro
-[248] [INF] [SMOKE] Rendering Tools: Pomodoro
-[283] [DBG] [ACT] Exiting activity: Pomodoro
-[283] [DBG] [ACT] Entering activity: WorldClock
-[315] [INF] [SMOKE] Rendering Tools: World Clock
-[349] [DBG] [ACT] Exiting activity: WorldClock
-[349] [DBG] [ACT] Entering activity: HabitTracker
-[380] [INF] [SMOKE] Rendering Tools: Habits
-[415] [DBG] [ACT] Exiting activity: HabitTracker
-[415] [DBG] [ACT] Entering activity: DailyQuote
-[446] [INF] [SMOKE] Rendering Tools: Daily Quote
-[479] [DBG] [ACT] Exiting activity: DailyQuote
-[479] [DBG] [ACT] Entering activity: Knowledge
-[510] [INF] [SMOKE] Rendering Tools: Knowledge Card
-[543] [DBG] [ACT] Exiting activity: Knowledge
-[543] [DBG] [ACT] Entering activity: Flashcards
-[575] [INF] [SMOKE] Rendering Tools: Flashcards
-[609] [DBG] [ACT] Exiting activity: Flashcards
-[609] [DBG] [ACT] Entering activity: Panchanga
-[641] [INF] [SMOKE] Rendering Tools: Panchanga
-[682] [DBG] [ACT] Exiting activity: Panchanga
-[682] [DBG] [ACT] Entering activity: FileBrowser
-[714] [INF] [SMOKE] Rendering File Browser
-[747] [DBG] [ACT] Exiting activity: FileBrowser
-[747] [DBG] [ACT] Entering activity: RecentBooks
-[777] [INF] [SMOKE] Rendering Recent Books
-[817] [DBG] [ACT] Exiting activity: RecentBooks
-[817] [DBG] [ACT] Entering activity: Settings
+[63] [INF] [SMOKE] Rendering Home
+[98] [DBG] [ACT] Exiting activity: Home
+[98] [DBG] [ACT] Entering activity: Tools
+[128] [INF] [SMOKE] Rendering Tools
+[163] [DBG] [ACT] Exiting activity: Tools
+[163] [DBG] [ACT] Entering activity: DailyCommandCenter
+[197] [INF] [SMOKE] Rendering Tools: Today
+[235] [DBG] [ACT] Exiting activity: DailyCommandCenter
+[235] [DBG] [ACT] Entering activity: Pomodoro
+[271] [INF] [SMOKE] Rendering Tools: Pomodoro
+[303] [DBG] [ACT] Exiting activity: Pomodoro
+[303] [DBG] [ACT] Entering activity: WorldClock
+[334] [INF] [SMOKE] Rendering Tools: World Clock
+[364] [DBG] [ACT] Exiting activity: WorldClock
+[364] [DBG] [ACT] Entering activity: HabitTracker
+[396] [INF] [SMOKE] Rendering Tools: Habits
+[429] [DBG] [ACT] Exiting activity: HabitTracker
+[429] [DBG] [ACT] Entering activity: DailyQuote
+[429] [INF] [KNF] No Kannada font at /tools/fonts/kannada.knf
+[458] [INF] [SMOKE] Rendering Tools: Daily Quote
+[494] [DBG] [ACT] Exiting activity: DailyQuote
+[494] [DBG] [ACT] Entering activity: Knowledge
+[494] [INF] [KNF] No Kannada font at /tools/fonts/kannada.knf
+[524] [INF] [SMOKE] Rendering Tools: Knowledge Card
+[555] [DBG] [ACT] Exiting activity: Knowledge
+[555] [DBG] [ACT] Entering activity: Flashcards
+[555] [INF] [KNF] No Kannada font at /tools/fonts/kannada.knf
+[584] [INF] [SMOKE] Rendering Tools: Flashcards
+[618] [DBG] [ACT] Exiting activity: Flashcards
+[618] [DBG] [ACT] Entering activity: Panchanga
+[619] [INF] [KNF] No Kannada font at /tools/fonts/kannada.knf
+[654] [INF] [SMOKE] Rendering Tools: Panchanga
+[688] [DBG] [ACT] Exiting activity: Panchanga
+[688] [DBG] [ACT] Entering activity: FileBrowser
+[718] [INF] [SMOKE] Rendering File Browser
+[748] [DBG] [ACT] Exiting activity: FileBrowser
+[748] [DBG] [ACT] Entering activity: RecentBooks
+[779] [INF] [SMOKE] Rendering Recent Books
+[811] [DBG] [ACT] Exiting activity: RecentBooks
+[811] [DBG] [ACT] Entering activity: Settings
 [SIM] open failed: ./fs_/.dictionaries (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/dictionaries (flags=0x0 errno=2 No such file or directory)
-[818] [DBG] [DREG] No dictionary directory found on SD card
-[851] [INF] [SMOKE] Rendering Settings
-[886] [DBG] [ACT] Exiting activity: Settings
-[886] [DBG] [UI] Using RoundedRaff theme
-[886] [DBG] [ACT] Entering activity: ReaderOptions
+[811] [DBG] [DREG] No dictionary directory found on SD card
+[843] [INF] [SMOKE] Rendering Settings
+[872] [DBG] [ACT] Exiting activity: Settings
+[872] [DBG] [UI] Using RoundedRaff theme
+[872] [DBG] [ACT] Entering activity: ReaderOptions
 [SIM] open failed: ./fs_/.dictionaries (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/dictionaries (flags=0x0 errno=2 No such file or directory)
-[886] [DBG] [DREG] No dictionary directory found on SD card
-[917] [INF] [SMOKE] Rendering Reader Options
-[951] [DBG] [ACT] Exiting activity: ReaderOptions
-[951] [DBG] [ACT] Entering activity: EpubReaderMenu
-[985] [INF] [SMOKE] Rendering Reader Menu
-[1003] [DBG] [ACT] Exiting activity: EpubReaderMenu
-[1003] [DBG] [ACT] Entering activity: Sleep
-[1056] [INF] [SMOKE] Rendering Sleep
-[1081] [DBG] [ACT] Exiting activity: Sleep
-[1081] [DBG] [ACT] Entering activity: Reader
+[872] [DBG] [DREG] No dictionary directory found on SD card
+[902] [INF] [SMOKE] Rendering Reader Options
+[932] [DBG] [ACT] Exiting activity: ReaderOptions
+[932] [DBG] [ACT] Entering activity: EpubReaderMenu
+[959] [INF] [SMOKE] Rendering Reader Menu
+[978] [DBG] [ACT] Exiting activity: EpubReaderMenu
+[978] [DBG] [ACT] Entering activity: Sleep
+[1024] [INF] [SMOKE] Rendering Sleep
+[1054] [DBG] [ACT] Exiting activity: Sleep
+[1054] [DBG] [ACT] Entering activity: Reader
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/reader_settings.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/book.bin (flags=0x0 errno=2 No such file or directory)
-[1086] [DBG] [EBP] Cache not found, building spine/TOC cache
-[1087] [DBG] [ZIP] Stream META-INF/container.xml: ok=1 lookup=34us read/inflate=11us write=43us bytes=252
-[1089] [DBG] [COF] Using chunked manifest index for 8 items in 1 chunks (arena high-water=3856 bytes)
-[1089] [DBG] [ZIP] Stream OEBPS/content.opf: ok=1 lookup=140us read/inflate=16us write=464us bytes=1301
-[1089] [DBG] [ZIP] Stream OEBPS/nav.xhtml: ok=1 lookup=85us read/inflate=14us write=85us bytes=765
-[1090] [DBG] [EBP] Total indexing completed in 3 ms
-[1090] [DBG] [ZIP] Stream OEBPS/styles/test.css: ok=1 lookup=74us read/inflate=14us write=25us bytes=1219
-[1093] [DBG] [EBP] Loaded 23 complete CSS style rules from 1/1 files
-[1093] [DBG] [ACT] Exiting activity: Reader
-[1093] [DBG] [ACT] Entering activity: EpubReader
-[1093] [INF] [EPS] reader enter: internal free=1048576 max=1048576; psram free=0 max=0 total=0
+[1057] [DBG] [EBP] Cache not found, building spine/TOC cache
+[1057] [DBG] [ZIP] Stream META-INF/container.xml: ok=1 lookup=34us read/inflate=11us write=42us bytes=252
+[1058] [DBG] [COF] Using chunked manifest index for 8 items in 1 chunks (arena high-water=3856 bytes)
+[1058] [DBG] [ZIP] Stream OEBPS/content.opf: ok=1 lookup=76us read/inflate=12us write=380us bytes=1301
+[1058] [DBG] [ZIP] Stream OEBPS/nav.xhtml: ok=1 lookup=41us read/inflate=12us write=68us bytes=765
+[1059] [DBG] [EBP] Total indexing completed in 2 ms
+[1059] [DBG] [ZIP] Stream OEBPS/styles/test.css: ok=1 lookup=68us read/inflate=13us write=13us bytes=1219
+[1061] [DBG] [EBP] Loaded 23 complete CSS style rules from 1/1 files
+[1061] [DBG] [ACT] Exiting activity: Reader
+[1062] [DBG] [ACT] Entering activity: EpubReader
+[1062] [INF] [EPS] reader enter: internal free=1048576 max=1048576; psram free=0 max=0 total=0
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/stats_v5.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/stats_v4.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/stats.bin (flags=0x0 errno=2 No such file or directory)
-[1093] [DBG] [ERS] Reading stats loaded: totalReadingSeconds=0 totalPagesTurned=0 avg=0 samples=0 cumulativeAvg=0
+[1062] [DBG] [ERS] Reading stats loaded: totalReadingSeconds=0 totalPagesTurned=0 avg=0 samples=0 cumulativeAvg=0
 [SIM] open failed: ./fs_/.pocketdeck-os/global_stats.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/global_stats.bin.bak (flags=0x0 errno=2 No such file or directory)
-[1093] [DBG] [GSTATS] Global stats missing or corrupt, starting fresh
-[1094] [DBG] [ERS] Loading file: OEBPS/chapter1.xhtml, index: 0 (free=1048576, maxAlloc=1048576)
+[1062] [DBG] [GSTATS] Global stats missing or corrupt, starting fresh
+[1062] [DBG] [ERS] Loading file: OEBPS/chapter1.xhtml, index: 0 (free=1048576, maxAlloc=1048576)
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/sections/0.bin (flags=0x0 errno=2 No such file or directory)
-[1094] [DBG] [ERS] Cache not found, building... (free=1048576, maxAlloc=1048576)
-[1097] [DBG] [SCT] Create section start: spine=0 mode=0 preview=0 viewport=464x761 image=0 focus=0 guide=0 free=1048576 maxAlloc=1048576
-[1097] [INF] [EPS] section build start: internal free=1048576 max=1048576; psram free=0 max=0 total=0
-[1098] [DBG] [ZIP] Stream OEBPS/chapter1.xhtml: ok=1 lookup=306us read/inflate=20us write=54us bytes=1330
-[1099] [DBG] [CSS] Rule arena: bytes=3784 pool=internal psramReserve=131072; hydrated
-[1100] [DBG] [CSS] Loaded 23 indexed rules + 0 descendant rules from complete cache
-[1100] [DBG] [SCT] CSS cache load: ok=1 partial=0 rules=23 free=1048576->1048576 delta=0 maxAlloc=1048576->1048576 delta=0
-[1107] [DBG] [EHP] Time to parse and build pages: 7 ms (free=1048576, maxAlloc=1048576)
-[1109] [DBG] [SCT] Parser done: spine=0 success=1 pages=2 free=1048576 maxAlloc=1048576
-[1109] [DBG] [ERS] primary section cache built: spine=0 font=-1806001351 mode=0 embedded=1 focus=0 guide=0 pages=2 free=1048576 maxAlloc=1048576 building=0
-[1109] [DBG] [ERS] Cache build complete: pages=2 font=-1806001351 mode=0 free=1048576 maxAlloc=1048576
-[1110] [DBG] [FDC] Prewarm: 11 glyphs in 847 bytes from 1 groups (0 missed)
-[1110] [DBG] [FDC] Prewarm: 45 glyphs in 3241 bytes from 2 groups (0 missed)
-[1113] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
+[1062] [DBG] [ERS] Cache not found, building... (free=1048576, maxAlloc=1048576)
+[1065] [DBG] [SCT] Create section start: spine=0 mode=0 preview=0 viewport=464x761 image=0 focus=0 guide=0 free=1048576 maxAlloc=1048576
+[1065] [INF] [EPS] section build start: internal free=1048576 max=1048576; psram free=0 max=0 total=0
+[1065] [DBG] [ZIP] Stream OEBPS/chapter1.xhtml: ok=1 lookup=63us read/inflate=17us write=21us bytes=1330
+[1065] [DBG] [CSS] Rule arena: bytes=3784 pool=internal psramReserve=131072; hydrated
+[1066] [DBG] [CSS] Loaded 23 indexed rules + 0 descendant rules from complete cache
+[1066] [DBG] [SCT] CSS cache load: ok=1 partial=0 rules=23 free=1048576->1048576 delta=0 maxAlloc=1048576->1048576 delta=0
+[1068] [DBG] [EHP] Time to parse and build pages: 2 ms (free=1048576, maxAlloc=1048576)
+[1069] [DBG] [SCT] Parser done: spine=0 success=1 pages=2 free=1048576 maxAlloc=1048576
+[1070] [DBG] [ERS] primary section cache built: spine=0 font=-1806001351 mode=0 embedded=1 focus=0 guide=0 pages=2 free=1048576 maxAlloc=1048576 building=0
+[1070] [DBG] [ERS] Cache build complete: pages=2 font=-1806001351 mode=0 free=1048576 maxAlloc=1048576
+[1070] [DBG] [FDC] Prewarm: 11 glyphs in 847 bytes from 1 groups (0 missed)
+[1071] [DBG] [FDC] Prewarm: 45 glyphs in 3241 bytes from 2 groups (0 missed)
+[1074] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/sections/1.bin (flags=0x0 errno=2 No such file or directory)
-[1124] [DBG] [ERS] Silently indexing next chapter: 1 (free=1048576, maxAlloc=1048576)
-[1124] [DBG] [SCT] Create section start: spine=1 mode=0 preview=0 viewport=464x761 image=0 focus=0 guide=0 free=1048576 maxAlloc=1048576
-[1124] [INF] [EPS] section build start: internal free=1048576 max=1048576; psram free=0 max=0 total=0
-[1124] [DBG] [ZIP] Stream OEBPS/chapter2.xhtml: ok=1 lookup=87us read/inflate=25us write=37us bytes=2724
-[1124] [DBG] [CSS] Rule arena: bytes=3784 pool=internal psramReserve=131072; hydrated
-[1125] [DBG] [CSS] Loaded 23 indexed rules + 0 descendant rules from complete cache
-[1125] [DBG] [SCT] CSS cache load: ok=1 partial=0 rules=23 free=1048576->1048576 delta=0 maxAlloc=1048576->1048576 delta=0
-[1130] [DBG] [EHP] Time to parse and build pages: 5 ms (free=1048576, maxAlloc=1048576)
-[1131] [DBG] [SCT] Parser done: spine=1 success=1 pages=4 free=1048576 maxAlloc=1048576
-[1131] [DBG] [ERS] Silent indexing complete: chapter=1 pages=4 mode=0 free=1048576 maxAlloc=1048576
-[1132] [DBG] [FDC] Prewarm: 11 glyphs in 847 bytes from 1 groups (0 missed)
-[1132] [DBG] [FDC] Prewarm: 45 glyphs in 3241 bytes from 2 groups (0 missed)
-[1197] [INF] [SMOKE] Rendering Reader
-[1198] [DBG] [FDC] Prewarm: 11 glyphs in 847 bytes from 1 groups (0 missed)
-[1198] [DBG] [FDC] Prewarm: 45 glyphs in 3241 bytes from 2 groups (0 missed)
-[1202] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
-[1230] [INF] [SMOKE] Running reader input script with 2 page turn(s)
-[1272] [DBG] [FDC] Prewarm: 34 glyphs in 2295 bytes from 2 groups (0 missed)
-[1330] [INF] [SMOKE] Rendering Reader after page forward
-[1331] [DBG] [FDC] Prewarm: 34 glyphs in 2295 bytes from 2 groups (0 missed)
-[1446] [INF] [SMOKE] Rendering Reader after page forward
-[1447] [DBG] [FDC] Prewarm: 34 glyphs in 2295 bytes from 2 groups (0 missed)
-[1482] [DBG] [ERS] Loading file: OEBPS/chapter2.xhtml, index: 1 (free=1048576, maxAlloc=1048576)
-[1483] [DBG] [ERS] Cache found, skipping build... (pages=4, font=-1806001351 mode=0 free=1048576, maxAlloc=1048576)
-[1483] [DBG] [FDC] Prewarm: 19 glyphs in 1432 bytes from 2 groups (0 missed)
-[1484] [DBG] [FDC] Prewarm: 38 glyphs in 2843 bytes from 2 groups (0 missed)
-[1487] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
+[1084] [DBG] [ERS] Silently indexing next chapter: 1 (free=1048576, maxAlloc=1048576)
+[1084] [DBG] [SCT] Create section start: spine=1 mode=0 preview=0 viewport=464x761 image=0 focus=0 guide=0 free=1048576 maxAlloc=1048576
+[1084] [INF] [EPS] section build start: internal free=1048576 max=1048576; psram free=0 max=0 total=0
+[1085] [DBG] [ZIP] Stream OEBPS/chapter2.xhtml: ok=1 lookup=86us read/inflate=25us write=45us bytes=2724
+[1085] [DBG] [CSS] Rule arena: bytes=3784 pool=internal psramReserve=131072; hydrated
+[1085] [DBG] [CSS] Loaded 23 indexed rules + 0 descendant rules from complete cache
+[1085] [DBG] [SCT] CSS cache load: ok=1 partial=0 rules=23 free=1048576->1048576 delta=0 maxAlloc=1048576->1048576 delta=0
+[1091] [DBG] [EHP] Time to parse and build pages: 6 ms (free=1048576, maxAlloc=1048576)
+[1091] [DBG] [SCT] Parser done: spine=1 success=1 pages=4 free=1048576 maxAlloc=1048576
+[1092] [DBG] [ERS] Silent indexing complete: chapter=1 pages=4 mode=0 free=1048576 maxAlloc=1048576
+[1092] [DBG] [FDC] Prewarm: 11 glyphs in 847 bytes from 1 groups (0 missed)
+[1093] [DBG] [FDC] Prewarm: 45 glyphs in 3241 bytes from 2 groups (0 missed)
+[1167] [INF] [SMOKE] Rendering Reader
+[1168] [DBG] [FDC] Prewarm: 11 glyphs in 847 bytes from 1 groups (0 missed)
+[1168] [DBG] [FDC] Prewarm: 45 glyphs in 3241 bytes from 2 groups (0 missed)
+[1171] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
+[1197] [INF] [SMOKE] Running reader input script with 2 page turn(s)
+[1236] [DBG] [FDC] Prewarm: 34 glyphs in 2295 bytes from 2 groups (0 missed)
+[1297] [INF] [SMOKE] Rendering Reader after page forward
+[1298] [DBG] [FDC] Prewarm: 34 glyphs in 2295 bytes from 2 groups (0 missed)
+[1407] [INF] [SMOKE] Rendering Reader after page forward
+[1408] [DBG] [FDC] Prewarm: 34 glyphs in 2295 bytes from 2 groups (0 missed)
+[1445] [DBG] [ERS] Loading file: OEBPS/chapter2.xhtml, index: 1 (free=1048576, maxAlloc=1048576)
+[1445] [DBG] [ERS] Cache found, skipping build... (pages=4, font=-1806001351 mode=0 free=1048576, maxAlloc=1048576)
+[1445] [DBG] [FDC] Prewarm: 19 glyphs in 1432 bytes from 2 groups (0 missed)
+[1446] [DBG] [FDC] Prewarm: 38 glyphs in 2843 bytes from 2 groups (0 missed)
+[1449] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/reader_settings.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/dictionary.bin (flags=0x0 errno=2 No such file or directory)
 [SIM] open failed: ./fs_/.pocketdeck-os/dictionary.bin (flags=0x0 errno=2 No such file or directory)
-[1500] [DBG] [ACT] Entering activity: EpubReaderMenu
-[1558] [INF] [SMOKE] Rendering Reader Menu opened from EPUB
-[1647] [INF] [SMOKE] Rendering Reader Menu Reader Options selection
-[1697] [DBG] [ACT] Exiting activity: EpubReaderMenu
-[1697] [DBG] [ACT] Entering activity: EpubReaderChapterSelection
-[1756] [INF] [SMOKE] Rendering Reader Options opened from Reader Menu
-[1861] [INF] [SMOKE] Rendering Reader Options after navigation
-[1908] [DBG] [ACT] Exiting activity: EpubReaderChapterSelection
-[1908] [DBG] [ERS] Loading file: OEBPS/chapter3.xhtml, index: 2 (free=1048576, maxAlloc=1048576)
+[1461] [DBG] [ACT] Entering activity: EpubReaderMenu
+[1521] [INF] [SMOKE] Rendering Reader Menu opened from EPUB
+[1607] [INF] [SMOKE] Rendering Reader Menu Reader Options selection
+[1653] [DBG] [ACT] Exiting activity: EpubReaderMenu
+[1653] [DBG] [ACT] Entering activity: EpubReaderChapterSelection
+[1711] [INF] [SMOKE] Rendering Reader Options opened from Reader Menu
+[1802] [INF] [SMOKE] Rendering Reader Options after navigation
+[1847] [DBG] [ACT] Exiting activity: EpubReaderChapterSelection
+[1847] [DBG] [ERS] Loading file: OEBPS/chapter3.xhtml, index: 2 (free=1048576, maxAlloc=1048576)
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/sections/2.bin (flags=0x0 errno=2 No such file or directory)
-[1908] [DBG] [ERS] Cache not found, building... (free=1048576, maxAlloc=1048576)
-[1911] [DBG] [SCT] Create section start: spine=2 mode=0 preview=0 viewport=464x761 image=0 focus=0 guide=0 free=1048576 maxAlloc=1048576
-[1911] [INF] [EPS] section build start: internal free=1048576 max=1048576; psram free=0 max=0 total=0
-[1911] [DBG] [ZIP] Stream OEBPS/chapter3.xhtml: ok=1 lookup=79us read/inflate=20us write=44us bytes=2110
-[1911] [DBG] [CSS] Rule arena: bytes=3784 pool=internal psramReserve=131072; hydrated
-[1912] [DBG] [CSS] Loaded 23 indexed rules + 0 descendant rules from complete cache
-[1912] [DBG] [SCT] CSS cache load: ok=1 partial=0 rules=23 free=1048576->1048576 delta=0 maxAlloc=1048576->1048576 delta=0
-[1914] [DBG] [EHP] Time to parse and build pages: 2 ms (free=1048576, maxAlloc=1048576)
-[1918] [DBG] [SCT] Parser done: spine=2 success=1 pages=3 free=1048576 maxAlloc=1048576
-[1918] [DBG] [ERS] primary section cache built: spine=2 font=-1806001351 mode=0 embedded=1 focus=0 guide=0 pages=3 free=1048576 maxAlloc=1048576 building=0
-[1918] [DBG] [ERS] Cache build complete: pages=3 font=-1806001351 mode=0 free=1048576 maxAlloc=1048576
-[1919] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
-[1919] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
-[1919] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
-[1920] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
-[1923] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
-[1957] [INF] [SMOKE] Rendering Reader Options after toggle
-[1957] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
-[1958] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
-[1958] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
-[1958] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
-[2015] [INF] [EPS] reader exit after caches: internal free=1048576 max=1048576; psram free=0 max=0 total=0
-[2015] [DBG] [ACT] Exiting activity: EpubReader
-[2017] [DBG] [ACT] Entering activity: Home
+[1847] [DBG] [ERS] Cache not found, building... (free=1048576, maxAlloc=1048576)
+[1850] [DBG] [SCT] Create section start: spine=2 mode=0 preview=0 viewport=464x761 image=0 focus=0 guide=0 free=1048576 maxAlloc=1048576
+[1850] [INF] [EPS] section build start: internal free=1048576 max=1048576; psram free=0 max=0 total=0
+[1850] [DBG] [ZIP] Stream OEBPS/chapter3.xhtml: ok=1 lookup=72us read/inflate=20us write=31us bytes=2110
+[1850] [DBG] [CSS] Rule arena: bytes=3784 pool=internal psramReserve=131072; hydrated
+[1851] [DBG] [CSS] Loaded 23 indexed rules + 0 descendant rules from complete cache
+[1851] [DBG] [SCT] CSS cache load: ok=1 partial=0 rules=23 free=1048576->1048576 delta=0 maxAlloc=1048576->1048576 delta=0
+[1853] [DBG] [EHP] Time to parse and build pages: 2 ms (free=1048576, maxAlloc=1048576)
+[1855] [DBG] [SCT] Parser done: spine=2 success=1 pages=3 free=1048576 maxAlloc=1048576
+[1855] [DBG] [ERS] primary section cache built: spine=2 font=-1806001351 mode=0 embedded=1 focus=0 guide=0 pages=3 free=1048576 maxAlloc=1048576 building=0
+[1855] [DBG] [ERS] Cache build complete: pages=3 font=-1806001351 mode=0 free=1048576 maxAlloc=1048576
+[1855] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
+[1856] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
+[1856] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
+[1856] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
+[1859] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
+[1896] [INF] [SMOKE] Rendering Reader Options after toggle
+[1897] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
+[1897] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
+[1897] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
+[1898] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
+[1954] [INF] [EPS] reader exit after caches: internal free=1048576 max=1048576; psram free=0 max=0 total=0
+[1954] [DBG] [ACT] Exiting activity: EpubReader
+[1955] [DBG] [ACT] Entering activity: Home
 [SIM] open failed: ./fs_/.pocketdeck-os/synced_stats (flags=0x0 errno=2 No such file or directory)
-[2079] [INF] [SMOKE] Rendering Reader Menu after closing Reader Options
-[2124] [DBG] [ACT] Exiting activity: Home
-[2124] [DBG] [ACT] Entering activity: Reader
+[2018] [INF] [SMOKE] Rendering Reader Menu after closing Reader Options
+[2064] [DBG] [ACT] Exiting activity: Home
+[2064] [DBG] [ACT] Entering activity: Reader
 [SIM] open failed: ./fs_/.pocketdeck-os/epub_17960652168525209474/reader_settings.bin (flags=0x0 errno=2 No such file or directory)
-[2124] [DBG] [ACT] Exiting activity: Reader
-[2124] [DBG] [ACT] Entering activity: EpubReader
-[2124] [INF] [EPS] reader enter: internal free=1048576 max=1048576; psram free=0 max=0 total=0
-[2124] [DBG] [ERS] Reading stats loaded: totalReadingSeconds=0 totalPagesTurned=0 avg=0 samples=0 cumulativeAvg=0
-[2125] [DBG] [ERS] Loading file: OEBPS/chapter3.xhtml, index: 2 (free=1048576, maxAlloc=1048576)
-[2125] [DBG] [ERS] Cache found, skipping build... (pages=3, font=-1806001351 mode=0 free=1048576, maxAlloc=1048576)
-[2125] [DBG] [ERS] Resolved visible text offset 0 to page 0
-[2126] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
-[2126] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
-[2126] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
-[2127] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
-[2131] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
-[2186] [INF] [SMOKE] Rendering Reader after closing Reader Menu
-[2187] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
-[2187] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
-[2188] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
-[2188] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
-[2235] [INF] [SMOKE] Simulator smoke test passed
+[2065] [DBG] [ACT] Exiting activity: Reader
+[2065] [DBG] [ACT] Entering activity: EpubReader
+[2065] [INF] [EPS] reader enter: internal free=1048576 max=1048576; psram free=0 max=0 total=0
+[2065] [DBG] [ERS] Reading stats loaded: totalReadingSeconds=0 totalPagesTurned=0 avg=0 samples=0 cumulativeAvg=0
+[2065] [DBG] [ERS] Loading file: OEBPS/chapter3.xhtml, index: 2 (free=1048576, maxAlloc=1048576)
+[2065] [DBG] [ERS] Cache found, skipping build... (pages=3, font=-1806001351 mode=0 free=1048576, maxAlloc=1048576)
+[2065] [DBG] [ERS] Resolved visible text offset 0 to page 0
+[2066] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
+[2066] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
+[2067] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
+[2067] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
+[2070] [INF] [EPS] Grayscale strip scratch: bytes=8000 pool=default
+[2124] [INF] [SMOKE] Rendering Reader after closing Reader Menu
+[2125] [DBG] [FDC] Prewarm: 10 glyphs in 710 bytes from 1 groups (0 missed)
+[2125] [DBG] [FDC] Prewarm: 7 glyphs in 407 bytes from 1 groups (0 missed)
+[2125] [DBG] [FDC] Prewarm: 13 glyphs in 946 bytes from 1 groups (0 missed)
+[2126] [DBG] [FDC] Prewarm: 31 glyphs in 2172 bytes from 2 groups (0 missed)
+[2168] [INF] [SMOKE] Simulator smoke test passed

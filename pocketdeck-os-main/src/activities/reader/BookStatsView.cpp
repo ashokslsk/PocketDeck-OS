@@ -255,7 +255,8 @@ void drawHorizontalBars(GfxRenderer& renderer, const int x, const int y, const i
   constexpr int labelLeftPadding = 10;
   constexpr int labelRightPadding = 18;
   constexpr int barLeftGap = 8;
-  constexpr int rightPadding = 18;
+  constexpr int rightPadding = 12;
+  constexpr int valueGap = 8;
   const uint32_t maxValue = *std::max_element(values.begin(), values.end());
   const int labelLineH = renderer.getLineHeight(layout.chartLabelFontId);
   const int rowContentH = std::max(labelLineH, layout.barH);
@@ -274,18 +275,95 @@ void drawHorizontalBars(GfxRenderer& renderer, const int x, const int y, const i
     maxLabelW = std::max(maxLabelW, renderer.getTextWidth(layout.chartLabelFontId, I18N.get(labels[i])));
   }
   const int labelColumnW = std::max(layout.chartLabelW, labelLeftPadding + maxLabelW + labelRightPadding);
+  // PocketDeck-OS: every bar sits on a light track and is labelled with its
+  // time, so a quiet morning still shows as "0m" rather than as nothing.
+  const int valueW = renderer.getTextWidth(layout.chartLabelFontId, "00h 00m");
   const int barX = x + labelColumnW + barLeftGap;
-  const int barW = std::max(0, w - labelColumnW - barLeftGap - rightPadding);
+  const int barW = std::max(0, w - labelColumnW - barLeftGap - rightPadding - valueW - valueGap);
   for (size_t i = 0; i < N; ++i) {
     const int rowTop = contentTop + static_cast<int>(i) * rowStride;
     const int labelY = rowTop + (rowContentH - labelLineH) / 2;
     const int barY = rowTop + (rowContentH - layout.barH) / 2;
     renderer.drawText(layout.chartLabelFontId, x + labelLeftPadding, labelY, I18N.get(labels[i]));
+    renderer.fillRectDither(barX, barY, barW, layout.barH, Color::LightGray);
     if (maxValue > 0 && values[i] > 0) {
       const int fillW = std::max(2, static_cast<int>((static_cast<uint64_t>(barW) * values[i]) / maxValue));
       renderer.fillRect(barX, barY, fillW, layout.barH, true);
     }
+    char value[16];
+    const uint32_t minutes = values[i] / 60;
+    if (minutes >= 60) {
+      snprintf(value, sizeof(value), "%luh %02lum", static_cast<unsigned long>(minutes / 60),
+               static_cast<unsigned long>(minutes % 60));
+    } else if (minutes == 0 && values[i] > 0) {
+      snprintf(value, sizeof(value), "<1m");
+    } else {
+      snprintf(value, sizeof(value), "%lum", static_cast<unsigned long>(minutes));
+    }
+    renderer.drawText(layout.chartLabelFontId, barX + barW + valueGap, labelY, value, true,
+                      values[i] == maxValue && maxValue > 0 ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR);
   }
+}
+
+// PocketDeck-OS: "Day of week" as seven columns, with a 12-week reading
+// calendar beneath (one square per day, filled when you read that day).
+void drawWeekdayAndCalendar(GfxRenderer& renderer, const int x, const int y, const int w, const int h,
+                            const GlobalReadingStats& stats, const StatsLayout& layout) {
+  const int labelH = renderer.getLineHeight(SMALL_FONT_ID);
+  const int top = y + layout.sectionTitleH + 8;
+  const int innerW = w - 24;
+  const int left = x + 12;
+  // Columns take roughly 40% of the card, the calendar the rest.
+  const int colAreaH = std::max(40, (h - layout.sectionTitleH) * 2 / 5 - labelH);
+  const uint32_t maxValue = *std::max_element(stats.dayOfWeekSeconds.begin(), stats.dayOfWeekSeconds.end());
+  const int slot = innerW / static_cast<int>(DAY_LABELS.size());
+  const int colW = std::max(6, slot * 3 / 5);
+  for (size_t i = 0; i < DAY_LABELS.size(); ++i) {
+    const int cx = left + static_cast<int>(i) * slot;
+    const int barX = cx + (slot - colW) / 2;
+    renderer.fillRectDither(barX, top, colW, colAreaH, Color::LightGray);
+    if (maxValue > 0 && stats.dayOfWeekSeconds[i] > 0) {
+      const int fillH =
+          std::max(2, static_cast<int>((static_cast<uint64_t>(colAreaH) * stats.dayOfWeekSeconds[i]) / maxValue));
+      renderer.fillRect(barX, top + colAreaH - fillH, colW, fillH, true);
+    }
+    drawCenteredLabel(renderer, SMALL_FONT_ID, cx, slot, top + colAreaH + 2, I18N.get(DAY_LABELS[i]),
+                      stats.dayOfWeekSeconds[i] == maxValue && maxValue > 0);
+  }
+
+  // Calendar: 7 rows (Mon..Sun) x up to 12 week columns, today bottom-right.
+  ReadingStatsDateTime now;
+  if (!getCurrentLocalReadingStatsDateTime(now)) return;
+  const int calTop = top + colAreaH + labelH + 12;
+  const int calH = y + h - 10 - calTop - labelH;
+  if (calH < 7 * 5) return;
+  const int cell = std::min(calH / 7, innerW / 13);
+  const int gap = cell >= 10 ? 2 : 1;
+  const int weeks = std::min(12, innerW / cell - 1);
+  const uint32_t todayIndex = readingStatsDayIndex(now.date);
+  // Weekday of today, Monday = 0 (day index 0 is Saturday 2000-01-01).
+  const int todayWd = static_cast<int>((todayIndex + 5) % 7);
+  const int calW = weeks * cell;
+  const int calX = left + (innerW - calW) / 2;
+  int readDays = 0;
+  for (int wk = 0; wk < weeks; ++wk) {
+    for (int wd = 0; wd < 7; ++wd) {
+      const int back = (weeks - 1 - wk) * 7 + (todayWd - wd);
+      if (back < 0) continue;  // later this week
+      const uint32_t day = todayIndex - static_cast<uint32_t>(back);
+      const int cx = calX + wk * cell;
+      const int cy = calTop + wd * cell;
+      if (readingHistoryHasDay(stats.readingHistoryAnchorDay, stats.readingHistoryBits, day)) {
+        renderer.fillRect(cx, cy, cell - gap, cell - gap, true);
+        ++readDays;
+      } else {
+        renderer.drawRect(cx, cy, cell - gap, cell - gap, true);
+      }
+    }
+  }
+  char caption[48];
+  snprintf(caption, sizeof(caption), "%s: %d %s", tr(STR_STATS_LAST_12_WEEKS), readDays, dayCountText(readDays));
+  drawCenteredLabel(renderer, SMALL_FONT_ID, x, w, calTop + 7 * cell + 2, caption);
 }
 
 void drawPerBookStatsCard(GfxRenderer& renderer, const int x, const int y, const int w, const int h,
@@ -582,8 +660,8 @@ void renderGlobalStatsPage(GfxRenderer& renderer, const MappedInputManager* mapp
     drawHorizontalBars(renderer, cardX, y, cardW, timeOfDayCardH, stats.timeOfDaySeconds, TIME_BUCKET_LABELS, layout);
     y += timeOfDayCardH + layout.cardGap;
 
-    drawSectionCard(renderer, cardX, y, cardW, dayOfWeekCardH, tr(STR_STATS_DAY_OF_WEEK), layout);
-    drawHorizontalBars(renderer, cardX, y, cardW, dayOfWeekCardH, stats.dayOfWeekSeconds, DAY_LABELS, layout);
+    drawSectionCard(renderer, cardX, y, cardW, dayOfWeekCardH, tr(STR_STATS_DAY_AND_CALENDAR), layout);
+    drawWeekdayAndCalendar(renderer, cardX, y, cardW, dayOfWeekCardH, stats, layout);
   } else {
     const int compactContentHeight = headerHeight + layout.topGap + layout.globalCardH;
     globalCardH += std::max(0, availableHeight - compactContentHeight);
@@ -774,8 +852,9 @@ void renderLibraryStatsPage(GfxRenderer& renderer, const MappedInputManager* map
   int y = metrics.topPadding + statsHeaderHeight(metrics, layout, mappedInput) + layout.topGap;
   char buf[32];
 
-  // Books on the card.
-  const int card1H = layout.sectionTitleH + rowH * 2;
+  // Books on the card, with a stacked bar: finished / in progress / not opened.
+  const int stackH = 14 + renderer.getLineHeight(SMALL_FONT_ID) + 16;
+  const int card1H = layout.sectionTitleH + rowH * 2 + stackH;
   drawSectionCard(renderer, cardX, y, cardW, card1H, tr(STR_STATS_ON_THIS_CARD), layout);
   int ry = y + layout.sectionTitleH;
   snprintf(buf, sizeof(buf), "%u", library.books);
@@ -791,6 +870,30 @@ void renderLibraryStatsPage(GfxRenderer& renderer, const MappedInputManager* map
   drawStatCell(renderer, cardX + thirdW, thirdW, ry, rowH, buf, tr(STR_STATS_IN_PROGRESS));
   snprintf(buf, sizeof(buf), "%u", library.finished);
   drawStatCell(renderer, cardX + thirdW * 2, thirdW, ry, rowH, buf, tr(STR_STATS_FINISHED));
+  ry += rowH;
+  {
+    const int barX = cardX + 12;
+    const int barW = cardW - 24;
+    const int total = std::max<int>(1, library.books);
+    const int finishedW = barW * library.finished / total;
+    const int progressW = barW * library.inProgress / total;
+    renderer.drawRect(barX, ry, barW, 14);
+    renderer.fillRect(barX, ry, finishedW, 14, true);
+    renderer.fillRectDither(barX + finishedW, ry, progressW, 14, Color::DarkGray);
+    // Legend: filled = finished, grey = in progress, empty = not opened.
+    const int ly = ry + 18;
+    int lx = barX;
+    const auto legend = [&](const int kind, const char* text) {
+      if (kind == 0) renderer.fillRect(lx, ly + 3, 10, 10, true);
+      if (kind == 1) renderer.fillRectDither(lx, ly + 3, 10, 10, Color::DarkGray);
+      if (kind == 2) renderer.drawRect(lx, ly + 3, 10, 10);
+      renderer.drawText(SMALL_FONT_ID, lx + 14, ly, text);
+      lx += 14 + renderer.getTextWidth(SMALL_FONT_ID, text) + 16;
+    };
+    legend(0, tr(STR_STATS_FINISHED));
+    legend(1, tr(STR_STATS_IN_PROGRESS));
+    legend(2, tr(STR_STATS_NOT_OPENED));
+  }
   y += card1H + layout.cardGap;
 
   // Reading totals.

@@ -1,3 +1,6 @@
-[ 25%] Built target gtest
-[ 50%] Built target gtest_main
+[ 20%] Built target gtest
+[ 40%] Built target gtest_main
+[ 40%] Building CXX object tools_core/CMakeFiles/ToolsCoreTest.dir/Users/ashok/Library/Application_Support/Claude/scratch-workspaces/9fbb4d3d-2663-4dcd-b22b-654bf7582786/e533bd95-93c8-45a5-94c8-6fab1c9482d0/scratch-2026-09-26-a24ec2/pocketdeck-os-main/src/activities/tools/KannadaFont.cpp.o
+[ 40%] Building CXX object tools_core/CMakeFiles/ToolsCoreTest.dir/ToolsCoreTest.cpp.o
+[ 60%] Linking CXX executable ToolsCoreTest
 [100%] Built target ToolsCoreTest

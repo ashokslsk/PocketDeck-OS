@@ -12,6 +12,7 @@
 
 #include "HabitData.h"
 #include "PomodoroActivity.h"
+#include "ToolStatsPages.h"
 #include "ToolsLog.h"
 #include "activities/util/KeyboardEntryActivity.h"
 #include "components/UITheme.h"
@@ -21,7 +22,8 @@ constexpr char DailyCommandCenterActivity::kDataPath[];
 
 namespace {
 using Tok = tools::JsonReader::Token;
-constexpr unsigned long kPollMs = 1000;
+// The clock shows minutes; a 5 s check is enough and saves wake-ups.
+constexpr unsigned long kPollMs = 5000;
 }  // namespace
 
 void DailyCommandCenterActivity::load() {
@@ -206,7 +208,20 @@ void DailyCommandCenterActivity::loop() {
   }
 
   const int rows = rowCount();
-  if (input_.prev()) {
+  if (input_.leftUp) {
+    auto stats = makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_TD_STATS),
+                                                      &toolstats::buildToday, nullptr, statsx::Feature::Today);
+    if (stats) {
+      save();
+      startActivityForResult(std::move(stats), [this](const ActivityResult&) {
+        input_.reset(mappedInput);
+        transitionPending_ = true;
+        requestUpdate();
+      });
+    }
+    return;
+  }
+  if (input_.up || input_.pageBack) {
     selected_ = (selected_ + rows - 1) % rows;
     requestUpdate();
   } else if (input_.next()) {
@@ -299,7 +314,9 @@ void DailyCommandCenterActivity::render(RenderLock&&) {
 
   // To-do rows.
   const int rowH = renderer.getLineHeight(UI_12_FONT_ID) + 12;
-  visibleRows_ = std::max(1, (content.y + content.height - y) / rowH);
+  // A task row reserves one small line at the bottom for its hold hint.
+  const int hintH = count_ > 0 ? renderer.getLineHeight(SMALL_FONT_ID) + 4 : 0;
+  visibleRows_ = std::max(1, (content.y + content.height - hintH - y) / rowH);
   const int rows = rowCount();
   if (selected_ < top_) top_ = selected_;
   if (selected_ >= top_ + visibleRows_) top_ = selected_ - visibleRows_ + 1;
@@ -339,8 +356,11 @@ void DailyCommandCenterActivity::render(RenderLock&&) {
     renderer.drawText(UI_10_FONT_ID, content.x, y + 2 * rowH + 6, tr(STR_TOOLS_NO_TASKS));
   }
 
+  if (selected_ < count_) {
+    renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - hintH + 2, tr(STR_TOOLS_TD_HOLD_DELETE));
+  }
   const char* confirmLabel = selected_ < count_ ? tr(STR_TOOLS_TOGGLE) : tr(STR_SELECT);
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), confirmLabel, tr(STR_DIR_UP), tr(STR_DIR_DOWN));
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), confirmLabel, tr(STR_TOOLS_STATS_SHORT), tr(STR_TOOLS_NEXT));
   const bool transition = transitionPending_;
   transitionPending_ = false;
   renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);

@@ -10,6 +10,9 @@
 #include <cstring>
 #include <string>
 
+#include "KannadaText.h"
+#include "ToolStatsPages.h"
+#include "ToolsLog.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 
@@ -195,9 +198,15 @@ bool KnowledgeCardActivity::openTopic(const int topic) {
   return true;
 }
 
+void KnowledgeCardActivity::onExit() {
+  kannada::release();
+  Activity::onExit();
+}
+
 void KnowledgeCardActivity::onEnter() {
   Activity::onEnter();
   input_.reset(mappedInput);
+  kannada::acquire();  // Kannada text in the user's files, when the font is on the card
   tools::ensureToolsDirs();
   tools::DateTime local;
   today_ = tools::getLocalNow(local) ? tools::daysOf(local) : 0;
@@ -205,6 +214,29 @@ void KnowledgeCardActivity::onEnter() {
   screen_ = Screen::Topics;
   transitionPending_ = true;
   requestUpdate();
+}
+
+void KnowledgeCardActivity::showAnswer() {
+  screen_ = Screen::Answer;
+  page_ = 0;
+  // Study history for Knowledge stats: which question of which topic.
+  tlog::Stamp at;
+  if (openTopic_ >= 0 && tlog::now(at)) {
+    char fields[48];
+    snprintf(fields, sizeof(fields), "%s|%d", topics_[openTopic_], item_);
+    tlog::append("knowledge", at, fields);
+  }
+}
+
+void KnowledgeCardActivity::openStats() {
+  auto stats = makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_KN_STATS),
+                                                    &toolstats::buildKnowledge, nullptr, statsx::Feature::Knowledge);
+  if (!stats) return;
+  startActivityForResult(std::move(stats), [this](const ActivityResult&) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    requestUpdate();
+  });
 }
 
 void KnowledgeCardActivity::loop() {
@@ -219,8 +251,12 @@ void KnowledgeCardActivity::loop() {
         finish();
         return;
       }
+      if (input_.leftUp) {
+        openStats();
+        return;
+      }
       if (topicCount_ == 0) return;
-      if (input_.prev()) {
+      if (input_.up || input_.pageBack) {
         selectedTopic_ = (selectedTopic_ + topicCount_ - 1) % topicCount_;
         requestUpdate();
       } else if (input_.next()) {
@@ -241,8 +277,12 @@ void KnowledgeCardActivity::loop() {
       }
       const bool answer = screen_ == Screen::Answer;
       if (input_.confirm) {
-        screen_ = answer ? Screen::Question : Screen::Answer;
-        page_ = 0;
+        if (answer) {
+          screen_ = Screen::Question;
+          page_ = 0;
+        } else {
+          showAnswer();
+        }
         requestUpdate();
       } else if (input_.up || input_.pageBack) {
         RenderLock lock(*this);
@@ -255,10 +295,10 @@ void KnowledgeCardActivity::loop() {
         screen_ = Screen::Question;
         requestUpdate();
       } else if (input_.right) {
-        // Right on a question opens the answer; on an answer it turns the page.
+        // Right on a question goes to the next question; on an answer it turns the page.
         if (!answer) {
-          screen_ = Screen::Answer;
-          page_ = 0;
+          RenderLock lock(*this);
+          loadItem((item_ + 1) % itemCount_);
           requestUpdate();
         } else if (page_ + 1 < pageCount_) {
           ++page_;
@@ -310,7 +350,8 @@ void KnowledgeCardActivity::render(RenderLock&&) {
             snprintf(sub, sizeof(sub), "%u %s", topicCounts_[i], tr(STR_TOOLS_QUESTIONS));
             return std::string(sub);
           });
-      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_OPEN), tr(STR_DIR_UP), tr(STR_DIR_DOWN));
+      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_OPEN), tr(STR_TOOLS_STATS_SHORT),
+                       tr(STR_TOOLS_NEXT));
     }
   } else if (screen_ == Screen::Error) {
     const Rect content = tools::drawFrame(renderer, tr(STR_TOOLS_KNOWLEDGE));
@@ -332,20 +373,19 @@ void KnowledgeCardActivity::render(RenderLock&&) {
       measure.centered = true;
       measure.draw = false;
       const int lines = tools::drawWrappedText(renderer, box, question_, measure);
-      const int textH = std::min(box.height, lines * renderer.getLineHeight(BITTER_14_FONT_ID));
+      const int textH = std::min(box.height, lines * tools::wrapLineHeight(renderer, BITTER_14_FONT_ID, question_));
       box.y += (box.height - textH) / 2;
       box.height = textH;
       tools::WrapOptions opt = measure;
       opt.draw = true;
       tools::drawWrappedText(renderer, box, question_, opt);
-      if (item_ == todayItem_) {
-        renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - footerH + 4, tr(STR_TOOLS_TODAYS_CARD));
-      }
+      renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - footerH + 4,
+                                item_ == todayItem_ ? tr(STR_TOOLS_TODAYS_CARD) : tr(STR_TOOLS_KN_HOLD_TODAY));
       tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_ANSWER), tr(STR_TOOLS_PREV_QUESTION),
-                       tr(STR_TOOLS_ANSWER));
+                       tr(STR_TOOLS_NEXT_QUESTION));
     } else {
       // Question as a short heading, then the paged answer.
-      const int qLineH = renderer.getLineHeight(UI_10_FONT_ID);
+      const int qLineH = tools::wrapLineHeight(renderer, UI_10_FONT_ID, question_);
       Rect qBox{content.x, content.y, content.width, qLineH * 2};
       tools::WrapOptions qOpt;
       qOpt.fontId = UI_10_FONT_ID;
@@ -355,7 +395,7 @@ void KnowledgeCardActivity::render(RenderLock&&) {
       renderer.fillRect(content.x, y, content.width, 2);
       y += 10;
       const Rect body{content.x, y, content.width, content.y + content.height - footerH - y};
-      const int lineH = renderer.getLineHeight(UI_12_FONT_ID);
+      const int lineH = tools::wrapLineHeight(renderer, UI_12_FONT_ID, answer_);
       const int linesPerPage = std::max(1, body.height / lineH);
       tools::WrapOptions measure;
       measure.fontId = UI_12_FONT_ID;

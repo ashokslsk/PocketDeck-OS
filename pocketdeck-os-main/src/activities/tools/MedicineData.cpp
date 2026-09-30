@@ -94,7 +94,7 @@ bool writeCourses(FsFile& out, void* ctx) {
   if (!tools::writeText(out,
                         "# PocketDeck-OS medicine & supplement courses\n"
                         "# id|name|doses per day (1-4)|days (1-90)|start YYYY-MM-DD|stopped YYYY-MM-DD or -|"
-                        "dose times HH:MM,...\n")) {
+                        "dose times HH:MM,...|food (before, after, with or -)\n")) {
     return false;
   }
   char line[160];
@@ -111,8 +111,9 @@ bool writeCourses(FsFile& out, void* ctx) {
       if (d > 0) strncat(times, ",", sizeof(times) - strlen(times) - 1);
       strncat(times, hm, sizeof(times) - strlen(times) - 1);
     }
-    snprintf(line, sizeof(line), "%s|%s|%u|%u|%s|%s|%s\n", c.id, c.name, static_cast<unsigned>(c.doses),
-             static_cast<unsigned>(c.days), start, stopped, times);
+    static constexpr const char* kFood[] = {"-", "before", "after", "with"};
+    snprintf(line, sizeof(line), "%s|%s|%u|%u|%s|%s|%s|%s\n", c.id, c.name, static_cast<unsigned>(c.doses),
+             static_cast<unsigned>(c.days), start, stopped, times, kFood[c.food < FoodCount ? c.food : 0]);
     if (!tools::writeText(out, line)) return false;
   }
   return true;
@@ -158,6 +159,19 @@ void defaultSlots(const int doses, int16_t (&out)[kMaxDoses]) {
   std::copy(kTimes[row], kTimes[row] + kMaxDoses, out);
 }
 
+const char* foodLabel(const uint8_t food) {
+  switch (food) {
+    case FoodBefore:
+      return tr(STR_TOOLS_MED_FOOD_BEFORE);
+    case FoodAfter:
+      return tr(STR_TOOLS_MED_FOOD_AFTER);
+    case FoodWith:
+      return tr(STR_TOOLS_MED_FOOD_WITH);
+    default:
+      return "";
+  }
+}
+
 const char* slotName(const int doses, const int slot) {
   // 1: morning; 2: morning, evening; 3: morning, noon, evening; 4: + night.
   static constexpr uint8_t kMap[4][kMaxDoses] = {{0, 0, 0, 0}, {0, 2, 0, 0}, {0, 1, 2, 0}, {0, 1, 2, 3}};
@@ -191,6 +205,7 @@ int load(Course (&courses)[kMaxCourses]) {
     const char* start = tlog::nextField(&cursor);
     const char* stopped = tlog::nextField(&cursor);
     char* times = tlog::nextField(&cursor);
+    const char* food = tlog::nextField(&cursor);
     Course& c = courses[count];
     c = Course{};
     if (id == nullptr || name == nullptr || doses == nullptr || days == nullptr || start == nullptr ||
@@ -204,6 +219,12 @@ int load(Course (&courses)[kMaxCourses]) {
     c.doses = static_cast<uint8_t>(std::clamp(atoi(doses), 1, kMaxDoses));
     c.days = static_cast<uint16_t>(std::clamp(atoi(days), 1, kMaxDays));
     if (stopped != nullptr && stopped[0] != '-' && !tools::parseIsoDate(stopped, c.stopped)) c.stopped = 0;
+    if (food != nullptr) {
+      c.food = strncmp(food, "before", 6) == 0 ? FoodBefore
+               : strncmp(food, "after", 5) == 0 ? FoodAfter
+               : strncmp(food, "with", 4) == 0  ? FoodWith
+                                                : FoodAny;
+    }
     defaultSlots(c.doses, c.slotMinute);
     for (int d = 0; d < c.doses && times != nullptr; ++d) {
       char* comma = strchr(times, ',');

@@ -40,7 +40,7 @@ BookInsights BookInsights::load(const std::string& bookPath) {
   const std::string history = book_files::cachePathFor(bookPath) + "/dictionary_history.txt";
   FsFile f;
   if (Storage.exists(history.c_str()) && Storage.openFileForRead("INS", history, f)) {
-    uint8_t buf[64];
+    uint8_t buf[512];
     int n = 0;
     uint32_t lines = 0;
     while ((n = f.read(buf, sizeof(buf))) > 0) {
@@ -50,6 +50,22 @@ BookInsights BookInsights::load(const std::string& bookPath) {
     out.lookups = static_cast<uint16_t>(lines > 0xFFFF ? 0xFFFF : lines);
   }
   out.valid = true;
+  return out;
+}
+
+std::string BookInsights::signature(const std::string& bookPath) {
+  const std::string type = book_files::typeFor(bookPath);
+  if (type.empty()) return "-";
+  std::string out = std::to_string(BookmarkStore::countForBook(bookPath, type));
+  out += ':';
+  out += std::to_string(ClippingStore::countForBook(bookPath, type));
+  out += ':';
+  const std::string history = book_files::cachePathFor(bookPath) + "/dictionary_history.txt";
+  FsFile f;
+  if (Storage.exists(history.c_str()) && Storage.openFileForRead("INS", history, f)) {
+    out += std::to_string(static_cast<uint32_t>(f.size()));
+    f.close();
+  }
   return out;
 }
 

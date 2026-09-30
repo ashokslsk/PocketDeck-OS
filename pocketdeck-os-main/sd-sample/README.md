@@ -5,18 +5,21 @@ Copy the `tools` folder (and, if you like, `sleep`) to the **root** of the reade
 ```
 SD card
 └── tools/
+    ├── fonts/kannada.knf     Kannada font for Panchanga, Mantras and your files (21.8 MB)
+    ├── panchanga/festivals/  karnataka-1976-2075.json festival and holiday calendar
+    ├── mantras/mantras.json  mantras: 35 deities, daily and ritual, kavacha
     ├── quotes.txt            461 dated quotes (2026-09-27 … 2027-12-31)
     ├── daily.json            starter to-do list
     ├── pomodoro.txt          focus/break lengths (25/5)
     ├── worldclock.txt        New York, London, Tokyo, Sydney
     ├── habits/habits.txt     habit names (up to 12; add more on the device)
-    ├── knowledge/            3 topics: AI.json, Python.json, SQL.json (13 questions)
+    ├── knowledge/            4 topics: AI, Python, SQL, Panchanga_Kannada (a Kannada example)
     └── flashcards/           3 decks: ai_concepts, python_basics, sql_basics
 └── sleep/                    3 example wallpapers (2 BMP, 1 JPG) for the
                               Custom sleep screen and "Change wallpaper"
 ```
 
-Medicine, Mood, Pomodoro, Today and Flashcards create their own history files
+Medicine, Mood, Pomodoro, Today, Flashcards, Knowledge and Daily Quote create their own history files
 under `/tools/<feature>/` as you use them; **Tools > Stats & export** writes
 the statistics to `/stats`. The full routine for adding your own content is in
 [INSTALLATION_GUIDE.md](../INSTALLATION_GUIDE.md).

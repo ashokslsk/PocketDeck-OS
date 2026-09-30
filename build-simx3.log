@@ -8,43 +8,43 @@ Processing simulator-X3 (platform: native)
 Verbose mode can be enabled via `-v, --verbose` option
 Language              Code  Own   Fallback  Unused  Data (B)
 --------------------  ----  ----  --------  ------  --------
-English               EN    1088  0         65      22559   
-العربية               AR    709   379       57      23661   
-Беларуская            BE    529   559       23      18146   
-Català                CA    584   504       23      13282   
-Valencià              CAV   565   523       18      12567   
-Čeština               CS    716   372       57      16381   
-Dansk                 DA    528   560       23      9429    
-Deutsch               DE    705   383       53      15052   
-Español               ES    706   382       57      16229   
-Suomi                 FI    517   571       23      10302   
-Français              FR    528   560       23      10344   
-עברית                 HE    521   567       17      13917   
-Magyar                HU    528   560       23      11332   
-Italiano              IT    595   493       30      12240   
-Қазақша               KK    527   561       23      17787   
-Lietuvių              LT    528   560       23      9920    
-Nederlands            NL    527   561       22      9726    
-Polski                PL    547   541       30      11051   
-Português (Brasil)    PT    705   383       57      15900   
-Português (Portugal)  PT2   799   289       62      19025   
-Română                RO    527   561       22      10809   
-Русский               RU    592   496       22      21056   
-Slovenščina           SI    528   560       23      10194   
-Slovenčina            SK    616   472       34      13831   
-Svenska               SV    581   507       22      11472   
-Türkçe                TR    527   561       22      10348   
-Українська            UK    581   507       29      21194   
-Tiếng Việt            VI    582   506       33      13635   
+English               EN    1244  0         63      25061   
+العربية               AR    709   535       57      23661   
+Беларуская            BE    529   715       23      18146   
+Català                CA    584   660       23      13282   
+Valencià              CAV   565   679       18      12567   
+Čeština               CS    716   528       57      16381   
+Dansk                 DA    528   716       23      9429    
+Deutsch               DE    705   539       53      15052   
+Español               ES    706   538       57      16229   
+Suomi                 FI    517   727       23      10302   
+Français              FR    528   716       23      10344   
+עברית                 HE    521   723       17      13917   
+Magyar                HU    528   716       23      11332   
+Italiano              IT    595   649       30      12240   
+Қазақша               KK    527   717       23      17787   
+Lietuvių              LT    528   716       23      9920    
+Nederlands            NL    527   717       22      9726    
+Polski                PL    547   697       30      11051   
+Português (Brasil)    PT    705   539       57      15900   
+Português (Portugal)  PT2   799   445       62      19025   
+Română                RO    527   717       22      10809   
+Русский               RU    592   652       22      21056   
+Slovenščina           SI    528   716       23      10194   
+Slovenčina            SK    616   628       34      13831   
+Svenska               SV    581   663       22      11472   
+Türkçe                TR    527   717       22      10348   
+Українська            UK    581   663       29      21194   
+Tiếng Việt            VI    582   662       33      13635   
 
-  Total: 1088  |  Used in code: 1023  |  Never used: 65
-  Flash: 401,389 B strings (deduped)  +  60,928 B offset tables  =  462,317 B
+  Total: 1244  |  Used in code: 1181  |  Never used: 63
+  Flash: 403,891 B strings (deduped)  +  69,664 B offset tables  =  473,555 B
 
-  Stripping 65 unused string(s) from output.
+  Stripping 63 unused string(s) from output.
 
 Code generation complete!
   Languages: 28
-  String keys: 1023
+  String keys: 1181
 WARNING [git_branch.py]: git command failed (exit 128): fatal: not a git repository (or any of the parent directories): .git; short SHA suffix will be "unknown"
 WARNING [git_branch.py]: Could not read git working-tree state: Command '['git', 'status', '--porcelain', '--untracked-files=no']' returned non-zero exit status 128.; state will be "unknown"
 HomePageHtml          2889B ->   1158B gz
@@ -88,11 +88,371 @@ Dependency Graph
 |-- EpdFont
 |-- FileIndex
 Building in release mode
+Compiling .pio/build/simulator-X3/src/BookmarkStore.o
+Compiling .pio/build/simulator-X3/src/ClippingStore.o
+Compiling .pio/build/simulator-X3/src/CrossPointSettings.o
+Compiling .pio/build/simulator-X3/src/CrossPointState.o
+Compiling .pio/build/simulator-X3/src/FontInstaller.o
+Compiling .pio/build/simulator-X3/src/MappedInputManager.o
+Compiling .pio/build/simulator-X3/src/OpdsServerStore.o
+Compiling .pio/build/simulator-X3/src/QuickActions.o
 Compiling .pio/build/simulator-X3/src/RecentBooksStore.o
+Compiling .pio/build/simulator-X3/src/SdCardFontSystem.o
+Compiling .pio/build/simulator-X3/src/SettingsList.o
+Compiling .pio/build/simulator-X3/src/WifiCredentialStore.o
+Compiling .pio/build/simulator-X3/src/activities/Activity.o
+Compiling .pio/build/simulator-X3/src/activities/ActivityManager.o
+Compiling .pio/build/simulator-X3/src/activities/boot_sleep/BootActivity.o
+Compiling .pio/build/simulator-X3/src/activities/boot_sleep/ImageFolderIndex.o
+Compiling .pio/build/simulator-X3/src/activities/boot_sleep/SleepActivity.o
+Compiling .pio/build/simulator-X3/src/activities/boot_sleep/SleepCoverAssets.o
+Compiling .pio/build/simulator-X3/src/activities/browser/OpdsBookBrowserActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/AlertActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/BookActions.o
+Compiling .pio/build/simulator-X3/src/activities/home/CrashActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/FileBrowserActionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/FileBrowserActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/HomeActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/RecentBookProgress.o
+Compiling .pio/build/simulator-X3/src/activities/home/RecentBooksActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/RecentBooksGridActivity.o
+Compiling .pio/build/simulator-X3/src/activities/home/SavedItemsHomeActivity.o
+Compiling .pio/build/simulator-X3/src/activities/network/CalibreConnectActivity.o
+Compiling .pio/build/simulator-X3/src/activities/network/CrossPointWebServerActivity.o
+Compiling .pio/build/simulator-X3/src/activities/network/NearbyBookTransferActivity.o
+Compiling .pio/build/simulator-X3/src/activities/network/NearbyStatsSyncActivity.o
+Compiling .pio/build/simulator-X3/src/activities/network/NetworkModeSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/network/UsbDriveActivity.o
+Compiling .pio/build/simulator-X3/src/activities/network/WifiSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/BookInsights.o
+Compiling .pio/build/simulator-X3/src/activities/reader/BookReadingStats.o
+Compiling .pio/build/simulator-X3/src/activities/reader/BookStatsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/BookStatsView.o
+Compiling .pio/build/simulator-X3/src/activities/reader/ClipSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/ControlsOptionsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/DictionaryDefinitionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/DictionarySuggestionsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/DictionaryWordSelectActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EndOfBookOptions.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubGrayscale.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderBookmarkListActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderChapterSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderClippingListActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderFootnotesActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderMenuActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderPercentSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/EpubReaderTouchMenuActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/GlobalReadingStats.o
+Compiling .pio/build/simulator-X3/src/activities/reader/KOReaderSyncActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/LibraryStats.o
+Compiling .pio/build/simulator-X3/src/activities/reader/LookedUpWordsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/NearbyBookPositionSyncActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/QrDisplayActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/ReaderActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/ReaderOptionsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/ReadingStatsUtils.o
+Compiling .pio/build/simulator-X3/src/activities/reader/StatsBackup.o
+Compiling .pio/build/simulator-X3/src/activities/reader/TxtReaderActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/XtcReaderActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/XtcReaderChapterSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/reader/XtcReaderMenuActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/AboutActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/BackupStatsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/ButtonRemapActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/ClearCacheActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/ClockOffsetActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/ClockSyncActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/DictionarySelectActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/FontDownloadActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/FontSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/FrontlightTimePickerActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/HelpTextActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/KOReaderAuthActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/KOReaderSettingsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/KeyboardLayoutsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/OpdsServerListActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/OpdsSettingsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/OtaUpdateActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/QuickActionsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/SdFirmwareUpdateActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/SettingsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/settings/StatusBarSettingsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/DailyCommandCenterActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/DailyQuoteActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/FlashcardsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/HabitData.o
+Compiling .pio/build/simulator-X3/src/activities/tools/HabitSummary.o
+Compiling .pio/build/simulator-X3/src/activities/tools/HabitTrackerActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/KannadaFont.o
+Compiling .pio/build/simulator-X3/src/activities/tools/KannadaText.o
+src/activities/settings/SettingsActivity.cpp:1059:13: warning: enumeration values 'ScreenMargin' and 'ControlsHomeButton' not handled in switch [-Wswitch]
+ 1059 |     switch (setting.action) {
+      |             ^~~~~~~~~~~~~~
+src/activities/settings/SettingsActivity.cpp:1059:13: note: add missing switch cases
+ 1059 |     switch (setting.action) {
+      |             ^
+Compiling .pio/build/simulator-X3/src/activities/tools/KnowledgeCardActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/MantraLibrary.o
+Compiling .pio/build/simulator-X3/src/activities/tools/MantrasActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/MedicineActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/MedicineData.o
+Compiling .pio/build/simulator-X3/src/activities/tools/MoodActivity.o
+1 warning generated.
+Compiling .pio/build/simulator-X3/src/activities/tools/MoodHistoryActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/PanchangaActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/PanchangaCalendarActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/PanchangaFestivals.o
+Compiling .pio/build/simulator-X3/src/activities/tools/PomodoroActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/StatsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/StatsExport.o
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolStatsActivity.o
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolStatsData.o
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolStatsPages.o
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolsCharts.o
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolsCommon.o
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolsLog.o
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolsMenuActivity.o
+src/activities/tools/PomodoroActivity.cpp:88:3: warning: 'snprintf' will always be truncated; specified size is 96, but format string expands to at least 115 [-Wformat-truncation]
+   88 |   snprintf(buf, sizeof(buf),
+      |   ^
+Compiling .pio/build/simulator-X3/src/activities/tools/ToolsStore.o
+1 warning generated.
+Compiling .pio/build/simulator-X3/src/activities/tools/WorldClockActivity.o
+Compiling .pio/build/simulator-X3/src/activities/util/BmpViewerActivity.o
+Compiling .pio/build/simulator-X3/src/activities/util/ConfirmationActivity.o
+Compiling .pio/build/simulator-X3/src/activities/util/FrontlightPanelActivity.o
+Compiling .pio/build/simulator-X3/src/activities/util/FullScreenMessageActivity.o
+Compiling .pio/build/simulator-X3/src/activities/util/IntervalSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/activities/util/KeyboardEntryActivity.o
+Compiling .pio/build/simulator-X3/src/activities/util/KeyboardLayoutSet.o
+Compiling .pio/build/simulator-X3/src/activities/util/OptionSelectionActivity.o
+Compiling .pio/build/simulator-X3/src/clippings/ClipTextBuilder.o
+Compiling .pio/build/simulator-X3/src/clippings/ClippingsManager.o
+Compiling .pio/build/simulator-X3/src/components/CompactHeader.o
+Compiling .pio/build/simulator-X3/src/components/HeaderDate.o
+Compiling .pio/build/simulator-X3/src/components/TouchActionButtons.o
+Compiling .pio/build/simulator-X3/src/components/TouchHeaderBackButton.o
+Compiling .pio/build/simulator-X3/src/components/TouchRegistry.o
+Compiling .pio/build/simulator-X3/src/components/UITheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/BaseTheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/dashboard/DashboardTheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/lyra/Lyra3CoversTheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/lyra/LyraCarouselTheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/lyra/LyraTheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/minimal/MinimalTheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/pocketdeck/PocketDeckTheme.o
+Compiling .pio/build/simulator-X3/src/components/themes/roundedraff/RoundedRaffTheme.o
+Compiling .pio/build/simulator-X3/src/main.o
+Compiling .pio/build/simulator-X3/src/network/CrossPointWebServer.o
+Compiling .pio/build/simulator-X3/src/network/HttpDownloader.o
+Compiling .pio/build/simulator-X3/src/network/UsbSerialFileTransfer.o
+Compiling .pio/build/simulator-X3/src/network/WebDAVHandler.o
+Compiling .pio/build/simulator-X3/src/platform/UsbDisabledClassCallbacks.o
+Compiling .pio/build/simulator-X3/src/platform/UsbSerialJtagHandoff.o
+Compiling .pio/build/simulator-X3/src/simulator/SimulatorHomeKeyInput.o
+Compiling .pio/build/simulator-X3/src/simulator/SimulatorSmokeTest.o
+Compiling .pio/build/simulator-X3/src/util/BatteryDiagnosticLog.o
+Compiling .pio/build/simulator-X3/src/util/BookCacheUtils.o
+Compiling .pio/build/simulator-X3/src/util/BookMoveUtils.o
+Compiling .pio/build/simulator-X3/src/util/ButtonNavigator.o
+Compiling .pio/build/simulator-X3/src/util/DictLayout.o
+Compiling .pio/build/simulator-X3/src/util/Dictionary.o
+Compiling .pio/build/simulator-X3/src/util/DictionaryLookupController.o
+Compiling .pio/build/simulator-X3/src/util/DictionaryLookupWorker.o
+Compiling .pio/build/simulator-X3/src/util/DictionaryRegistry.o
+Compiling .pio/build/simulator-X3/src/util/LookupHistory.o
+Compiling .pio/build/simulator-X3/src/util/NextBookFinder.o
+Compiling .pio/build/simulator-X3/src/util/QrUtils.o
+Compiling .pio/build/simulator-X3/src/util/ScreenshotUtil.o
+Compiling .pio/build/simulator-X3/src/util/StringUtils.o
+Compiling .pio/build/simulator-X3/src/util/UrlUtils.o
+Compiling .pio/build/simulator-X3/src/util/WordSelectNavigator.o
+Compiling .pio/build/simulator-X3/lib818/Logging/Logging.o
+Compiling .pio/build/simulator-X3/lib964/Utf8/Utf8.o
+Compiling .pio/build/simulator-X3/libdda/uzlib/tinflate.o
+Compiling .pio/build/simulator-X3/libdda/uzlib/uzlib_checksums.o
+Compiling .pio/build/simulator-X3/libc44/InflateReader/InflateReader.o
+Compiling .pio/build/simulator-X3/lib107/Memory/BuildScratch.o
+Compiling .pio/build/simulator-X3/libe59/EpdFont/EpdFont.o
+Archiving .pio/build/simulator-X3/libdda/libuzlib.a
+Compiling .pio/build/simulator-X3/libe59/EpdFont/EpdFontFamily.o
+Archiving .pio/build/simulator-X3/libc44/libInflateReader.a
+Indexing .pio/build/simulator-X3/libdda/libuzlib.a
+Compiling .pio/build/simulator-X3/libe59/EpdFont/FontDecompressor.o
+Indexing .pio/build/simulator-X3/libc44/libInflateReader.a
+Compiling .pio/build/simulator-X3/libe59/EpdFont/SdCardFont.o
+Compiling .pio/build/simulator-X3/libe59/EpdFont/SdCardFontManager.o
+Archiving .pio/build/simulator-X3/lib964/libUtf8.a
+Indexing .pio/build/simulator-X3/lib964/libUtf8.a
+Compiling .pio/build/simulator-X3/libe59/EpdFont/SdCardFontRegistry.o
+Compiling .pio/build/simulator-X3/libc5c/MiniBidi/BidiUtils.o
+Compiling .pio/build/simulator-X3/libc5c/MiniBidi/minibidi.o
+Compiling .pio/build/simulator-X3/lib472/GfxRenderer/Bitmap.o
+Compiling .pio/build/simulator-X3/lib472/GfxRenderer/BitmapHelpers.o
+Compiling .pio/build/simulator-X3/lib472/GfxRenderer/FontCacheManager.o
+Archiving .pio/build/simulator-X3/lib818/libLogging.a
+Indexing .pio/build/simulator-X3/lib818/libLogging.a
+Compiling .pio/build/simulator-X3/lib472/GfxRenderer/GfxRenderer.o
+Archiving .pio/build/simulator-X3/lib107/libMemory.a
+Indexing .pio/build/simulator-X3/lib107/libMemory.a
+Compiling .pio/build/simulator-X3/lib562/simulator/CrossPointWebServer.o
+Compiling .pio/build/simulator-X3/lib562/simulator/ESP.o
+Compiling .pio/build/simulator-X3/lib562/simulator/HalClock.o
+Compiling .pio/build/simulator-X3/lib562/simulator/HalDisplay.o
+Compiling .pio/build/simulator-X3/lib562/simulator/HalFrontlight.o
+Archiving .pio/build/simulator-X3/libc5c/libMiniBidi.a
+Compiling .pio/build/simulator-X3/lib562/simulator/HalGPIO.o
+Indexing .pio/build/simulator-X3/libc5c/libMiniBidi.a
+Compiling .pio/build/simulator-X3/lib562/simulator/HalPowerManager.o
+Compiling .pio/build/simulator-X3/lib562/simulator/HalStorage.o
+Archiving .pio/build/simulator-X3/libe59/libEpdFont.a
+Indexing .pio/build/simulator-X3/libe59/libEpdFont.a
+Compiling .pio/build/simulator-X3/lib562/simulator/HalSystem.o
+Compiling .pio/build/simulator-X3/lib562/simulator/HalTiltSensor.o
+Compiling .pio/build/simulator-X3/lib562/simulator/NetworkClient.o
+Compiling .pio/build/simulator-X3/lib562/simulator/SimulatorImageDecode.o
+Archiving .pio/build/simulator-X3/lib472/libGfxRenderer.a
+Compiling .pio/build/simulator-X3/lib562/simulator/SimulatorLifecycle.o
+Indexing .pio/build/simulator-X3/lib472/libGfxRenderer.a
+Compiling .pio/build/simulator-X3/lib562/simulator/SimulatorStackCheck.o
+Compiling .pio/build/simulator-X3/lib562/simulator/WebServer.o
+Compiling .pio/build/simulator-X3/lib562/simulator/WebSocketsServer.o
+Compiling .pio/build/simulator-X3/lib562/simulator/firmware_link_stubs.o
+Compiling .pio/build/simulator-X3/lib562/simulator/qrcode.o
+Compiling .pio/build/simulator-X3/lib562/simulator/simulator_firmware.o
+Compiling .pio/build/simulator-X3/lib562/simulator/simulator_main.o
+Compiling .pio/build/simulator-X3/lib562/simulator/simulator_ota.o
+Compiling .pio/build/simulator-X3/lib92e/FreeInkUI/FreeInkUI.o
+Compiling .pio/build/simulator-X3/libee7/NearbyTransfer/NearbyTransfer.o
+Compiling .pio/build/simulator-X3/libb8e/QRCode/qrcode.o
+Archiving .pio/build/simulator-X3/lib92e/libFreeInkUI.a
+Indexing .pio/build/simulator-X3/lib92e/libFreeInkUI.a
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/PNGdec.o
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/adler32.o
+Archiving .pio/build/simulator-X3/libb8e/libQRCode.a
+Indexing .pio/build/simulator-X3/libb8e/libQRCode.a
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/crc32.o
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/infback.o
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/inffast.o
+Archiving .pio/build/simulator-X3/libee7/libNearbyTransfer.a
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/inflate.o
+Indexing .pio/build/simulator-X3/libee7/libNearbyTransfer.a
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/inftrees.o
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/s3_simd_rgb565.o
+Compiling .pio/build/simulator-X3/lib29f/PNGdec/zutil.o
+Compiling .pio/build/simulator-X3/libfc5/JPEGDEC/JPEGDEC.o
+Compiling .pio/build/simulator-X3/libfc5/JPEGDEC/s3_simd_420.o
+Compiling .pio/build/simulator-X3/libfc5/JPEGDEC/s3_simd_444.o
+Archiving .pio/build/simulator-X3/lib29f/libPNGdec.a
+Indexing .pio/build/simulator-X3/lib29f/libPNGdec.a
+Compiling .pio/build/simulator-X3/libfc5/JPEGDEC/s3_simd_dequant.o
+Compiling .pio/build/simulator-X3/lib1dc/Serialization/ObfuscationUtils.o
+Compiling .pio/build/simulator-X3/lib1dc/Serialization/PersistableStore.o
+Compiling .pio/build/simulator-X3/libcc4/I18n/I18n.o
+Compiling .pio/build/simulator-X3/libcc4/I18n/I18nStrings.o
+Compiling .pio/build/simulator-X3/libb75/FsHelpers/FsHelpers.o
+Compiling .pio/build/simulator-X3/libb75/FsHelpers/NaturalSort.o
+Archiving .pio/build/simulator-X3/libfc5/libJPEGDEC.a
+Indexing .pio/build/simulator-X3/libfc5/libJPEGDEC.a
+Archiving .pio/build/simulator-X3/libcc4/libI18n.a
+Compiling .pio/build/simulator-X3/lib746/miniz/InflateStream.o
+Indexing .pio/build/simulator-X3/libcc4/libI18n.a
+Compiling .pio/build/simulator-X3/lib746/miniz/miniz_impl.o
+Compiling .pio/build/simulator-X3/lib170/ZipFile/ZipFile.o
+Compiling .pio/build/simulator-X3/lib5db/expat/xmlparse.o
+Compiling .pio/build/simulator-X3/lib5db/expat/xmlrole.o
+Compiling .pio/build/simulator-X3/lib5db/expat/xmltok.o
+In file included from lib/miniz/src/miniz_impl.c:4:
+lib/miniz/src/MinizConfig.h:13:9: warning: 'MINIZ_NO_ZLIB_COMPATIBLE_NAMES' macro redefined [-Wmacro-redefined]
+   13 | #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
+      |         ^
+<command line>:13:9: note: previous definition is here
+   13 | #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES 1
+      |         ^
+1 warning generated.
+Compiling .pio/build/simulator-X3/lib336/JpegToBmpConverter/JpegToBmpConverter.o
+Compiling .pio/build/simulator-X3/lib93c/PngToBmpConverter/PngToBmpConverter.o
+Archiving .pio/build/simulator-X3/lib562/libsimulator.a
+Indexing .pio/build/simulator-X3/lib562/libsimulator.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub.o
+Archiving .pio/build/simulator-X3/lib5db/libexpat.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/BookMetadataCache.o
+Indexing .pio/build/simulator-X3/lib5db/libexpat.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/Page.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/ParsedText.o
+Archiving .pio/build/simulator-X3/libb75/libFsHelpers.a
+In file included from lib/miniz/src/InflateStream.cpp:10:
+lib/miniz/src/MinizConfig.h:13:9: warning: 'MINIZ_NO_ZLIB_COMPATIBLE_NAMES' macro redefined [-Wmacro-redefined]
+   13 | #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
+      |         ^
+<command line>:13:9: note: previous definition is here
+   13 | #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES 1
+      |         ^
+Indexing .pio/build/simulator-X3/libb75/libFsHelpers.a
+Archiving .pio/build/simulator-X3/lib1dc/libSerialization.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/Section.o
+Indexing .pio/build/simulator-X3/lib1dc/libSerialization.a
+1 warning generated.
+Archiving .pio/build/simulator-X3/lib746/libminiz.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/blocks/ImageBlock.o
+Indexing .pio/build/simulator-X3/lib746/libminiz.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/blocks/TextBlock.o
+Archiving .pio/build/simulator-X3/lib170/libZipFile.a
+Indexing .pio/build/simulator-X3/lib170/libZipFile.a
+Archiving .pio/build/simulator-X3/lib336/libJpegToBmpConverter.a
+Indexing .pio/build/simulator-X3/lib336/libJpegToBmpConverter.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/converters/ImageDecoderFactory.o
+Archiving .pio/build/simulator-X3/lib93c/libPngToBmpConverter.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/converters/ImageDimsProbe.o
+Indexing .pio/build/simulator-X3/lib93c/libPngToBmpConverter.a
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/converters/ImageToFramebufferDecoder.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/converters/JpegToFramebufferConverter.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/converters/PngToFramebufferConverter.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/css/CssParser.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/htmlEntities.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/hyphenation/HyphenationCommon.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/hyphenation/Hyphenator.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/hyphenation/LanguageRegistry.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/hyphenation/LiangHyphenation.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/image/PxcV2.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/parsers/ChapterHtmlSlimParser.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/parsers/ContainerParser.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/parsers/ContentOpfParser.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/parsers/PreviewBlockLocator.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/parsers/TocNavParser.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/parsers/TocNcxParser.o
+Compiling .pio/build/simulator-X3/lib55a/Epub/Epub/tables/CompactTableLayout.o
+Compiling .pio/build/simulator-X3/lib3ed/Xtc/Xtc.o
+Compiling .pio/build/simulator-X3/lib3ed/Xtc/Xtc/XtcParser.o
+Compiling .pio/build/simulator-X3/lib325/Txt/Txt.o
+Compiling .pio/build/simulator-X3/lib35d/OpdsParser/OpdsParser.o
+Compiling .pio/build/simulator-X3/lib35d/OpdsParser/OpdsStream.o
+Compiling .pio/build/simulator-X3/lib668/KOReaderSync/ChapterXPathResolver.o
+Compiling .pio/build/simulator-X3/lib668/KOReaderSync/KOReaderCredentialStore.o
+Compiling .pio/build/simulator-X3/lib668/KOReaderSync/KOReaderDocumentId.o
+Compiling .pio/build/simulator-X3/lib668/KOReaderSync/KOReaderSyncClient.o
+Archiving .pio/build/simulator-X3/lib3ed/libXtc.a
+Indexing .pio/build/simulator-X3/lib3ed/libXtc.a
+Compiling .pio/build/simulator-X3/lib668/KOReaderSync/ProgressMapper.o
+Archiving .pio/build/simulator-X3/lib325/libTxt.a
+Indexing .pio/build/simulator-X3/lib325/libTxt.a
+Compiling .pio/build/simulator-X3/lib8d0/DictHtmlRenderer/DictHtmlRenderer.o
+Compiling .pio/build/simulator-X3/lib48f/FileIndex/FileIndex.o
+Archiving .pio/build/simulator-X3/lib35d/libOpdsParser.a
+Indexing .pio/build/simulator-X3/lib35d/libOpdsParser.a
+Archiving .pio/build/simulator-X3/lib55a/libEpub.a
+Indexing .pio/build/simulator-X3/lib55a/libEpub.a
+Archiving .pio/build/simulator-X3/lib668/libKOReaderSync.a
+Archiving .pio/build/simulator-X3/lib48f/libFileIndex.a
+Indexing .pio/build/simulator-X3/lib668/libKOReaderSync.a
+Indexing .pio/build/simulator-X3/lib48f/libFileIndex.a
+Archiving .pio/build/simulator-X3/lib8d0/libDictHtmlRenderer.a
+Indexing .pio/build/simulator-X3/lib8d0/libDictHtmlRenderer.a
 Linking .pio/build/simulator-X3/program
-========================= [SUCCESS] Took 4.64 seconds =========================
+========================= [SUCCESS] Took 37.51 seconds =========================
 
 Environment    Status    Duration
 -------------  --------  ------------
-simulator-X3   SUCCESS   00:00:04.642
-========================= 1 succeeded in 00:00:04.642 =========================
+simulator-X3   SUCCESS   00:00:37.505
+========================= 1 succeeded in 00:00:37.505 =========================

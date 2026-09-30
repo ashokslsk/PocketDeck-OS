@@ -2,7 +2,7 @@
 
 // English (IAST-free, Drik-style transliteration) names for the Panchanga.
 // Every table has the same order and length as its Kannada counterpart in
-// PanchangaKannada.h, so the activity can index either with the same value.
+// PanchangaStrings.h, so the activity can index either with the same value.
 // These are Latin strings drawn with the normal UI fonts; they live in flash.
 namespace en {
 

@@ -1,3 +1,30 @@
+## [PocketDeck-OS 1.0.0, Panchanga and Mantras update] - 2026-09-30
+
+### Added
+
+- Tools > Mantras (after Panchanga): time-aware greeting, today's mantra (weekday deity), daily ritual sequence, 35 deities, 14 ritual categories, kavacha with About and full reading, meaning in English or Kannada, and a japa counter (108/54/27 mala) with a stats page and `/stats/mantras/` export. Reads `/tools/mantras/mantras.json` in place with a one-time index.
+- Panchanga: any date from 1976 to 2075; a month calendar picker (festival dots, holiday squares, the month's special days); "Go to month and year" (decade, year, month); "About this day" with every festival's type, holiday status, place, note and source.
+- Festival and holiday calendars as JSON layers in `/tools/panchanga/festivals/` (the 1976-2075 Karnataka calendar is included); layer dates take precedence over the calculated ones for the festivals they list.
+- Kannada text from an SD card font (`/tools/fonts/kannada.knf`), shaped exactly like HarfBuzz, for the Panchanga, Mantras and any Kannada in quotes, flashcards and knowledge files.
+
+### Changed
+
+- Delta T uses the NASA polynomials across 1976-2075 (sampled every 10 years, within 0.7 s).
+- Release builds log errors only (info logs compile out), and three large items that were compiled into several files at once are now shared: the settings table and the two logo bitmaps. The X3 image is 26 KB smaller than 1.0.0 with the new features included.
+- Knowledge stats labels say "answered" (an answer counts once it is opened).
+
+### Fixed
+
+- Mantras shows the Kannada meaning again (Kannada and English by default; Settings cycles Kannada only / English only).
+- The Kannada font is retried if it could not be opened (low memory or a busy card), with a smaller glyph cache as a fallback, so Kannada text no longer disappears for a session.
+- Japa: "Malas today" and "Completed today" no longer rise with every count; they change when a mala completes or the session ends.
+- Pomodoro shows MM:SS every second again (`seconds=0` in `/tools/pomodoro.txt` for whole minutes and fewer refreshes).
+- Unlabelled side-button actions removed: they skipped the Pomodoro phase, opened Pomodoro stats, revealed flashcard answers and graded cards.
+
+### Removed
+
+- The Panchanga's pre-rendered Kannada bitmaps (38.5 KB of flash) and their generator, replaced by the SD card font.
+
 ## [PocketDeck-OS 1.0.0] - 2026-09-27
 
 First PocketDeck-OS release, based on CrossInk 1.6.0. A personal project by Ashok Kumar Srinivas.
@@ -31,12 +58,27 @@ First PocketDeck-OS release, based on CrossInk 1.6.0. A personal project by Asho
 - PDF, MOBI and AZW3 files appear in the file browser and explain how to convert them.
 - History logs for habits (tick times), medicine, mood, Pomodoro, Today and flashcards in `/tools/<feature>/log-YYYY-MM.txt`, appended atomically.
 
+### Changed (final polish)
+
+- Tools order: Pomodoro, **Panchanga**, World Clock, Habit Tracker, Medicine, Mood, Flashcards, Daily Quote, Knowledge, Today, Stats & export.
+- No two buttons share a name. Left opens a tool's **Menu** or **Stats** (on release, so it never selects a row); Right is **Next**.
+- Every tool with history has a stats page with charts and an Export button (Pomodoro, Habits, Medicine, Mood, Flashcards, Knowledge, Daily Quote, Today). New `/stats/knowledge` and `/stats/quotes` exports; flashcards export adds mastery.
+- Panchanga: Confirm opens a menu (today, Kannada/English, month back/forward, Moon animation).
+- Daily Quote: the date is shown large first; Shuffle replaced by a menu with favourites and stats.
+- Flashcards: the answer screen has one Got it and one Forgot; the deck list has Stats.
+- Knowledge: Right is Next question; Left on the topic list opens stats.
+- Mood: History and notes list with date, time, mood and note.
+- Medicine: food rule per course (before / after / with food), a course summary before saving, and a schedule line on the details page.
+- Pomodoro redraws once a minute while running (seconds only in the last minute): about 85 refreshes per session instead of 1,500. Remaining hold actions (Pomodoro reset, Today delete, Knowledge today's question) show a hint line.
+- World Clock and Today check the clock every 5 s instead of every second.
+- Reading Stats: labelled time bars, weekday chart plus a 12-week reading calendar, stacked library progress bar.
+- Home checks carousel book-stat changes from file sizes instead of reading look-up histories.
+
 ### Changed
 
 - The product version shown on screens is PocketDeck-OS 1.0.0. The CrossInk base version (1.6.0) is still used internally for update checks.
 - Boot and default sleep screens show a larger PocketDeck-OS logo, the name, "Developed by Ashok Kumar Srinivas" and the version. The default sleep screen is now light.
 - The Pomodoro, Today and World Clock screens no longer use seven-segment digits.
-- Tools are ordered Pomodoro, World Clock, Habit Tracker, Medicine, Mood, Flashcards, Daily Quote, Knowledge, Panchanga, Today, Stats & export.
 - Data folders carry the PocketDeck-OS name: `/.pocketdeck-os` (was `/.crosspoint`), `pocketdeck-os-settings.json` (was `crossink-settings.json`) and `/.pocketdeck-os-stats-backup` (was `/.crossink-stats-backup`). The first start moves an existing CrossInk folder across in one rename, so books, progress, bookmarks, clippings, stats and settings are kept; nothing is overwritten if both exist. File-format markers and sync IDs keep their CrossInk names for compatibility.
 - The About page footer reads "Based on CrossInk 1.6.0".
 - A long Confirm press in the tools now acts on release, so it can open a menu without selecting its first row.

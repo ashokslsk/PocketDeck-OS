@@ -12,6 +12,7 @@
 #include "FlashcardsActivity.h"
 #include "HabitTrackerActivity.h"
 #include "KnowledgeCardActivity.h"
+#include "MantrasActivity.h"
 #include "MedicineActivity.h"
 #include "MoodActivity.h"
 #include "PanchangaActivity.h"
@@ -41,6 +42,8 @@ const char* ToolsMenuActivity::toolLabel(const int index) {
       return tr(STR_TOOLS_KNOWLEDGE);
     case PANCHANGA:
       return tr(STR_TOOLS_PANCHANGA);
+    case MANTRAS:
+      return tr(STR_TOOLS_MANTRAS);
     case STATS:
       return tr(STR_TOOLS_STATS);
     default:
@@ -68,6 +71,8 @@ const char* ToolsMenuActivity::toolDescription(const int index) {
       return tr(STR_TOOLS_KNOWLEDGE_DESC);
     case PANCHANGA:
       return tr(STR_TOOLS_PANCHANGA_DESC);
+    case MANTRAS:
+      return tr(STR_TOOLS_MANTRAS_DESC);
     case STATS:
       return tr(STR_TOOLS_STATS_DESC);
     default:
@@ -112,6 +117,9 @@ void ToolsMenuActivity::openTool(const int index) {
       break;
     case PANCHANGA:
       tool = makeUniqueNoThrow<PanchangaActivity>(renderer, mappedInput);
+      break;
+    case MANTRAS:
+      tool = makeUniqueNoThrow<MantrasActivity>(renderer, mappedInput);
       break;
     case STATS:
       tool = makeUniqueNoThrow<StatsActivity>(renderer, mappedInput);

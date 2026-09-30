@@ -11,9 +11,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include "ToolsLog.h"
+#include "MoodHistoryActivity.h"
+#include "ToolStatsPages.h"
 #include "activities/util/KeyboardEntryActivity.h"
+#include "activities/util/OptionSelectionActivity.h"
 #include "fontIds.h"
 
 namespace {
@@ -242,6 +246,43 @@ void MoodActivity::editNote() {
   });
 }
 
+void MoodActivity::openMenu() {
+  std::vector<std::string> options;
+  options.reserve(3);
+  options.emplace_back(note_[0] != '\0' ? tr(STR_TOOLS_MOOD_EDIT_NOTE) : tr(STR_TOOLS_MOOD_ADD_NOTE));
+  options.emplace_back(tr(STR_TOOLS_MOOD_HISTORY));
+  options.emplace_back(tr(STR_TOOLS_HABIT_STATS));
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "MoodMenu", StrId::STR_TOOLS_MOOD,
+                                                           std::move(options), 0);
+  if (!picker) return;
+  startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (result.isCancelled || sel == nullptr) {
+      requestUpdate();
+      return;
+    }
+    std::unique_ptr<Activity> next;
+    if (sel->index == 0) {
+      editNote();
+      return;
+    }
+    if (sel->index == 1) {
+      next = makeUniqueNoThrow<MoodHistoryActivity>(renderer, mappedInput);
+    } else {
+      next = makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_MOOD_STATS),
+                                                  &toolstats::buildMood, nullptr, statsx::Feature::Mood);
+    }
+    if (!next) return;
+    startActivityForResult(std::move(next), [this](const ActivityResult&) {
+      input_.reset(mappedInput);
+      transitionPending_ = true;
+      requestUpdate();
+    });
+  });
+}
+
 void MoodActivity::loop() {
   input_.poll(mappedInput);
   if (input_.backLong) {
@@ -253,9 +294,9 @@ void MoodActivity::loop() {
     return;
   }
   if (!clockValid_) return;
-  if (input_.left) {
-    cursor_ = (cursor_ + 4) % 5;
-    requestUpdate();
+  if (input_.leftUp) {
+    openMenu();
+    return;
   } else if (input_.right) {
     cursor_ = (cursor_ + 1) % 5;
     requestUpdate();
@@ -269,8 +310,6 @@ void MoodActivity::loop() {
     --offset_;
     load();
     requestUpdate();
-  } else if (input_.confirmLong) {
-    editNote();
   } else if (input_.confirm) {
     save(note_);
     requestUpdate();
@@ -321,7 +360,7 @@ void MoodActivity::render(RenderLock&&) {
     if (note_[0] != '\0') {
       snprintf(line, sizeof(line), "%s: %s", tr(STR_TOOLS_MOOD_NOTE), note_);
     } else {
-      snprintf(line, sizeof(line), "%s", tr(STR_TOOLS_MOOD_HOLD_HINT));
+      snprintf(line, sizeof(line), "%s", tr(STR_TOOLS_MOOD_NOTE_HINT));
     }
     const auto shown = renderer.truncatedText(UI_10_FONT_ID, line, content.width);
     renderer.drawText(UI_10_FONT_ID, content.x, y, shown.c_str());
@@ -339,7 +378,8 @@ void MoodActivity::render(RenderLock&&) {
   // --- Stats.
   charts::statGrid(renderer, Rect{content.x, y, content.width, 0}, 2, stats_, 8);
 
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SAVE), tr(STR_DIR_LEFT), tr(STR_DIR_RIGHT));
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SAVE), tr(STR_TOOLS_MENU),
+                   tr(STR_TOOLS_MOOD_NEXT_FACE));
   const bool transition = transitionPending_;
   transitionPending_ = false;
   renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);

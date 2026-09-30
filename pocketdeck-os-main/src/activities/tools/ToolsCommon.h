@@ -83,6 +83,9 @@ class ToolInput {
   bool right = false;
   bool pageBack = false;
   bool pageForward = false;
+  // Left released after a press that started in this screen. Menus and stats
+  // pages open on this, so the release never reaches the screen they open.
+  bool leftUp = false;
   bool any = false;
 
   bool prev() const { return up || left || pageBack; }
@@ -93,6 +96,7 @@ class ToolInput {
   bool confirmArmed_ = false;
   bool backLongFired_ = false;
   bool confirmLongFired_ = false;
+  bool leftArmed_ = false;
 };
 
 // ---------------------------------------------------------------------------
@@ -129,6 +133,9 @@ struct WrapOptions {
   bool draw = true;
 };
 int drawWrappedText(const GfxRenderer& renderer, const Rect& box, const char* text, const WrapOptions& opt);
+// Line height drawWrappedText uses for this text: taller for Kannada text
+// (drawn with the SD card Kannada font), the font's own otherwise.
+int wrapLineHeight(const GfxRenderer& renderer, int fontId, const char* text);
 
 // Returns true when the tools session used WiFi or left the heap fragmented,
 // in which case exiting Tools should silently reboot to Home (the same

@@ -25,6 +25,12 @@ const char* featureLabel(const statsx::Feature f) {
       return tr(STR_TOOLS_TODAY);
     case statsx::Feature::Flashcards:
       return tr(STR_TOOLS_FLASHCARDS);
+    case statsx::Feature::Knowledge:
+      return tr(STR_TOOLS_KNOWLEDGE);
+    case statsx::Feature::Quotes:
+      return tr(STR_TOOLS_DAILY_QUOTE);
+    case statsx::Feature::Mantras:
+      return tr(STR_TOOLS_MANTRAS);
     default:
       return tr(STR_TOOLS_STATS_READING);
   }
@@ -83,7 +89,7 @@ void StatsActivity::loop() {
     finish();
     return;
   }
-  if (input_.confirmLong) {
+  if (input_.leftUp) {
     confirmImport();
   } else if (input_.confirm) {
     pending_ = Pending::Export;
@@ -158,7 +164,8 @@ void StatsActivity::render(RenderLock&&) {
   }
   tools::drawWrappedText(renderer, Rect{content.x, y, content.width, content.y + content.height - y},
                          tr(STR_TOOLS_STATS_INTRO), opt);
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_STATS_EXPORT), "", "");
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_STATS_EXPORT), tr(STR_TOOLS_STATS_IMPORT_SHORT),
+                   "");
   const bool transition = transitionPending_;
   transitionPending_ = false;
   renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);

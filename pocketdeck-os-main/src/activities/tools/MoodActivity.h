@@ -28,6 +28,7 @@ class MoodActivity final : public Activity {
   void computeStats();
   void save(const char* note);
   void editNote();
+  void openMenu();
 
   tools::ToolInput input_;
   bool clockValid_ = false;

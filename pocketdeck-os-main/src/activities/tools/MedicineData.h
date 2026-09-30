@@ -7,8 +7,9 @@
 // 4 days"). Storage under /tools/medicine:
 //
 //   courses.txt        one course per line:
-//                      id|name|doses per day|days|start date|stopped date or -|dose times
-//                      c1a2b3c4|Paracetamol|3|4|2026-09-27|-|08:00,13:00,19:00
+//                      id|name|doses per day|days|start date|stopped date or -|dose times|food
+//                      c1a2b3c4|Paracetamol|3|4|2026-09-27|-|08:00,13:00,19:00|after
+//                      (food: before, after, with or - for no condition)
 //   log-YYYY-MM.txt    one line per tick / untick (ToolsLog.h):
 //                      2026-09-27 08:12|c1a2b3c4|2026-09-27|0|1
 //                      (course id | dose day | dose slot 0..3 | 1 taken, 0 undone)
@@ -30,6 +31,7 @@ struct Course {
   int32_t start = 0;                                   // first day (tools day number)
   int32_t stopped = 0;                                 // 0 = not stopped early, else the stop day
   int16_t slotMinute[kMaxDoses] = {};                  // planned time of each dose
+  uint8_t food = 0;  // FoodAny, FoodBefore, FoodAfter or FoodWith
   uint8_t taken[(kMaxDays * kMaxDoses + 7) / 8] = {};  // day-major bits
 
   int32_t lastDay() const { return start + days - 1; }
@@ -41,6 +43,9 @@ struct Course {
 };
 
 enum class Status : uint8_t { Upcoming, Active, Completed, Stopped };
+enum Food : uint8_t { FoodAny = 0, FoodBefore = 1, FoodAfter = 2, FoodWith = 3, FoodCount };
+// Translated "Before food" / "After food" / "With food" / "" (no condition).
+const char* foodLabel(uint8_t food);
 Status statusOf(const Course& c, int32_t today);
 
 // Default times for n doses a day: 08:00 / +20:00 / 13:00+19:00 / ... .

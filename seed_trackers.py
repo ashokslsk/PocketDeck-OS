@@ -107,3 +107,42 @@ open("tools/panchanga.txt", "w").write("lat=12.9716\nlon=77.5946\ntz=5.5\nanimat
 # Today's three sessions (pomodoro.txt says completed=3) belong in the log too.
 for k in range(3):
     log("pomodoro", today, 9 * 60 + 25 + 30 * k, "focus|25")
+
+# ---- Reading history (global stats v3) so the reading-stats charts have data.
+import struct
+os.makedirs(".pocketdeck-os", exist_ok=True)
+anchor = (today - dt.date(2000, 1, 1)).days
+bits = bytearray(92)
+read_days = 0
+for back in range(0, 120):
+    if back == 0 or random.random() < (0.8 if back < 30 else 0.55):
+        bits[back // 8] |= 1 << (back % 8)
+        read_days += 1
+tod = [5 * 3600 + 1200, 3 * 3600 + 600, 17 * 3600 + 2400, 9 * 3600 + 300]
+dow = [4 * 3600, 3 * 3600 + 1800, 5 * 3600, 3 * 3600, 4 * 3600 + 2400, 7 * 3600, 8 * 3600 + 1200]
+total = sum(tod)
+blob = struct.pack("<BIIII", 3, 96, total, 5100, 3) + struct.pack("<4I", *tod) + struct.pack("<7I", *dow)
+blob += struct.pack("<I", anchor) + bytes(bits) + struct.pack("<H", 14)
+assert len(blob) == 159, len(blob)
+open(".pocketdeck-os/global_stats.bin", "wb").write(blob)
+
+# ---- Knowledge study history and days the daily quote was opened.
+topics = {"AI": 4, "Python": 5, "SQL": 4}
+for back in range(40, 0, -1):
+    day = today - dt.timedelta(days=back)
+    if random.random() < .6:
+        for k in range(random.randint(1, 4)):
+            t = random.choice(list(topics))
+            log("knowledge", day, 19 * 60 + int(random.gauss(40, 30)), f"{t}|{random.randrange(topics[t])}")
+    if random.random() < .75:
+        log("quotes", day, 7 * 60 + int(random.gauss(15, 20)), f"open|{day:%Y-%m-%d}")
+
+# ---- Japa sessions (Mantras): mostly one mala at dawn, sometimes two, for 45 days.
+deities = ["vishnu", "shiva", "ganesha", "lakshmi", "hanuman", "Morning routine"]
+for back in range(45, 0, -1):
+    day = today - dt.timedelta(days=back)
+    if random.random() < .8:
+        for k in range(random.choice([1, 1, 1, 2])):
+            count = random.choice([108, 108, 108, 216, 54])
+            log("mantras", day, 6 * 60 + int(random.gauss(10, 25)) + 600 * k,
+                f"{count}|{random.choice(deities)}|{random.randrange(20)}|Om Namo Narayanaya")

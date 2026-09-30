@@ -1,5 +1,21 @@
 # File Formats
 
+## PocketDeck-OS tools files (SD card)
+
+- `/tools/fonts/kannada.knf`: the Kannada font. Header, cmap, pair kerning,
+  per-glyph advances, four bitmap styles (19 px, 21 px bold, 26 px bold, 24 px)
+  and the syllable dictionary (1,084,860 slots of 20 bytes). The full layout is
+  in the docstring of `scripts/kannada/build_kannada_font.py`.
+- `/tools/.cache/festivals.idx` ("FIX1"): layer file names and a per-year
+  bitmask of the calendar-decided festivals, then `{day i32, layer<<28 | offset
+  u32}` records sorted by date. Rebuilt when a layer's name or size changes.
+- `/tools/.cache/mantras.idx` ("MIX1"): categories (kind, kavacha, first
+  mantra, count, key, Kannada and English names; 160 bytes each), kavachas
+  (object offset and names; 132 bytes each), then one u32 file offset per
+  mantra. Rebuilt when `mantras.json` changes size.
+- `/tools/mantras/log-YYYY-MM.txt`: `YYYY-MM-DD HH:MM|count|category|mantra|text`, one line per japa session.
+
+
 These formats describe the SD-card cache files under `/.pocketdeck-os/epub_<hash>/`.
 All POD fields are written in the ESP32 little-endian representation used by
 `Serialization.h`; strings are length-prefixed UTF-8 unless a format notes a

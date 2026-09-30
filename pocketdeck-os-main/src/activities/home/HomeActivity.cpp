@@ -525,9 +525,7 @@ void buildCarouselCacheKey(const std::vector<RecentBook>& recentBooks, const boo
         appendHashedFileStateToKey(key, cache + "/stats_v5.bin");
         appendHashedFileStateToKey(key, cache + "/progress_percent.bin");
       }
-      const BookInsights insights = BookInsights::load(book.path);
-      key += std::to_string(insights.bookmarks) + ":" + std::to_string(insights.clippings) + ":" +
-             std::to_string(insights.lookups);
+      key += BookInsights::signature(book.path);
       key += '\0';
     }
   }

@@ -11,6 +11,9 @@
 #include <cstring>
 #include <string>
 
+#include "KannadaText.h"
+#include "SrsState.h"
+#include "ToolStatsPages.h"
 #include "ToolsLog.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -66,36 +69,6 @@ bool readCardObject(tools::JsonReader& r, char* question, const size_t qCap, cha
     }
     if (t == Tok::Error || t == Tok::End) return false;
     if (!isQ && !isA && !r.skipValue(t)) return false;
-  }
-}
-
-struct StateEntry {
-  char deck[40];
-  uint32_t hash;
-  int32_t lastDay;
-  uint16_t interval;
-};
-
-// Reads one {"deck","id","lastReviewed","interval"} object ('{' consumed).
-bool readStateObject(tools::JsonReader& r, StateEntry& e) {
-  char key[16];
-  char value[48];
-  e = StateEntry{};
-  while (true) {
-    Tok t = r.next(key, sizeof(key));
-    if (t == Tok::Comma) continue;
-    if (t == Tok::ObjectEnd) return true;
-    if (t != Tok::String) return false;
-    if (r.next(nullptr, 0) != Tok::Colon) return false;
-    t = r.next(value, sizeof(value));
-    if (t == Tok::ObjectStart || t == Tok::ArrayStart) {
-      if (!r.skipValue(t)) return false;
-      continue;
-    }
-    if (strcmp(key, "deck") == 0) snprintf(e.deck, sizeof(e.deck), "%s", value);
-    if (strcmp(key, "id") == 0) e.hash = static_cast<uint32_t>(strtoul(value, nullptr, 16));
-    if (strcmp(key, "lastReviewed") == 0) tools::parseIsoDate(value, e.lastDay);
-    if (strcmp(key, "interval") == 0) e.interval = static_cast<uint16_t>(std::min(atoi(value), 3650));
   }
 }
 
@@ -251,11 +224,11 @@ void FlashcardsActivity::loadState() {
     f.close();
     return;
   }
-  StateEntry e;
+  srs::StateEntry e;
   while (true) {
     const Tok t = r.next(nullptr, 0);
     if (t == Tok::Comma) continue;
-    if (t != Tok::ObjectStart || !readStateObject(r, e)) break;
+    if (t != Tok::ObjectStart || !srs::readStateObject(r, e)) break;
     if (strcmp(e.deck, decks_[openDeck_]) != 0 || e.lastDay <= dayBase()) continue;
     for (int i = 0; i < cardCount_; ++i) {
       if (hashes_[i] == e.hash) {
@@ -280,11 +253,11 @@ bool FlashcardsActivity::writeState(FsFile& out, void* ctx) {
   if (Storage.exists(kStatePath) && Storage.openFileForRead("FLASH", kStatePath, old)) {
     tools::JsonReader r(old);
     if (tools::findFirstArray(r)) {
-      StateEntry e;
+      srs::StateEntry e;
       while (true) {
         const Tok t = r.next(nullptr, 0);
         if (t == Tok::Comma) continue;
-        if (t != Tok::ObjectStart || !readStateObject(r, e)) break;
+        if (t != Tok::ObjectStart || !srs::readStateObject(r, e)) break;
         if (strcmp(e.deck, deckName) == 0 || e.deck[0] == '\0') continue;
         if (!writeStateEntry(out, e.deck, e.hash, e.lastDay, e.interval, first)) {
           old.close();
@@ -410,6 +383,7 @@ void FlashcardsActivity::closeDeck() {
 void FlashcardsActivity::onEnter() {
   Activity::onEnter();
   input_.reset(mappedInput);
+  kannada::acquire();  // Kannada text in the user's decks, when the font is on the card
   tools::ensureToolsDirs();
   tools::DateTime local;
   today_ = tools::getLocalNow(local) ? tools::daysOf(local) : dayBase() + 1;
@@ -422,7 +396,19 @@ void FlashcardsActivity::onEnter() {
 void FlashcardsActivity::onExit() {
   logSession();
   saveState();
+  kannada::release();
   Activity::onExit();
+}
+
+void FlashcardsActivity::openStats() {
+  auto stats = makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_FC_STATS),
+                                                    &toolstats::buildFlashcards, nullptr, statsx::Feature::Flashcards);
+  if (!stats) return;
+  startActivityForResult(std::move(stats), [this](const ActivityResult&) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    requestUpdate();
+  });
 }
 
 void FlashcardsActivity::loop() {
@@ -440,8 +426,12 @@ void FlashcardsActivity::loop() {
         finish();
         return;
       }
+      if (input_.leftUp) {
+        openStats();
+        return;
+      }
       if (deckCount_ == 0) return;
-      if (input_.prev()) {
+      if (input_.up || input_.pageBack) {
         selectedDeck_ = (selectedDeck_ + deckCount_ - 1) % deckCount_;
         requestUpdate();
       } else if (input_.next()) {
@@ -462,7 +452,7 @@ void FlashcardsActivity::loop() {
           closeDeck();
         }
         requestUpdate();
-      } else if (input_.confirm || input_.next()) {
+      } else if (input_.confirm) {  // only the labelled button reveals the answer
         screen_ = Screen::Answer;
         requestUpdate();
       }
@@ -474,13 +464,13 @@ void FlashcardsActivity::loop() {
           closeDeck();
         }
         requestUpdate();
-      } else if (input_.confirm || input_.right || input_.pageForward) {
+      } else if (input_.confirm) {  // Got it
         {
           RenderLock lock(*this);
           grade(true);
         }
         requestUpdate();
-      } else if (input_.left || input_.pageBack) {
+      } else if (input_.left) {  // Forgot (side buttons never grade a card)
         {
           RenderLock lock(*this);
           grade(false);
@@ -489,6 +479,15 @@ void FlashcardsActivity::loop() {
       }
       break;
     case Screen::Done:
+      if (input_.confirm) {
+        {
+          RenderLock lock(*this);
+          closeDeck();
+        }
+        openStats();
+        return;
+      }
+      [[fallthrough]];
     case Screen::Error:
       if (input_.back || input_.confirm) {
         {
@@ -512,7 +511,8 @@ void FlashcardsActivity::render(RenderLock&&) {
     } else {
       GUI.drawList(renderer, Rect{0, content.y, renderer.getScreenWidth(), content.height}, deckCount_, selectedDeck_,
                    [this](const int i) { return std::string(decks_[i]); });
-      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_STUDY), tr(STR_DIR_UP), tr(STR_DIR_DOWN));
+      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_STUDY), tr(STR_TOOLS_STATS_SHORT),
+                       tr(STR_TOOLS_NEXT));
     }
   } else {
     const char* deckName = openDeck_ >= 0 ? decks_[openDeck_] : "";
@@ -528,7 +528,7 @@ void FlashcardsActivity::render(RenderLock&&) {
       measure.centered = true;
       measure.draw = false;
       const int lines = tools::drawWrappedText(renderer, box, question_, measure);
-      const int textH = std::min(box.height, lines * renderer.getLineHeight(BITTER_14_FONT_ID));
+      const int textH = std::min(box.height, lines * tools::wrapLineHeight(renderer, BITTER_14_FONT_ID, question_));
       box.y += (box.height - textH) / 2;
       box.height = textH;
       tools::WrapOptions opt = measure;
@@ -537,7 +537,7 @@ void FlashcardsActivity::render(RenderLock&&) {
       tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SHOW_ANSWER), "", "");
     } else if (screen_ == Screen::Answer) {
       // Question kept small at the top for context, answer below the rule.
-      const int qLineH = renderer.getLineHeight(UI_10_FONT_ID);
+      const int qLineH = tools::wrapLineHeight(renderer, UI_10_FONT_ID, question_);
       Rect qBox{content.x, content.y, content.width, qLineH * 3};
       tools::WrapOptions qOpt;
       qOpt.fontId = UI_10_FONT_ID;
@@ -551,8 +551,7 @@ void FlashcardsActivity::render(RenderLock&&) {
       aOpt.fontId = UI_12_FONT_ID;
       aOpt.markdown = true;
       tools::drawWrappedText(renderer, aBox, answer_, aOpt);
-      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_GOT_IT), tr(STR_TOOLS_FORGOT),
-                       tr(STR_TOOLS_GOT_IT));
+      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_GOT_IT), tr(STR_TOOLS_FORGOT), "");
     } else if (screen_ == Screen::Done) {
       const int midY = content.y + content.height / 2;
       renderer.drawCenteredText(UI_12_FONT_ID, midY - 40, tr(STR_TOOLS_SESSION_DONE), true, EpdFontFamily::BOLD);
@@ -561,7 +560,7 @@ void FlashcardsActivity::render(RenderLock&&) {
                remembered_, tr(STR_TOOLS_FORGOT), forgot_);
       renderer.drawCenteredText(UI_10_FONT_ID, midY, line);
       if (reviewed_ == 0) renderer.drawCenteredText(UI_10_FONT_ID, midY + 30, tr(STR_TOOLS_NOTHING_DUE));
-      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_DONE), "", "");
+      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_STATS_SHORT), "", "");
     } else {
       const int midY = content.y + content.height / 2;
       renderer.drawCenteredText(UI_12_FONT_ID, midY - 20, tr(STR_TOOLS_DECK_ERROR), true, EpdFontFamily::BOLD);

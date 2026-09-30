@@ -56,16 +56,45 @@ class HalFile : public Print {
   bool close() {
     data_.reset();
     cursor_ = 0;
+    isDir_ = false;
+    entries_.clear();
     return true;
   }
   size_t fileSize() const { return data_ ? data_->bytes.size() : 0; }
-  explicit operator bool() const { return static_cast<bool>(data_); }
+  explicit operator bool() const { return static_cast<bool>(data_) || isDir_; }
+
+  // Directory handles (Storage.open() of a directory) list their files.
+  static HalFile directory(std::vector<std::pair<std::string, std::shared_ptr<HostFileData>>> entries) {
+    HalFile f;
+    f.isDir_ = true;
+    f.entries_ = std::move(entries);
+    return f;
+  }
+  bool isDirectory() const { return isDir_; }
+  HalFile openNextFile() {
+    if (!isDir_ || next_ >= entries_.size()) return HalFile();
+    HalFile f(entries_[next_].second);
+    f.name_ = entries_[next_].first;
+    ++next_;
+    return f;
+  }
+  size_t getName(char* out, const size_t len) const {
+    if (len == 0) return 0;
+    const size_t n = std::min(len - 1, name_.size());
+    std::copy_n(name_.data(), n, out);
+    out[n] = '\0';
+    return n;
+  }
 
   static inline bool failWrites = false;
 
  private:
   std::shared_ptr<HostFileData> data_;
   size_t cursor_ = 0;
+  bool isDir_ = false;
+  std::vector<std::pair<std::string, std::shared_ptr<HostFileData>>> entries_;
+  size_t next_ = 0;
+  std::string name_;
 };
 
 using FsFile = HalFile;
@@ -94,6 +123,18 @@ class HalStorage {
     return true;
   }
   HalFile open(const char* path, const int flags = O_RDONLY) {
+    if ((flags & O_CREAT) == 0 && dirs_.contains(path)) {
+      // Files directly inside the directory, in name order.
+      const std::string prefix = std::string(path) + "/";
+      std::vector<std::pair<std::string, std::shared_ptr<HostFileData>>> entries;
+      for (const auto& [name, data] : files_) {
+        if (name.rfind(prefix, 0) == 0 && name.find('/', prefix.size()) == std::string::npos) {
+          entries.emplace_back(name.substr(prefix.size()), data);
+        }
+      }
+      std::sort(entries.begin(), entries.end());
+      return HalFile::directory(std::move(entries));
+    }
     auto found = files_.find(path);
     if ((flags & O_CREAT) != 0) {
       if (found == files_.end() || (flags & O_TRUNC) != 0) {

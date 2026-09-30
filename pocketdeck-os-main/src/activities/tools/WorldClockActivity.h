@@ -8,8 +8,8 @@
 // Time comes from the existing HalClock (RTC) after an NTP sync; Confirm
 // opens the existing Settings clock-sync flow, which reuses the normal WiFi
 // selection/credential stack. City offsets live in /tools/worldclock.txt as
-// "Name|UTC offset|DST rule" so no network is needed to show them. Hold
-// Confirm to pick cities from the built-in catalogue (CityCatalog.h).
+// "Name|UTC offset|DST rule" so no network is needed to show them. Left
+// (Cities) picks cities from the built-in catalogue (CityCatalog.h).
 class WorldClockActivity final : public Activity {
  public:
   explicit WorldClockActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)

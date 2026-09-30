@@ -18,6 +18,7 @@ class KnowledgeCardActivity final : public Activity {
       : Activity("Knowledge", renderer, mappedInput) {}
 
   void onEnter() override;
+  void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
 
@@ -33,6 +34,8 @@ class KnowledgeCardActivity final : public Activity {
 
   void scanTopics();
   bool openTopic(int topic);
+  void showAnswer();
+  void openStats();
   bool ensureIndex(uint32_t& count) const;
   static bool buildIndex(FsFile& out, void* ctx);
   bool loadItem(int index);

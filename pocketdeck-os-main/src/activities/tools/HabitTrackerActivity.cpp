@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "HabitStatsActivity.h"
+#include "ToolStatsPages.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/KeyboardEntryActivity.h"
 #include "activities/util/OptionSelectionActivity.h"
@@ -102,44 +102,68 @@ void HabitTrackerActivity::reloadNames() {
 
 void HabitTrackerActivity::openMenu() {
   saveIfDirty();
+  // Each row maps to an action, so hidden rows never shift the others.
+  enum Action : uint8_t { Stats, Add, Rename, Delete, PrevWeek, NextWeek };
   std::vector<std::string> options;
-  options.reserve(4);
-  options.emplace_back(std::string(tr(STR_TOOLS_HABIT_STATS)) + ": " + names_[selHabit_]);
-  if (count_ < habits::kMaxHabits) options.emplace_back(tr(STR_TOOLS_HABIT_ADD));
-  options.emplace_back(std::string(tr(STR_TOOLS_HABIT_RENAME)) + ": " + names_[selHabit_]);
-  if (count_ > 1) options.emplace_back(std::string(tr(STR_TOOLS_HABIT_DELETE)) + ": " + names_[selHabit_]);
-  const bool canAdd = count_ < habits::kMaxHabits;
+  std::vector<uint8_t> actions;
+  options.reserve(6);
+  actions.reserve(6);
+  auto add = [&](const Action a, std::string label) {
+    options.push_back(std::move(label));
+    actions.push_back(a);
+  };
+  add(Stats, std::string(tr(STR_TOOLS_HABIT_STATS)) + ": " + names_[selHabit_]);
+  if (count_ < habits::kMaxHabits) add(Add, tr(STR_TOOLS_HABIT_ADD));
+  add(Rename, std::string(tr(STR_TOOLS_HABIT_RENAME)) + ": " + names_[selHabit_]);
+  if (count_ > 1) add(Delete, std::string(tr(STR_TOOLS_HABIT_DELETE)) + ": " + names_[selHabit_]);
+  add(PrevWeek, tr(STR_TOOLS_HABIT_PREV_WEEK));
+  if (viewMonday_ < habits::mondayOf(today_)) add(NextWeek, tr(STR_TOOLS_HABIT_NEXT_WEEK));
   auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "HabitMenu",
                                                            StrId::STR_TOOLS_HABIT_MENU, std::move(options), 0);
   if (!picker) return;
-  startActivityForResult(std::move(picker), [this, canAdd](const ActivityResult& result) {
+  startActivityForResult(std::move(picker), [this, actions](const ActivityResult& result) {
     input_.reset(mappedInput);
     transitionPending_ = true;
     const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
-    if (result.isCancelled || sel == nullptr) {
+    if (result.isCancelled || sel == nullptr || sel->index >= actions.size()) {
       requestUpdate();
       return;
     }
-    int choice = sel->index;
-    if (choice == 0) {
-      auto stats = makeUniqueNoThrow<HabitStatsActivity>(renderer, mappedInput, names_[selHabit_]);
-      if (stats) {
-        startActivityForResult(std::move(stats), [this](const ActivityResult&) {
-          input_.reset(mappedInput);
-          transitionPending_ = true;
-          requestUpdate();
-        });
+    switch (actions[sel->index]) {
+      case Stats: {
+        auto stats = makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_HABIT_STATS),
+                                                          &toolstats::buildHabit, names_[selHabit_],
+                                                          statsx::Feature::Habits);
+        if (stats) {
+          startActivityForResult(std::move(stats), [this](const ActivityResult&) {
+            input_.reset(mappedInput);
+            transitionPending_ = true;
+            requestUpdate();
+          });
+        }
+        return;
       }
-      return;
+      case Add:
+        addHabit();
+        return;
+      case Rename:
+        renameHabit();
+        return;
+      case Delete:
+        deleteHabit();
+        return;
+      case PrevWeek: {
+        RenderLock lock(*this);
+        showWeek(viewMonday_ - 7);
+        break;
+      }
+      default: {
+        RenderLock lock(*this);
+        showWeek(viewMonday_ + 7);
+        break;
+      }
     }
-    if (!canAdd) ++choice;  // "Add" row was hidden
-    if (choice == 1) {
-      addHabit();
-    } else if (choice == 2) {
-      renameHabit();
-    } else {
-      deleteHabit();
-    }
+    requestUpdate();
   });
 }
 
@@ -223,27 +247,13 @@ void HabitTrackerActivity::loop() {
   } else if (input_.down || input_.pageForward) {
     selHabit_ = (selHabit_ + 1) % count_;
     requestUpdate();
-  } else if (input_.left) {
-    RenderLock lock(*this);  // week bits and streaks are read by render()
-    if (selDay_ > 0) {
-      --selDay_;
-    } else {
-      showWeek(viewMonday_ - 7);
-      selDay_ = 6;
-    }
-    requestUpdate();
-  } else if (input_.right) {
-    RenderLock lock(*this);
-    if (selDay_ < 6) {
-      ++selDay_;
-    } else if (viewMonday_ + 7 <= today_) {
-      showWeek(viewMonday_ + 7);
-      selDay_ = 0;
-    }
-    requestUpdate();
-  } else if (input_.confirmLong) {
+  } else if (input_.leftUp) {
     openMenu();
     return;
+  } else if (input_.right) {
+    // Next day; Sunday wraps to Monday of the same week (weeks change in the menu).
+    selDay_ = (selDay_ + 1) % 7;
+    requestUpdate();
   } else if (input_.confirm && !isFuture(selDay_)) {
     RenderLock lock(*this);
     bits_[selHabit_] ^= static_cast<uint8_t>(1U << selDay_);
@@ -283,8 +293,7 @@ void HabitTrackerActivity::render(RenderLock&&) {
   const int streakW = renderer.getTextWidth(UI_10_FONT_ID, "999d") + 8;
   const int gridX = content.x + nameW;
   const int gridW = content.width - nameW - streakW;
-  const int hintH = renderer.getLineHeight(SMALL_FONT_ID) + 4;
-  const int rowH = std::min(72, (content.height - headerH - hintH) / count_);
+  const int rowH = std::min(72, (content.height - headerH) / count_);
   const int cellW = gridW / 7;
   const int block = std::max(10, std::min(cellW - 8, rowH - 14));
 
@@ -342,9 +351,8 @@ void HabitTrackerActivity::render(RenderLock&&) {
     }
   }
 
-  renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - hintH + 2, tr(STR_TOOLS_HABIT_HOLD_HINT));
   const char* confirmLabel = isFuture(selDay_) ? "" : tr(STR_TOOLS_TOGGLE);
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), confirmLabel, tr(STR_DIR_LEFT), tr(STR_DIR_RIGHT));
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), confirmLabel, tr(STR_TOOLS_MENU), tr(STR_TOOLS_NEXT_DAY));
   const bool transition = transitionPending_;
   transitionPending_ = false;
   renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);

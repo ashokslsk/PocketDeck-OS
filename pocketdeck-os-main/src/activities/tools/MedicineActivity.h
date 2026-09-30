@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MedicineData.h"
+#include "StatsExport.h"
 #include "ToolsCharts.h"
 #include "ToolsCommon.h"
 #include "activities/Activity.h"
@@ -9,7 +10,8 @@
 // number of days. The list shows today's doses as boxes to tick; Details
 // shows when the course started, when it ends / ended / was stopped, doses
 // taken versus planned, adherence, missed doses, on-time rate, average delay
-// and a day-by-dose grid. Hold Confirm for the course menu.
+// and a day-by-dose grid. Left opens the course menu, Right moves between
+// today's doses and Confirm ticks the selected one.
 class MedicineActivity final : public Activity {
  public:
   explicit MedicineActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
@@ -26,8 +28,10 @@ class MedicineActivity final : public Activity {
   void openMenu();
   void addCourseName();
   void addCourseDoses();
+  void addCourseFood();
   void addCourseDays();
   void addCourseStart();
+  void confirmCourse();
   void stopCourse();
   void deleteCourse();
   void openDetails();
@@ -50,5 +54,6 @@ class MedicineActivity final : public Activity {
   // Details screen.
   charts::Stat stats_[10] = {};
   int16_t doseMinute_[meds::kMaxDays * meds::kMaxDoses] = {};
+  uint8_t exportState_ = 0;  // details screen: 0 idle, 1 working, 2 saved, 3 failed
   bool transitionPending_ = true;
 };

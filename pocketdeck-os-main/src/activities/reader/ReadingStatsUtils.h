@@ -36,6 +36,9 @@ int compareReadingStatsDate(const ReadingStatsDate& lhs, const ReadingStatsDate&
 void addDaysToReadingStatsDate(ReadingStatsDate& date, int delta);
 void addSecondsToReadingStatsDateTime(ReadingStatsDateTime& dt, uint32_t seconds);
 uint32_t readingStatsDayIndex(const ReadingStatsDate& date);
+// PocketDeck-OS: true when the reading history marks `dayIndex` as a reading day.
+bool readingHistoryHasDay(uint32_t anchorDay, const std::array<uint8_t, READING_HISTORY_BYTES>& bits,
+                          uint32_t dayIndex);
 bool readingStatsDateFromDayIndex(uint32_t dayIndex, ReadingStatsDate& outDate);
 uint8_t readingStatsDayOfWeekIndex(const ReadingStatsDate& date);  // Monday = 0
 ReadingTimeBucket readingTimeBucketForHour(uint8_t hour);

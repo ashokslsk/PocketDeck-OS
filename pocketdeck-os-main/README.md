@@ -9,13 +9,16 @@
 PocketDeck-OS is e-reader firmware for the Xteink X3 that keeps the reader in
 your pocket and adds a small deck of daily tools:
 
-- **Pomodoro** with a shrinking ring and a focus-history stats page
+- **Pomodoro** with a shrinking ring and a focus-history stats page (redraws once a minute to save battery)
+- **Panchanga**: offline, in **Kannada or English**, any date from **1976 to 2075** with a calendar picker, and festival/holiday calendars you can layer from JSON on the SD card
+- **Mantras**: today's mantra, the daily ritual sequence, 35 deities, ritual mantras and kavacha, with a japa counter and stats
+- **Kannada anywhere in the tools**: Kannada text in your quotes, flashcards and knowledge files, drawn from an SD card font (no flash cost)
 - **World Clock** with cities picked on the device from a built-in list
 - **Habit Tracker** (up to 12 habits, added and renamed on the device) with streaks, a weekly completion graph and "what time do I usually do this" stats
-- **Medicine & supplements**: time-bound courses ("3 a day for 4 days") with adherence, missed doses, on-time rate and start/stop/completion dates
-- **Mood**: a daily five-point check-in with notes, a 30-day graph and trends
-- **Flashcards** (spaced repetition), **Daily Quote**, **Knowledge** (paged Q&A)
-- **Panchanga**: offline, in **Kannada or English**
+- **Medicine & supplements**: time-bound courses ("3 a day for 4 days", before or after food, with a summary before saving) with adherence, missed doses, on-time rate and start/stop/completion dates
+- **Mood**: a daily five-point check-in with time-stamped notes, a history list, a 30-day graph, mood mix and trends
+- **Flashcards** (spaced repetition), **Daily Quote** (big date first, favourites), **Knowledge** (paged Q&A), each with its own stats page
+- Every tool with history has a stats page with charts and an **Export** button; no two buttons share a name
 - **Today** (to-dos) and **Stats & export**: every statistic written to `/stats/<feature>/*.json`, plus book data (progress, bookmarks, clippings, look-ups) you can restore on another card or device
 
 For reading: the **Lyra Carousel** theme can show the selected book's stats
@@ -23,11 +26,13 @@ For reading: the **Lyra Carousel** theme can show the selected book's stats
 words looked up) under a half-height carousel; **tilt page turn** is in the
 book's own settings; the sleep screen can **rotate wallpapers** from `/sleep`
 every 15 min to 2 hours; and PDF/MOBI files now explain how to convert them.
-Reading Stats include a Library dashboard, and there are eight UI themes.
+Reading Stats include labelled time bars, a weekday chart with a 12-week
+reading calendar, a Library dashboard with a stacked progress bar, and there
+are eight UI themes.
 
 - **Install or update:** [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md) (over CrossInk, first setup, and the routine for adding quotes, flashcards and knowledge)
 - **Using the tools:** [docs/productivity-tools.md](docs/productivity-tools.md)
-- **Every screen:** [screenshot walkthrough](docs/screenshots/README.md)
+- **Every screen:** [screenshot walkthrough](docs/screenshots/README.md); Panchanga and Mantras only: [docs/screenshots/panchanga-and-mantras](docs/screenshots/panchanga-and-mantras/README.md)
 
 It is built on [CrossInk](https://github.com/uxjulia/CrossInk), which is itself
 a fork of [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader).
@@ -165,7 +170,7 @@ Text after ` — ` is the author. Very long quotes page with Up/Down (up to 2,04
 
 ### Habits: `/tools/habits/habits.txt`
 
-Easiest: in **Habit Tracker**, hold **Confirm** and choose **Add a new habit**,
+Easiest: in **Habit Tracker**, press **Left (Menu)** and choose **Add a new habit**,
 **Rename** or **Delete**. Up to 12 habits. Or edit the file, one habit per line:
 
 ```
@@ -183,13 +188,15 @@ consistency" and "Average gap" come from.
 
 ### Medicine: `/tools/medicine/courses.txt`
 
-Add courses on the device (Medicine > Confirm, or hold Confirm > Add a course),
-or one per line in the file:
+Add courses on the device (Medicine > Confirm, or Left (Menu) > Add a course):
+name, doses a day, before/after food, length and start, then a summary such as
+"Starts Mon Sep 28, ends Thu Oct 1. 3 a day: … After food. 12 doses in all."
+Or one per line in the file:
 
 ```
-# id|name|doses per day|days|start|stopped or -|dose times
-c1|Paracetamol 500 mg|3|4|2026-09-27|-|08:00,13:00,19:00
-c2|Vitamin D3|1|30|2026-09-08|-|08:30
+# id|name|doses per day|days|start|stopped or -|dose times|food (before/after/with/-)
+c1|Paracetamol 500 mg|3|4|2026-09-27|-|08:00,13:00,19:00|after
+c2|Vitamin D3|1|30|2026-09-08|-|08:30|with
 ```
 
 Ids can be any short word without `|`. Each tick is logged in
@@ -199,10 +206,11 @@ Ids can be any short word without `|`. Each tick is logged in
 
 | File | What you can change |
 | --- | --- |
-| `/tools/worldclock.txt` | Cities (max 4): name, UTC offset and DST rule (US, EU, AU, NZ or NONE), separated by `\|`. On the device: World Clock > hold Confirm |
+| `/tools/worldclock.txt` | Cities (max 4): name, UTC offset and DST rule (US, EU, AU, NZ or NONE), separated by `\|`. On the device: World Clock > Left (Cities) |
 | `/tools/pomodoro.txt` | `focus=25` and `break=5` minutes |
-| `/tools/panchanga.txt` | `lat=`, `lon=`, `tz=` for your town (default Bengaluru), `animate=0/1`, `lang=kn` or `lang=en` (or hold Confirm in Panchanga) |
+| `/tools/panchanga.txt` | `lat=`, `lon=`, `tz=` for your town (default Bengaluru), `animate=0/1`, `lang=kn` or `lang=en` (or Panchanga > Confirm (Menu)) |
 | `/tools/daily.json` | Today's to-do list (also editable on the device) |
+| `/tools/quotes/favorites.txt` | Favourite quotes (Daily Quote > Menu > Save as favourite) |
 | `/sleep/` | Wallpapers (`.bmp`, `.jpg`); Settings > Display > Sleep Screen > Change wallpaper |
 
 Stats for every feature are exported by **Tools > Stats & export** to
@@ -316,6 +324,7 @@ CrossInk runs on an ESP32-C3 with limited RAM, so very large folders or complex 
 - Avoid putting every book in the SD card root. The file browser has to scan and sort the current folder before it can show it.
 - Text-first EPUBs are the best fit. Large image-heavy EPUBs, scanned books, comics, and omnibus files with thousands of sections may load slowly or fail under memory pressure.
 - As a rough target, EPUBs under 20 MB tend to work the best. Files over 50 MB may still work, but they are more likely to be slow or memory-sensitive, especially if they contain many large images.
+- **Indexing Method** (Reader settings): *Full Section* (default) builds each chapter once and pre-builds the next chapter while you read, so page turns and chapter changes are instant. *Incremental* shows a new font or margin setting sooner but builds the next chapter only when you reach it. Pick the one you notice more.
 - If an EPUB is unusually slow, try [optimizing](./docs/webserver.md#epub-optimization) it with the built-in web optimizer (via File Transfer) before copying it to the SD card: remove unused high-resolution images, split very large omnibus files, and avoid embedding multiple full font families when possible.
 - Use a reliable SD card and leave some free space. CrossInk stores settings, reading progress, cache files, stats, and generated book data on the card.
 

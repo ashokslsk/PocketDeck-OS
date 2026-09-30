@@ -5,6 +5,7 @@
 #include <HalGPIO.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <Memory.h>
 
 #include <cmath>
 #include <cstdio>
@@ -12,12 +13,14 @@
 #include <ctime>
 
 #include "CrossPointSettings.h"
+#include "KannadaText.h"
 #include "SilentRestart.h"
 #include "ToolsLog.h"
 #include "activities/Activity.h"
 #include "activities/reader/ReadingStatsUtils.h"
 #include "components/HeaderDate.h"
 #include "components/UITheme.h"
+#include "fontIds.h"
 
 namespace tools {
 
@@ -146,19 +149,26 @@ void ToolInput::reset(const MappedInputManager& input) {
   // again before it counts here (same idea as HomeActivity::backPressSeen).
   backArmed_ = false;
   confirmArmed_ = false;
+  leftArmed_ = false;
   backLongFired_ = input.isPressed(MappedInputManager::Button::Back);
   confirmLongFired_ = input.isPressed(MappedInputManager::Button::Confirm);
 }
 
 void ToolInput::poll(const MappedInputManager& input) {
   using B = MappedInputManager::Button;
-  back = backLong = confirm = confirmLong = false;
+  back = backLong = confirm = confirmLong = leftUp = false;
   up = input.wasPressed(B::Up);
   down = input.wasPressed(B::Down);
   left = input.wasPressed(B::Left);
   right = input.wasPressed(B::Right);
   pageBack = input.wasPressed(B::PageBack);
   pageForward = input.wasPressed(B::PageForward);
+
+  if (left) leftArmed_ = true;
+  if (input.wasReleased(B::Left)) {
+    leftUp = leftArmed_;
+    leftArmed_ = false;
+  }
 
   if (input.wasPressed(B::Back)) {
     backArmed_ = true;
@@ -198,7 +208,7 @@ void ToolInput::poll(const MappedInputManager& input) {
     if (swipe == MappedInputManager::SwipeDir::Right) left = true;
   }
 
-  any = back || backLong || confirm || confirmLong || up || down || left || right || pageBack || pageForward;
+  any = back || backLong || confirm || confirmLong || up || down || left || right || pageBack || pageForward || leftUp;
 }
 
 // ---------------------------------------------------------------------------
@@ -334,8 +344,85 @@ const char* wordEnd(const char* p, const char* end) {
 }
 }  // namespace
 
+// Kannada text (quotes, flashcards, knowledge files) with the SD card font:
+// same paragraphs, Markdown prefixes, paging and centring as below.
+namespace {
+kannada::Style kannadaStyleFor(const int fontId) {
+  return fontId == UI_10_FONT_ID || fontId == SMALL_FONT_ID ? kannada::Style::Label : kannada::Style::Body;
+}
+
+int drawWrappedKannada(const GfxRenderer& renderer, const Rect& box, const char* text, const WrapOptions& opt) {
+  const auto base = kannadaStyleFor(opt.fontId);
+  const int lineH = kannada::lineHeight(renderer, base) + 2;
+  // One scratch copy for the current paragraph (NUL-terminated, Markdown marks removed).
+  auto buf = makeUniqueNoThrow<char[]>(strlen(text) + 1);
+  if (!buf) return 0;
+  int lineIndex = 0;
+  const char* para = text;
+  while (*para != '\0') {
+    const char* paraEnd = strchr(para, '\n');
+    if (paraEnd == nullptr) paraEnd = para + strlen(para);
+    const char* p = para;
+    auto style = base;
+    bool bullet = false;
+    char number[8] = {};
+    if (opt.markdown) {
+      if (*p == '#') {
+        while (p < paraEnd && *p == '#') ++p;
+        style = kannada::Style::Value;
+      } else if ((p[0] == '-' || p[0] == '*') && p + 1 < paraEnd && p[1] == ' ') {
+        bullet = true;
+        p += 2;
+      } else if (p[0] >= '0' && p[0] <= '9') {
+        const char* q = p;
+        while (q < paraEnd && q - p < 4 && *q >= '0' && *q <= '9') ++q;
+        if (q + 1 < paraEnd && q[0] == '.' && q[1] == ' ') {
+          snprintf(number, sizeof(number), "%.*s", static_cast<int>(q + 1 - p), p);
+          p = q + 2;
+        }
+      }
+    }
+    while (p < paraEnd && *p == ' ') ++p;
+    size_t n = 0;
+    for (const char* r = p; r < paraEnd; ++r) {
+      if (opt.markdown && (*r == '`' || (r[0] == '*' && r + 1 < paraEnd && r[1] == '*'))) {
+        if (*r == '*') ++r;
+        continue;
+      }
+      buf[n++] = *r;
+    }
+    buf[n] = '\0';
+    if (n == 0) ++lineIndex;  // blank line keeps paragraph spacing
+    const int indent = bullet ? 18 : number[0] ? kannada::width(renderer, number, style) + 8 : 0;
+    kannada::Line lines[48];
+    const size_t count = kannada::wrap(renderer, buf.get(), style, box.width - indent, lines, 48);
+    for (size_t i = 0; i < count; ++i, ++lineIndex) {
+      const int visible = lineIndex - opt.skipLines;
+      const int y = box.y + visible * lineH;
+      if (!opt.draw || i >= 48 || visible < 0 || visible >= opt.maxLines || y + lineH > box.y + box.height) continue;
+      const char* s = buf.get() + lines[i].start;
+      int x = box.x + indent;
+      if (opt.centered) x = box.x + (box.width - kannada::width(renderer, s, style, lines[i].length)) / 2;
+      if (i == 0 && bullet) renderer.fillRect(box.x + 5, y + lineH / 2 - 2, 5, 5);
+      if (i == 0 && number[0]) kannada::draw(renderer, box.x, y, number, style);
+      kannada::draw(renderer, x, y, s, style, true, lines[i].length);
+    }
+    para = *paraEnd == '\n' ? paraEnd + 1 : paraEnd;
+  }
+  return lineIndex;
+}
+}  // namespace
+
+int wrapLineHeight(const GfxRenderer& renderer, const int fontId, const char* text) {
+  if (text != nullptr && kannada::ready() && kannada::hasKannada(text)) {
+    return kannada::lineHeight(renderer, kannadaStyleFor(fontId)) + 2;
+  }
+  return renderer.getLineHeight(fontId);
+}
+
 int drawWrappedText(const GfxRenderer& renderer, const Rect& box, const char* text, const WrapOptions& opt) {
   if (text == nullptr) return 0;
+  if (kannada::ready() && kannada::hasKannada(text)) return drawWrappedKannada(renderer, box, text, opt);
   const int lineH = renderer.getLineHeight(opt.fontId);
   const int spaceW = renderer.getSpaceWidth(opt.fontId);
   const int bulletIndent = spaceW * 3;

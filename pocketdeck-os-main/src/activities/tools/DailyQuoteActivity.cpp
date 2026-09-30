@@ -3,11 +3,19 @@
 #include <GfxRenderer.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <Memory.h>
 
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <vector>
 
+#include "KannadaText.h"
+#include "ToolStatsData.h"
+#include "ToolStatsPages.h"
+#include "ToolsLog.h"
+#include "activities/util/OptionSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 
@@ -132,7 +140,12 @@ bool DailyQuoteActivity::readQuoteAt(const uint32_t offset) {
   const bool ok = src.seek(offset) && tools::readLine(src, line_, sizeof(line_)) > 0;
   src.close();
   if (!ok) return false;
+  parseLine();
+  refreshFavourite();
+  return true;
+}
 
+void DailyQuoteActivity::parseLine() {
   const char* text = nullptr;
   keyForPrefix(line_, &text);
   char* body = const_cast<char*>(text);
@@ -148,7 +161,189 @@ bool DailyQuoteActivity::readQuoteAt(const uint32_t offset) {
     author_ = split + 4;
   }
   text_ = body;
+}
+
+namespace {
+constexpr char kFavDir[] = "/tools/quotes";
+
+// "text — author" as saved in favourites (and quotes.txt).
+std::string quoteBody(const char* text, const char* author) {
+  std::string body = text;
+  if (author != nullptr && author[0] != '\0') {
+    body += " \xE2\x80\x94 ";
+    body += author;
+  }
+  return body;
+}
+
+struct FavCtx {
+  const std::string* body;  // "text — author" of the quote being added / removed
+  const char* date;         // added line's date prefix
+};
+}  // namespace
+
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
+bool DailyQuoteActivity::writeFavouriteAdded(FsFile& out, void* ctx) {
+  const auto* f = static_cast<const FavCtx*>(ctx);
+  FsFile in;
+  if (Storage.exists(tstats::kFavouritesPath) && Storage.openFileForRead("QUOTE", tstats::kFavouritesPath, in)) {
+    uint8_t buf[128];
+    int n = 0;
+    while ((n = in.read(buf, sizeof(buf))) > 0) {
+      if (out.write(buf, static_cast<size_t>(n)) != static_cast<size_t>(n)) {
+        in.close();
+        return false;
+      }
+    }
+    in.close();
+  }
+  return tools::writeText(out, f->date) && tools::writeText(out, "|") && tools::writeText(out, f->body->c_str()) &&
+         tools::writeText(out, "\n");
+}
+
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
+bool DailyQuoteActivity::writeFavouriteRemoved(FsFile& out, void* ctx) {
+  const auto* f = static_cast<const FavCtx*>(ctx);
+  FsFile in;
+  if (!Storage.openFileForRead("QUOTE", tstats::kFavouritesPath, in)) return false;
+  auto line = makeUniqueNoThrow<char[]>(kLineCap);
+  if (!line) {
+    in.close();
+    return false;
+  }
+  bool ok = true;
+  while (ok && tools::readLine(in, line.get(), kLineCap) >= 0) {
+    const char* bar = strchr(line.get(), '|');
+    if (strcmp(bar != nullptr ? bar + 1 : line.get(), f->body->c_str()) == 0) continue;
+    ok = tools::writeText(out, line.get()) && tools::writeText(out, "\n");
+  }
+  in.close();
+  return ok;
+}
+
+void DailyQuoteActivity::refreshFavourite() {
+  favourite_ = false;
+  FsFile in;
+  if (!Storage.exists(tstats::kFavouritesPath) || !Storage.openFileForRead("QUOTE", tstats::kFavouritesPath, in)) {
+    return;
+  }
+  auto line = makeUniqueNoThrow<char[]>(kLineCap);
+  if (line) {
+    const std::string body = quoteBody(text_, author_);
+    while (!favourite_ && tools::readLine(in, line.get(), kLineCap) >= 0) {
+      const char* bar = strchr(line.get(), '|');
+      favourite_ = strcmp(bar != nullptr ? bar + 1 : line.get(), body.c_str()) == 0;
+    }
+  }
+  in.close();
+}
+
+bool DailyQuoteActivity::toggleFavourite() {
+  if (!Storage.ensureDirectoryExists(kFavDir)) return false;
+  const std::string body = quoteBody(text_, author_);
+  char date[12];
+  tools::formatIsoDate(date, sizeof(date), clockValid_ ? shownDay_ : 0);
+  FavCtx ctx{&body, date};
+  const bool ok =
+      tools::writeFileAtomic(tstats::kFavouritesPath, favourite_ ? &writeFavouriteRemoved : &writeFavouriteAdded, &ctx);
+  if (ok) favourite_ = !favourite_;
+  return ok;
+}
+
+bool DailyQuoteActivity::showFavourite(const int index) {
+  favCount_ = tstats::countFavouriteQuotes();
+  if (favCount_ == 0) return false;
+  favIndex_ = (index % favCount_ + favCount_) % favCount_;
+  FsFile in;
+  if (!Storage.openFileForRead("QUOTE", tstats::kFavouritesPath, in)) return false;
+  int k = -1;
+  while (tools::readLine(in, line_, sizeof(line_)) >= 0) {
+    if (line_[0] == '\0' || line_[0] == '#') continue;
+    if (++k == favIndex_) break;
+  }
+  in.close();
+  if (k != favIndex_) return false;
+  page_ = 0;
+  parseLine();
+  favourite_ = true;
   return true;
+}
+
+void DailyQuoteActivity::openMenu() {
+  enum Action : uint8_t { Favourite, Random, Today, Favourites, Stats, Daily };
+  std::vector<std::string> options;
+  std::vector<uint8_t> actions;
+  options.reserve(5);
+  actions.reserve(5);
+  auto add = [&](const Action a, const char* label) {
+    options.emplace_back(label);
+    actions.push_back(a);
+  };
+  if (status_ == Status::Ok) {
+    add(Favourite, favourite_ ? tr(STR_TOOLS_QT_UNFAVOURITE) : tr(STR_TOOLS_QT_FAVOURITE));
+  }
+  if (browsingFavourites_) {
+    add(Daily, tr(STR_TOOLS_QT_BACK_TO_DAILY));
+  } else {
+    if (status_ == Status::Ok) add(Random, tr(STR_TOOLS_QT_RANDOM));
+    if (clockValid_ && (shownDay_ != today_ || randomPick_)) add(Today, tr(STR_TOOLS_QT_TODAY));
+    add(Favourites, tr(STR_TOOLS_QT_MY_FAVOURITES));
+  }
+  add(Stats, tr(STR_TOOLS_HABIT_STATS));
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "QuoteMenu",
+                                                           StrId::STR_TOOLS_DAILY_QUOTE, std::move(options), 0);
+  if (!picker) return;
+  startActivityForResult(std::move(picker), [this, actions](const ActivityResult& result) {
+    input_.reset(mappedInput);
+    transitionPending_ = true;
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (result.isCancelled || sel == nullptr || sel->index >= actions.size()) {
+      requestUpdate();
+      return;
+    }
+    if (actions[sel->index] == Stats) {
+      auto stats = makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_QT_STATS),
+                                                        &toolstats::buildQuotes, nullptr, statsx::Feature::Quotes);
+      if (stats) {
+        startActivityForResult(std::move(stats), [this](const ActivityResult&) {
+          input_.reset(mappedInput);
+          transitionPending_ = true;
+          requestUpdate();
+        });
+      }
+      return;
+    }
+    RenderLock lock(*this);  // line_ and the quote pointers are read by render()
+    switch (actions[sel->index]) {
+      case Favourite: {
+        const bool wasBrowsing = browsingFavourites_;
+        toggleFavourite();
+        if (wasBrowsing && !showFavourite(favIndex_)) {
+          browsingFavourites_ = false;
+          if (clockValid_) showDay(today_);
+        }
+        break;
+      }
+      case Random:
+        showRandom(mix(static_cast<uint32_t>(micros()) ^ static_cast<uint32_t>(millis())));
+        break;
+      case Today:
+        showDay(today_);
+        break;
+      case Favourites:
+        browsingFavourites_ = showFavourite(0);
+        break;
+      default:  // Daily
+        browsingFavourites_ = false;
+        if (clockValid_) {
+          showDay(today_);
+        } else {
+          showRandom(mix(static_cast<uint32_t>(millis())));
+        }
+        break;
+    }
+    requestUpdate();
+  });
 }
 
 void DailyQuoteActivity::showDay(const int32_t day) {
@@ -204,15 +399,27 @@ void DailyQuoteActivity::showRandom(const uint32_t seed) {
   randomPick_ = true;
 }
 
+void DailyQuoteActivity::onExit() {
+  kannada::release();
+  Activity::onExit();
+}
+
 void DailyQuoteActivity::onEnter() {
   Activity::onEnter();
   input_.reset(mappedInput);
+  kannada::acquire();  // Kannada text in the user's files, when the font is on the card
   tools::ensureToolsDirs();
   tools::DateTime local;
   clockValid_ = tools::getLocalNow(local);
   if (clockValid_) {
     today_ = tools::daysOf(local);
     showDay(today_);
+    // History for Quote stats (days opened, streak).
+    char fields[24];
+    char date[12];
+    tools::formatIsoDate(date, sizeof(date), today_);
+    snprintf(fields, sizeof(fields), "open|%s", date);
+    tlog::append("quotes", {today_, static_cast<int16_t>(local.hour * 60 + local.minute)}, fields);
   } else {
     showRandom(mix(static_cast<uint32_t>(millis())));
   }
@@ -226,6 +433,14 @@ void DailyQuoteActivity::loop() {
     tools::exitToHome();
     return;
   }
+  if (input_.back && browsingFavourites_) {
+    RenderLock lock(*this);
+    browsingFavourites_ = false;
+    if (clockValid_) showDay(today_);
+    transitionPending_ = true;
+    requestUpdate();
+    return;
+  }
   if (input_.back) {
     finish();
     return;
@@ -233,12 +448,11 @@ void DailyQuoteActivity::loop() {
   // line_ (and text_/author_ pointing into it) is read by render(); hold the
   // render lock while replacing it.
   if (input_.confirm) {
+    openMenu();
+    return;
+  } else if (browsingFavourites_ && (input_.left || input_.right)) {
     RenderLock lock(*this);
-    showRandom(mix(static_cast<uint32_t>(micros()) ^ static_cast<uint32_t>(millis())));
-    requestUpdate();
-  } else if (input_.confirmLong && clockValid_) {
-    RenderLock lock(*this);
-    showDay(today_);
+    showFavourite(favIndex_ + (input_.left ? -1 : 1));
     requestUpdate();
   } else if ((input_.up || input_.pageBack) && page_ > 0) {
     --page_;
@@ -275,9 +489,56 @@ void DailyQuoteActivity::loop() {
 }
 
 void DailyQuoteActivity::render(RenderLock&&) {
-  char subtitle[32] = "";
-  if (clockValid_) tools::formatIsoDate(subtitle, sizeof(subtitle), shownDay_);
-  const Rect content = tools::drawFrame(renderer, tr(STR_TOOLS_DAILY_QUOTE), clockValid_ ? subtitle : nullptr);
+  const Rect frame = tools::drawFrame(renderer, tr(STR_TOOLS_DAILY_QUOTE));
+  Rect content = frame;
+
+  // Date first, large: "Monday" / "28 September 2026" (or "Favourite 2 of 5").
+  if (status_ == Status::Ok) {
+    int y = frame.y;
+    char line1[48];
+    char line2[48];
+    if (browsingFavourites_) {
+      snprintf(line1, sizeof(line1), "%s", tr(STR_TOOLS_QT_MY_FAVOURITES));
+      snprintf(line2, sizeof(line2), "%d / %d", favIndex_ + 1, favCount_);
+    } else if (clockValid_) {
+      snprintf(line1, sizeof(line1), "%s", tools::weekdayName(tools::weekdayMon0(shownDay_)));
+      // Always spelled out ("28 September 2026") so the date reads at a glance.
+      static constexpr StrId kMonths[] = {
+          StrId::STR_MONTH_JANUARY,   StrId::STR_MONTH_FEBRUARY, StrId::STR_MONTH_MARCH,    StrId::STR_MONTH_APRIL,
+          StrId::STR_MONTH_MAY,       StrId::STR_MONTH_JUNE,     StrId::STR_MONTH_JULY,     StrId::STR_MONTH_AUGUST,
+          StrId::STR_MONTH_SEPTEMBER, StrId::STR_MONTH_OCTOBER,  StrId::STR_MONTH_NOVEMBER, StrId::STR_MONTH_DECEMBER};
+      uint16_t yy = 0;
+      uint8_t mm = 0, dd = 0;
+      tools::civilFromDays(shownDay_, yy, mm, dd);
+      snprintf(line2, sizeof(line2), "%u %s %u", static_cast<unsigned>(dd), I18N.get(kMonths[mm - 1]),
+               static_cast<unsigned>(yy));
+    } else {
+      line1[0] = line2[0] = '\0';
+    }
+    if (line1[0] != '\0') {
+      renderer.drawText(UI_12_FONT_ID, frame.x, y, line1, true, EpdFontFamily::REGULAR);
+      if (!browsingFavourites_ && clockValid_ && shownDay_ == today_) {
+        // "Today" pill after the weekday.
+        const int wx = frame.x + renderer.getTextWidth(UI_12_FONT_ID, line1) + 10;
+        const char* t = tr(STR_TOOLS_TODAY);
+        const int tw = renderer.getTextWidth(SMALL_FONT_ID, t, EpdFontFamily::BOLD);
+        renderer.fillRoundedRect(wx, y + 3, tw + 12, renderer.getLineHeight(UI_12_FONT_ID) - 4, 6, Color::Black);
+        renderer.drawText(SMALL_FONT_ID, wx + 6, y + 5, t, false, EpdFontFamily::BOLD);
+      }
+      if (favourite_) {
+        const char* f = tr(STR_TOOLS_QT_FAVOURITE_TAG);
+        const int fw = renderer.getTextWidth(SMALL_FONT_ID, f, EpdFontFamily::BOLD);
+        renderer.drawRect(frame.x + frame.width - fw - 12, y + 3, fw + 12, renderer.getLineHeight(UI_12_FONT_ID) - 4);
+        renderer.drawText(SMALL_FONT_ID, frame.x + frame.width - fw - 6, y + 5, f, true, EpdFontFamily::BOLD);
+      }
+      y += renderer.getLineHeight(UI_12_FONT_ID);
+      renderer.drawText(BITTER_16_FONT_ID, frame.x, y, line2, true, EpdFontFamily::BOLD);
+      y += renderer.getLineHeight(BITTER_16_FONT_ID) + 6;
+      renderer.fillRect(frame.x, y, frame.width, 2);
+      y += 10;
+      content = Rect{frame.x, y, frame.width, frame.y + frame.height - y};
+    }
+  }
 
   if (status_ != Status::Ok) {
     const int midY = content.y + content.height / 2;
@@ -297,11 +558,11 @@ void DailyQuoteActivity::render(RenderLock&&) {
       measure.centered = true;
       measure.draw = false;
       lines = tools::drawWrappedText(renderer, box, text_, measure);
-      if (lines * renderer.getLineHeight(font) <= box.height) break;
+      if (lines * tools::wrapLineHeight(renderer, font, text_) <= box.height) break;
     }
     // A quote too long even at the smallest size is paged with Up/Down; the
     // author appears on the last page.
-    const int lineH = renderer.getLineHeight(font);
+    const int lineH = tools::wrapLineHeight(renderer, font, text_);
     const int linesPerPage = std::max(1, box.height / lineH);
     pageCount_ = std::max(1, (lines + linesPerPage - 1) / linesPerPage);
     page_ = std::min(page_, pageCount_ - 1);
@@ -335,8 +596,13 @@ void DailyQuoteActivity::render(RenderLock&&) {
     }
   }
 
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SHUFFLE),
-                   clockValid_ ? tr(STR_TOOLS_PREV_DAY) : "", clockValid_ ? tr(STR_TOOLS_NEXT_DAY) : "");
+  if (browsingFavourites_) {
+    tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_MENU), tr(STR_TOOLS_PREVIOUS),
+                     tr(STR_TOOLS_NEXT));
+  } else {
+    tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_MENU), clockValid_ ? tr(STR_TOOLS_PREV_DAY) : "",
+                     clockValid_ ? tr(STR_TOOLS_NEXT_DAY) : "");
+  }
   const bool transition = transitionPending_;
   transitionPending_ = false;
   renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);

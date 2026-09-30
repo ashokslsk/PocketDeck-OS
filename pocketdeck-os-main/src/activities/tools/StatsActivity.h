@@ -7,7 +7,7 @@
 #include "activities/Activity.h"
 
 // Tools > Stats & export. Confirm writes every feature's statistics to
-// /stats/<feature>/ as JSON (see StatsExport.h); hold Confirm restores book
+// /stats/<feature>/ as JSON (see StatsExport.h); Left (Import) restores book
 // data (progress, reading time, bookmarks, clippings, look-ups) from
 // /stats/reading/books for books on this card.
 class StatsActivity final : public Activity {

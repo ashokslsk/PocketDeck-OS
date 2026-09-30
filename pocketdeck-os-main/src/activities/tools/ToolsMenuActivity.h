@@ -17,6 +17,8 @@ class ToolsMenuActivity final : public Activity {
  private:
   enum Tool : uint8_t {
     POMODORO,
+    PANCHANGA,
+    MANTRAS,
     WORLD_CLOCK,
     HABITS,
     MEDICINE,
@@ -24,7 +26,6 @@ class ToolsMenuActivity final : public Activity {
     FLASHCARDS,
     QUOTE,
     KNOWLEDGE,
-    PANCHANGA,
     TODAY,
     STATS,
     TOOL_COUNT

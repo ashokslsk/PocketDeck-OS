@@ -1,3 +1,3 @@
-# id|name|doses per day (1-4)|days (1-90)|start YYYY-MM-DD|stopped YYYY-MM-DD or -|dose times HH:MM,...
-c1|Paracetamol 500 mg|3|4|2026-10-01|-|08:00,13:00,19:00
-c2|Vitamin D3|1|30|2026-10-01|-|08:30
+# id|name|doses per day (1-4)|days (1-90)|start YYYY-MM-DD|stopped YYYY-MM-DD or -|dose times HH:MM,...|food: before, after, with or -
+c1|Paracetamol 500 mg|3|4|2026-10-01|-|08:00,13:00,19:00|after
+c2|Vitamin D3|1|30|2026-10-01|-|08:30|with

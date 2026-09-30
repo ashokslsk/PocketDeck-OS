@@ -21,7 +21,9 @@
 constexpr char WorldClockActivity::kConfigPath[];
 
 namespace {
-constexpr unsigned long kPollMs = 1000;
+// The screen shows minutes, so checking the clock every 5 s is plenty and
+// keeps RTC reads (I2C) and wake-ups down.
+constexpr unsigned long kPollMs = 5000;
 
 // Accepts minutes ("330", "-300") or hours ("+9", "-5", "+5:30").
 bool parseOffset(const char* s, int16_t& minutes) {
@@ -228,7 +230,7 @@ void WorldClockActivity::loop() {
     finish();
     return;
   }
-  if (input_.confirmLong) {
+  if (input_.leftUp) {
     chooseSlot();
     return;
   }
@@ -290,7 +292,7 @@ void WorldClockActivity::render(RenderLock&&) {
 
   // City rows.
   const int64_t utcMinutes = static_cast<int64_t>(tools::daysOf(utc)) * 1440 + utc.hour * 60 + utc.minute;
-  const int rowsAreaH = content.y + content.height - y - renderer.getLineHeight(SMALL_FONT_ID) - 6;
+  const int rowsAreaH = content.y + content.height - y;
   const int rowH = cityCount_ > 0 ? std::min(rowsAreaH / cityCount_, 80) : 0;
   const int nameH = renderer.getLineHeight(UI_12_FONT_ID);
   for (int i = 0; i < cityCount_; ++i) {
@@ -323,9 +325,7 @@ void WorldClockActivity::render(RenderLock&&) {
                       EpdFontFamily::BOLD);
   }
 
-  renderer.drawCenteredText(SMALL_FONT_ID, content.y + content.height - renderer.getLineHeight(SMALL_FONT_ID),
-                            tr(STR_TOOLS_WORLD_CLOCK_HOLD_HINT));
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SYNC), "", "");
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SYNC), tr(STR_TOOLS_CITIES), "");
   const bool transition = transitionPending_;
   transitionPending_ = false;
   renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);

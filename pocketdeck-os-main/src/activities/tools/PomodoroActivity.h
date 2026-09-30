@@ -35,6 +35,7 @@ class PomodoroActivity final : public Activity {
   uint32_t phaseDurationMs() const;
   uint32_t elapsedMs() const;
   uint32_t remainingSeconds() const;
+  uint32_t shownSeconds() const;
   void startOrPause();
   void resetPhase();
   void switchPhase(bool completedFocus);
@@ -45,6 +46,7 @@ class PomodoroActivity final : public Activity {
   uint32_t phaseStartMs_ = 0;   // millis() when the current run segment began
   uint32_t accumulatedMs_ = 0;  // elapsed time from earlier segments (pauses)
   uint32_t lastShownSeconds_ = UINT32_MAX;
+  bool showSeconds_ = true;        // seconds=0 in pomodoro.txt: whole minutes, fewer refreshes
   uint16_t fastRefreshCount_ = 0;  // partial refreshes since the last clean one
   uint8_t focusMinutes_ = 25;
   uint8_t breakMinutes_ = 5;

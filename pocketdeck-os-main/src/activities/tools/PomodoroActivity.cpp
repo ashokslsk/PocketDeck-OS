@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "PomodoroStatsActivity.h"
+#include "ToolStatsPages.h"
 #include "ToolsLog.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -72,6 +72,7 @@ void PomodoroActivity::loadState() {
     if (strcmp(line, "break") == 0 && n >= 1 && n <= 60) breakMinutes_ = static_cast<uint8_t>(n);
     if (strcmp(line, "date") == 0) tools::parseIsoDate(value, fileDay);
     if (strcmp(line, "completed") == 0 && n >= 0) fileCount = static_cast<uint16_t>(n);
+    if (strcmp(line, "seconds") == 0) showSeconds_ = n != 0;
   }
   f.close();
   // The counter is per day: a file from an earlier day starts again at zero.
@@ -84,8 +85,10 @@ bool PomodoroActivity::writeState(FsFile& out, void* ctx) {
   char date[12] = "1970-01-01";
   if (self->statsDay_ > 0) tools::formatIsoDate(date, sizeof(date), self->statsDay_);
   char buf[96];
-  snprintf(buf, sizeof(buf), "focus=%u\nbreak=%u\ndate=%s\ncompleted=%u\n", self->focusMinutes_, self->breakMinutes_,
-           date, self->completedToday_);
+  snprintf(buf, sizeof(buf),
+           "focus=%u\nbreak=%u\ndate=%s\ncompleted=%u\n"
+           "# seconds=0 shows whole minutes (one refresh a minute, saves battery)\nseconds=%d\n",
+           self->focusMinutes_, self->breakMinutes_, date, self->completedToday_, self->showSeconds_ ? 1 : 0);
   return tools::writeText(out, buf);
 }
 
@@ -109,6 +112,15 @@ uint32_t PomodoroActivity::remainingSeconds() const {
   const uint32_t elapsed = std::min(elapsedMs(), total);
   // Round up so "25:00" shows until a full second has passed.
   return (total - elapsed + 999) / 1000;
+}
+
+uint32_t PomodoroActivity::shownSeconds() const {
+  // MM:SS every second by default. With seconds=0 in pomodoro.txt a running
+  // timer shows whole minutes until the last one, so the screen refreshes once
+  // a minute instead of every second (e-ink refreshes are the battery cost).
+  const uint32_t seconds = remainingSeconds();
+  if (showSeconds_ || !running_ || seconds <= 60) return seconds;
+  return (seconds + 59) / 60 * 60;
 }
 
 void PomodoroActivity::startOrPause() {
@@ -171,9 +183,11 @@ void PomodoroActivity::loop() {
     startOrPause();
   } else if (input_.confirmLong) {
     resetPhase();
-  } else if (input_.left || input_.pageBack) {
+  } else if (input_.leftUp) {
     // Stats; a running timer keeps counting underneath (it is millis-based).
-    auto stats = makeUniqueNoThrow<PomodoroStatsActivity>(renderer, mappedInput, running_);
+    auto stats =
+        makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_POMO_STATS), &toolstats::buildPomodoro,
+                                             nullptr, statsx::Feature::Pomodoro, running_);
     if (stats) {
       startActivityForResult(std::move(stats), [this](const ActivityResult&) {
         input_.reset(mappedInput);
@@ -182,8 +196,9 @@ void PomodoroActivity::loop() {
       });
       return;
     }
-  } else if (input_.next() || input_.up) {
-    // Skip to the other phase without counting a completed focus.
+  } else if (input_.right) {
+    // Skip (Right only, as labelled): the other phase starts without counting a
+    // completed focus. Side buttons do nothing here, so a stray press cannot end a session.
     switchPhase(false);
     running_ = false;
     phaseJustEnded_ = false;
@@ -194,7 +209,7 @@ void PomodoroActivity::loop() {
       switchPhase(phase_ == Phase::Focus);
       return;
     }
-    if (remainingSeconds() != lastShownSeconds_) requestUpdate();
+    if (shownSeconds() != lastShownSeconds_) requestUpdate();
   }
 }
 
@@ -221,11 +236,16 @@ void PomodoroActivity::render(RenderLock&&) {
   tools::drawProgressRing(renderer, cx, cy, radius, thickness, remainingFraction);
 
   // Remaining time as MM:SS in large Inter digits, centred in the ring.
-  const uint32_t seconds = remainingSeconds();
+  const uint32_t seconds = shownSeconds();
   lastShownSeconds_ = seconds;
+  const bool wholeMinutes = !showSeconds_ && running_ && seconds > 60;
   char digits[8];
-  snprintf(digits, sizeof(digits), "%02u:%02u", static_cast<unsigned>(seconds / 60),
-           static_cast<unsigned>(seconds % 60));
+  if (wholeMinutes) {
+    snprintf(digits, sizeof(digits), "%u", static_cast<unsigned>(seconds / 60));
+  } else {
+    snprintf(digits, sizeof(digits), "%02u:%02u", static_cast<unsigned>(seconds / 60),
+             static_cast<unsigned>(seconds % 60));
+  }
   const int innerWidth = 2 * (radius - thickness);
   int font = TOOLS_DIGITS_44_FONT_ID;
   if (renderer.getTextWidth(font, digits) > innerWidth * 9 / 10) font = TOOLS_DIGITS_30_FONT_ID;
@@ -234,12 +254,13 @@ void PomodoroActivity::render(RenderLock&&) {
   const int labelH = renderer.getLineHeight(UI_10_FONT_ID);
   const int baseline = cy + (digitH - labelH - 8) / 2;
   renderer.drawCenteredText(font, baseline - ascender, digits);
-  renderer.drawCenteredText(UI_10_FONT_ID, baseline + 10, tr(STR_TOOLS_REMAINING));
+  renderer.drawCenteredText(UI_10_FONT_ID, baseline + 10,
+                            wholeMinutes ? tr(STR_TOOLS_MIN_REMAINING) : tr(STR_TOOLS_REMAINING));
 
   // Status lines under the ring.
   int y = cy + radius + 12;
   const char* status =
-      running_ ? tr(STR_TOOLS_RUNNING) : (elapsed > 0 ? tr(STR_TOOLS_PAUSED) : tr(STR_TOOLS_PRESS_START));
+      running_ ? tr(STR_TOOLS_RUNNING) : (elapsed > 0 ? tr(STR_TOOLS_PAUSED_HOLD_RESET) : tr(STR_TOOLS_PRESS_START));
   renderer.drawCenteredText(UI_10_FONT_ID, y, status);
   y += lineH;
   char stats[64];
@@ -249,9 +270,9 @@ void PomodoroActivity::render(RenderLock&&) {
   tools::drawHints(renderer, mappedInput, tr(STR_BACK), running_ ? tr(STR_TOOLS_PAUSE) : tr(STR_START),
                    tr(STR_TOOLS_POMO_STATS_SHORT), tr(STR_TOOLS_SKIP));
 
-  // Per-second updates are fast partial refreshes; every five minutes of them
-  // gets one clean refresh to clear e-ink ghosting.
-  constexpr uint16_t kFastRefreshesBeforeClean = 300;
+  // Updates are fast partial refreshes; about every five minutes one clean
+  // refresh clears e-ink ghosting.
+  const uint16_t kFastRefreshesBeforeClean = showSeconds_ ? 300 : 5;
   const bool clean = transitionPending_ || phaseJustEnded_ || fastRefreshCount_ >= kFastRefreshesBeforeClean;
   fastRefreshCount_ = clean ? 0 : fastRefreshCount_ + 1;
   transitionPending_ = false;

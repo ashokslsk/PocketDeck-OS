@@ -26,12 +26,12 @@ menus, sleep/wake and power management, button remapping, fonts, reading stats.
 
 | Check | Command | Result |
 | --- | --- | --- |
-| X3/X4 firmware (ESP32-C3) | `pio run -e default` | **PASS (auto)**: image fits OTA slot |
-| reTerminal Sticky (ESP32-S3, touch) | `pio run -e sticky` | **PASS (auto)**: 6,221,442 B, 332,158 B free |
-| X4 Pro (ESP32-S3, touch, SDMMC) | `pio run -e x4-pro` | **PASS (auto)**: 6,312,065 B, 241,535 B free |
+| X3/X4 firmware (ESP32-C3) | `pio run -e default` | **PASS (auto)**: 6,391,847 B, 161,753 B free (97.5%) |
+| reTerminal Sticky (ESP32-S3, touch) | `pio run -e sticky` | **PASS (auto)**: 6,249,494 B, 304,106 B free |
+| X4 Pro (ESP32-S3, touch, SDMMC) | `pio run -e x4-pro` | **PASS (auto)**: 6,339,733 B, 213,867 B free |
 | Simulator builds | `pio run -e simulator`, `pio run -e simulator-X3` | **PASS (auto)** |
 | Native unit tests | `cmake -S test -B /tmp/t && cmake --build /tmp/t --target ToolsCoreTest && /tmp/t/tools_core/ToolsCoreTest` | **PASS (auto)**: 32/32 tools_core (store, dates, SRS, Panchanga vs Drik, logs, JSON export, Kannada data) and 622/622 in the whole native suite |
-| Smoke test, 7 themes | `scripts/run_simulator_smoke_test.py --theme {classic,lyra,lyra-extended,roundedraff,lyra-carousel,dashboard,pocketdeck}` | **PASS (auto)**: Home, File Browser, Recent Books, Settings, Reader Options, Reader Menu, Sleep, EPUB open + page turns, plus Tools menu and all 8 tools |
+| Smoke test, 7 themes | `scripts/run_simulator_smoke_test.py --theme {classic,lyra,lyra-extended,roundedraff,lyra-carousel,dashboard,pocketdeck}` | **PASS (auto)**: Home, File Browser, Recent Books, Settings, Reader Options, Reader Menu, Sleep, EPUB open + page turns, plus Tools menu and all tools |
 | Scripted UI walk (X3 profile) | simulator input script + screenshots | **PASS (auto)**: every tool entered, used and exited; data files written correctly; no `.tmp`/`.bak` left behind; nothing written to `/.pocketdeck-os` |
 
 ### Size and memory (ESP32-C3 `default` build)
