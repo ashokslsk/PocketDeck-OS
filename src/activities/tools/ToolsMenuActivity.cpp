@@ -9,6 +9,7 @@
 
 #include "DailyCommandCenterActivity.h"
 #include "DailyQuoteActivity.h"
+#include "DictionaryToolActivity.h"
 #include "HabitTrackerActivity.h"
 #include "MantrasActivity.h"
 #include "MedicineActivity.h"
@@ -44,6 +45,8 @@ const char* ToolsMenuActivity::toolLabel(const int index) {
       return tr(STR_TOOLS_WORKOUT);
     case STATS:
       return tr(STR_TOOLS_STATS);
+    case DICTIONARY:
+      return tr(STR_TOOLS_DICTIONARY);
     case SAVED:
       return tr(STR_BOOKMARKS_AND_CLIPPINGS);
     default:
@@ -73,6 +76,8 @@ const char* ToolsMenuActivity::toolDescription(const int index) {
       return tr(STR_TOOLS_WORKOUT_DESC);
     case STATS:
       return tr(STR_TOOLS_STATS_DESC);
+    case DICTIONARY:
+      return tr(STR_TOOLS_DICTIONARY_DESC);
     case SAVED:
       return tr(STR_TOOLS_SAVED_DESC);
     default:
@@ -120,6 +125,9 @@ void ToolsMenuActivity::openTool(const int index) {
       break;
     case STATS:
       tool = makeUniqueNoThrow<StatsActivity>(renderer, mappedInput);
+      break;
+    case DICTIONARY:
+      tool = makeUniqueNoThrow<DictionaryToolActivity>(renderer, mappedInput);
       break;
     case SAVED:
       tool = makeUniqueNoThrow<SavedItemsHomeActivity>(renderer, mappedInput);

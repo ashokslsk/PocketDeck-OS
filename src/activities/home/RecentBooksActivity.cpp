@@ -397,6 +397,7 @@ void RecentBooksActivity::showBookActionMenu(const size_t bookIndex, const bool 
           case FileBrowserAction::Info:
           case FileBrowserAction::NewFolder:
           case FileBrowserAction::Copy:
+          case FileBrowserAction::Search:
             return;
         }
       });

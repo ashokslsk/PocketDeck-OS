@@ -4,6 +4,7 @@
 #include <FreeInkUIIcon.h>
 #include <HalGPIO.h>
 #include <I18n.h>
+#include <Memory.h>
 
 #include <algorithm>
 #include <cstring>
@@ -11,9 +12,13 @@
 #include "DeviceCapabilities.h"
 #include "KeyboardLayoutSet.h"
 #include "MappedInputManager.h"
+#include "activities/ActivityResult.h"
+#include "activities/reader/KannadaReading.h"
+#include "activities/util/OptionSelectionActivity.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
+#include "util/Clipboard.h"
 
 namespace fui = freeink::ui;
 
@@ -120,6 +125,13 @@ void KeyboardEntryActivity::onEnter() {
   Activity::onEnter();
   cursorPos = text.length();
   layoutId = inputType == InputType::Url ? fui::KeyboardLayoutId::QwertyEn : keyboard_layouts::startingLayout();
+  if (inputType == InputType::Text) {
+    clipboardEntries = clipboard::entries();
+    // Kannada in the field (typed earlier or pasted) is shaped; the font opens
+    // only if Kannada is actually drawn.
+    kannadareading::beginUi();
+    kannadaUi = true;
+  }
   const uint16_t enabledLayouts = keyboard_layouts::enabled();
   showLangKey = (enabledLayouts & (enabledLayouts - 1)) != 0;
   shifted = false;
@@ -144,7 +156,50 @@ void KeyboardEntryActivity::onEnter() {
   requestUpdate();
 }
 
-void KeyboardEntryActivity::onExit() { Activity::onExit(); }
+void KeyboardEntryActivity::onExit() {
+  if (kannadaUi) {
+    kannadareading::endUi();
+    kannadaUi = false;
+  }
+  Activity::onExit();
+}
+
+bool KeyboardEntryActivity::pasteText(const std::string& source) {
+  std::string piece = source;
+  if (maxLength != 0) {
+    const size_t room = text.length() < maxLength ? maxLength - text.length() : 0;
+    if (piece.size() > room) {
+      size_t cut = room;
+      while (cut > 0 && (static_cast<unsigned char>(piece[cut]) & 0xC0) == 0x80) --cut;  // whole characters only
+      piece.resize(cut);
+    }
+  }
+  if (piece.empty()) return false;
+  insertUtf8(piece.c_str());
+  return true;
+}
+
+void KeyboardEntryActivity::startPaste() {
+  if (clipboardEntries.empty()) return;
+  if (clipboardEntries.size() == 1) {
+    if (pasteText(clipboardEntries.front())) requestUpdate();
+    return;
+  }
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "PastePicker",
+                                                           StrId::STR_KB_PASTE_TITLE, clipboardEntries, 0);
+  if (!picker) {
+    LOG_ERR("KBD", "OOM: paste picker");
+    return;
+  }
+  picker->showCurrentMarker = false;
+  startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
+    const auto* choice = std::get_if<OptionSelectionResult>(&result.data);
+    if (!result.isCancelled && choice && choice->index < clipboardEntries.size()) {
+      pasteText(clipboardEntries[choice->index]);
+    }
+    requestUpdate();
+  });
+}
 
 const fui::KeyboardLayout& KeyboardEntryActivity::currentLayout() const {
   if (symbols) return fui::builtinKeyboardLayout(layoutId, shifted, true);
@@ -628,6 +683,21 @@ void KeyboardEntryActivity::loop() {
     }
   }
 
+  if (downHeld && !downLongHandled && !cursorMode && !clipboardEntries.empty() &&
+      mappedInput.isPressed(MappedInputManager::Button::Down) && mappedInput.getHeldTime() > LONG_PRESS_MS) {
+    // Act on the release, so the release itself cannot reach a paste picker.
+    downLongHandled = true;
+    pastePending = true;
+  }
+
+  if (mappedInput.wasReleased(MappedInputManager::Button::Down) && pastePending) {
+    pastePending = false;
+    downHeld = false;
+    downLongHandled = false;
+    startPaste();
+    return;
+  }
+
   if (mappedInput.wasReleased(MappedInputManager::Button::Down)) {
     if (downHeld && !downLongHandled && !cursorMode) {
       moveSelectionRow(1);
@@ -725,6 +795,11 @@ void KeyboardEntryActivity::loop() {
     } else if (confirmHeld && !confirmLongHandled && cursorMode && inputType == InputType::Password && togglePos) {
       passwordVisible = !passwordVisible;
       requestUpdate();
+    } else if (confirmHeld && !confirmLongHandled && cursorMode && inputType == InputType::Text &&
+               !clipboardEntries.empty()) {
+      confirmHeld = false;
+      startPaste();
+      return;
     }
     confirmHeld = false;
     confirmLongHandled = false;
@@ -942,6 +1017,21 @@ void KeyboardEntryActivity::render(RenderLock&&) {
   } else {
     tipCount = 1 + (inputType == InputType::Url ? 1 : 0) + (!text.empty() ? 1 : 0);
   }
+  // "Hold Down to paste: …" while the clipboard holds text.
+  std::string pasteTip;
+  if (!cursorMode && !urlPanel && !clipboardEntries.empty()) {
+    std::string preview = clipboardEntries.front();
+    if (preview.size() > 28) {
+      size_t cut = 28;
+      while (cut > 0 && (static_cast<unsigned char>(preview[cut]) & 0xC0) == 0x80) --cut;
+      preview.resize(cut);
+      preview += "\xe2\x80\xa6";
+    }
+    char tipBuf[96];
+    snprintf(tipBuf, sizeof(tipBuf), tr(STR_KB_HINT_PASTE_FORMAT), preview.c_str());
+    pasteTip = tipBuf;
+    tipCount += symbols && text.empty() ? 2 : 1;  // symbols with no text had no "Tips" title line
+  }
 
   if (!mappedInput.hasTouchHardware() && tipCount > 0) {
     int y = (underlineBottom + kbRect.y) / 2 - (tipCount + 1) * tipsLh / 2;
@@ -958,7 +1048,9 @@ void KeyboardEntryActivity::render(RenderLock&&) {
     } else if (symbols) {
       if (!text.empty()) {
         drawTip(tr(STR_KB_HINT_CLEAR_TEXT), y);
+        y += tipsLh;
       }
+      if (!pasteTip.empty()) drawTip(pasteTip.c_str(), y);
     } else {
       const char* altCharTip;
       if (inputType == InputType::Url) {
@@ -976,7 +1068,9 @@ void KeyboardEntryActivity::render(RenderLock&&) {
       }
       if (!text.empty()) {
         drawTip(tr(STR_KB_HINT_CLEAR_TEXT), y);
+        y += tipsLh;
       }
+      if (!pasteTip.empty()) drawTip(pasteTip.c_str(), y);
     }
   }
 

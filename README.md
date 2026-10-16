@@ -33,6 +33,7 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
   - Kannada EPUB/TXT books are shaped with the SD card Kannada font, sized to match the reader font.
   - Japanese, Chinese and Korean books use the included Noto Sans CJK font; Latin and Cyrillic use the built-in fonts.
   - Any `.cpfont` family can be added in `/fonts`.
+- **Copy Text and paste**: select words in a book (reader menu > Copy Text) and paste them into any text field (hold Down), such as Mood notes, Medicine courses or the Dictionary search. The last 10 copies are kept.
 - **Kannada dictionary**: Look Up Word on a Kannada word goes to an installed Kannada dictionary even when the book's dictionary is English, and words are reduced to their dictionary form (ಹಕ್ಕಿಗಳ → ಹಕ್ಕಿ).
 - **Hyphenation** for English, Russian and Spanish books; other languages wrap whole words.
 - **Reading Stats**:
@@ -51,6 +52,7 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
   - It shows item n of m, a progress bar, and percent and MB copied, with Cancel.
   - It checks free space first, and a cancelled or failed copy removes everything it wrote.
   - Copying into the same folder makes "Name (copy)", and a copy never overwrites a file.
+- **Search files…** (in the Options sheet): finds files and folders anywhere on the SD card by name; open a book straight from the results.
 - **Info**: type, size, location, reading progress (or a folder's contents) and the SD card's free space.
 - **Back-stacking**: from a book back to its folder, then up one folder at a time, then Home. This is remembered across sleep.
 - PDF and MOBI files are listed, and opening one explains how to convert it.
@@ -67,7 +69,7 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 ### Daily tools (Home > Tools)
 
-In this order: **Daily Quote**, **Panchanga**, **World Clock**, **Pomodoro**, **Mantras**, **Workout**, **Habits**, **Mood**, **Medicine**, **Stats & export**, **Today**, and **Bookmarks & Clippings**.
+In this order: **Daily Quote**, **Panchanga**, **World Clock**, **Pomodoro**, **Dictionary**, **Mantras**, **Workout**, **Habits**, **Mood**, **Medicine**, **Stats & export**, **Today**, and **Bookmarks & Clippings**.
 
 - **Daily Quote**: a big date first, favourites, and Kannada quotes drawn from the SD card font.
 - **Panchanga**: offline, in **Kannada or English**, any date from **1976 to 2075** with a calendar picker; festival and holiday calendars you can layer from JSON on the SD card.
@@ -80,6 +82,7 @@ In this order: **Daily Quote**, **Panchanga**, **World Clock**, **Pomodoro**, **
 - **Medicine & supplements**: time-bound courses ("3 a day for 4 days", before or after food) with adherence, missed doses, on-time rate, and start/stop/completion dates.
 - **Stats & export**: every statistic is written to `/stats/<feature>/*.json`, plus book data (progress, bookmarks, clippings, look-ups) that you can restore on another card or device.
 - **Today**: a to-do list.
+- **Dictionary**: look up any word without a book, typed, pasted or picked from your recent copies. Kannada and English, with Switch to see the same word in another dictionary.
 - **Bookmarks & Clippings**: everything you've saved, across all books.
 - Every tool with history has a stats page with charts and an **Export** button.
 

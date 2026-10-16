@@ -143,7 +143,7 @@ void OptionSelectionActivity::buildOptionsScreen(UiApp::ScreenType& screen) {
   for (size_t i = 0; i < options_.size(); ++i) {
     fui::ListItem item;
     item.label = options_[i].c_str();
-    item.value = i == static_cast<size_t>(currentIndex_) ? tr(STR_SELECTED) : nullptr;
+    item.value = showCurrentMarker && i == static_cast<size_t>(currentIndex_) ? tr(STR_SELECTED) : nullptr;
     item.actionValue = static_cast<int16_t>(i);
     items.push_back(item);
   }

@@ -51,6 +51,7 @@ class FileBrowserActivity final : public Activity {
   void startRenameDirectory(const std::string& fullPath, const std::string& entry);
   void startMove(const std::string& fullPath, const std::string& entry);
   void startCopy(const std::string& fullPath, const std::string& entry);
+  void startSearch();
   void startNewFolder();
   void showInfo(const std::string& fullPath, const std::string& entry);
   void reloadAndSelect(const std::string& entry);

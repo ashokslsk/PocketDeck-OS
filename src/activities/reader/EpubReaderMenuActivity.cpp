@@ -263,6 +263,7 @@ EpubReaderMenuActivity::TabMenuItems EpubReaderMenuActivity::buildMenuItems(
   mainItems.push_back({MenuAction::READING_STATS, StrId::STR_READING_STATS});
   mainItems.push_back({MenuAction::READER_OPTIONS, StrId::STR_READER_OPTIONS});
   bookmarkItems.push_back({MenuAction::SAVE_CLIPPING, StrId::STR_SAVE_CLIPPING});
+  bookmarkItems.push_back({MenuAction::COPY_TEXT, StrId::STR_COPY_TEXT});
   if (hasClippings) {
     bookmarkItems.push_back({MenuAction::VIEW_CLIPPINGS, StrId::STR_VIEW_CLIPPINGS});
   }

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "activities/Activity.h"
 #include "util/ButtonNavigator.h"
@@ -78,6 +79,11 @@ class KeyboardEntryActivity : public Activity {
   bool rightLongHandled = false;
   size_t savedCursorPos = 0;
   size_t rightStartCursorPos = 0;
+  // Recent copies from books ("Copy text"), newest first, offered for pasting
+  // in text fields: hold Down, or press Confirm while editing in the text field.
+  std::vector<std::string> clipboardEntries;
+  bool kannadaUi = false;     // lets pasted Kannada render shaped
+  bool pastePending = false;  // Down held long: paste once it is released
 
   // Tap/hold routing (threshold long-press, release swallow, slide re-arm)
   // lives in the SDK; loop() feeds it the level-triggered touch state.
@@ -122,6 +128,9 @@ class KeyboardEntryActivity : public Activity {
   bool clearAllOrAltOnSelected();
 
   void insertUtf8(const char* out);
+  bool pasteText(const std::string& piece);
+  // One copy: paste it. Several: let the reader pick (newest preselected).
+  void startPaste();
   bool backspaceUtf8();
   static size_t utf8Prev(const std::string& s, size_t pos);
   static size_t utf8Next(const std::string& s, size_t pos);

@@ -1,3 +1,16 @@
+## [PocketDeck-OS 1.0.0, Copy text and Dictionary tool] - 2026-10-16
+
+### Added
+
+- Copy Text (reader menu, bookmark tab, after Create Clipping): select one word or a run of words, as for a clipping, and they go to the clipboard instead. The clipboard keeps the last 10 copies, newest first, in `/.pocketdeck-os/clipboard.txt`, so they survive closing the book and sleep.
+- Paste in every text field (Mood notes, Medicine courses, Habits, Today, renames, Dictionary search): hold Down, or press Confirm while editing in the text field. A "Hold Down to paste: …" tip shows what is on the clipboard; with several copies a Paste list opens, newest first.
+- Explorer > Options > Search files…: type (or paste) part of a name and the whole SD card is searched, case-insensitively, with a live "Searching… N folders" status (Back stops early). Results show each file's folder; a book opens straight in the reader (Back from it returns to the book's folder), a folder opens in Explorer, other files open their folder with the file highlighted. Hidden folders are searched only when Show Hidden Files is on.
+- Tools > Dictionary (fifth in Tools, after Pomodoro): look up any word without opening a book. Search by typing (or pasting), pick one of your recent copies, or reopen a past search (hold Confirm to delete one). Kannada words go to an installed Kannada dictionary automatically, definitions render Kannada and English as in the reader, and Switch shows the same word in another dictionary. History lives in `/tools/dictionary/`.
+
+### Fixed
+
+- A space before Kannada text no longer disappears in mixed labels (Speed Read status bar, the Dictionary list, the paste tip).
+
 ## [PocketDeck-OS 1.0.0, File manager and Back to your folder] - 2026-10-16
 
 ### Added

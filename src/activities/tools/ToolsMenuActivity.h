@@ -21,6 +21,7 @@ class ToolsMenuActivity final : public Activity {
     PANCHANGA,
     WORLD_CLOCK,
     POMODORO,
+    DICTIONARY,  // look up words without a book
     MANTRAS,
     WORKOUT,
     HABITS,
@@ -28,7 +29,7 @@ class ToolsMenuActivity final : public Activity {
     MEDICINE,
     STATS,
     TODAY,
-    SAVED,  // all-books bookmarks and clippings (Saved Items)
+    SAVED,       // all-books bookmarks and clippings (Saved Items)
     TOOL_COUNT
   };
 

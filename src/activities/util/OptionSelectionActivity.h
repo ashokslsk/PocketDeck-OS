@@ -17,6 +17,10 @@ class OptionSelectionActivity final : public Activity {
                           StrId titleId, std::vector<std::string> options, uint8_t selectedIndex,
                           bool readerMode = false, bool showTouchHeaderBackButton = false);
 
+  // false: a plain pick list (e.g. Paste) without the "Selected" tag on the
+  // starting row.
+  bool showCurrentMarker = true;
+
   void onEnter() override;
   void loop() override;
   void render(RenderLock&&) override;

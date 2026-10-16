@@ -25,6 +25,7 @@
 #include "CrossPointState.h"
 #include "FileBrowserActionActivity.h"
 #include "FileInfoActivity.h"
+#include "FileSearchActivity.h"
 #include "MappedInputManager.h"
 #include "RecentBookProgress.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
@@ -593,6 +594,7 @@ void FileBrowserActivity::showDirectoryActionMenu(const std::string& entry, bool
   items.push_back({useDefaultFolders ? FileBrowserAction::ClearSleepFolder : FileBrowserAction::SetSleepFolder,
                    useDefaultFolders ? StrId::STR_USE_DEFAULT_SLEEP_FOLDERS : StrId::STR_SET_AS_SLEEP_FOLDER});
   items.push_back({FileBrowserAction::Info, StrId::STR_FILE_INFO});
+  items.push_back({FileBrowserAction::Search, StrId::STR_SEARCH_FILES});
 
   startActivityForResult(std::make_unique<FileBrowserActionActivity>(renderer, mappedInput, getFileName(entry),
                                                                      std::move(items), ignoreInitialConfirmRelease),
@@ -616,6 +618,9 @@ void FileBrowserActivity::showDirectoryActionMenu(const std::string& entry, bool
                                return;
                              case FileBrowserAction::Copy:
                                startCopy(fullPath, entry);
+                               return;
+                             case FileBrowserAction::Search:
+                               startSearch();
                                return;
                              case FileBrowserAction::NewFolder:
                                startNewFolder();
@@ -785,6 +790,8 @@ void FileBrowserActivity::showFileActionMenu(const std::string& entry, bool igno
          isPinnedBootFavorite(fullPath) ? StrId::STR_CLEAR_BOOT_SCREEN : StrId::STR_SET_AS_BOOT_SCREEN});
   }
 
+  items.push_back({FileBrowserAction::Search, StrId::STR_SEARCH_FILES});
+
   startActivityForResult(
       std::make_unique<FileBrowserActionActivity>(renderer, mappedInput, getFileName(entry), std::move(items),
                                                   ignoreInitialConfirmRelease),
@@ -804,6 +811,9 @@ void FileBrowserActivity::showFileActionMenu(const std::string& entry, bool igno
             return;
           case FileBrowserAction::Copy:
             startCopy(fullPath, entry);
+            return;
+          case FileBrowserAction::Search:
+            startSearch();
             return;
           case FileBrowserAction::Info:
             showInfo(fullPath, entry);
@@ -1996,5 +2006,30 @@ void FileBrowserActivity::startCopy(const std::string& fullPath, const std::stri
       snprintf(message, sizeof(message), tr(STR_COPIED_TO_FORMAT), folderName.c_str());
       showToast(message);
     });
+  });
+}
+
+void FileBrowserActivity::startSearch() {
+  // The last query is offered again, so a refined search is one edit away.
+  static std::string lastQuery;
+  auto keyboard = makeUniqueNoThrow<KeyboardEntryActivity>(renderer, mappedInput, tr(STR_SEARCH_FILES_TITLE), lastQuery,
+                                                           64, InputType::Text, 1);
+  if (!keyboard) {
+    LOG_ERR("FileBrowser", "OOM: search keyboard");
+    return;
+  }
+  startActivityForResult(std::move(keyboard), [this](const ActivityResult& result) {
+    const auto* typed = std::get_if<KeyboardResult>(&result.data);
+    if (result.isCancelled || !typed || typed->text.empty()) {
+      requestUpdate();
+      return;
+    }
+    lastQuery = typed->text;
+    auto search = makeUniqueNoThrow<FileSearchActivity>(renderer, mappedInput, typed->text);
+    if (!search) {
+      LOG_ERR("FileBrowser", "OOM: file search");
+      return;
+    }
+    startActivityForResult(std::move(search), [this](const ActivityResult&) { requestUpdate(); });
   });
 }

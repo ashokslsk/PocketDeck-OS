@@ -452,8 +452,9 @@ class EpubReaderActivity final : public Activity {
   void resetCurrentBookStatsAfterDelete();
   void openFileTransfer();
   void openAutoPageTurnIntervalPicker(bool ignoreInitialConfirmRelease = false, bool returnToReaderMenu = false);
+  // copyOnly: the selected words go to the clipboard instead of becoming a clipping.
   void startClipSelection(const DictionaryClippingRequest* dictionaryRequest = nullptr,
-                          bool ignoreInitialBackRelease = false);
+                          bool ignoreInitialBackRelease = false, bool copyOnly = false);
   void resetReadingPaceData();
   void captureGlobalReaderSettings();
   void restoreGlobalReaderSettings();

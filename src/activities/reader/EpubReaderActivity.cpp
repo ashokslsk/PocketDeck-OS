@@ -70,6 +70,7 @@
 #include "clippings/ClippingTextMatcher.h"
 #include "clippings/ClippingsManager.h"
 #include "components/UITheme.h"
+#include "util/Clipboard.h"
 #if CROSSINK_APP_CAP_TOUCH
 #include "components/TouchHeaderBackButton.h"
 #endif
@@ -3764,6 +3765,10 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
       startClipSelection();
       break;
     }
+    case EpubReaderMenuActivity::MenuAction::COPY_TEXT: {
+      startClipSelection(nullptr, false, /*copyOnly=*/true);
+      break;
+    }
     case EpubReaderMenuActivity::MenuAction::LOOKUP: {
       openWordSelect(/*framebufferContainsPage=*/false);
       break;
@@ -4343,7 +4348,7 @@ void EpubReaderActivity::openAutoPageTurnIntervalPicker(const bool ignoreInitial
 }
 
 void EpubReaderActivity::startClipSelection(const DictionaryClippingRequest* dictionaryRequest,
-                                            const bool ignoreInitialBackRelease) {
+                                            const bool ignoreInitialBackRelease, const bool copyOnly) {
   if (!section || !epub) {
     requestUpdate();
     return;
@@ -4631,12 +4636,20 @@ void EpubReaderActivity::startClipSelection(const DictionaryClippingRequest* dic
     return;
   }
   startActivityForResult(std::move(clipSelection), [this, bookTitle = std::move(bookTitle), author = std::move(author),
-                                                    chapterTitle = std::move(chapterTitle),
-                                                    clippingLayoutSignature](const ActivityResult& result) {
+                                                    chapterTitle = std::move(chapterTitle), clippingLayoutSignature,
+                                                    copyOnly](const ActivityResult& result) {
     MemoryBudget::logHeapShape("clip.child_destroyed");
     const char* clippingFeedback = nullptr;
     bool saved = false;
-    if (!result.isCancelled) {
+    if (copyOnly) {
+      // Copy text: the selection goes to the clipboard, not into Clippings.
+      if (!result.isCancelled) {
+        const auto& clip = std::get<ClippingResult>(result.data);
+        if (!clip.text.empty()) {
+          clippingFeedback = clipboard::add(clip.text) ? tr(STR_TEXT_COPIED) : tr(STR_COPY_TEXT_FAILED);
+        }
+      }
+    } else if (!result.isCancelled) {
       const auto& clip = std::get<ClippingResult>(result.data);
       if (!clip.text.empty()) {
         const size_t clippingIndex = CLIPPINGS.clippingCount();
@@ -7990,7 +8003,7 @@ void EpubReaderActivity::renderStatusBar() const {
     snprintf(speedLabel, sizeof(speedLabel),
              speedReadPaused ? tr(STR_SPEED_READ_PAUSED_FORMAT) : tr(STR_SPEED_READ_STATUS_FORMAT),
              static_cast<unsigned>(speedReadWpm));
-    title = title.empty() ? std::string(speedLabel) : std::string(speedLabel) + " \xc2\xb7 " + title;
+    title = title.empty() ? std::string(speedLabel) : std::string(speedLabel) + " \xc2\xb7\xc2\xa0" + title;
     const uint8_t statusBarHeight = UITheme::getInstance().getStatusBarHeight();
     if (statusBarHeight == 0 || statusBarHeight == UITheme::getInstance().getProgressBarHeight()) {
       textYOffset += UITheme::getInstance().getMetrics().statusBarVerticalMargin;
