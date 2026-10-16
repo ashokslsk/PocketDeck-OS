@@ -7,16 +7,16 @@ nav_order: 16
 
 CrossInk caches data aggressively on the SD card to minimize RAM use. The ESP32-C3 has about 380 KB of usable RAM, so rebuilding every book structure in memory on every open would be too expensive.
 
-The main data directory is `.crosspoint` on the SD card. It stores render caches and persistent user/device data.
+The main data directory is `.pocketdeck-os` on the SD card. It stores render caches and persistent user/device data.
 
 ## Directory Layout
 
 ```text
-.crosspoint/
+.pocketdeck-os/
 ├── global_stats.bin        # All-time reading stats, including total books read
 ├── global_stats.bin.bak    # Backup used if the main global stats file is corrupt
 ├── synced_stats/           # Stats snapshots received from other readers
-├── crossink-settings.json  # CrossInk device settings
+├── pocketdeck-os-settings.json  # CrossInk device settings
 ├── settings.json           # Legacy settings fallback, if present
 ├── settings.bin.bak        # Legacy binary settings file after migration, if present
 ├── state.json              # Last-opened book and sleep/session state
@@ -53,7 +53,7 @@ Four-tone sleep covers use separate `_absolute.bmp` files so older cover shading
 
 ## Clearing Cache Data
 
-Deleting the entire `.crosspoint` directory resets caches, settings, saved network/server data, bookmarks, recent books, reading progress, and reading stats.
+Deleting the entire `.pocketdeck-os` directory resets caches, settings, saved network/server data, bookmarks, recent books, reading progress, and reading stats.
 
 To clear EPUB/XTC render caches from the device UI without deleting settings or global stats, use:
 
@@ -66,7 +66,7 @@ Cache folders are path-based. Moving a book file can create a new cache director
 EPUB reader font, page layout, styling, and reading-aid settings normally come from the global Reader settings. If those settings are changed from inside an EPUB, CrossInk stores a per-book override in that book's `reader_settings.bin`; books without that override continue to follow the global defaults. EPUB render mode is also stored per book so a problematic title can be switched to Balanced or Light rendering from the File Browser or Recent Books long-press menus before opening it.
 
 EPUB clippings and highlights live outside the EPUB render-cache folder in
-`/.crosspoint/clippings/`. Each book gets a binary clipping file named from the
+`/.pocketdeck-os/clippings/`. Each book gets a binary clipping file named from the
 book type and the CRC32 of the book path. The same clipping record powers the
 in-reader highlight, the clipping list, and jump-back behavior. CrossInk also
 appends a Kindle-style text export to `/My Clippings.txt` on the SD-card root;
@@ -76,10 +76,10 @@ to `/My Clippings.txt`.
 
 Cache data is cleared by supported CrossInk delete/move flows. If you remove or rename books outside CrossInk by editing the SD card directly, old cache folders may remain until you clear reading cache.
 
-All-time reading stats can also be backed up outside `.crosspoint` in:
+All-time reading stats can also be backed up outside `.pocketdeck-os` in:
 
 ```text
-/.crossink-stats-backup/
+/.pocketdeck-os-stats-backup/
 ```
 
 For binary file layout details, see [File Formats](./file-formats.md).

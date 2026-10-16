@@ -1,0 +1,427 @@
+{
+ "title_en": "Yoga",
+ "title_kn": "ಯೋಗ",
+ "note": "Move slowly and breathe through the nose. Hold times are for building up gently: start with Beginner. Stop if you feel pain, dizziness or breathlessness. If you are pregnant, recovering from surgery or have a heart, blood-pressure or other medical condition, check with your doctor first.",
+ "items": [
+  {
+   "id": "surya_namaskara",
+   "name_en": "Sun Salutation",
+   "name_kn": "ಸೂರ್ಯ ನಮಸ್ಕಾರ",
+   "type": "sequence",
+   "rounds": [
+    3,
+    12
+   ],
+   "step_seconds": [
+    8,
+    4
+   ],
+   "image": "yoga/pranamasana.pbm",
+   "steps": [
+    {
+     "name": "1. Pranamasana (Prayer Pose)",
+     "name_kn": "ಪ್ರಣಾಮಾಸನ",
+     "text": "Stand erect, palms joined at chest in namaskar mudra",
+     "image": "yoga/pranamasana.pbm",
+     "mantra_kn": "ಓಂ ಮಿತ್ರಾಯ ನಮಃ",
+     "mantra_en": "Om Mitraya Namah",
+     "meaning": "Salutations to Mitra, the friend of all beings",
+     "breath": "Exhale / Normal breathing"
+    },
+    {
+     "name": "2. Hasta Uttanasana (Raised Arms Pose)",
+     "name_kn": "ಹಸ್ತ ಉತ್ತಾನಾಸನ",
+     "text": "Raise arms overhead, arch back, stretch whole body",
+     "image": "yoga/hasta_uttanasana.pbm",
+     "mantra_kn": "ಓಂ ರವಯೇ ನಮಃ",
+     "mantra_en": "Om Ravaye Namah",
+     "meaning": "Salutations to Ravi, the shining one who causes change",
+     "breath": "Inhale"
+    },
+    {
+     "name": "3. Pada Hastasana (Standing Forward Bend)",
+     "name_kn": "ಪಾದ ಹಸ್ತಾಸನ",
+     "text": "Bend forward from hips, hands beside feet, forehead toward knees",
+     "image": "yoga/padahastasana.pbm",
+     "mantra_kn": "ಓಂ ಸೂರ್ಯಾಯ ನಮಃ",
+     "mantra_en": "Om Suryaya Namah",
+     "meaning": "Salutations to Surya, the dispeller of darkness who inspires noble deeds",
+     "breath": "Exhale"
+    },
+    {
+     "name": "4. Ashwa Sanchalanasana (Equestrian Pose)",
+     "name_kn": "ಅಶ್ವ ಸಂಚಾಲನಾಸನ",
+     "text": "Step right leg back, left foot between hands, look up",
+     "image": "yoga/ashwa_sanchalanasana.pbm",
+     "mantra_kn": "ಓಂ ಭಾನವೇ ನಮಃ",
+     "mantra_en": "Om Bhanave Namah",
+     "meaning": "Salutations to Bhanu, the one who illuminates and enlightens",
+     "breath": "Inhale"
+    },
+    {
+     "name": "5. Dandasana (Plank Pose)",
+     "name_kn": "ದಂಡಾಸನ",
+     "text": "Step left leg back, body straight, arms perpendicular to floor",
+     "image": "yoga/plank.pbm",
+     "mantra_kn": "ಓಂ ಖಗಾಯ ನಮಃ",
+     "mantra_en": "Om Khagaya Namah",
+     "meaning": "Salutations to Khaga, the one who moves through the sky",
+     "breath": "Exhale"
+    },
+    {
+     "name": "6. Ashtanga Namaskara (Eight-Limbed Salutation)",
+     "name_kn": "ಅಷ್ಟಾಂಗ ನಮಸ್ಕಾರ",
+     "text": "Lower knees, chest and chin to floor; eight limbs touch ground",
+     "image": "yoga/ashtanga_namaskara.pbm",
+     "mantra_kn": "ಓಂ ಪೂಷ್ಣೇ ನಮಃ",
+     "mantra_en": "Om Pushne Namah",
+     "meaning": "Salutations to Pushan, the one who nourishes and gives strength",
+     "breath": "Exhale"
+    },
+    {
+     "name": "7. Bhujangasana (Cobra Pose)",
+     "name_kn": "ಭುಜಂಗಾಸನ",
+     "text": "Slide forward, raise chest, arch back, look up",
+     "image": "yoga/bhujangasana.pbm",
+     "mantra_kn": "ಓಂ ಹಿರಣ್ಯಗರ್ಭಾಯ ನಮಃ",
+     "mantra_en": "Om Hiranyagarbhaya Namah",
+     "meaning": "Salutations to Hiranyagarbha, the golden cosmic womb that contains all",
+     "breath": "Inhale"
+    },
+    {
+     "name": "8. Adho Mukha Shvanasana (Downward-Facing Dog Pose)",
+     "name_kn": "ಅಧೋಮುಖ ಶ್ವಾನಾಸನ",
+     "text": "Lift hips up and back, heels toward floor, form inverted V",
+     "image": "yoga/adho_mukha_svanasana.pbm",
+     "mantra_kn": "ಓಂ ಮರೀಚಯೇ ನಮಃ",
+     "mantra_en": "Om Marichaye Namah",
+     "meaning": "Salutations to Marichi, the one who possesses rays of light and creates positive waves",
+     "breath": "Exhale"
+    },
+    {
+     "name": "9. Ashwa Sanchalanasana (Equestrian Pose)",
+     "name_kn": "ಅಶ್ವ ಸಂಚಾಲನಾಸನ",
+     "text": "Step right leg forward between hands, look up",
+     "image": "yoga/ashwa_sanchalanasana.pbm",
+     "mantra_kn": "ಓಂ ಆದಿತ್ಯಾಯ ನಮಃ",
+     "mantra_en": "Om Adityaya Namah",
+     "meaning": "Salutations to Aditya, the supreme son of Aditi, the infinite mother",
+     "breath": "Inhale"
+    },
+    {
+     "name": "10. Pada Hastasana (Standing Forward Bend)",
+     "name_kn": "ಪಾದ ಹಸ್ತಾಸನ",
+     "text": "Bring left foot forward beside right, bend forward",
+     "image": "yoga/padahastasana.pbm",
+     "mantra_kn": "ಓಂ ಸವಿತ್ರೇ ನಮಃ",
+     "mantra_en": "Om Savitre Namah",
+     "meaning": "Salutations to Savitri, the one who is the source of everything",
+     "breath": "Exhale"
+    },
+    {
+     "name": "11. Hasta Uttanasana (Raised Arms Pose)",
+     "name_kn": "ಹಸ್ತ ಉತ್ತಾನಾಸನ",
+     "text": "Rise up, arms overhead, arch back",
+     "image": "yoga/hasta_uttanasana.pbm",
+     "mantra_kn": "ಓಂ ಅರ್ಕಾಯ ನಮಃ",
+     "mantra_en": "Om Arkaya Namah",
+     "meaning": "Salutations to Arka, the one who is worthy of praise and worship",
+     "breath": "Inhale"
+    },
+    {
+     "name": "12. Pranamasana (Prayer Pose)",
+     "name_kn": "ಪ್ರಣಾಮಾಸನ",
+     "text": "Bring palms together at chest in prayer position, stand erect",
+     "image": "yoga/pranamasana.pbm",
+     "mantra_kn": "ಓಂ ಭಾಸ್ಕರಾಯ ನಮಃ",
+     "mantra_en": "Om Bhaskaraya Namah",
+     "meaning": "Salutations to Bhaskara, the one who leads to enlightenment and is the cause of light and knowledge",
+     "breath": "Exhale"
+    }
+   ],
+   "mantra_pages": "yoga/surya_mantras.json",
+   "accessories": [
+    "Yoga mat"
+   ],
+   "how": [
+    "Twelve poses linked with the breath; one round leads with the right leg, the next with the left.",
+    "Beginner holds each pose for 8 seconds; Advanced flows at 4 seconds a pose.",
+    "Each pose shows its mantra, meaning and breath. The opening verse comes first; after the last round the closing verse, Bhaskara Stotram, Surya Ashtakam, Guru Namaskara and Dheerga Danda Namaskara follow, one verse per page.",
+    "Follow the pose name and cue on screen; keep the movements smooth."
+   ],
+   "caution": "Skip the back-bend if you have a back injury. Avoid in late pregnancy."
+  },
+  {
+   "id": "tadasana",
+   "name_en": "Mountain Pose",
+   "name_kn": "ತಾಡಾಸನ",
+   "type": "hold",
+   "seconds": [
+    30,
+    60
+   ],
+   "sides": 1,
+   "image": "yoga/tadasana.pbm",
+   "how": [
+    "Stand with feet together or hip-width apart, weight even on both feet.",
+    "Lengthen the spine, relax the shoulders, arms by the sides.",
+    "Breathe slowly and feel the body stand tall and steady."
+   ],
+   "accessories": [
+    "Yoga mat"
+   ],
+   "caution": "",
+   "benefit": "Posture and balance."
+  },
+  {
+   "id": "vrikshasana",
+   "name_en": "Tree Pose",
+   "name_kn": "ವೃಕ್ಷಾಸನ",
+   "type": "hold",
+   "seconds": [
+    30,
+    90
+   ],
+   "sides": 2,
+   "image": "yoga/vrikshasana.pbm",
+   "how": [
+    "Stand on the left leg. Place the right foot on the inner calf or thigh (never on the knee).",
+    "Bring the palms together at the chest or overhead.",
+    "Fix the gaze on one point and breathe evenly. Change legs."
+   ],
+   "accessories": [
+    "Yoga mat",
+    "Wall for support"
+   ],
+   "caution": "Use a wall if balance is unsteady.",
+   "benefit": "Balance and focus."
+  },
+  {
+   "id": "trikonasana",
+   "name_en": "Triangle Pose",
+   "name_kn": "ತ್ರಿಕೋಣಾಸನ",
+   "type": "hold",
+   "seconds": [
+    30,
+    60
+   ],
+   "sides": 2,
+   "image": "yoga/trikonasana.pbm",
+   "how": [
+    "Step the feet wide; turn the right foot out.",
+    "Reach to the right and lower the right hand to the shin or a block; raise the left arm.",
+    "Keep both legs straight and the chest open. Change sides."
+   ],
+   "accessories": [
+    "Yoga mat",
+    "Yoga block"
+   ],
+   "caution": "Keep the neck neutral if it feels strained.",
+   "benefit": "Stretches the sides and legs."
+  },
+  {
+   "id": "virabhadrasana2",
+   "name_en": "Warrior II",
+   "name_kn": "ವೀರಭದ್ರಾಸನ ೨",
+   "type": "hold",
+   "seconds": [
+    30,
+    60
+   ],
+   "sides": 2,
+   "image": "yoga/virabhadrasana2.pbm",
+   "how": [
+    "Step the feet wide, right foot out, left foot slightly in.",
+    "Bend the right knee over the ankle; stretch the arms out at shoulder height.",
+    "Look over the right hand; keep the torso upright. Change sides."
+   ],
+   "accessories": [
+    "Yoga mat"
+   ],
+   "caution": "Keep the knee over the ankle, not past the toes.",
+   "benefit": "Leg strength and stamina."
+  },
+  {
+   "id": "bhujangasana",
+   "name_en": "Cobra Pose",
+   "name_kn": "ಭುಜಂಗಾಸನ",
+   "type": "hold",
+   "seconds": [
+    20,
+    45
+   ],
+   "sides": 1,
+   "image": "yoga/bhujangasana.pbm",
+   "how": [
+    "Lie on the front with hands under the shoulders, legs together.",
+    "Breathe in and lift the chest, elbows slightly bent, hips on the floor.",
+    "Keep the shoulders away from the ears; lower down as you breathe out."
+   ],
+   "accessories": [
+    "Yoga mat"
+   ],
+   "caution": "Avoid with a recent back injury or in pregnancy.",
+   "benefit": "Strengthens the back."
+  },
+  {
+   "id": "setu_bandhasana",
+   "name_en": "Bridge Pose",
+   "name_kn": "ಸೇತುಬಂಧಾಸನ",
+   "type": "hold",
+   "seconds": [
+    20,
+    60
+   ],
+   "sides": 1,
+   "image": "yoga/setu_bandhasana.pbm",
+   "how": [
+    "Lie on the back, knees bent, feet hip-width apart near the hips.",
+    "Press into the feet and lift the hips; arms rest on the floor.",
+    "Breathe steadily, then roll down slowly."
+   ],
+   "accessories": [
+    "Yoga mat",
+    "Yoga block under the hips (supported)"
+   ],
+   "caution": "Do not turn the head while in the pose.",
+   "benefit": "Opens the chest, strengthens legs and back."
+  },
+  {
+   "id": "adho_mukha_svanasana",
+   "name_en": "Downward Dog",
+   "name_kn": "ಅಧೋಮುಖ ಶ್ವಾನಾಸನ",
+   "type": "hold",
+   "seconds": [
+    30,
+    60
+   ],
+   "sides": 1,
+   "image": "yoga/adho_mukha_svanasana.pbm",
+   "how": [
+    "From hands and knees, lift the hips up and back into an inverted V.",
+    "Spread the fingers, press the floor away, heels reaching down.",
+    "Bend the knees as much as needed to keep the back long."
+   ],
+   "accessories": [
+    "Yoga mat"
+   ],
+   "caution": "Avoid with uncontrolled high blood pressure or a wrist injury.",
+   "benefit": "Stretches the back of the body."
+  },
+  {
+   "id": "balasana",
+   "name_en": "Child's Pose",
+   "name_kn": "ಬಾಲಾಸನ",
+   "type": "hold",
+   "seconds": [
+    30,
+    120
+   ],
+   "sides": 1,
+   "image": "yoga/balasana.pbm",
+   "how": [
+    "Kneel, sit back on the heels and fold forward.",
+    "Rest the forehead on the mat, arms forward or beside the body.",
+    "Breathe into the back; rest here whenever you need."
+   ],
+   "accessories": [
+    "Yoga mat",
+    "Cushion"
+   ],
+   "caution": "Place a cushion between the hips and heels if the knees hurt.",
+   "benefit": "Rest and gentle back stretch."
+  },
+  {
+   "id": "paschimottanasana",
+   "name_en": "Seated Forward Bend",
+   "name_kn": "ಪಶ್ಚಿಮೋತ್ತಾನಾಸನ",
+   "type": "hold",
+   "seconds": [
+    30,
+    90
+   ],
+   "sides": 1,
+   "image": "yoga/paschimottanasana.pbm",
+   "how": [
+    "Sit with the legs straight in front.",
+    "Breathe in to lengthen; breathe out and fold from the hips, reaching for the shins or feet.",
+    "Keep the back long rather than rounding; use a strap around the feet."
+   ],
+   "accessories": [
+    "Yoga mat",
+    "Strap"
+   ],
+   "caution": "Bend the knees if the lower back pulls.",
+   "benefit": "Stretches hamstrings and spine."
+  },
+  {
+   "id": "vajrasana",
+   "name_en": "Thunderbolt Pose",
+   "name_kn": "ವಜ್ರಾಸನ",
+   "type": "hold",
+   "seconds": [
+    60,
+    300
+   ],
+   "sides": 1,
+   "image": "yoga/vajrasana.pbm",
+   "how": [
+    "Kneel and sit on the heels, big toes touching.",
+    "Hands on the thighs, spine tall, breathe slowly.",
+    "Traditionally practised after meals to aid digestion."
+   ],
+   "accessories": [
+    "Yoga mat",
+    "Cushion"
+   ],
+   "caution": "Avoid with knee injuries.",
+   "benefit": "Digestion and calm."
+  },
+  {
+   "id": "marjaryasana",
+   "name_en": "Cat-Cow",
+   "name_kn": "ಮಾರ್ಜರ್ಯಾಸನ",
+   "type": "hold",
+   "seconds": [
+    45,
+    90
+   ],
+   "sides": 1,
+   "image": "yoga/cat_cow.pbm",
+   "how": [
+    "Come to hands and knees, wrists under shoulders, knees under hips.",
+    "Breathe in, let the belly drop and look up (cow).",
+    "Breathe out, round the back and tuck the chin (cat). Keep flowing."
+   ],
+   "accessories": [
+    "Yoga mat"
+   ],
+   "caution": "",
+   "benefit": "Mobility for the spine."
+  },
+  {
+   "id": "shavasana",
+   "name_en": "Corpse Pose",
+   "name_kn": "ಶವಾಸನ",
+   "type": "hold",
+   "seconds": [
+    180,
+    600
+   ],
+   "sides": 1,
+   "image": "yoga/shavasana.pbm",
+   "how": [
+    "Lie on the back, legs apart, arms away from the body, palms up.",
+    "Close the eyes and let the whole body become heavy.",
+    "Breathe naturally. End every session here."
+   ],
+   "accessories": [
+    "Yoga mat",
+    "Blanket",
+    "Eye pillow"
+   ],
+   "caution": "",
+   "benefit": "Deep rest."
+  }
+ ]
+}

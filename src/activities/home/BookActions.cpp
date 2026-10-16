@@ -33,10 +33,10 @@ bool hasReadingStats(const std::string& path) {
 
 std::string bookStatsCachePath(const std::string& path) {
   if (FsHelpers::hasEpubExtension(path)) {
-    return Epub(path, "/.crosspoint").getCachePath();
+    return Epub(path, "/.pocketdeck-os").getCachePath();
   }
   if (FsHelpers::hasXtcExtension(path)) {
-    return Xtc(path, "/.crosspoint").getCachePath();
+    return Xtc(path, "/.pocketdeck-os").getCachePath();
   }
   return "";
 }
@@ -77,7 +77,7 @@ bool canSendNearby(const std::string& path) {
 
 void clearFileMetadata(const std::string& fullPath) {
   if (FsHelpers::hasEpubExtension(fullPath)) {
-    Epub(fullPath, "/.crosspoint").clearCache();
+    Epub(fullPath, "/.pocketdeck-os").clearCache();
     BookmarkStore::deleteForFilePath(fullPath, "epub");
     ClippingStore::deleteForFilePath(fullPath, "epub");
   } else if (FsHelpers::hasXtcExtension(fullPath)) {
@@ -154,8 +154,8 @@ bool toggleBookCompleted(const std::string& fullPath, const std::string& display
     return false;
   }
 
-  Epub epub(fullPath, "/.crosspoint");
-  Xtc xtc(fullPath, "/.crosspoint");
+  Epub epub(fullPath, "/.pocketdeck-os");
+  Xtc xtc(fullPath, "/.pocketdeck-os");
   std::string cachePath;
   std::string title;
   std::string author;

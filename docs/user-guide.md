@@ -853,7 +853,7 @@ To create a bookmark, hold **Confirm** for 1 second while inside a book. A popup
 
 To open bookmarks, press **Confirm** while inside a book. Then navigate to the **Bookmarks** menu. Bookmarks can be opened by navigating to them and pressing **Confirm**, which will redirect you to that place in the book. You can delete bookmarks by holding **Confirm** for 1 second, and then pressing **Confirm** again to confirm deletion, or **Back** to cancel.
 
-Bookmarks are stored as per-book `.bin` files in the `.crosspoint/bookmarks` folder.
+Bookmarks are stored as per-book `.bin` files in the `.pocketdeck-os/bookmarks` folder.
 
 ### 5.3 Dictionary
 
@@ -920,4 +920,4 @@ Press **Ctrl-C** or close the graph window to exit.
 
 If the device is stuck in a bootloop, press and release the Reset button. Then, press and hold on to the configured Back button and the Power Button to boot to the Home Screen.
 
-There can be issues with broken cache or config. In this case, delete the `.crosspoint` directory on your SD card (or consider deleting only `settings.json`, `state.json`, or `epub_*` cache directories in the `.crosspoint/` folder).
+There can be issues with broken cache or config. In this case, delete the `.pocketdeck-os` directory on your SD card (or consider deleting only `settings.json`, `state.json`, or `epub_*` cache directories in the `.pocketdeck-os/` folder).

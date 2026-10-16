@@ -36,19 +36,22 @@
 #include "RecentBookProgress.h"
 #include "RecentBooksStore.h"
 #include "SavedItemsHomeActivity.h"
+#include "activities/reader/BookInsights.h"
+#include "activities/reader/KannadaReading.h"
 #include "components/UITheme.h"
 #include "components/themes/dashboard/DashboardTheme.h"
 #include "components/themes/lyra/LyraCarouselTheme.h"
 #include "components/themes/minimal/MinimalTheme.h"
+#include "components/themes/pocketdeck/PocketDeckTheme.h"
 #include "fontIds.h"
 
 namespace {
 constexpr uint32_t CAROUSEL_CACHE_MAGIC = 0x43434152;  // "CCAR"
 // Cached frames include all Home visuals, including the menu icons. Bump this
 // whenever their rendering changes so stale snapshots are rebuilt after OTA.
-constexpr uint16_t CAROUSEL_CACHE_VERSION = 5;
-constexpr char CAROUSEL_CACHE_PATH[] = "/.crosspoint/home_carousel_cache.bin";
-constexpr char CAROUSEL_CACHE_TMP_PATH[] = "/.crosspoint/home_carousel_cache.tmp";
+constexpr uint16_t CAROUSEL_CACHE_VERSION = 6;
+constexpr char CAROUSEL_CACHE_PATH[] = "/.pocketdeck-os/home_carousel_cache.bin";
+constexpr char CAROUSEL_CACHE_TMP_PATH[] = "/.pocketdeck-os/home_carousel_cache.tmp";
 constexpr uint32_t CAROUSEL_FRAME_MIN_FREE_AFTER_ALLOC = 64U * 1024U;
 constexpr uint32_t CAROUSEL_FRAME_MIN_MAX_ALLOC_AFTER_ALLOC = 24U * 1024U;
 constexpr unsigned long HOME_BOOK_SWAP_LONG_PRESS_MS = 1000;
@@ -63,6 +66,7 @@ enum class HomeMenuAction {
   Bookmarks,
   FileTransfer,
   Settings,
+  Tools,
 };
 
 struct HomeMenuEntry {
@@ -72,7 +76,7 @@ struct HomeMenuEntry {
 };
 
 struct HomeMenuEntries {
-  static constexpr int kCapacity = 8;
+  static constexpr int kCapacity = 9;
   std::array<HomeMenuEntry, kCapacity> entries{};
   int count = 0;
 
@@ -158,13 +162,13 @@ void appendHashedFileStateToKey(std::string& key, const std::string& path) {
 
 std::string getRecentBookCachePath(const RecentBook& book) {
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub::cachePathForFilePath(book.path, "/.crosspoint");
+    return Epub::cachePathForFilePath(book.path, "/.pocketdeck-os");
   }
   if (FsHelpers::hasXtcExtension(book.path)) {
-    return "/.crosspoint/xtc_" + std::to_string(std::hash<std::string>{}(book.path));
+    return "/.pocketdeck-os/xtc_" + std::to_string(std::hash<std::string>{}(book.path));
   }
   if (FsHelpers::hasTxtExtension(book.path) || FsHelpers::hasMarkdownExtension(book.path)) {
-    return "/.crosspoint/txt_" + std::to_string(std::hash<std::string>{}(book.path));
+    return "/.pocketdeck-os/txt_" + std::to_string(std::hash<std::string>{}(book.path));
   }
   return "";
 }
@@ -184,7 +188,7 @@ bool loadEpubHighlightedContext(const RecentBook& book, const bool loadProgress,
     return false;
   }
 
-  Epub epub(book.path, "/.crosspoint");
+  Epub epub(book.path, "/.pocketdeck-os");
   if (!epub.load(false, true)) {
     return false;
   }
@@ -234,10 +238,10 @@ bool hasThumbnailPlaceholder(const std::string& coverBmpPath) {
 
 std::string getReusableCoverPath(const RecentBook& book) {
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub(book.path, "/.crosspoint").getThumbBmpPath();
+    return Epub(book.path, "/.pocketdeck-os").getThumbBmpPath();
   }
   if (FsHelpers::hasXtcExtension(book.path)) {
-    return Xtc(book.path, "/.crosspoint").getThumbBmpPath();
+    return Xtc(book.path, "/.pocketdeck-os").getThumbBmpPath();
   }
   return book.coverBmpPath;
 }
@@ -265,21 +269,35 @@ const char* savedItemsLabel(bool hasBookmarks, bool hasClippings) {
 
 void appendHomeMenuItems(HomeMenuEntries& items, bool hasOpdsServers, bool hasReadingStats, bool hasBookmarks,
                          bool hasClippings) {
+  // PocketDeck's bottom bar leads with File Explorer then Tools, and ends
+  // with Reading Stats.
+  const bool pocketDeck =
+      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::POCKETDECK;
   items.push({tr(STR_BROWSE_FILES), Folder, HomeMenuAction::BrowseFiles});
+  if (pocketDeck) {
+    items.push({tr(STR_TOOLS), Tools, HomeMenuAction::Tools});
+  }
   items.push({tr(STR_MENU_RECENT_BOOKS), Recent, HomeMenuAction::RecentBooks});
 
   if (hasOpdsServers) {
     items.push({tr(STR_OPDS_BROWSER), Library, HomeMenuAction::OpdsBrowser});
   }
-  if (hasReadingStats) {
+  if (hasReadingStats && !pocketDeck) {
     items.push({tr(STR_READING_STATS), Chart, HomeMenuAction::ReadingStats});
   }
-  if (hasBookmarks || hasClippings) {
+  // PocketDeck keeps its bar to one row: saved items open from Tools > Saved
+  // and from each book's reader menu.
+  if ((hasBookmarks || hasClippings) && !pocketDeck) {
     items.push({savedItemsLabel(hasBookmarks, hasClippings), BookmarkIcon, HomeMenuAction::Bookmarks});
   }
 
   items.push({tr(STR_FILE_TRANSFER), Transfer, HomeMenuAction::FileTransfer});
   items.push({tr(STR_SETTINGS_TITLE), Settings, HomeMenuAction::Settings});
+  if (!pocketDeck) {
+    items.push({tr(STR_TOOLS), Tools, HomeMenuAction::Tools});
+  } else if (hasReadingStats) {
+    items.push({tr(STR_READING_STATS), Chart, HomeMenuAction::ReadingStats});
+  }
 }
 
 HomeMenuEntries buildHomeMenuItems(bool hasOpdsServers, bool hasReadingStats, bool hasBookmarks, bool hasClippings) {
@@ -303,6 +321,7 @@ HomeMenuEntries buildMinimalMenuItems(bool hasOpdsServers, bool hasReadingStats,
   }
 
   items.push({tr(STR_FILE_TRANSFER), Transfer, HomeMenuAction::FileTransfer});
+  items.push({tr(STR_TOOLS), Tools, HomeMenuAction::Tools});
   return items;
 }
 
@@ -328,6 +347,8 @@ HomeMenuAction homeActionForInitialMenuItem(HomeMenuItem item) {
       return HomeMenuAction::FileTransfer;
     case HomeMenuItem::SETTINGS_MENU:
       return HomeMenuAction::Settings;
+    case HomeMenuItem::TOOLS:
+      return HomeMenuAction::Tools;
     case HomeMenuItem::NONE:
     default:
       return HomeMenuAction::ContinueReading;
@@ -378,7 +399,7 @@ std::string minimalHomeCoverPath(const RecentBook& book, int coverHeight) {
     return {};
   }
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub(book.path, "/.crosspoint")
+    return Epub(book.path, "/.pocketdeck-os")
         .getAdaptiveThumbBmpPath(minimalHomeCoverWidth(coverHeight), minimalHomeCoverHeight(coverHeight));
   }
   return UITheme::getCoverThumbPath(book.coverBmpPath, minimalHomeCoverWidth(coverHeight),
@@ -400,7 +421,7 @@ std::string dashboardHomeCoverPath(const RecentBook& book, int coverHeight) {
     return {};
   }
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub(book.path, "/.crosspoint")
+    return Epub(book.path, "/.pocketdeck-os")
         .getAdaptiveThumbBmpPath(dashboardHomeCoverWidth(coverHeight), dashboardHomeCoverHeight(coverHeight));
   }
   return UITheme::getCoverThumbPath(book.coverBmpPath, dashboardHomeCoverWidth(coverHeight),
@@ -419,10 +440,10 @@ void appendCarouselCoverStateToKey(std::string& key, const RecentBook& book) {
     return;
   }
 
-  const std::string centerPath =
-      UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::kCenterThumbW, LyraCarouselTheme::kCenterThumbH);
+  const std::string centerPath = UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::centerThumbW(),
+                                                            LyraCarouselTheme::centerThumbH());
   const std::string sidePath =
-      UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::kSideCoverW, LyraCarouselTheme::kSideCoverH);
+      UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::sideThumbW(), LyraCarouselTheme::sideThumbH());
   key += Storage.exists(centerPath.c_str()) ? '1' : '0';
   key += ':';
   key += Storage.exists(sidePath.c_str()) ? '1' : '0';
@@ -441,7 +462,7 @@ void appendCarouselCoverStateToKey(std::string& key, const RecentBook& book) {
 }
 
 void appendSyncedStatsStateToKey(std::string& key) {
-  FsFile dir = Storage.open("/.crosspoint/synced_stats");
+  FsFile dir = Storage.open("/.pocketdeck-os/synced_stats");
   if (!dir) {
     key += "no-synced-stats";
     key += '\0';
@@ -463,7 +484,7 @@ void appendSyncedStatsStateToKey(std::string& key) {
       key += name;
       key += '\0';
       file.close();
-      appendHashedFileStateToKey(key, std::string("/.crosspoint/synced_stats/") + name);
+      appendHashedFileStateToKey(key, std::string("/.pocketdeck-os/synced_stats/") + name);
       continue;
     }
     file.close();
@@ -499,8 +520,30 @@ void buildCarouselCacheKey(const std::vector<RecentBook>& recentBooks, const boo
   for (const auto& book : recentBooks) {
     appendCarouselCoverStateToKey(key, book);
   }
-  appendHashedFileStateToKey(key, "/.crosspoint/global_stats.bin");
+  appendHashedFileStateToKey(key, "/.pocketdeck-os/global_stats.bin");
   appendSyncedStatsStateToKey(key);
+  // PocketDeck-OS: the carousel's book stats panel is part of each cached
+  // frame, so its inputs join the key: the layout switch, today's date (the
+  // finish estimate moves daily), each book's stats file and its bookmark /
+  // clipping / look-up counts.
+  if (SETTINGS.carouselBookStats != 0) {
+    key += "cstats:1";
+    key += '\0';
+    ReadingStatsDateTime now;
+    if (getCurrentLocalReadingStatsDateTime(now)) {
+      key += std::to_string(now.date.year * 10000 + now.date.month * 100 + now.date.day);
+    }
+    key += '\0';
+    for (const auto& book : recentBooks) {
+      const std::string cache = book_files::cachePathFor(book.path);
+      if (!cache.empty()) {
+        appendHashedFileStateToKey(key, cache + "/stats_v5.bin");
+        appendHashedFileStateToKey(key, cache + "/progress_percent.bin");
+      }
+      key += BookInsights::signature(book.path);
+      key += '\0';
+    }
+  }
   keyHash = fnvHash64(key);
 }
 
@@ -509,9 +552,10 @@ bool isCarouselCacheHeaderValid(const CarouselCacheHeader& header, uint64_t cach
   return header.magic == CAROUSEL_CACHE_MAGIC && header.version == CAROUSEL_CACHE_VERSION &&
          header.keyHash == cacheKeyHash && header.frameCount == bookCount &&
          header.frameBufferSize == renderer.getBufferSize() && header.screenWidth == renderer.getScreenWidth() &&
-         header.screenHeight == renderer.getScreenHeight() && header.centerCoverW == LyraCarouselTheme::kCenterThumbW &&
-         header.centerCoverH == LyraCarouselTheme::kCenterThumbH &&
-         header.sideCoverW == LyraCarouselTheme::kSideCoverW && header.sideCoverH == LyraCarouselTheme::kSideCoverH;
+         header.screenHeight == renderer.getScreenHeight() &&
+         header.centerCoverW == LyraCarouselTheme::centerThumbW() &&
+         header.centerCoverH == LyraCarouselTheme::centerThumbH() &&
+         header.sideCoverW == LyraCarouselTheme::sideThumbW() && header.sideCoverH == LyraCarouselTheme::sideThumbH();
 }
 
 bool readCarouselCacheHeader(FsFile& file, CarouselCacheHeader& header) {
@@ -604,7 +648,7 @@ static_assert(HomeActivity::kMaxCachedBooks >= LyraCarouselMetrics::values.homeR
 
 int HomeActivity::getMenuItemCount() const {
   const auto& metrics = UITheme::getInstance().getMetrics();
-  int count = 4;  // File Browser, Recents, File transfer, Settings
+  int count = 5;  // File Browser, Recents, File transfer, Settings, Tools
   if (!metrics.homeContinueReadingInMenu && !recentBooks.empty()) {
     count += getVisibleRecentBookCount();
   } else if (metrics.homeContinueReadingInMenu && !recentBooks.empty()) {
@@ -678,6 +722,8 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
       static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
   const bool isMinimal = isMinimalTheme();
   const bool isDashboard = isDashboardTheme();
+  const bool isPocketDeck =
+      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::POCKETDECK;
   const size_t recentBookCount = recentBooks.size();
   // Home only loads kMaxCachedBooks recents; fixed storage avoids an aborting std::vector allocation on low heap.
   std::array<char, kMaxCachedBooks> bookUpdated{};
@@ -695,16 +741,16 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
       if (isCarouselTheme) {
         // For carousel: generate exact-size thumbnails for the center image rect and side slots.
         // Load the source image once even when both sizes are missing.
-        const std::string centerPath = UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::kCenterThumbW,
-                                                                  LyraCarouselTheme::kCenterThumbH);
-        const std::string sidePath = UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::kSideCoverW,
-                                                                LyraCarouselTheme::kSideCoverH);
+        const std::string centerPath = UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::centerThumbW(),
+                                                                  LyraCarouselTheme::centerThumbH());
+        const std::string sidePath = UITheme::getCoverThumbPath(book.coverBmpPath, LyraCarouselTheme::sideThumbW(),
+                                                                LyraCarouselTheme::sideThumbH());
         const bool centerMissing = !Storage.exists(centerPath.c_str());
         const bool sideMissing = !Storage.exists(sidePath.c_str());
 
         if (centerMissing || sideMissing) {
           if (FsHelpers::hasEpubExtension(book.path)) {
-            Epub epub(book.path, "/.crosspoint");
+            Epub epub(book.path, "/.pocketdeck-os");
             showLoadingProgress(10 + progress * progressIncrement);
             if (!epub.load(true, true, Epub::XLocationLoadMode::Skip)) {
               LOG_ERR("HOME", "carousel: failed to load EPUB cache for thumb generation: %s", book.path.c_str());
@@ -715,12 +761,12 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
             }
             bool success = true;
             if (centerMissing)
-              success = epub.generateThumbBmp(LyraCarouselTheme::kCenterThumbW, LyraCarouselTheme::kCenterThumbH,
+              success = epub.generateThumbBmp(LyraCarouselTheme::centerThumbW(), LyraCarouselTheme::centerThumbH(),
                                               &renderer, SETTINGS.getReaderFontId()) &&
                         success;
             if (sideMissing)
-              success = epub.generateThumbBmp(LyraCarouselTheme::kSideCoverW, LyraCarouselTheme::kSideCoverH, &renderer,
-                                              SETTINGS.getReaderFontId()) &&
+              success = epub.generateThumbBmp(LyraCarouselTheme::sideThumbW(), LyraCarouselTheme::sideThumbH(),
+                                              &renderer, SETTINGS.getReaderFontId()) &&
                         success;
             if (!success) {
               if (!epub.hasCoverImage()) markCoverMissing(book);
@@ -730,16 +776,16 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
             coverRendered = false;
             requestUpdate();
           } else if (FsHelpers::hasXtcExtension(book.path)) {
-            Xtc xtc(book.path, "/.crosspoint");
+            Xtc xtc(book.path, "/.pocketdeck-os");
             if (xtc.load()) {
               showLoadingProgress(10 + progress * progressIncrement);
               bool success = true;
               if (centerMissing)
-                success =
-                    xtc.generateThumbBmp(LyraCarouselTheme::kCenterThumbW, LyraCarouselTheme::kCenterThumbH) && success;
+                success = xtc.generateThumbBmp(LyraCarouselTheme::centerThumbW(), LyraCarouselTheme::centerThumbH()) &&
+                          success;
               if (sideMissing)
                 success =
-                    xtc.generateThumbBmp(LyraCarouselTheme::kSideCoverW, LyraCarouselTheme::kSideCoverH) && success;
+                    xtc.generateThumbBmp(LyraCarouselTheme::sideThumbW(), LyraCarouselTheme::sideThumbH()) && success;
               if (success) {
                 if (bookIdx < bookUpdated.size()) bookUpdated[bookIdx] = true;
               }
@@ -759,9 +805,31 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
             useDashboardThumb ? dashboardHomeCoverPath(book, coverHeight)
                               : (useMinimalThumb ? minimalHomeCoverPath(book, coverHeight)
                                                  : UITheme::getCoverThumbPath(book.coverBmpPath, coverHeight));
+        // PocketDeck also shows small covers in Recent Reads, at their own size.
+        const std::string smallPath =
+            isPocketDeck ? UITheme::getCoverThumbPath(book.coverBmpPath, PocketDeckMetrics::kRecentCoverHeight) : "";
+        const bool smallMissing = isPocketDeck && supportsExactHomeThumb && !Storage.exists(smallPath.c_str());
+        if (smallMissing && !coverPath.empty() && Storage.exists(coverPath.c_str())) {
+          if (FsHelpers::hasEpubExtension(book.path)) {
+            Epub epub(book.path, "/.pocketdeck-os");
+            showLoadingProgress(10 + progress * progressIncrement);
+            if (epub.load(true, true, Epub::XLocationLoadMode::Skip) &&
+                epub.generateThumbBmp(0, PocketDeckMetrics::kRecentCoverHeight, &renderer,
+                                      SETTINGS.getReaderFontId())) {
+              coverRendered = false;
+              requestUpdate();
+            }
+          } else {
+            Xtc xtc(book.path, "/.pocketdeck-os");
+            if (xtc.load() && xtc.generateThumbBmp(static_cast<uint16_t>(PocketDeckMetrics::kRecentCoverHeight))) {
+              coverRendered = false;
+              requestUpdate();
+            }
+          }
+        }
         if (coverPath.empty() || !Storage.exists(coverPath.c_str())) {
           if (FsHelpers::hasEpubExtension(book.path)) {
-            Epub epub(book.path, "/.crosspoint");
+            Epub epub(book.path, "/.pocketdeck-os");
             showLoadingProgress(10 + progress * progressIncrement);
             if (!epub.load(true, true, Epub::XLocationLoadMode::Skip)) {
               LOG_ERR("HOME", "failed to load EPUB cache for thumb generation: %s", book.path.c_str());
@@ -769,6 +837,9 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
               requestUpdate();
               progress++;
               continue;
+            }
+            if (smallMissing) {
+              epub.generateThumbBmp(0, PocketDeckMetrics::kRecentCoverHeight, &renderer, SETTINGS.getReaderFontId());
             }
             const bool success =
                 useDashboardThumb
@@ -788,9 +859,10 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
             coverRendered = false;
             requestUpdate();
           } else if (FsHelpers::hasXtcExtension(book.path)) {
-            Xtc xtc(book.path, "/.crosspoint");
+            Xtc xtc(book.path, "/.pocketdeck-os");
             if (xtc.load()) {
               showLoadingProgress(10 + progress * progressIncrement);
+              if (smallMissing) xtc.generateThumbBmp(static_cast<uint16_t>(PocketDeckMetrics::kRecentCoverHeight));
               const bool success =
                   useDashboardThumb
                       ? xtc.generateThumbBmp(static_cast<uint16_t>(dashboardHomeCoverWidth(coverHeight)),
@@ -859,6 +931,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
 
 void HomeActivity::onEnter() {
   Activity::onEnter();
+  kannadareading::beginUi();
 
   hasOpdsServers = OPDS_STORE.hasServers();
   const bool isCarouselTheme =
@@ -994,7 +1067,7 @@ std::unique_ptr<Activity> HomeActivity::createFrontlightReadingStatsActivity() {
       title = slash == std::string::npos ? path : path.substr(slash + 1);
     }
   }
-  const std::string cachePath = validEpub ? Epub::cachePathForFilePath(path, "/.crosspoint") : std::string{};
+  const std::string cachePath = validEpub ? Epub::cachePathForFilePath(path, "/.pocketdeck-os") : std::string{};
   const BookReadingStats bookStats = validEpub ? BookReadingStats::load(cachePath) : BookReadingStats{};
   const GlobalReadingStats deviceStats = GlobalReadingStats::load();
   if (GlobalReadingStats::hasSyncedStats()) {
@@ -1080,6 +1153,7 @@ void HomeActivity::updateHighlightedBookContext(const bool allowEpubLoad) {
 }
 
 void HomeActivity::onExit() {
+  kannadareading::endUi();
   Activity::onExit();
 
   carouselMenuTouchDownIndex = -1;
@@ -1261,7 +1335,7 @@ bool HomeActivity::buildCarouselCacheFile(const std::string& cacheKey, uint64_t 
   uint8_t* frameBuffer = renderer.getFrameBuffer();
   if (!frameBuffer || bookCount <= 0) return false;
 
-  Storage.mkdir("/.crosspoint");
+  Storage.mkdir("/.pocketdeck-os");
   if (Storage.exists(CAROUSEL_CACHE_TMP_PATH)) {
     Storage.remove(CAROUSEL_CACHE_TMP_PATH);
   }
@@ -1279,10 +1353,10 @@ bool HomeActivity::buildCarouselCacheFile(const std::string& cacheKey, uint64_t 
       cacheKeyHash,
       static_cast<uint16_t>(renderer.getScreenWidth()),
       static_cast<uint16_t>(renderer.getScreenHeight()),
-      static_cast<uint16_t>(LyraCarouselTheme::kCenterThumbW),
-      static_cast<uint16_t>(LyraCarouselTheme::kCenterThumbH),
-      static_cast<uint16_t>(LyraCarouselTheme::kSideCoverW),
-      static_cast<uint16_t>(LyraCarouselTheme::kSideCoverH),
+      static_cast<uint16_t>(LyraCarouselTheme::centerThumbW()),
+      static_cast<uint16_t>(LyraCarouselTheme::centerThumbH()),
+      static_cast<uint16_t>(LyraCarouselTheme::sideThumbW()),
+      static_cast<uint16_t>(LyraCarouselTheme::sideThumbH()),
   };
   if (!serialization::tryWritePod(file, header)) {
     file.close();
@@ -1576,6 +1650,9 @@ void HomeActivity::loop() {
           case HomeMenuAction::FileTransfer:
             onFileTransferOpen();
             break;
+          case HomeMenuAction::Tools:
+            onToolsOpen();
+            break;
           case HomeMenuAction::ContinueReading:
           case HomeMenuAction::Settings:
             break;
@@ -1824,6 +1901,9 @@ void HomeActivity::loop() {
       case HomeMenuAction::Settings:
         onSettingsOpen();
         break;
+      case HomeMenuAction::Tools:
+        onToolsOpen();
+        break;
     }
   };
 
@@ -1858,7 +1938,8 @@ void HomeActivity::loop() {
     return;
   }
 
-  if (static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA &&
+  const auto homeTheme = static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme);
+  if ((homeTheme == CrossPointSettings::UI_THEME::LYRA || homeTheme == CrossPointSettings::UI_THEME::POCKETDECK) &&
       mappedInput.hasTouch() && canSwapHomeBook() && mappedInput.wasSwipe() == MappedInputManager::SwipeDir::Left) {
     showNextRecentBookOnHome();
     return;
@@ -2267,10 +2348,10 @@ void HomeActivity::render(RenderLock&&) {
   coverRectW = pageWidth;
   coverRectH = homeCoverTileHeight;
 
-  GUI.drawRecentBookCover(renderer, Rect{0, metrics.homeTopPadding, pageWidth, homeCoverTileHeight}, recentBooks,
-                          selectorIndex, coverRendered, coverBufferStored, bufferRestored,
-                          std::bind(&HomeActivity::storeCoverBuffer, this),
-                          hasAnyBookStats(currentBookStats) ? &currentBookStats : nullptr, currentBookProgressPercent);
+  GUI.drawRecentBookCover(
+      renderer, Rect{0, metrics.homeTopPadding, pageWidth, homeCoverTileHeight}, recentBooks, selectorIndex,
+      coverRendered, coverBufferStored, bufferRestored, std::bind(&HomeActivity::storeCoverBuffer, this),
+      hasAnyBookStats(currentBookStats) ? &currentBookStats : nullptr, currentBookProgressPercent, &globalStats);
 
   const int menuStartY = metrics.homeTopPadding + homeCoverTileHeight + metrics.homeMenuTopOffset;
   const int menuEndY = pageHeight - metrics.buttonHintsHeight;
@@ -2373,13 +2454,15 @@ void HomeActivity::onFileTransferOpen() { activityManager.goToFileTransfer(); }
 
 void HomeActivity::onOpdsBrowserOpen() { activityManager.goToBrowser(); }
 
+void HomeActivity::onToolsOpen() { activityManager.goToTools(); }
+
 void HomeActivity::onReadingStatsOpen() {
   const int highlightedBookIdx = getHighlightedBookIndex();
   const std::string bookTitle =
       highlightedBookIdx >= 0 ? recentBooks[highlightedBookIdx].title : std::string(tr(STR_READING_STATS));
   const std::string bookPath = getCurrentBookPath();
   const std::string cachePath =
-      FsHelpers::hasEpubExtension(bookPath) ? Epub::cachePathForFilePath(bookPath, "/.crosspoint") : std::string{};
+      FsHelpers::hasEpubExtension(bookPath) ? Epub::cachePathForFilePath(bookPath, "/.pocketdeck-os") : std::string{};
   if (showAllDevicesStats) {
     startActivityForResult(std::make_unique<BookStatsActivity>(renderer, mappedInput, bookTitle, cachePath,
                                                                currentBookStats, currentBookProgressPercent, false, 0,

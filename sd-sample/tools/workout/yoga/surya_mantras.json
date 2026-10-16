@@ -1,0 +1,260 @@
+{
+ "opening": {
+  "section_kn": "ಧ್ಯಾನ ಶ್ಲೋಕ",
+  "section_en": "Surya Namaskara: opening verse",
+  "number": 0,
+  "kn": "ಓಂ ಧ್ಯಾಯೇಸ್ಸದಾ ಸವಿತೃಮಂಡಲಮಧ್ಯವರ್ತೀ ನಾರಾಯಣಸ್ಸರಸಿಜಾಸನ ಸನ್ನಿವಿಷ್ಟಃ | ಕೇಯೂರವಾನ್ ಮಕರಕುಂಡಲವಾನ್ ಕಿರೀಟೀ ಹಾರೀ ಹಿರಣ್ಮಯವಪುಃ ಧೃತಶಂಖಚಕ್ರಃ ||",
+  "en": "Om dhyayessada savitru mandala madhyavarti Narayanas sarasijasana sannivishtah | Keyuravan makarakundalavan kiriti harihiranmayavapuh dhritashankhachakrah ||",
+  "meaning": "Meditate always on the one who resides in the center of the solar orb, seated on a lotus as Narayana, adorned with armlets, fish-shaped earrings and a crown, golden-bodied, holding conch and discus."
+ },
+ "pages": [
+  {
+   "section_kn": "ಸಮಾಪ್ತಿ ಶ್ಲೋಕ",
+   "section_en": "Surya Namaskara: closing verse",
+   "number": 0,
+   "kn": "ಆದಿತ್ಯಸ್ಯ ನಮಸ್ಕಾರಾನ್ ಯೇ ಕುರ್ವಂತಿ ದಿನೇ ದಿನೇ | ಆಯುಃ ಪ್ರಜ್ಞಾಂ ಬಲಂ ವೀರ್ಯಂ ತೇಜಸ್ತೇಷಾಂ ಚ ಜಾಯತೇ ||",
+   "en": "Adityasya namaskaran ye kurvanti dine dine | Ayuh prajnam balam viryam tejastesham cha jayate ||",
+   "meaning": "Those who perform salutations to Aditya (the Sun) every day attain longevity, wisdom, strength, valor and radiance."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 1,
+   "kn": "ಹಂಸಾಯ ಭುವನಧ್ವಾಂತಧ್ವಂಸಾಯಾಽಮಿತತೇಜಸೇ | ಹಂಸವಾಹನರೂಪಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Hamsaya bhuvana dwandhadwamasyam amitha thejase, Hamsa vahana roopaya Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who is the spiritual preceptor, the killer of darkness of the world who has immense light, and who has the form of the one who rides on the swan."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 2,
+   "kn": "ವೇದಾಂಗಾಯ ಪತಂಗಾಯ ವಿಹಂಗಾರೂಢಗಾಮಿನೇ | ಹರಿದ್ವರ್ಣತುರಂಗಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Vedanthaya, pathangaya, vihangarooda murthaye, Haridwarna thurangaya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who is the philosopher, the sun God who is in the sky, who has the form of flying God, and who uses horses of the green colour."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 3,
+   "kn": "ಭುವನತ್ರಯದೀಪ್ತಾಯ ಭುಕ್ತಿಮುಕ್ತಿಪ್ರದಾಯ ಚ | ಭಕ್ತದಾರಿದ್ರ್ಯನಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Bhuvana thraya dheepaaya, bhakthi mukthi pradaya cha, Bhaktha daridrya nasya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who is the light of the three worlds, who grants devotion and salvation and destroys poverty of devotees."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 4,
+   "kn": "ಲೋಕಾಲೋಕಪ್ರಕಾಶಾಯ ಸರ್ವಲೋಕೈಕಚಕ್ಷುಷೇ | ಲೋಕೋತ್ತರಚರಿತ್ರಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Lokaloka prakasaya, Sarva lokaika chakshushe, Lokothara charithraya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who lights up all the worlds, who is eye of all the world and whose conduct is beyond the world."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 5,
+   "kn": "ಸಪ್ತಲೋಕಪ್ರಕಾಶಾಯ ಸಪ್ತಸಪ್ತಿರಥಾಯ ಚ | ಸಪ್ತದ್ವೀಪಪ್ರಕಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Sarva loka prakasaya, Saptha sapthi radhaaya cha, Saptha dweepa prakasaya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who brightens all worlds, who rides on a chariot drawn by seven steeds, and who brightens all the seven islands."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 6,
+   "kn": "ಮಾರ್ತಾಂಡಾಯ ದ್ಯುಮಣಯೇ ಭಾನವೇ ಚಿತ್ರಭಾನವೇ | ಪ್ರಭಾಕರಾಯ ಮಿತ್ರಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Marthaandaaya dhyumanaye Bhanave chithra bhanave, Prabhakaraya mithraya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who is the bird in the sky, who is shining gem, who has luster, who has varied type of luster, who is the one who makes things bright and who is the friend of the world."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 7,
+   "kn": "ನಮಸ್ತೇ ಕಮಲಾನಾಥ ನಮಸ್ತೇ ಕಮಲಪ್ರಿಯ | ನಮಃ ಕಮಲಹಸ್ತಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Namasthe kamalanatha, namasthe kamalapriya, Namah kamalahastaya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who is the lord of the lotus, who is dear to the lotus, and who has lotus in his hands."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 8,
+   "kn": "ನಮಸ್ತೇ ಬ್ರಹ್ಮರೂಪಾಯ ನಮಸ್ತೇ ವಿಷ್ಣುರೂಪಿಣೇ | ನಮಸ್ತೇ ರುದ್ರರೂಪಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Namasthe Brahma roopaya, Namasthe vishnu roopine, Namasthe rudra roopine, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who has the form of Lord Brahma, who has the form of Lord Vishnu, who has the form of Lord Shiva."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 9,
+   "kn": "ಸತ್ಯಜ್ಞಾನಸ್ವರೂಪಾಯ ಸಹಸ್ರಕಿರಣಾಯ ಚ | ಗೀರ್ವಾಣಭೀತಿನಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Sathya jnana swaroopaya, sahasra kiranaya cha, Geervana bheethi nasaya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who is the form of all knowledge, who has thousand rays and who destroys fears of devas."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 10,
+   "kn": "ಸರ್ವದುಃಖೋಪಶಾಂತಾಯ ಸರ್ವಪಾಪಹರಾಯ ಚ | ಸರ್ವವ್ಯಾಧಿವಿನಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Sarva dukho upasanthaya, sarva papa haraya cha, Sarva vyadhi vinasaya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who pacifies all types of sorrow, who destroys all types of sins and all types of diseases."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 11,
+   "kn": "ಸಹಸ್ರಪತ್ರನೇತ್ರಾಯ ಸಹಸ್ರಾಕ್ಷಸ್ತುತಾಯ ಚ | ಸಹಸ್ರನಾಮಧೇಯಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Sahasra pathra nethraya, sahasraksha sthuthaya cha, Sahasra nama dheyaya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who has thousand message sending eyes, who is praised by the thousand eyed Indra and who has thousand names."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+   "section_en": "Sri Bhaskara Stotram",
+   "number": 12,
+   "kn": "ನಿತ್ಯಾಯ ನಿರವದ್ಯಾಯ ನಿರ್ಮಲಜ್ಞಾನಮೂರ್ತಯೇ | ನಿಗಮಾರ್ಥಪ್ರಕಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||",
+   "en": "Nithyaya, niravadhayaya, nirmala jnana moorthaye, Nigamartha prakasaya, Bhaskaraya namo nama.",
+   "meaning": "Salutations to the maker of light, who is forever, who is stainless, who is the form of pure knowledge, who explains the meaning of divine actions."
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 1,
+   "kn": "ಆದಿದೇವ ನಮಸ್ತುಭ್ಯಂ ಪ್ರಸೀದ ಮಮ ಭಾಸ್ಕರ: | ದಿವಾಕರ ನಮಸ್ತುಭ್ಯಂ ಪ್ರಭಾಕರ ನಮೋಸ್ತುತೇ ||",
+   "en": "Adideva namastubhyam praseeda mama Bhaskara, Divakara namastubhyam Prabhakara namostute.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 2,
+   "kn": "ಸಪ್ತಾಶ್ವ ರಥಮಾರೂಢಂ ಪ್ರಚಂಡಂ ಕಶ್ಯಪಾತ್ಮಜಂ | ಶ್ವೇತಪದ್ಮಧರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||",
+   "en": "Saptashva rathamarooham prachandam Kashyapatmajam, Shvetapadmadharam devam tam Suryam pranamamyaham.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 3,
+   "kn": "ಲೋಹಿತಂ ರಥಮಾರೂಢಂ ಸರ್ವಲೋಕಪಿತಾಮಹಂ | ಮಹಾಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||",
+   "en": "Lohitam rathamarooham sarvalokapitamaham, Mahapapa haram devam tam Suryam pranamamyaham.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 4,
+   "kn": "ತ್ರೈಗುಣ್ಯಂಚ ಮಹಾಶೂರಂ ಬ್ರಹ್ಮವಿಷ್ಣುಮಹೇಶ್ವರಂ | ಮಹಾಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||",
+   "en": "Traigunyanca mahashooram Brahmavishnumaheshvaram, Mahapapa haram devam tam Suryam pranamamyaham.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 5,
+   "kn": "ಬೃಂಹಿತಂ ತೇಜ: ಪುಂಜಂ ಚ ವಾಯುಮಾಕಾಶ ಮೇವಚ | ಪ್ರಭುಂಚ ಸರ್ವ ಲೋಕಾನಾಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||",
+   "en": "Brimhitam tejah punjam cha vayumakasha mevacha, Prabhunca sarva lokanam tam Suryam pranamamyaham.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 6,
+   "kn": "ಬಂಧೂಕ ಪುಷ್ಪ ಸಂಕಾಶಂ ಹಾರ ಕುಂಡಲ ಭೂಷಿತಂ | ಏಕ ಚಕ್ರಧರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||",
+   "en": "Bandhooka pushpa sankasham hara kundala bhooshitam, Eka chakradharam devam tam Suryam pranamamyaham.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 7,
+   "kn": "ತಂ ಸೂರ್ಯಂ ಜಗತ್ಕರ್ತಾರಂ ಮಹಾ ತೇಜ: ಪ್ರದೀಪನಂ | ಮಹಾಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||",
+   "en": "Tam Suryam jagatkartaram maha tejah pradeepanam, Mahapapa haram devam tam Suryam pranamamyaham.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam",
+   "number": 8,
+   "kn": "ತಂ ಸೂರ್ಯಂ ಜಗತಾಂ ನಾಥಂ ಜ್ಞಾನವಿಜ್ಞಾನಮೋಕ್ಷದಮ್ | ಮಹಾ ಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||",
+   "en": "Tam Suryam jagatam natham jnanavijnanamokshadam, Maha papa haram devam tam Suryam pranamamyaham.",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+   "section_en": "Sri Surya Ashtakam: phalashruti",
+   "number": 0,
+   "kn": "ಸೂರ್ಯಾಷ್ಟಕಂ ಪಠೇನ್ನಿತ್ಯಂ ಗ್ರಹಪೀಡಾಪ್ರಣಾಶನಮ್ | ಅಪುತ್ರೋ ಲಭತೇ ಪುತ್ರಂ ದರಿದ್ರೋ ಧನವಾನ್ ಭವೇತ್ ||",
+   "en": "Suryashtakam pathennityam grahapeedapranashanam, Aputro labhate putram daridro dhanavan bhavet.",
+   "meaning": "One who recites Suryashtakam daily destroys planetary afflictions. The childless obtains children, and the poor becomes wealthy."
+  },
+  {
+   "section_kn": "ಗುರು ನಮಸ್ಕಾರ / ಗುರು ಸ್ತೋತ್ರಂ",
+   "section_en": "Guru Namaskara / Guru Stotram",
+   "number": 1,
+   "kn": "ಅಖಂಡ ಮಂಡಲಾಕಾರಂ ವ್ಯಾಪ್ತಂ ಯೇನ ಚರಾಚರಂ | ತತ್ಪದಂ ದರ್ಶಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||",
+   "en": "Akhanda mandalakaram vyaptam yena characharam, Tatpadam darshitam yena tasmai shri gurave namah.",
+   "meaning": "Salutations to the Guru who revealed that state which pervades the entire unbroken cosmic orb, moving and unmoving."
+  },
+  {
+   "section_kn": "ಗುರು ನಮಸ್ಕಾರ / ಗುರು ಸ್ತೋತ್ರಂ",
+   "section_en": "Guru Namaskara / Guru Stotram",
+   "number": 2,
+   "kn": "ಅಜ್ಞಾನತಿಮಿರಾಂಧಸ್ಯ ಜ್ಞಾನಾಂಜನಶಲಾಕಯಾ | ಚಕ್ಷುರುನ್ಮೀಲಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||",
+   "en": "Ajnanatimirandhasya jnananjana shalakaya, Chakshurunmilitam yena tasmai shri gurave namah.",
+   "meaning": "Salutations to the Guru who opened the eyes of one blinded by the darkness of ignorance with the collyrium of knowledge."
+  },
+  {
+   "section_kn": "ಗುರು ನಮಸ್ಕಾರ / ಗುರು ಸ್ತೋತ್ರಂ",
+   "section_en": "Guru Namaskara / Guru Stotram",
+   "number": 3,
+   "kn": "ಗುರುರ್ಬ್ರಹ್ಮಾ ಗುರುರ್ವಿಷ್ಣುಃ ಗುರುರ್ದೇವೋ ಮಹೇಶ್ವರಃ | ಗುರುರೇವ ಪರಂಬ್ರಹ್ಮ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||",
+   "en": "Gurur Brahma Gurur Vishnu Gurur Devo Maheshvarah, Gurureva param Brahma tasmai shri gurave namah.",
+   "meaning": "The Guru is Brahma, the Guru is Vishnu, the Guru is the great God Shiva. The Guru is verily the supreme Brahman. Salutations to that Guru."
+  },
+  {
+   "section_kn": "ಗುರು ನಮಸ್ಕಾರ / ಗುರು ಸ್ತೋತ್ರಂ",
+   "section_en": "Guru Namaskara / Guru Stotram",
+   "number": 4,
+   "kn": "ಸ್ಥಾವರಂ ಜಂಗಮಂ ವ್ಯಾಪ್ತಂ ಯತ್ಕಿಂಚಿತ್ಸಚರಾಚರಂ | ತತ್ಪದಂ ದರ್ಶಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||",
+   "en": "Sthavaram jangamam vyaptam yatkinchit sacharacharam, Tatpadam darshitam yena tasmai shri gurave namah.",
+   "meaning": "Salutations to the Guru who revealed that state which pervades all that is stationary and moving, whatever is moving and unmoving."
+  },
+  {
+   "section_kn": "ಗುರು ನಮಸ್ಕಾರ / ಗುರು ಸ್ತೋತ್ರಂ",
+   "section_en": "Guru Namaskara / Guru Stotram",
+   "number": 5,
+   "kn": "ಚಿನ್ಮಯಂ ವ್ಯಾಪಿಯತ್ಸರ್ವಂ ತ್ರೈಲೋಕ್ಯಂ ಸಚರಾಚರಂ | ತತ್ಪದಂ ದರ್ಶಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||",
+   "en": "Chinmayam vyapi yat sarvam trailokyam sacharacharam, Tatpadam darshitam yena tasmai shri gurave namah.",
+   "meaning": "Salutations to the Guru who revealed that state which is consciousness, pervading all the three worlds, moving and unmoving."
+  },
+  {
+   "section_kn": "ಗುರು ನಮಸ್ಕಾರ / ಗುರು ಸ್ತೋತ್ರಂ",
+   "section_en": "Guru Namaskara / Guru Stotram",
+   "number": 6,
+   "kn": "ತ್ವಮೇವ ಮಾತಾ ಚ ಪಿತಾ ತ್ವಮೇವ ತ್ವಮೇವ ಬಂಧುಶ್ಚ ಸಖಾ ತ್ವಮೇವ | ತ್ವಮೇವ ವಿದ್ಯಾ ದ್ರವಿಣಂ ತ್ವಮೇವ ತ್ವಮೇವ ಸರ್ವಂ ಮಮ ದೇವ ದೇವ ||",
+   "en": "Tvameva mata cha pita tvameva tvameva bandhushcha sakha tvameva, Tvameva vidya dravinam tvameva tvameva sarvam mama deva deva.",
+   "meaning": "You alone are my mother and father, you alone are my relative and friend. You alone are knowledge and wealth, you alone are everything, O Lord of Lords."
+  },
+  {
+   "section_kn": "ದೀರ್ಘ ದಂಡ ನಮಸ್ಕಾರ",
+   "section_en": "Dheerga Danda Namaskara (Prostration Salutation)",
+   "number": 0,
+   "kn": "ದೇಹದ ಎಂಟು ಅಂಗಗಳು—ಎದೆ, ಹಣೆ, ಎರಡು ಕೈಗಳು, ಎರಡು ಮಂಡಿಗಳು ಮತ್ತು ಎರಡು ಪಾದಗಳು—ನೆಲವನ್ನು ಸ್ಪರ್ಶಿಸುವ ನಮಸ್ಕಾರ",
+   "en": "A prostration where eight limbs of the body—chest, forehead, two hands, two knees, and two feet—touch the ground",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ದೀರ್ಘ ದಂಡ ನಮಸ್ಕಾರ",
+   "section_en": "Dheerga Danda Namaskara (Prostration Salutation)",
+   "number": 0,
+   "kn": "ಓಂ ಸೂರ್ಯಾಯ ನಮಃ / ಓಂ ಭಾಸ್ಕರಾಯ ನಮಃ",
+   "en": "Om Suryaya Namah / Om Bhaskaraya Namah",
+   "meaning": ""
+  },
+  {
+   "section_kn": "ದೀರ್ಘ ದಂಡ ನಮಸ್ಕಾರ",
+   "section_en": "Dheerga Danda Namaskara (Prostration Salutation)",
+   "number": 0,
+   "kn": "ದೀರ್ಘದಂಡ ನಮಸ್ಕಾರಂ ನಿರ್ಲಜ್ಜಂ ಗುರುಸನ್ನಿಧೌ | ಶರೀರಮರ್ಥಪ್ರಾಣಂ ಚ ಸದ್ಗುರುಭ್ಯೋ ನಿವೇದಯೇತ್ ||",
+   "en": "Dheergadanda namaskaram nirlajjam gurusannidhau, Shareeramarthapranam cha sadgurubhyo nivedayet.",
+   "meaning": "Prostrating fully before the Guru without shame, one offers one's body, wealth and life to the true Guru."
+  }
+ ]
+}

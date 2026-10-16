@@ -54,3 +54,7 @@ for id in \
   UI_10_FONT_ID UI_12_FONT_ID SMALL_FONT_ID; do
   echo "static_assert(${id} != 0, \"Font ID collision with sentinel\");"
 done
+
+# Tools clock digits
+emit_hash_define TOOLS_DIGITS_44_FONT_ID ./inter_digits_44_regular.h
+emit_hash_define TOOLS_DIGITS_30_FONT_ID ./inter_digits_30_regular.h

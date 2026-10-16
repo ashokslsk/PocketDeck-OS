@@ -10,9 +10,9 @@
 
 namespace {
 constexpr uint8_t STATE_FILE_VERSION = 5;
-constexpr char STATE_FILE_BIN[] = "/.crosspoint/state.bin";
-constexpr char STATE_FILE_JSON[] = "/.crosspoint/state.json";
-constexpr char STATE_FILE_BAK[] = "/.crosspoint/state.bin.bak";
+constexpr char STATE_FILE_BIN[] = "/.pocketdeck-os/state.bin";
+constexpr char STATE_FILE_JSON[] = "/.pocketdeck-os/state.json";
+constexpr char STATE_FILE_BAK[] = "/.pocketdeck-os/state.bin.bak";
 }  // namespace
 
 bool CrossPointState::isRecentSleep(uint16_t idx, uint8_t checkCount) const {
@@ -104,6 +104,7 @@ void CrossPointState::toJson(JsonDocument& doc) const {
   doc["recentBootFill"] = recentBootFill;
   doc["readerActivityLoadCount"] = readerActivityLoadCount;
   doc["lastSleepFromReader"] = lastSleepFromReader;
+  doc["readerReturnTo"] = readerReturnTo;
   doc["pendingBookmarkSpine"] = pendingBookmarkSpine;
   doc["pendingBookmarkProgress"] = pendingBookmarkProgress;
   doc["pendingBookmarkParagraphIndex"] = pendingBookmarkParagraphIndex;
@@ -157,6 +158,8 @@ bool CrossPointState::fromJson(JsonVariantConst doc) {
   recentBootFill = static_cast<uint8_t>(std::min(static_cast<int>(recentBootFill), actualBootCount));
   readerActivityLoadCount = doc["readerActivityLoadCount"] | static_cast<uint8_t>(0);
   lastSleepFromReader = doc["lastSleepFromReader"] | false;
+  readerReturnTo = doc["readerReturnTo"] | static_cast<uint8_t>(READER_RETURN_HOME);
+  if (readerReturnTo > READER_RETURN_FILE_BROWSER) readerReturnTo = READER_RETURN_HOME;
   pendingBookmarkSpine = doc["pendingBookmarkSpine"] | static_cast<uint16_t>(UINT16_MAX);
   pendingBookmarkProgress = doc["pendingBookmarkProgress"] | static_cast<float>(-1.0f);
   pendingBookmarkParagraphIndex = doc["pendingBookmarkParagraphIndex"] | static_cast<uint16_t>(UINT16_MAX);

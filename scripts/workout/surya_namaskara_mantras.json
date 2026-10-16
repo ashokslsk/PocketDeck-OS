@@ -1,0 +1,90 @@
+{
+  "surya_namaskara": {
+    "title_kannada": "ಸೂರ್ಯ ನಮಸ್ಕಾರ",
+    "title_english": "Surya Namaskara (Sun Salutation)",
+    "opening_verse": {
+      "kannada": "ಓಂ ಧ್ಯಾಯೇಸ್ಸದಾ ಸವಿತೃಮಂಡಲಮಧ್ಯವರ್ತೀ ನಾರಾಯಣಸ್ಸರಸಿಜಾಸನ ಸನ್ನಿವಿಷ್ಟಃ | ಕೇಯೂರವಾನ್ ಮಕರಕುಂಡಲವಾನ್ ಕಿರೀಟೀ ಹಾರೀ ಹಿರಣ್ಮಯವಪುಃ ಧೃತಶಂಖಚಕ್ರಃ ||",
+      "english": "Om dhyayessada savitru mandala madhyavarti Narayanas sarasijasana sannivishtah | Keyuravan makarakundalavan kiriti harihiranmayavapuh dhritashankhachakrah ||",
+      "meaning_english": "Meditate always on the one who resides in the center of the solar orb, seated on a lotus as Narayana, adorned with armlets, fish-shaped earrings and a crown, golden-bodied, holding conch and discus."
+    },
+    "steps": [
+      {"step": 1, "posture_kannada": "ಪ್ರಣಾಮಾಸನ", "posture_english": "Pranamasana (Prayer Pose)", "mantra_kannada": "ಓಂ ಮಿತ್ರಾಯ ನಮಃ", "mantra_english": "Om Mitraya Namah", "meaning_english": "Salutations to Mitra, the friend of all beings", "breath": "Exhale / Normal breathing", "movement_english": "Stand erect, palms joined at chest in namaskar mudra"},
+      {"step": 2, "posture_kannada": "ಹಸ್ತ ಉತ್ತಾನಾಸನ", "posture_english": "Hasta Uttanasana (Raised Arms Pose)", "mantra_kannada": "ಓಂ ರವಯೇ ನಮಃ", "mantra_english": "Om Ravaye Namah", "meaning_english": "Salutations to Ravi, the shining one who causes change", "breath": "Inhale", "movement_english": "Raise arms overhead, arch back, stretch whole body"},
+      {"step": 3, "posture_kannada": "ಪಾದ ಹಸ್ತಾಸನ", "posture_english": "Pada Hastasana (Standing Forward Bend)", "mantra_kannada": "ಓಂ ಸೂರ್ಯಾಯ ನಮಃ", "mantra_english": "Om Suryaya Namah", "meaning_english": "Salutations to Surya, the dispeller of darkness who inspires noble deeds", "breath": "Exhale", "movement_english": "Bend forward from hips, hands beside feet, forehead toward knees"},
+      {"step": 4, "posture_kannada": "ಅಶ್ವ ಸಂಚಾಲನಾಸನ", "posture_english": "Ashwa Sanchalanasana (Equestrian Pose)", "mantra_kannada": "ಓಂ ಭಾನವೇ ನಮಃ", "mantra_english": "Om Bhanave Namah", "meaning_english": "Salutations to Bhanu, the one who illuminates and enlightens", "breath": "Inhale", "movement_english": "Step right leg back, left foot between hands, look up"},
+      {"step": 5, "posture_kannada": "ದಂಡಾಸನ", "posture_english": "Dandasana (Plank Pose)", "mantra_kannada": "ಓಂ ಖಗಾಯ ನಮಃ", "mantra_english": "Om Khagaya Namah", "meaning_english": "Salutations to Khaga, the one who moves through the sky", "breath": "Exhale", "movement_english": "Step left leg back, body straight, arms perpendicular to floor"},
+      {"step": 6, "posture_kannada": "ಅಷ್ಟಾಂಗ ನಮಸ್ಕಾರ", "posture_english": "Ashtanga Namaskara (Eight-Limbed Salutation)", "mantra_kannada": "ಓಂ ಪೂಷ್ಣೇ ನಮಃ", "mantra_english": "Om Pushne Namah", "meaning_english": "Salutations to Pushan, the one who nourishes and gives strength", "breath": "Exhale", "movement_english": "Lower knees, chest and chin to floor; eight limbs touch ground"},
+      {"step": 7, "posture_kannada": "ಭುಜಂಗಾಸನ", "posture_english": "Bhujangasana (Cobra Pose)", "mantra_kannada": "ಓಂ ಹಿರಣ್ಯಗರ್ಭಾಯ ನಮಃ", "mantra_english": "Om Hiranyagarbhaya Namah", "meaning_english": "Salutations to Hiranyagarbha, the golden cosmic womb that contains all", "breath": "Inhale", "movement_english": "Slide forward, raise chest, arch back, look up"},
+      {"step": 8, "posture_kannada": "ಅಧೋಮುಖ ಶ್ವಾನಾಸನ", "posture_english": "Adho Mukha Shvanasana (Downward-Facing Dog Pose)", "mantra_kannada": "ಓಂ ಮರೀಚಯೇ ನಮಃ", "mantra_english": "Om Marichaye Namah", "meaning_english": "Salutations to Marichi, the one who possesses rays of light and creates positive waves", "breath": "Exhale", "movement_english": "Lift hips up and back, heels toward floor, form inverted V"},
+      {"step": 9, "posture_kannada": "ಅಶ್ವ ಸಂಚಾಲನಾಸನ", "posture_english": "Ashwa Sanchalanasana (Equestrian Pose)", "mantra_kannada": "ಓಂ ಆದಿತ್ಯಾಯ ನಮಃ", "mantra_english": "Om Adityaya Namah", "meaning_english": "Salutations to Aditya, the supreme son of Aditi, the infinite mother", "breath": "Inhale", "movement_english": "Step right leg forward between hands, look up"},
+      {"step": 10, "posture_kannada": "ಪಾದ ಹಸ್ತಾಸನ", "posture_english": "Pada Hastasana (Standing Forward Bend)", "mantra_kannada": "ಓಂ ಸವಿತ್ರೇ ನಮಃ", "mantra_english": "Om Savitre Namah", "meaning_english": "Salutations to Savitri, the one who is the source of everything", "breath": "Exhale", "movement_english": "Bring left foot forward beside right, bend forward"},
+      {"step": 11, "posture_kannada": "ಹಸ್ತ ಉತ್ತಾನಾಸನ", "posture_english": "Hasta Uttanasana (Raised Arms Pose)", "mantra_kannada": "ಓಂ ಅರ್ಕಾಯ ನಮಃ", "mantra_english": "Om Arkaya Namah", "meaning_english": "Salutations to Arka, the one who is worthy of praise and worship", "breath": "Inhale", "movement_english": "Rise up, arms overhead, arch back"},
+      {"step": 12, "posture_kannada": "ಪ್ರಣಾಮಾಸನ", "posture_english": "Pranamasana (Prayer Pose)", "mantra_kannada": "ಓಂ ಭಾಸ್ಕರಾಯ ನಮಃ", "mantra_english": "Om Bhaskaraya Namah", "meaning_english": "Salutations to Bhaskara, the one who leads to enlightenment and is the cause of light and knowledge", "breath": "Exhale", "movement_english": "Bring palms together at chest in prayer position, stand erect"}
+    ],
+    "closing_verse": {
+      "kannada": "ಆದಿತ್ಯಸ್ಯ ನಮಸ್ಕಾರಾನ್ ಯೇ ಕುರ್ವಂತಿ ದಿನೇ ದಿನೇ | ಆಯುಃ ಪ್ರಜ್ಞಾಂ ಬಲಂ ವೀರ್ಯಂ ತೇಜಸ್ತೇಷಾಂ ಚ ಜಾಯತೇ ||",
+      "english": "Adityasya namaskaran ye kurvanti dine dine | Ayuh prajnam balam viryam tejastesham cha jayate ||",
+      "meaning_english": "Those who perform salutations to Aditya (the Sun) every day attain longevity, wisdom, strength, valor and radiance."
+    }
+  },
+  "bhaskara_stotram": {
+    "title_kannada": "ಶ್ರೀ ಭಾಸ್ಕರ ಸ್ತೋತ್ರಂ",
+    "title_english": "Sri Bhaskara Stotram",
+    "verses": [
+      {"verse_number": 1, "kannada": "ಹಂಸಾಯ ಭುವನಧ್ವಾಂತಧ್ವಂಸಾಯಾಽಮಿತತೇಜಸೇ | ಹಂಸವಾಹನರೂಪಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Hamsaya bhuvana dwandhadwamasyam amitha thejase, Hamsa vahana roopaya Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who is the spiritual preceptor, the killer of darkness of the world who has immense light, and who has the form of the one who rides on the swan."},
+      {"verse_number": 2, "kannada": "ವೇದಾಂಗಾಯ ಪತಂಗಾಯ ವಿಹಂಗಾರೂಢಗಾಮಿನೇ | ಹರಿದ್ವರ್ಣತುರಂಗಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Vedanthaya, pathangaya, vihangarooda murthaye, Haridwarna thurangaya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who is the philosopher, the sun God who is in the sky, who has the form of flying God, and who uses horses of the green colour."},
+      {"verse_number": 3, "kannada": "ಭುವನತ್ರಯದೀಪ್ತಾಯ ಭುಕ್ತಿಮುಕ್ತಿಪ್ರದಾಯ ಚ | ಭಕ್ತದಾರಿದ್ರ್ಯನಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Bhuvana thraya dheepaaya, bhakthi mukthi pradaya cha, Bhaktha daridrya nasya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who is the light of the three worlds, who grants devotion and salvation and destroys poverty of devotees."},
+      {"verse_number": 4, "kannada": "ಲೋಕಾಲೋಕಪ್ರಕಾಶಾಯ ಸರ್ವಲೋಕೈಕಚಕ್ಷುಷೇ | ಲೋಕೋತ್ತರಚರಿತ್ರಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Lokaloka prakasaya, Sarva lokaika chakshushe, Lokothara charithraya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who lights up all the worlds, who is eye of all the world and whose conduct is beyond the world."},
+      {"verse_number": 5, "kannada": "ಸಪ್ತಲೋಕಪ್ರಕಾಶಾಯ ಸಪ್ತಸಪ್ತಿರಥಾಯ ಚ | ಸಪ್ತದ್ವೀಪಪ್ರಕಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Sarva loka prakasaya, Saptha sapthi radhaaya cha, Saptha dweepa prakasaya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who brightens all worlds, who rides on a chariot drawn by seven steeds, and who brightens all the seven islands."},
+      {"verse_number": 6, "kannada": "ಮಾರ್ತಾಂಡಾಯ ದ್ಯುಮಣಯೇ ಭಾನವೇ ಚಿತ್ರಭಾನವೇ | ಪ್ರಭಾಕರಾಯ ಮಿತ್ರಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Marthaandaaya dhyumanaye Bhanave chithra bhanave, Prabhakaraya mithraya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who is the bird in the sky, who is shining gem, who has luster, who has varied type of luster, who is the one who makes things bright and who is the friend of the world."},
+      {"verse_number": 7, "kannada": "ನಮಸ್ತೇ ಕಮಲಾನಾಥ ನಮಸ್ತೇ ಕಮಲಪ್ರಿಯ | ನಮಃ ಕಮಲಹಸ್ತಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Namasthe kamalanatha, namasthe kamalapriya, Namah kamalahastaya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who is the lord of the lotus, who is dear to the lotus, and who has lotus in his hands."},
+      {"verse_number": 8, "kannada": "ನಮಸ್ತೇ ಬ್ರಹ್ಮರೂಪಾಯ ನಮಸ್ತೇ ವಿಷ್ಣುರೂಪಿಣೇ | ನಮಸ್ತೇ ರುದ್ರರೂಪಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Namasthe Brahma roopaya, Namasthe vishnu roopine, Namasthe rudra roopine, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who has the form of Lord Brahma, who has the form of Lord Vishnu, who has the form of Lord Shiva."},
+      {"verse_number": 9, "kannada": "ಸತ್ಯಜ್ಞಾನಸ್ವರೂಪಾಯ ಸಹಸ್ರಕಿರಣಾಯ ಚ | ಗೀರ್ವಾಣಭೀತಿನಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Sathya jnana swaroopaya, sahasra kiranaya cha, Geervana bheethi nasaya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who is the form of all knowledge, who has thousand rays and who destroys fears of devas."},
+      {"verse_number": 10, "kannada": "ಸರ್ವದುಃಖೋಪಶಾಂತಾಯ ಸರ್ವಪಾಪಹರಾಯ ಚ | ಸರ್ವವ್ಯಾಧಿವಿನಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Sarva dukho upasanthaya, sarva papa haraya cha, Sarva vyadhi vinasaya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who pacifies all types of sorrow, who destroys all types of sins and all types of diseases."},
+      {"verse_number": 11, "kannada": "ಸಹಸ್ರಪತ್ರನೇತ್ರಾಯ ಸಹಸ್ರಾಕ್ಷಸ್ತುತಾಯ ಚ | ಸಹಸ್ರನಾಮಧೇಯಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Sahasra pathra nethraya, sahasraksha sthuthaya cha, Sahasra nama dheyaya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who has thousand message sending eyes, who is praised by the thousand eyed Indra and who has thousand names."},
+      {"verse_number": 12, "kannada": "ನಿತ್ಯಾಯ ನಿರವದ್ಯಾಯ ನಿರ್ಮಲಜ್ಞಾನಮೂರ್ತಯೇ | ನಿಗಮಾರ್ಥಪ್ರಕಾಶಾಯ ಭಾಸ್ಕರಾಯ ನಮೋ ನಮಃ ||", "english": "Nithyaya, niravadhayaya, nirmala jnana moorthaye, Nigamartha prakasaya, Bhaskaraya namo nama.", "meaning_english": "Salutations to the maker of light, who is forever, who is stainless, who is the form of pure knowledge, who explains the meaning of divine actions."}
+    ]
+  },
+  "surya_ashtakam": {
+    "title_kannada": "ಶ್ರೀ ಸೂರ್ಯಾಷ್ಟಕಮ್",
+    "title_english": "Sri Surya Ashtakam",
+    "verses": [
+      {"verse_number": 1, "kannada": "ಆದಿದೇವ ನಮಸ್ತುಭ್ಯಂ ಪ್ರಸೀದ ಮಮ ಭಾಸ್ಕರ: | ದಿವಾಕರ ನಮಸ್ತುಭ್ಯಂ ಪ್ರಭಾಕರ ನಮೋಸ್ತುತೇ ||", "english": "Adideva namastubhyam praseeda mama Bhaskara, Divakara namastubhyam Prabhakara namostute."},
+      {"verse_number": 2, "kannada": "ಸಪ್ತಾಶ್ವ ರಥಮಾರೂಢಂ ಪ್ರಚಂಡಂ ಕಶ್ಯಪಾತ್ಮಜಂ | ಶ್ವೇತಪದ್ಮಧರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||", "english": "Saptashva rathamarooham prachandam Kashyapatmajam, Shvetapadmadharam devam tam Suryam pranamamyaham."},
+      {"verse_number": 3, "kannada": "ಲೋಹಿತಂ ರಥಮಾರೂಢಂ ಸರ್ವಲೋಕಪಿತಾಮಹಂ | ಮಹಾಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||", "english": "Lohitam rathamarooham sarvalokapitamaham, Mahapapa haram devam tam Suryam pranamamyaham."},
+      {"verse_number": 4, "kannada": "ತ್ರೈಗುಣ್ಯಂಚ ಮಹಾಶೂರಂ ಬ್ರಹ್ಮವಿಷ್ಣುಮಹೇಶ್ವರಂ | ಮಹಾಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||", "english": "Traigunyanca mahashooram Brahmavishnumaheshvaram, Mahapapa haram devam tam Suryam pranamamyaham."},
+      {"verse_number": 5, "kannada": "ಬೃಂಹಿತಂ ತೇಜ: ಪುಂಜಂ ಚ ವಾಯುಮಾಕಾಶ ಮೇವಚ | ಪ್ರಭುಂಚ ಸರ್ವ ಲೋಕಾನಾಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||", "english": "Brimhitam tejah punjam cha vayumakasha mevacha, Prabhunca sarva lokanam tam Suryam pranamamyaham."},
+      {"verse_number": 6, "kannada": "ಬಂಧೂಕ ಪುಷ್ಪ ಸಂಕಾಶಂ ಹಾರ ಕುಂಡಲ ಭೂಷಿತಂ | ಏಕ ಚಕ್ರಧರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||", "english": "Bandhooka pushpa sankasham hara kundala bhooshitam, Eka chakradharam devam tam Suryam pranamamyaham."},
+      {"verse_number": 7, "kannada": "ತಂ ಸೂರ್ಯಂ ಜಗತ್ಕರ್ತಾರಂ ಮಹಾ ತೇಜ: ಪ್ರದೀಪನಂ | ಮಹಾಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||", "english": "Tam Suryam jagatkartaram maha tejah pradeepanam, Mahapapa haram devam tam Suryam pranamamyaham."},
+      {"verse_number": 8, "kannada": "ತಂ ಸೂರ್ಯಂ ಜಗತಾಂ ನಾಥಂ ಜ್ಞಾನವಿಜ್ಞಾನಮೋಕ್ಷದಮ್ | ಮಹಾ ಪಾಪ ಹರಂ ದೇವಂ ತಂ ಸೂರ್ಯಂ ಪ್ರಣಮಾಮ್ಯಹಮ್ ||", "english": "Tam Suryam jagatam natham jnanavijnanamokshadam, Maha papa haram devam tam Suryam pranamamyaham."}
+    ],
+    "phalashruti": {
+      "kannada": "ಸೂರ್ಯಾಷ್ಟಕಂ ಪಠೇನ್ನಿತ್ಯಂ ಗ್ರಹಪೀಡಾಪ್ರಣಾಶನಮ್ | ಅಪುತ್ರೋ ಲಭತೇ ಪುತ್ರಂ ದರಿದ್ರೋ ಧನವಾನ್ ಭವೇತ್ ||",
+      "english": "Suryashtakam pathennityam grahapeedapranashanam, Aputro labhate putram daridro dhanavan bhavet.",
+      "meaning_english": "One who recites Suryashtakam daily destroys planetary afflictions. The childless obtains children, and the poor becomes wealthy."
+    }
+  },
+  "guru_namaskara": {
+    "title_kannada": "ಗುರು ನಮಸ್ಕಾರ / ಗುರು ಸ್ತೋತ್ರಂ",
+    "title_english": "Guru Namaskara / Guru Stotram",
+    "verses": [
+      {"verse_number": 1, "kannada": "ಅಖಂಡ ಮಂಡಲಾಕಾರಂ ವ್ಯಾಪ್ತಂ ಯೇನ ಚರಾಚರಂ | ತತ್ಪದಂ ದರ್ಶಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||", "english": "Akhanda mandalakaram vyaptam yena characharam, Tatpadam darshitam yena tasmai shri gurave namah.", "meaning_english": "Salutations to the Guru who revealed that state which pervades the entire unbroken cosmic orb, moving and unmoving."},
+      {"verse_number": 2, "kannada": "ಅಜ್ಞಾನತಿಮಿರಾಂಧಸ್ಯ ಜ್ಞಾನಾಂಜನಶಲಾಕಯಾ | ಚಕ್ಷುರುನ್ಮೀಲಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||", "english": "Ajnanatimirandhasya jnananjana shalakaya, Chakshurunmilitam yena tasmai shri gurave namah.", "meaning_english": "Salutations to the Guru who opened the eyes of one blinded by the darkness of ignorance with the collyrium of knowledge."},
+      {"verse_number": 3, "kannada": "ಗುರುರ್ಬ್ರಹ್ಮಾ ಗುರುರ್ವಿಷ್ಣುಃ ಗುರುರ್ದೇವೋ ಮಹೇಶ್ವರಃ | ಗುರುರೇವ ಪರಂಬ್ರಹ್ಮ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||", "english": "Gurur Brahma Gurur Vishnu Gurur Devo Maheshvarah, Gurureva param Brahma tasmai shri gurave namah.", "meaning_english": "The Guru is Brahma, the Guru is Vishnu, the Guru is the great God Shiva. The Guru is verily the supreme Brahman. Salutations to that Guru."},
+      {"verse_number": 4, "kannada": "ಸ್ಥಾವರಂ ಜಂಗಮಂ ವ್ಯಾಪ್ತಂ ಯತ್ಕಿಂಚಿತ್ಸಚರಾಚರಂ | ತತ್ಪದಂ ದರ್ಶಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||", "english": "Sthavaram jangamam vyaptam yatkinchit sacharacharam, Tatpadam darshitam yena tasmai shri gurave namah.", "meaning_english": "Salutations to the Guru who revealed that state which pervades all that is stationary and moving, whatever is moving and unmoving."},
+      {"verse_number": 5, "kannada": "ಚಿನ್ಮಯಂ ವ್ಯಾಪಿಯತ್ಸರ್ವಂ ತ್ರೈಲೋಕ್ಯಂ ಸಚರಾಚರಂ | ತತ್ಪದಂ ದರ್ಶಿತಂ ಯೇನ ತಸ್ಮೈ ಶ್ರೀಗುರವೇ ನಮಃ ||", "english": "Chinmayam vyapi yat sarvam trailokyam sacharacharam, Tatpadam darshitam yena tasmai shri gurave namah.", "meaning_english": "Salutations to the Guru who revealed that state which is consciousness, pervading all the three worlds, moving and unmoving."},
+      {"verse_number": 6, "kannada": "ತ್ವಮೇವ ಮಾತಾ ಚ ಪಿತಾ ತ್ವಮೇವ ತ್ವಮೇವ ಬಂಧುಶ್ಚ ಸಖಾ ತ್ವಮೇವ | ತ್ವಮೇವ ವಿದ್ಯಾ ದ್ರವಿಣಂ ತ್ವಮೇವ ತ್ವಮೇವ ಸರ್ವಂ ಮಮ ದೇವ ದೇವ ||", "english": "Tvameva mata cha pita tvameva tvameva bandhushcha sakha tvameva, Tvameva vidya dravinam tvameva tvameva sarvam mama deva deva.", "meaning_english": "You alone are my mother and father, you alone are my relative and friend. You alone are knowledge and wealth, you alone are everything, O Lord of Lords."}
+    ]
+  },
+  "dheerga_danda_namaskara": {
+    "title_kannada": "ದೀರ್ಘ ದಂಡ ನಮಸ್ಕಾರ",
+    "title_english": "Dheerga Danda Namaskara (Prostration Salutation)",
+    "description_kannada": "ದೇಹದ ಎಂಟು ಅಂಗಗಳು—ಎದೆ, ಹಣೆ, ಎರಡು ಕೈಗಳು, ಎರಡು ಮಂಡಿಗಳು ಮತ್ತು ಎರಡು ಪಾದಗಳು—ನೆಲವನ್ನು ಸ್ಪರ್ಶಿಸುವ ನಮಸ್ಕಾರ",
+    "description_english": "A prostration where eight limbs of the body—chest, forehead, two hands, two knees, and two feet—touch the ground",
+    "mantra_kannada": "ಓಂ ಸೂರ್ಯಾಯ ನಮಃ / ಓಂ ಭಾಸ್ಕರಾಯ ನಮಃ",
+    "mantra_english": "Om Suryaya Namah / Om Bhaskaraya Namah",
+    "kannada_shloka": "ದೀರ್ಘದಂಡ ನಮಸ್ಕಾರಂ ನಿರ್ಲಜ್ಜಂ ಗುರುಸನ್ನಿಧೌ | ಶರೀರಮರ್ಥಪ್ರಾಣಂ ಚ ಸದ್ಗುರುಭ್ಯೋ ನಿವೇದಯೇತ್ ||",
+    "english_shloka": "Dheergadanda namaskaram nirlajjam gurusannidhau, Shareeramarthapranam cha sadgurubhyo nivedayet.",
+    "meaning_english": "Prostrating fully before the Guru without shame, one offers one's body, wealth and life to the true Guru."
+  }
+}

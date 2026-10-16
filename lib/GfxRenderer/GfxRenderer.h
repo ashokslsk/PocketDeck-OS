@@ -29,6 +29,19 @@ class SdCardFont;
 // 0 = transparent, 1-16 = gray levels (white to black)
 enum Color : uint8_t { Clear = 0x00, White = 0x01, LightGray = 0x05, DarkGray = 0x0A, Black = 0x10 };
 
+class GfxRenderer;
+
+// A script the built-in font engine cannot shape (Kannada), drawn by app code.
+// When a string drawn or measured contains that script, drawText(),
+// getTextWidth() and getTextAdvanceX() hand the whole string to these
+// callbacks; the callbacks draw any Latin run with the font they are given.
+struct ScriptShaper {
+  bool (*handles)(const char* text);
+  int (*measure)(const GfxRenderer& r, int fontId, const char* text, EpdFontFamily::Style style);
+  void (*draw)(const GfxRenderer& r, int fontId, int x, int y, const char* text, bool black,
+               EpdFontFamily::Style style);
+};
+
 class GfxRenderer {
  public:
   enum RenderMode { BW, GRAYSCALE_LSB, GRAYSCALE_MSB };
@@ -112,6 +125,21 @@ class GfxRenderer {
   // appears at the same point size as the surrounding UI text. Populated by the
   // app-level SD font setup when an SD family is loaded. See resolveTextFontId().
   std::map<int, int> fallbackFontMap_;
+  // Built-in reader font -> built-in font of the same size used for any letter
+  // the first lacks (Lexend Deca has no Cyrillic; Bitter does). Unlike
+  // fallbackFontMap_, SD font (re)loads never clear this map.
+  std::map<int, int> builtinFallbackMap_;
+
+  // Script shaper (see ScriptShaper) and a per-font metric floor: a book in
+  // that script needs taller lines and a lower baseline than the reader font's
+  // own metrics. Both are set by the reader for the open book only.
+  const ScriptShaper* scriptShaper_ = nullptr;
+  int metricFloorFontId_ = 0;
+  int ascenderFloor_ = 0;
+  int lineHeightFloor_ = 0;
+  bool shapedText(const char* text) const {
+    return scriptShaper_ != nullptr && text != nullptr && scriptShaper_->handles(text);
+  }
 
   // If `text` contains a CJK codepoint that `fontId` cannot render and `fontId`
   // has a registered fallback, returns the fallback id; otherwise returns
@@ -181,6 +209,16 @@ class GfxRenderer {
   // setFallbackFont maps a primary UI font id to an SD font id of the same size.
   void setFallbackFont(int primaryFontId, int fallbackFontId) { fallbackFontMap_[primaryFontId] = fallbackFontId; }
   void clearFallbackFonts() { fallbackFontMap_.clear(); }
+  void setScriptShaper(const ScriptShaper* shaper) { scriptShaper_ = shaper; }
+  void setBuiltinFallbackFont(int primaryFontId, int fallbackFontId) {
+    builtinFallbackMap_[primaryFontId] = fallbackFontId;
+  }
+  // getFontAscenderSize()/getLineHeight() of fontId return at least these (0 clears).
+  void setMetricFloor(int fontId, int ascender, int lineHeight) {
+    metricFloorFontId_ = fontId;
+    ascenderFloor_ = ascender;
+    lineHeightFloor_ = lineHeight;
+  }
   // Ensure SD card font glyph data is loaded for the given text. Called from layout code
   // (which holds a const GfxRenderer&) before measuring word widths. Safe to call on non-SD fonts (no-op).
   // styleMask: bitmask of styles to prepare (bit 0=regular, 1=bold, 2=italic, 3=bold-italic).

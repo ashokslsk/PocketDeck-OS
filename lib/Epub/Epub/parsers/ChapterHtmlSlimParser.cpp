@@ -1746,6 +1746,18 @@ void XMLCALL ChapterHtmlSlimParser::startElement(void* userData, const XML_Char*
     return;
   }
 
+  // MathML: collect the whole <math> element, then lay it out as text at its
+  // end (endElement). Its children change no parser state, so depth stays put.
+  if (self->math_.active()) {
+    self->math_.open(name);
+    return;
+  }
+  if (strcmp(name, "math") == 0 || strcmp(name, "m:math") == 0) {
+    const char* display = getAttribute(atts, "display");
+    self->math_.begin(display != nullptr && strcmp(display, "block") == 0);
+    return;
+  }
+
   if (strcmp(name, "p") == 0) {
     self->xpathParagraphIndex++;
   }
@@ -3024,6 +3036,10 @@ void XMLCALL ChapterHtmlSlimParser::characterData(void* userData, const XML_Char
     self->consumeReferenceCharacters(s, len);
   }
   if (contentIsSkipped) return;
+  if (self->math_.active()) {
+    self->math_.text(s, len);
+    return;
+  }
 
   // Keep the source coordinate independent of wrapping, fonts, and orientation.
   // `head`/`rp` are skipped above; synthetic table labels and ruby annotations do
@@ -3267,6 +3283,15 @@ void XMLCALL ChapterHtmlSlimParser::endElement(void* userData, const XML_Char* n
     if (self->skipUntilDepth == self->depth) {
       self->skipUntilDepth = INT_MAX;
       self->skipEndElementStateUntilDepth = INT_MAX;
+    }
+    return;
+  }
+
+  if (self->math_.active()) {
+    if (self->math_.close()) {
+      // </math>: lay the formula out as ordinary text.
+      const std::string text = self->math_.result();
+      if (!text.empty()) characterData(userData, text.c_str(), static_cast<int>(text.size()));
     }
     return;
   }

@@ -43,3 +43,5 @@
 #include <builtinFonts/inter_12_bold.h>
 #include <builtinFonts/inter_12_regular.h>
 #include <builtinFonts/inter_8_regular.h>
+#include <builtinFonts/inter_digits_30_regular.h>
+#include <builtinFonts/inter_digits_44_regular.h>

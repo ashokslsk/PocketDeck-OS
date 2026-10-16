@@ -35,12 +35,12 @@ void readAndValidate(FsFile& file, uint8_t& member, const uint8_t maxValue) {
 
 namespace {
 constexpr uint8_t SETTINGS_FILE_VERSION = 2;
-constexpr char SETTINGS_FILE_BIN[] = "/.crosspoint/settings.bin";
-constexpr char SETTINGS_FILE_JSON[] = "/.crosspoint/crossink-settings.json";
-constexpr char LEGACY_SETTINGS_FILE_JSON[] = "/.crosspoint/settings.json";
-constexpr char SETTINGS_FILE_BAK[] = "/.crosspoint/settings.bin.bak";
-constexpr char LANG_FILE_BIN[] = "/.crosspoint/language.bin";
-constexpr char LANG_FILE_BAK[] = "/.crosspoint/language.bin.bak";
+constexpr char SETTINGS_FILE_BIN[] = "/.pocketdeck-os/settings.bin";
+constexpr char SETTINGS_FILE_JSON[] = "/.pocketdeck-os/pocketdeck-os-settings.json";
+constexpr char LEGACY_SETTINGS_FILE_JSON[] = "/.pocketdeck-os/settings.json";
+constexpr char SETTINGS_FILE_BAK[] = "/.pocketdeck-os/settings.bin.bak";
+constexpr char LANG_FILE_BIN[] = "/.pocketdeck-os/language.bin";
+constexpr char LANG_FILE_BAK[] = "/.pocketdeck-os/language.bin.bak";
 constexpr uint8_t INVALID_READER_FONT_SIZE = 0xFF;
 constexpr uint8_t TILT_DIRECTION_SCHEMA_CURRENT = 2;
 // X3 hardware predates this migration by less than a year. Reject the RTC's
@@ -59,6 +59,7 @@ constexpr uint8_t SLEEP_SCREEN_STORAGE_ORDER[] = {
     static_cast<uint8_t>(CrossPointSettings::QUICK_RESUME),
     static_cast<uint8_t>(CrossPointSettings::MINIMAL_STATS_SLEEP),
     static_cast<uint8_t>(CrossPointSettings::DASHBOARD_SLEEP),
+    static_cast<uint8_t>(CrossPointSettings::WEEKLY_STATS_SLEEP),
 };
 constexpr uint8_t SLEEP_SCREEN_STORAGE_ORDER_COUNT =
     sizeof(SLEEP_SCREEN_STORAGE_ORDER) / sizeof(SLEEP_SCREEN_STORAGE_ORDER[0]);
@@ -805,10 +806,10 @@ bool CrossPointSettings::loadFromFile() {
       }
       if (result && (resave || migrateToCurrentPath)) {
         if (saveToFile()) {
-          LOG_DBG("CPS", migrateToCurrentPath ? "Migrated legacy settings.json to crossink-settings.json"
+          LOG_DBG("CPS", migrateToCurrentPath ? "Migrated legacy settings.json to pocketdeck-os-settings.json"
                                               : "Resaved settings to update format");
         } else {
-          LOG_ERR("CPS", migrateToCurrentPath ? "Failed to save migrated settings to crossink-settings.json"
+          LOG_ERR("CPS", migrateToCurrentPath ? "Failed to save migrated settings to pocketdeck-os-settings.json"
                                               : "Failed to resave settings after format update");
         }
       }
@@ -832,7 +833,7 @@ bool CrossPointSettings::loadFromFile() {
       migrateLanguageBinaryFile();
       if (saveToFile()) {
         Storage.rename(SETTINGS_FILE_BIN, SETTINGS_FILE_BAK);
-        LOG_DBG("CPS", "Migrated settings.bin to crossink-settings.json");
+        LOG_DBG("CPS", "Migrated settings.bin to pocketdeck-os-settings.json");
         return true;
       } else {
         LOG_ERR("CPS", "Failed to save migrated settings to JSON");
@@ -864,7 +865,7 @@ bool CrossPointSettings::migrateLanguageBinaryFile() {
   }
   Storage.rename(LANG_FILE_BIN, LANG_FILE_BAK);
   saveToFile();
-  LOG_DBG("CPS", "Migrated language.bin into crossink-settings.json");
+  LOG_DBG("CPS", "Migrated language.bin into pocketdeck-os-settings.json");
   return true;
 }
 

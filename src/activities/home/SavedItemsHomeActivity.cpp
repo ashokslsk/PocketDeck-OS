@@ -15,6 +15,7 @@
 #include "CrossPointState.h"
 #include "FileBrowserActionActivity.h"
 #include "MappedInputManager.h"
+#include "activities/reader/KannadaReading.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "components/CompactHeader.h"
 #include "components/TouchHeaderBackButton.h"
@@ -87,6 +88,7 @@ void SavedItemsHomeActivity::reloadSavedBooks() {
 
 void SavedItemsHomeActivity::onEnter() {
   Activity::onEnter();
+  kannadareading::beginUi();
   reloadSavedBooks();
   selectedIndex = 0;
   topIndex = 0;
@@ -99,6 +101,7 @@ void SavedItemsHomeActivity::onEnter() {
 }
 
 void SavedItemsHomeActivity::onExit() {
+  kannadareading::endUi();
   books.clear();
   Activity::onExit();
 }

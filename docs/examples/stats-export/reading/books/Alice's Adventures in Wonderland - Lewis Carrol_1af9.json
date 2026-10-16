@@ -1,0 +1,51 @@
+{
+  "feature": "reading-book",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "pocketdeck_book_data": 1,
+  "path": "/books/Alice's Adventures in Wonderland - Lewis Carroll.epub",
+  "file": "Alice's Adventures in Wonderland - Lewis Carroll.epub",
+  "title": "Alice's Adventures in Wonderland",
+  "author": "Lewis Carroll",
+  "format": "epub",
+  "progress_percent": 0.0,
+  "reading": {
+    "sessions": 0,
+    "time_read_seconds": 0,
+    "time_read": "< 1 min",
+    "pages_turned": 0,
+    "finished": false,
+    "average_seconds_per_page": 0,
+    "time_left_seconds": null,
+    "started": null,
+    "finished_on": null,
+    "seconds_by_time_of_day": {
+      "morning": 0,
+      "afternoon": 0,
+      "evening": 0,
+      "night": 0
+    },
+    "seconds_by_weekday": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "bookmarks": [],
+  "clippings": [],
+  "looked_up_words": [
+    "sister"
+  ],
+  "restore": {
+    "format": 1,
+    "cache": {
+      "dictionary_history.txt": [
+        "7369737465727c440a"
+      ]
+    }
+  }
+}

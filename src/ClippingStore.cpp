@@ -19,7 +19,7 @@ constexpr uint8_t TEXT_OFFSET_VERSION = 2;
 constexpr uint8_t LAYOUT_SIGNATURE_VERSION = 3;
 constexpr uint8_t VERSION = 4;
 constexpr size_t INITIAL_CLIPPING_RESERVE = 4;
-constexpr char CLIPPINGS_DIR[] = "/.crosspoint/clippings";
+constexpr char CLIPPINGS_DIR[] = "/.pocketdeck-os/clippings";
 constexpr size_t TEXT_COPY_BUFFER_SIZE = 128;
 
 struct ClippingFileHeader {
@@ -89,6 +89,17 @@ bool copyBytes(FsFile& in, FsFile& out, uint16_t length) {
 }  // namespace
 
 ClippingStore ClippingStore::instance;
+
+std::string ClippingStore::storeFilePathFor(const std::string& filePath, const std::string& bookType) {
+  return storeFilePathForBook(filePath, bookType);
+}
+
+uint16_t ClippingStore::countForBook(const std::string& filePath, const std::string& bookType) {
+  const std::string path = storeFilePathForBook(filePath, bookType);
+  if (!Storage.exists(path.c_str())) return 0;
+  ClippingFileHeader header;
+  return readClippingFileHeader(path, nullptr, header) ? header.count : 0;
+}
 
 bool ClippingStore::loadForBook(const std::string& filePath, const std::string& title, const std::string& author,
                                 const std::string& bookType) {
@@ -359,7 +370,7 @@ bool ClippingStore::readFromFile(const std::string& path, std::vector<Clipping>&
 
 bool ClippingStore::writeToFile(const std::string* replacementText, const size_t replacementIndex,
                                 const std::string* sourcePathOverride) {
-  Storage.mkdir("/.crosspoint");
+  Storage.mkdir("/.pocketdeck-os");
   Storage.mkdir(CLIPPINGS_DIR);
 
   const std::string tmpPath = storeFilePath + ".tmp";

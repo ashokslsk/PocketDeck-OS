@@ -1,0 +1,401 @@
+{
+ "title_en": "Longevity Practices",
+ "title_kn": "ದೀರ್ಘಾಯುಷ್ಯ ಅಭ್ಯಾಸಗಳು",
+ "note": "Gentle, slow movement for every age. Move within a comfortable range and breathe naturally. Stop if you feel pain, dizziness or breathlessness. If you are pregnant, recovering from surgery or have a heart, blood-pressure or other medical condition, check with your doctor first.",
+ "items": [
+  {
+   "id": "baduanjin",
+   "name_en": "Baduanjin (Eight Brocades)",
+   "name_kn": "",
+   "group": "Chinese qigong",
+   "type": "sequence",
+   "rounds": [
+    1,
+    2
+   ],
+   "step_seconds": [
+    45,
+    60
+   ],
+   "image": "chinese/hold_sky.pbm",
+   "steps": [
+    {
+     "name": "1. Holding up the sky",
+     "text": "Interlace the fingers and press the palms up, rising tall; lower slowly.",
+     "image": "chinese/hold_sky.pbm"
+    },
+    {
+     "name": "2. Drawing the bow",
+     "text": "In a horse stance, push one hand out and draw the other back like pulling a bow; change sides.",
+     "image": "chinese/draw_bow.pbm"
+    },
+    {
+     "name": "3. Separating heaven and earth",
+     "text": "Press one palm up and the other down; change hands.",
+     "image": "chinese/separate_heaven.pbm"
+    },
+    {
+     "name": "4. Looking back",
+     "text": "Turn the head and shoulders to look behind; return and change sides.",
+     "image": "chinese/look_back.pbm"
+    },
+    {
+     "name": "5. Swaying head and tail",
+     "text": "In a horse stance, lean and circle the upper body side to side.",
+     "image": "chinese/sway_head.pbm"
+    },
+    {
+     "name": "6. Touching the toes",
+     "text": "Slide the hands down the legs toward the feet, then rise slowly.",
+     "image": "chinese/touch_toes.pbm"
+    },
+    {
+     "name": "7. Punching with focus",
+     "text": "In a horse stance, punch slowly forward, alternating hands.",
+     "image": "chinese/punch.pbm"
+    },
+    {
+     "name": "8. Bouncing on the toes",
+     "text": "Rise onto the toes, then drop gently onto the heels.",
+     "image": "chinese/on_toes.pbm"
+    }
+   ],
+   "how": [
+    "Eight slow movements, each repeated about 8 times.",
+    "Breathe naturally and keep the knees soft."
+   ],
+   "accessories": [
+    "Loose clothing",
+    "Flat shoes or bare feet"
+   ],
+   "caution": ""
+  },
+  {
+   "id": "wu_qin_xi",
+   "name_en": "Wu Qin Xi (Five Animals)",
+   "name_kn": "",
+   "group": "Chinese qigong",
+   "type": "sequence",
+   "rounds": [
+    1,
+    2
+   ],
+   "step_seconds": [
+    90,
+    180
+   ],
+   "image": "chinese/tiger.pbm",
+   "steps": [
+    {
+     "name": "1. Tiger",
+     "text": "Raise clawed hands slowly overhead, then press down with strength.",
+     "image": "chinese/tiger.pbm"
+    },
+    {
+     "name": "2. Deer",
+     "text": "Turn the waist with hands raised like antlers, reaching behind.",
+     "image": "chinese/deer.pbm"
+    },
+    {
+     "name": "3. Bear",
+     "text": "Sway heavily side to side, arms rounded, rotating from the waist.",
+     "image": "chinese/bear.pbm"
+    },
+    {
+     "name": "4. Monkey",
+     "text": "Rise on the toes, hand at the brow as if looking out; light and alert.",
+     "image": "chinese/monkey.pbm"
+    },
+    {
+     "name": "5. Crane",
+     "text": "Stand on one leg with the arms spread like wings; change legs.",
+     "image": "chinese/crane.pbm"
+    }
+   ],
+   "how": [
+    "Imitate each animal's movement and spirit with slow, flowing breath."
+   ],
+   "accessories": [
+    "Loose clothing",
+    "Open space"
+   ],
+   "caution": ""
+  },
+  {
+   "id": "yi_jin_jing",
+   "name_en": "Yi Jin Jing (Tendon Strengthening)",
+   "name_kn": "",
+   "group": "Chinese qigong",
+   "type": "sequence",
+   "rounds": [
+    1,
+    2
+   ],
+   "step_seconds": [
+    30,
+    60
+   ],
+   "image": "chinese/pranamasana.pbm",
+   "steps": [
+    {
+     "name": "1. Palms together at the chest",
+     "text": "Stand quietly, palms joined, shoulders relaxed.",
+     "image": "chinese/pranamasana.pbm"
+    },
+    {
+     "name": "2. Arms stretched to the sides",
+     "text": "Open the arms to shoulder height, palms down; hold and breathe.",
+     "image": "chinese/taichi_open.pbm"
+    },
+    {
+     "name": "3. Pressing up to the sky",
+     "text": "Rise on the toes and press both palms overhead.",
+     "image": "chinese/hold_sky.pbm"
+    },
+    {
+     "name": "4. Reaching up and back",
+     "text": "Reach one hand up and back, the other low behind; change sides.",
+     "image": "chinese/separate_heaven.pbm"
+    },
+    {
+     "name": "5. Pulling back in a bow stance",
+     "text": "Step forward and draw the arms back slowly with strength.",
+     "image": "chinese/taichi_bow.pbm"
+    },
+    {
+     "name": "6. Pushing the palms forward",
+     "text": "Push the palms forward slowly as if moving a heavy door.",
+     "image": "chinese/plate_raise.pbm"
+    },
+    {
+     "name": "7. Bowing forward",
+     "text": "Fold forward gently, hands toward the feet, then rise.",
+     "image": "chinese/touch_toes.pbm"
+    },
+    {
+     "name": "8. Swinging the arms",
+     "text": "Let the arms swing loosely while turning the waist.",
+     "image": "chinese/taichi_clouds.pbm"
+    }
+   ],
+   "how": [
+    "Slow tendon-stretching movements held with steady breath."
+   ],
+   "accessories": [
+    "Loose clothing"
+   ],
+   "caution": ""
+  },
+  {
+   "id": "tai_chi",
+   "name_en": "Tai Chi Short Form",
+   "name_kn": "",
+   "group": "Tai Chi",
+   "type": "sequence",
+   "rounds": [
+    2,
+    4
+   ],
+   "step_seconds": [
+    40,
+    80
+   ],
+   "image": "chinese/taichi_open.pbm",
+   "steps": [
+    {
+     "name": "1. Commencing",
+     "text": "Feet shoulder-width apart; float the arms up to shoulder height and lower them.",
+     "image": "chinese/taichi_open.pbm"
+    },
+    {
+     "name": "2. Parting the wild horse's mane",
+     "text": "Step into a bow stance and part the hands, one forward, one back.",
+     "image": "chinese/taichi_bow.pbm"
+    },
+    {
+     "name": "3. White crane spreads its wings",
+     "text": "Weight back, one hand up, one down, front toe resting lightly.",
+     "image": "chinese/taichi_crane.pbm"
+    },
+    {
+     "name": "4. Brush knee and push",
+     "text": "Brush one hand past the knee and push the other forward.",
+     "image": "chinese/taichi_bow.pbm"
+    },
+    {
+     "name": "5. Wave hands like clouds",
+     "text": "Shift side to side with the hands circling before the body.",
+     "image": "chinese/taichi_clouds.pbm"
+    },
+    {
+     "name": "6. Closing",
+     "text": "Bring the hands down slowly and stand quietly.",
+     "image": "chinese/tadasana.pbm"
+    }
+   ],
+   "how": [
+    "Move continuously and slowly, weight shifting smoothly from leg to leg."
+   ],
+   "accessories": [
+    "Flat shoes or bare feet",
+    "Loose clothing"
+   ],
+   "caution": ""
+  },
+  {
+   "id": "dinacharya",
+   "name_en": "Dinacharya (Morning Routine)",
+   "name_kn": "ದಿನಚರ್ಯೆ",
+   "group": "Ayurveda",
+   "type": "sequence",
+   "rounds": [
+    1,
+    1
+   ],
+   "step_seconds": [
+    60,
+    180
+   ],
+   "image": "ayurveda/sunrise.pbm",
+   "steps": [
+    {
+     "name": "1. Wake early",
+     "text": "Rise before sunrise when you can; sit quietly for a moment.",
+     "image": "ayurveda/sunrise.pbm"
+    },
+    {
+     "name": "2. Warm water",
+     "text": "Drink a glass of warm water.",
+     "image": "ayurveda/tadasana.pbm"
+    },
+    {
+     "name": "3. Tongue scraping",
+     "text": "Scrape the tongue gently from back to front a few times.",
+     "image": "ayurveda/tadasana.pbm"
+    },
+    {
+     "name": "4. Oil pulling",
+     "text": "Swish a spoon of sesame or coconut oil in the mouth, then spit it out (not in the sink).",
+     "image": "ayurveda/seated.pbm"
+    },
+    {
+     "name": "5. Self-massage (abhyanga)",
+     "text": "Massage warm oil into the body with long strokes on limbs, circles on joints.",
+     "image": "ayurveda/joints.pbm"
+    },
+    {
+     "name": "6. Movement",
+     "text": "A few rounds of sun salutation or a short walk.",
+     "image": "ayurveda/hasta_uttanasana.pbm"
+    },
+    {
+     "name": "7. Breathing and stillness",
+     "text": "Sit for a few minutes of calm breathing or meditation.",
+     "image": "ayurveda/seated.pbm"
+    }
+   ],
+   "how": [
+    "A gentle daily rhythm from Ayurveda; adapt the times to your day."
+   ],
+   "accessories": [
+    "Tongue scraper",
+    "Sesame or coconut oil",
+    "Towel"
+   ],
+   "caution": "Skip oil pulling if you might swallow the oil; skip abhyanga on broken skin."
+  },
+  {
+   "id": "joint_rotations",
+   "name_en": "Joint Rotations (Sukshma Vyayama)",
+   "name_kn": "ಸೂಕ್ಷ್ಮ ವ್ಯಾಯಾಮ",
+   "group": "Ayurveda",
+   "type": "sequence",
+   "rounds": [
+    1,
+    2
+   ],
+   "step_seconds": [
+    40,
+    60
+   ],
+   "image": "ayurveda/look_back.pbm",
+   "steps": [
+    {
+     "name": "1. Neck",
+     "text": "Nod slowly, turn side to side, then tilt ear to shoulder.",
+     "image": "ayurveda/look_back.pbm"
+    },
+    {
+     "name": "2. Shoulders",
+     "text": "Circle the shoulders forward, then back.",
+     "image": "ayurveda/joints.pbm"
+    },
+    {
+     "name": "3. Elbows and wrists",
+     "text": "Bend and straighten the elbows; circle the wrists both ways.",
+     "image": "ayurveda/taichi_open.pbm"
+    },
+    {
+     "name": "4. Waist",
+     "text": "Hands on the hips, circle the waist slowly both ways.",
+     "image": "ayurveda/sway_head.pbm"
+    },
+    {
+     "name": "5. Hips",
+     "text": "Stand on one leg with support and circle the other knee; change legs.",
+     "image": "ayurveda/crane.pbm"
+    },
+    {
+     "name": "6. Knees",
+     "text": "Bend the knees slightly and circle them together.",
+     "image": "ayurveda/bear.pbm"
+    },
+    {
+     "name": "7. Ankles",
+     "text": "Lift one foot and circle the ankle both ways; change feet.",
+     "image": "ayurveda/on_toes.pbm"
+    }
+   ],
+   "how": [
+    "Loosens each joint from the top down, about 10 slow circles each."
+   ],
+   "accessories": [
+    "Chair or wall for support"
+   ],
+   "caution": ""
+  },
+  {
+   "id": "sama_vritti",
+   "name_en": "Gentle Equal Breathing",
+   "name_kn": "ಸಮ ವೃತ್ತಿ",
+   "group": "Ayurveda",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "ayurveda/seated.pbm",
+   "phases": [
+    {
+     "label": "Inhale",
+     "seconds": 4,
+     "shape": "grow"
+    },
+    {
+     "label": "Exhale",
+     "seconds": 4,
+     "shape": "shrink"
+    }
+   ],
+   "how": [
+    "Sit or lie comfortably.",
+    "Breathe in for 4 counts and out for 4 counts through the nose.",
+    "Let the belly rise and fall; keep it easy."
+   ],
+   "accessories": [
+    "Cushion"
+   ],
+   "caution": ""
+  }
+ ]
+}

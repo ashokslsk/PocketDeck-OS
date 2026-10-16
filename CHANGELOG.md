@@ -1,3 +1,214 @@
+## [PocketDeck-OS 1.0.0, File manager and Back to your folder] - 2026-10-16
+
+### Added
+
+- Browse Files is now a file manager. Hold Open on a file or folder for Options (a "Hold Open: options" tip shows at the bottom of the list):
+  - Files: Rename, Move to…, Copy to…, Delete, Info, then the book extras (Mark finished, Delete cache, Delete stats, Render mode, Reset settings, Send nearby).
+  - Folders: Rename, Move to…, Copy to…, New folder here, Delete (the confirmation says how many items are inside), Set as sleep folder, Info.
+- Move to… / Copy to… open a folder picker ("Move" / "Copy" button). Moving or renaming a book, or a whole folder of books, keeps reading progress, stats, bookmarks, highlights and its place in Recent Books. Copying into the same folder makes "Name (copy)"; a copy never overwrites, and a copied book starts fresh.
+- Copy shows a progress screen (item n of m, a progress bar, percent and MB copied) with Cancel. It checks the free space on the SD card first, and a cancelled or failed copy removes everything it wrote.
+- Info shows type, size, location, reading progress for books (or a folder's contents) and the SD card's free space, e.g. "12.3 GB free of 29.7 GB".
+- Speed Read opens with a short welcome card ("PocketDeck Speed Read — let your eyes ride the line… It sips a little more battery. Keep reading and have fun!") for 4 seconds before pacing starts; any front button skips it, Back cancels.
+
+### Changed
+
+- PocketDeck theme: the Home bar's Library tab is now Explorer and comes first, followed by Tools (other themes unchanged).
+- Back in the reader returns to where the book was opened: a book opened from Browse Files goes back to its folder with the book highlighted; books opened from Home or Recent Books go back Home. This is remembered across sleep.
+
+### Fixed
+
+- Back pressed while a book was still loading (drawing its first page or indexing in the background) went Home; it now returns to the book's folder like a normal Back.
+- Folder pickers (Move to…, Copy to…, Nearby "Select receive folder") no longer swallow the first Confirm press, or open a folder on their own, when they appear while Confirm is still held.
+
+## [PocketDeck-OS 1.0.0, Speed Read] - 2026-10-16
+
+### Added
+
+- Speed Read (reader menu, right after Look Up Word; available with or without a dictionary): a 4 px bar under the phrase to read moves on at the chosen pace and the page turns by itself after its last phrase. Pick a pace from four presets, chosen for the book's script: English 125 / 200 / 275 / 350 words per minute, Kannada 60 / 100 / 150 / 200. Long words and punctuation get a little more time; at slow paces the bar goes word by word, at brisk paces a few words at a time. The bar sits in the blank space between lines, so it never covers descenders, ottaksharas or vowel signs, and only the bar is refreshed as it moves.
+- While Speed Read runs: Confirm pauses or resumes, Left/Right change the pace by 10 words per minute, Back stops, and the side buttons still turn pages. The status bar shows the mode in the chapter-title slot ("Speed 200 WPM · Chapter" or "Paused · 200 WPM · Chapter"). The device stays awake while it runs; after 2 minutes paused it stops by itself.
+- While Speed Read runs, pages are drawn in crisp black and white without the anti-aliasing pass, so the page and the underline appear at once (a Kannada page's anti-aliasing pass takes about 9 seconds on the device and held the underline back). Stopping Speed Read redraws the page with anti-aliasing. The idle next-page font prewarm is also skipped while it runs, as for Auto Page Turn.
+- After 25 minutes of focused speed reading it asks "Continue speed reading?" (Confirm continues, Back stops). With no answer in 10 seconds, Speed Read ends and the normal sleep timer takes over.
+
+## [PocketDeck-OS 1.0.0, Home dashboard and 100 recent books] - 2026-10-14
+
+### Added
+
+- PocketDeck theme Home is now a card dashboard: Now Reading (cover, progress bar, time read, time left, pages and a Continue Reading button), Recent Books (four covers with their progress; the heading names the selected book), Reading Stats (titled with this week's dates, e.g. "12 Oct – 18 Oct": a grid of the days you read, Mon–Sun across and one row per week, today framed; total time, reading streak with a flame, and a ring of days read in the last seven) and a bottom bar with the Home menu as icons (Tools first, Reading Stats last). Bookmarks & Clippings moves from the bar to the end of Tools on this theme.
+- Recent Books remembers up to 100 books. The newest 10 stay in memory; older ones are kept on the SD card (`/.pocketdeck-os/recent_more.txt`) and the Recent Books screen fetches them ten at a time with "Older books" / "Newer books".
+- Weekly Reading Stats sleep screen (Settings > Display > Sleep Screen > Wallpaper > Weekly Reading Stats), next to the per-book "Book Reading Stats" screen. It shows an overview of this week (a ring of days read, books in progress, total time, pages read, daily average, streak, books read), reading time per day with dates, the books in progress with their progress and time, and a reading pattern (weekday bars split by time of day, and the week's time-of-day split as a ring). Reading time per day comes from a new 288-byte log, `/.pocketdeck-os/reading_days.bin` (last 14 days), filled from reading sessions after this update; earlier days show "–".
+- Reading Stats page: a progress ring with six figures beside it, a start-to-finish timeline, time of day as a 24-hour dial (busiest period solid black, named in the centre) and day of week as columns with an average line.
+
+### Changed
+
+- WiFi File Transfer pages: footer reads "PocketDeck-OS — brainchild of Ashok Kumar Srinivas", and folder pages are titled "… - Files - PocketDeck-OS".
+- WiFi File Transfer: Upload Folder (button in the file manager, or drop a folder on the upload area) recreates the folder and its subfolders on the SD card and uploads every file into place; merges into folders that already exist and skips hidden files such as .DS_Store.
+- Tools menu order: Daily Quote, Panchanga, World Clock, Pomodoro, Mantras, Workout, Habits, Mood, Medicine, Stats & Export, Today, Bookmarks & Clippings.
+- The Pomodoro ring drains clockwise.
+
+### Removed
+
+- Flashcards and Knowledge tools (and their Stats & export pages), to save flash; `/tools/flashcards` and `/tools/knowledge` on the SD card are no longer read and can be deleted.
+- Hyphenation dictionaries for German, French, Italian, Polish, Portuguese, Swedish and Ukrainian (about 265 KB of flash). English, Russian and Spanish books hyphenate exactly as before; books in the removed languages wrap whole words, like books without a language tag.
+
+### Fixed
+
+- Kannada book titles on the reading-stats and cover sleep screens.
+- Button hint labels that were too long for their button (Medicine's "Add a course") are shortened to fit in every theme.
+
+## [PocketDeck-OS 1.0.0, Clock, titles and cities update] - 2026-10-13
+
+### Added
+
+- Date and time together in the top bar ("13 Oct 2026  3:04 PM", following Settings > Date Format) on every screen and theme; the clock is shown by default.
+- Kannada book titles on Home, Recent Books, Browse Files and Saved Items in every theme (the Kannada font opens only while a Kannada title is on screen).
+- World Clock shows up to six cities (was four), and has 218 built-in cities (was 79), covering major US and Canadian cities (including Charlotte, Raleigh, Durham, Greensboro, Asheville and Wilmington, NC), European capitals and large cities, and Asian time zones from Kabul to Vladivostok, each with its daylight-saving rule.
+- English dictionary in the starter pack: `dictionaries/WordNet` (Princeton WordNet 3.0, 147,306 entries, with lookup accelerators).
+
+- Math in EPUBs: MathML formulas (fractions, powers, indices, roots, sums) are laid out as readable text, e.g. `λ = h/p`, `|ψ₁+ψ₂|²`, `e^(−iEt/ℏ)`, `(|00⟩+|11⟩)/√2`, instead of run-together symbols. Section cache version 79.
+- Kannada dictionary lookup: in any book, Look Up Word on a Kannada word goes to an installed Kannada dictionary (`.ifo` lang `kn`, or "Kannada" in its name) even when the book's dictionary is English; English words keep using the book's dictionary. Kannada words are reduced to their dictionary form (ಹಕ್ಕಿಗಳ → ಹಕ್ಕಿ, ಕಣ್ಣಿನ → ಕಣ್ಣು) and definitions show shaped Kannada.
+- `fonts/STIXMath` reading font in the starter pack (STIX Two, SIL Open Font License): Greek letters, ℏ, ⟨ ⟩, ⊗ and the other math symbols built-in fonts lack. Choose it per book for math and physics books.
+
+### Changed
+
+- New installs default to UTC+5:30.
+- Kannada books use less memory (512-entry syllable cache only when the heap allows; the Kannada caches shrink before a chapter layout gives up for low memory).
+
+### Fixed
+
+- "Sync Clock" failed when the first time server answered slowly: it now waits up to 10 seconds and tries a second server.
+
+## [PocketDeck-OS 1.0.0, Languages update] - 2026-10-04
+
+### Added
+
+- Kannada EPUB and TXT books: Kannada text is shaped with the SD card Kannada font (the same `kannada.knf` as Panchanga and Mantras), conjuncts and vowel signs included. Detected from the book language (`kn`), a Kannada title, or Kannada at the start of a `.txt`; Latin words keep the reader font; Kannada follows the reader font size and lines get taller so marks never collide. Other books are unchanged.
+- `kannada.knf` has four larger reading sizes (28/32 px, 30/34 px bold); the older file still works.
+- Japanese/Chinese/Korean reading font in the starter pack (`fonts/NotoSansCJK`, Noto Sans CJK, OFL) and test books in Kannada, Japanese, Russian and Spanish (`books/test`), plus a Kannada sample book of the Surya Namaskara mantras.
+- INSTALLATION_GUIDE section 3.9: where each font goes and how to choose it.
+- `scripts/tools/split_epub.py`: splits an EPUB whose chapter is one huge file into parts at headings and scene breaks (or every 150 KB), with a contents entry per part.
+
+### Fixed
+
+- A book whose chapter is one huge file (a whole novel in one XHTML, such as Malegalalli Madumagalu) stayed on "Indexing" for many minutes on the X3: chapters over 384 KB are no longer laid out ahead in the background, and are built incrementally when opened even with full-section indexing, so the first page appears at once and the page count shows as an estimate (~1/1081) until the rest is laid out.
+- Large Kannada books opened slowly ("Indexing" for minutes on the X3): books now use a 1,024-entry shaped-syllable cache (4-way), so a 3.3 MB single-chapter novel needs about 4,800 SD card reads for its syllables instead of about 177,000. A Kannada character that cannot start a syllable (a stray vowel sign or joiner) is skipped instead of stopping the line layout.
+- Kannada books tagged with another language (for example `en_IN`) or listing Kannada after another language are recognised: the language list is searched for `kn`, and the opening chapters are sampled for Kannada text.
+- Russian (and other Cyrillic or Greek) books in the default Lexend Deca font showed many letters as diamonds: those words are now drawn in the built-in Bitter font at the same size and baseline. The section cache version moves to 78, so books lay out once again.
+
+## [PocketDeck-OS 1.0.0, Workout update] - 2026-10-03
+
+### Added
+
+- Tools > Workout (after Mantras): Pranayama (7 breathing practices with a breathing circle), Yoga (Surya Namaskara step by step and 12 asanas), Physical Workouts (kettlebell, dumbbell, ab wheel and 10 kg flywheel spin bike, with a pre-workout checklist and a rep counter) and Longevity Practices (Baduanjin, Wu Qin Xi, Yi Jin Jing, Tai Chi, Dinacharya, joint rotations, gentle breathing). Each practice has a stick figure, Kannada and English names, how-to, accessories, caution, and beginner and advanced timings.
+- All content is on the SD card (`/tools/workout`: JSON manifests and 1-bit figures); add or edit practices without new firmware.
+- Surya Namaskara with mantras: the opening Dhyana verse before you start; each of the 12 poses shows its mantra in Kannada and English with the meaning and the breath beside the figure and timer; after the last round, the closing verse, Sri Bhaskara Stotram, Sri Surya Ashtakam, Guru Namaskara and Dheerga Danda Namaskara follow one verse per page (also under **Mantras** on the summary).
+- Every workout session is saved to `/tools/workout/log-YYYY-MM.txt` (date, duration, cycles / rounds / sets, reps, level, completed), with a stats page and `/stats/workout/workout.json` export.
+
+## [PocketDeck-OS 1.0.0, Panchanga and Mantras update] - 2026-09-30
+
+### Added
+
+- Tools > Mantras (after Panchanga): time-aware greeting, today's mantra (weekday deity), daily ritual sequence, 35 deities, 14 ritual categories, kavacha with About and full reading, meaning in English or Kannada, and a japa counter (108/54/27 mala) with a stats page and `/stats/mantras/` export. Reads `/tools/mantras/mantras.json` in place with a one-time index.
+- Panchanga: any date from 1976 to 2075; a month calendar picker (festival dots, holiday squares, the month's special days); "Go to month and year" (decade, year, month); "About this day" with every festival's type, holiday status, place, note and source.
+- Festival and holiday calendars as JSON layers in `/tools/panchanga/festivals/` (the 1976-2075 Karnataka calendar is included); layer dates take precedence over the calculated ones for the festivals they list.
+- Kannada text from an SD card font (`/tools/fonts/kannada.knf`), shaped exactly like HarfBuzz, for the Panchanga, Mantras and any Kannada in quotes, flashcards and knowledge files.
+
+### Changed
+
+- Delta T uses the NASA polynomials across 1976-2075 (sampled every 10 years, within 0.7 s).
+- Release builds log errors only (info logs compile out), and three large items that were compiled into several files at once are now shared: the settings table and the two logo bitmaps. The X3 image is 26 KB smaller than 1.0.0 with the new features included.
+- Knowledge stats labels say "answered" (an answer counts once it is opened).
+
+### Fixed
+
+- Mantras shows the Kannada meaning again (Kannada and English by default; Settings cycles Kannada only / English only).
+- The Kannada font is retried if it could not be opened (low memory or a busy card), with a smaller glyph cache as a fallback, so Kannada text no longer disappears for a session.
+- Japa: "Malas today" and "Completed today" no longer rise with every count; they change when a mala completes or the session ends.
+- Pomodoro shows MM:SS every second again (`seconds=0` in `/tools/pomodoro.txt` for whole minutes and fewer refreshes).
+- Unlabelled side-button actions removed: they skipped the Pomodoro phase, opened Pomodoro stats, revealed flashcard answers and graded cards.
+
+### Removed
+
+- The Panchanga's pre-rendered Kannada bitmaps (38.5 KB of flash) and their generator, replaced by the SD card font.
+
+## [PocketDeck-OS 1.0.0] - 2026-09-27
+
+First PocketDeck-OS release, based on CrossInk 1.6.0. A personal project by Ashok Kumar Srinivas.
+
+### Added
+
+- Settings > System > About: logo, version, credits and a short overview of features and project history.
+- Large clock digits in Inter (open-source) for Today, World Clock and Pomodoro.
+- Pomodoro shows a MM:SS countdown that updates every second.
+- Page Overlay sleep mode shows a PocketDeck-OS card over the page when no overlay image is installed.
+- README instructions for installing PocketDeck-OS from the SD card, over USB with esptool, or from source.
+- Screenshot walkthrough of every screen in `docs/screenshots`.
+- Tools > Panchanga: offline Kannada panchanga (tithi, vara, nakshatra, yoga, karana, masa, samvatsara, sunrise/sunset, Rahu/Yamaganda/Gulika kaala, Abhijit muhurta, festivals) with a Moon-phase widget. Browse five years either side of today. Kannada text uses the open-source Noto Sans Kannada font. Calculations are verified against NASA JPL ephemerides and Drik Panchang.
+- Reading Stats > Library page: books and folders on the card, opened vs not opened, in progress, finished, average progress, pages read, reading time, sessions, streaks and books currently being read.
+- New PocketDeck UI theme: branded header and high-contrast selection.
+- Knowledge is now question-and-answer topics (`/tools/knowledge/<topic>.json`) with paged answers and page numbers.
+- Habit Tracker supports up to eight habits, and history is matched by name.
+- Long daily quotes page with Up/Down.
+- README guide to adding your own flashcards, knowledge topics, quotes and habits.
+- `INSTALLATION_GUIDE.md`: installing over CrossInk, first-time setup, and a step-by-step routine for adding quotes, flashcards and knowledge.
+- Tools > Medicine: time-bound medicine and supplement courses (1-4 doses a day for 1-90 days) with started / ends / completed / stopped dates, doses taken, adherence, missed doses, on-time rate, average delay and a dose grid.
+- Tools > Mood: daily five-point mood check-in with notes, a 30-day graph, averages, trend, streak, best weekday and usual check-in time.
+- Tools > Stats & export: every feature's statistics written to `/stats/<feature>/*.json`, one file per book with progress, time, bookmarks, clippings and looked-up words, and an import that restores book data on another card or device without overwriting anything.
+- Habit Tracker: add, rename (history follows) and delete habits on the device, up to 12; a stats page with streaks, 30-day rate, usual time, time consistency, average gap and best weekday, plus weekly-completion and time-of-day graphs.
+- Pomodoro: Left opens focus stats (sessions today / week / 30 days, focus time, streak, best day, usual start, 14-day chart).
+- World Clock: hold Confirm to choose cities from 79 built-in cities.
+- Panchanga: Kannada or English, chosen on the device (hold Confirm) and saved in `panchanga.txt`.
+- Lyra Carousel: optional **Carousel book stats** (on by default): a half-height carousel with the selected book's progress, time read, time left, estimated finish, pace, sessions, start date, bookmarks, highlights, words looked up and pages read.
+- Tilt page turn and direction are also in each book's Book Options.
+- Sleep Screen > **Change wallpaper**: rotates `/sleep` wallpapers every 15 min to 2 hours while asleep (X3 timer wake), with a "How to add wallpapers" help page. JPG wallpapers are converted on the device.
+- PDF, MOBI and AZW3 files appear in the file browser and explain how to convert them.
+- History logs for habits (tick times), medicine, mood, Pomodoro, Today and flashcards in `/tools/<feature>/log-YYYY-MM.txt`, appended atomically.
+
+### Changed (final polish)
+
+- Tools order: Pomodoro, **Panchanga**, World Clock, Habit Tracker, Medicine, Mood, Flashcards, Daily Quote, Knowledge, Today, Stats & export.
+- No two buttons share a name. Left opens a tool's **Menu** or **Stats** (on release, so it never selects a row); Right is **Next**.
+- Every tool with history has a stats page with charts and an Export button (Pomodoro, Habits, Medicine, Mood, Flashcards, Knowledge, Daily Quote, Today). New `/stats/knowledge` and `/stats/quotes` exports; flashcards export adds mastery.
+- Panchanga: Confirm opens a menu (today, Kannada/English, month back/forward, Moon animation).
+- Daily Quote: the date is shown large first; Shuffle replaced by a menu with favourites and stats.
+- Flashcards: the answer screen has one Got it and one Forgot; the deck list has Stats.
+- Knowledge: Right is Next question; Left on the topic list opens stats.
+- Mood: History and notes list with date, time, mood and note.
+- Medicine: food rule per course (before / after / with food), a course summary before saving, and a schedule line on the details page.
+- Pomodoro redraws once a minute while running (seconds only in the last minute): about 85 refreshes per session instead of 1,500. Remaining hold actions (Pomodoro reset, Today delete, Knowledge today's question) show a hint line.
+- World Clock and Today check the clock every 5 s instead of every second.
+- Reading Stats: labelled time bars, weekday chart plus a 12-week reading calendar, stacked library progress bar.
+- Home checks carousel book-stat changes from file sizes instead of reading look-up histories.
+
+### Changed
+
+- The product version shown on screens is PocketDeck-OS 1.0.0. The CrossInk base version (1.6.0) is still used internally for update checks.
+- Boot and default sleep screens show a larger PocketDeck-OS logo, the name, "Developed by Ashok Kumar Srinivas" and the version. The default sleep screen is now light.
+- The Pomodoro, Today and World Clock screens no longer use seven-segment digits.
+- Data folders carry the PocketDeck-OS name: `/.pocketdeck-os` (was `/.crosspoint`), `pocketdeck-os-settings.json` (was `crossink-settings.json`) and `/.pocketdeck-os-stats-backup` (was `/.crossink-stats-backup`). The first start moves an existing CrossInk folder across in one rename, so books, progress, bookmarks, clippings, stats and settings are kept; nothing is overwritten if both exist. File-format markers and sync IDs keep their CrossInk names for compatibility.
+- The About page footer reads "Based on CrossInk 1.6.0".
+- A long Confirm press in the tools now acts on release, so it can open a menu without selecting its first row.
+- Kannada text bitmaps are nibble run-length encoded (72 KB to 39 KB of flash) and decoded while drawing.
+- The Pomodoro ring is drawn with integer maths and no per-pixel trigonometry (the ESP32-C3 has no FPU), so per-second updates stay fast.
+
+
+### Added
+
+- Home > Tools: seven productivity tools for button-only e-ink use. See `docs/productivity-tools.md`.
+  - Today: date, time, habit and focus summary, and a checkable to-do list with on-device task entry.
+  - Pomodoro: 25/5 focus timer drawn as a circular progress ring, with a daily completed count.
+  - World Clock: local time plus four configurable cities with US/EU/AU/NZ daylight saving; syncs through the existing clock-sync and WiFi flow.
+  - Habits: six habits on a weekly grid with current streaks.
+  - Daily Quote: a date-matched quote from `/tools/quotes.txt`, a random pick otherwise, and a new quote after midnight.
+  - Knowledge Card: one Markdown study card per day from `/tools/knowledge/<topic>/`.
+  - Flashcards: JSON decks with simplified spaced repetition (interval doubles on success, resets on a miss).
+- All tool data is stored under `/tools` on the SD card with crash-safe atomic writes. `/.pocketdeck-os` is not touched.
+- Simulator smoke test renders every tool screen, and a native `tools_core` test suite covers date/DST math, scheduling, JSON streaming, and atomic writes.
+
+### Changed
+
+- Rebranded as **PocketDeck-OS**, a personal project by Ashok Kumar Srinivas: new pocket-and-cards logo on the boot and sleep screens and in the web portal, and the product name in on-screen text and page titles. Storage paths, network names, and update checks are unchanged.
+- The Home menu has a Tools entry after all existing items. The Lyra Carousel home cache version was bumped so cached menus redraw with the new icon.
+
 ## [v1.6.0] - 2026-09-21
 
 ### Added
@@ -301,7 +512,7 @@
 
 ### Changed
 
-- CrossInk settings now save to `/.crosspoint/crossink-settings.json`, with a one-time fallback migration from `/.crosspoint/settings.json`, so switching between firmware builds is less likely to reset preferences.
+- CrossInk settings now save to `/.pocketdeck-os/pocketdeck-os-settings.json`, with a one-time fallback migration from `/.pocketdeck-os/settings.json`, so switching between firmware builds is less likely to reset preferences.
 - The X3 clock visibility setting is now phrased as `Hide Clock`, with existing `Show Clock` preferences migrated to the matching hide behavior.
 
 ### Fixed

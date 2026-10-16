@@ -33,6 +33,12 @@ class CrossPointState : public PersistableStore<CrossPointState> {
   uint8_t recentBootFill = 0;                         // valid entries (0..BOOT_RECENT_COUNT)
   uint8_t readerActivityLoadCount = 0;
   bool lastSleepFromReader = false;
+  // Where Back from the reader returns (READER_RETURN_*): the book's folder in
+  // Browse Files when it was opened there, otherwise Home. Saved so it
+  // survives sleep.
+  static constexpr uint8_t READER_RETURN_HOME = 0;
+  static constexpr uint8_t READER_RETURN_FILE_BROWSER = 1;
+  uint8_t readerReturnTo = READER_RETURN_HOME;
   bool showBootScreen = true;
   // One-shot marker set when a Quick Lock timeout puts the device to sleep.
   // The next boot uses it only to discard Quick Lock's temporary frontlight state.
@@ -58,7 +64,7 @@ class CrossPointState : public PersistableStore<CrossPointState> {
   bool saveToFile() const;
 
   bool loadFromFile();
-  static const char* getFilePath() { return "/.crosspoint/state.json"; }
+  static const char* getFilePath() { return "/.pocketdeck-os/state.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc);
   uint16_t pendingBookmarkSpine = UINT16_MAX;

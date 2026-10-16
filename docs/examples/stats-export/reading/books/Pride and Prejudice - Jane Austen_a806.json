@@ -1,0 +1,55 @@
+{
+  "feature": "reading-book",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "pocketdeck_book_data": 1,
+  "path": "/books/Pride and Prejudice - Jane Austen.epub",
+  "file": "Pride and Prejudice - Jane Austen.epub",
+  "title": "Pride and Prejudice",
+  "author": "Jane Austen",
+  "format": "epub",
+  "progress_percent": 0.5,
+  "reading": {
+    "sessions": 0,
+    "time_read_seconds": 31,
+    "time_read": "< 1 min",
+    "pages_turned": 6,
+    "finished": false,
+    "average_seconds_per_page": 2,
+    "time_left_seconds": 2603,
+    "started": null,
+    "finished_on": null,
+    "seconds_by_time_of_day": {
+      "morning": 0,
+      "afternoon": 0,
+      "evening": 31,
+      "night": 0
+    },
+    "seconds_by_weekday": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      31
+    ]
+  },
+  "bookmarks": [],
+  "clippings": [],
+  "looked_up_words": [],
+  "restore": {
+    "format": 1,
+    "cache": {
+      "progress.bin": [
+        "01000500eb00d1050000"
+      ],
+      "progress_percent.bin": [
+        "50525045013400"
+      ],
+      "stats_v5.bin": [
+        "0500001f00000006000000000200040000000000000000000000000000000000001f000000000000000000000000000000000000000000000000000000000000001f0000002b0a0000"
+      ]
+    }
+  }
+}

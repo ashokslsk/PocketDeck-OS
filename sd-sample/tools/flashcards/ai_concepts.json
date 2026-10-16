@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What is overfitting?",
+    "answer": "Learning the training data too closely, so the model does poorly on new data."
+  },
+  {
+    "question": "Precision answers which question?",
+    "answer": "Of everything predicted positive, how much was actually positive?"
+  },
+  {
+    "question": "Recall answers which question?",
+    "answer": "Of everything actually positive, how much did we find?"
+  },
+  {
+    "question": "What is an embedding?",
+    "answer": "A vector representation where similar items are close together."
+  },
+  {
+    "question": "What does the learning rate control?",
+    "answer": "The size of each gradient-descent step."
+  },
+  {
+    "question": "Why keep a separate test set?",
+    "answer": "For an unbiased final estimate. Never tune on it."
+  },
+  {
+    "question": "What is a token in an LLM?",
+    "answer": "A chunk of text (often part of a word) the model reads and writes."
+  },
+  {
+    "question": "Supervised vs unsupervised learning?",
+    "answer": "Supervised uses labelled examples; unsupervised finds structure without labels."
+  },
+  {
+    "question": "What is regularisation?",
+    "answer": "A penalty or constraint that discourages overly complex models."
+  },
+  {
+    "question": "What is a confusion matrix?",
+    "answer": "A table of true/false positives and negatives for a classifier."
+  }
+]

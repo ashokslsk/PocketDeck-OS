@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <memory>
 #include <vector>
@@ -20,6 +21,12 @@
 #include "activities/reader/ReaderOptionsActivity.h"
 #include "activities/reader/ReaderUtils.h"
 #include "activities/settings/QuickActionsActivity.h"
+#include "activities/tools/DailyCommandCenterActivity.h"
+#include "activities/tools/DailyQuoteActivity.h"
+#include "activities/tools/HabitTrackerActivity.h"
+#include "activities/tools/PanchangaActivity.h"
+#include "activities/tools/PomodoroActivity.h"
+#include "activities/tools/WorldClockActivity.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
 #include "simulator/SimulatorHomeKeyInput.h"
@@ -33,6 +40,8 @@ namespace {
 enum class SmokeStep : uint8_t {
   Start,
   Home,
+  Tools,
+  ToolScreens,
   FileBrowser,
   FileBrowserSettings,
   RecentBooks,
@@ -48,7 +57,19 @@ enum class SmokeStep : uint8_t {
 class SimulatorSmokeTest {
  public:
   void tick() {
-    if (!enabled()) return;
+    if (!enabled()) {
+      // Documentation screenshots: CROSSINK_SIMULATOR_START_SCREEN=boot|tools|settings
+      // opens that screen once after startup (the boot splash is otherwise too
+      // fast to capture, and Tools sits in a different place in every theme).
+      const char* start = std::getenv("CROSSINK_SIMULATOR_START_SCREEN");
+      if (!startScreenShown && start != nullptr) {
+        startScreenShown = true;
+        if (std::strcmp(start, "boot") == 0) activityManager.goToBoot();
+        if (std::strcmp(start, "tools") == 0) activityManager.goToTools();
+        if (std::strcmp(start, "settings") == 0) activityManager.goToSettings();
+      }
+      return;
+    }
 
     try {
       tickImpl();
@@ -341,6 +362,41 @@ class SimulatorSmokeTest {
     }
   }
 
+  // Every productivity tool must enter and render without crashing, with or
+  // without its SD-card data present.
+  static constexpr int kToolScreenCount = 6;
+  int toolScreenIndex = 0;
+  bool startScreenShown = false;
+
+  void openToolScreen(const int index) {
+    static constexpr const char* kNames[kToolScreenCount] = {"Tools: Today",       "Tools: Pomodoro",
+                                                             "Tools: World Clock", "Tools: Habits",
+                                                             "Tools: Daily Quote", "Tools: Panchanga"};
+    std::unique_ptr<Activity> tool;
+    switch (index) {
+      case 0:
+        tool = std::make_unique<DailyCommandCenterActivity>(renderer, mappedInputManager);
+        break;
+      case 1:
+        tool = std::make_unique<PomodoroActivity>(renderer, mappedInputManager);
+        break;
+      case 2:
+        tool = std::make_unique<WorldClockActivity>(renderer, mappedInputManager);
+        break;
+      case 3:
+        tool = std::make_unique<HabitTrackerActivity>(renderer, mappedInputManager);
+        break;
+      case 4:
+        tool = std::make_unique<DailyQuoteActivity>(renderer, mappedInputManager);
+        break;
+      default:
+        tool = std::make_unique<PanchangaActivity>(renderer, mappedInputManager);
+        break;
+    }
+    activityManager.replaceActivity(std::move(tool));
+    queueStep(kNames[index], SmokeStep::ToolScreens);
+  }
+
   void queueStep(const char* name, SmokeStep nextStep, int framesToSettle = 3) {
     activeStepName = name;
     settleFrames = framesToSettle;
@@ -380,6 +436,20 @@ class SimulatorSmokeTest {
         break;
 
       case SmokeStep::Home:
+        activityManager.goToTools();
+        queueStep("Tools", SmokeStep::Tools);
+        break;
+
+      case SmokeStep::Tools:
+        toolScreenIndex = 0;
+        openToolScreen(toolScreenIndex);
+        break;
+
+      case SmokeStep::ToolScreens:
+        if (++toolScreenIndex < kToolScreenCount) {
+          openToolScreen(toolScreenIndex);
+          break;
+        }
         activityManager.goToFileBrowser("/books");
         queueStep("File Browser", SmokeStep::FileBrowser);
         break;

@@ -1,0 +1,4 @@
+focus=25
+break=5
+date=1970-01-01
+completed=0

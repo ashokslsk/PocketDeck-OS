@@ -127,6 +127,13 @@ def get_crossink_version(project_dir):
     return config.get('crossink', 'version')
 
 
+def get_pocketdeck_version(project_dir):
+    # User-facing PocketDeck-OS version; CROSSINK_VERSION stays the upstream
+    # base so OTA comparisons against CrossInk releases keep working.
+    config = _read_ini(project_dir)
+    return config.get('crossink', 'pocketdeck_version', fallback='1.0.0')
+
+
 def get_release_candidate_version(project_dir):
     short_hash = os.environ.get('CROSSINK_RC_HASH') or get_git_short_hash(project_dir)
     base_version = re.sub(r'-RC$', '', get_crossink_version(project_dir), flags=re.IGNORECASE)
@@ -167,6 +174,7 @@ def inject_version(env):
     # intentionally omit the source revision, while diagnostics need the base
     # commit and whether the compiled tree had tracked modifications.
     env.Append(CPPDEFINES=[
+        ('POCKETDECK_VERSION', f'\\"{get_pocketdeck_version(project_dir)}\\"'),
         ('CROSSINK_GIT_SHA', f'\\"{get_git_short_sha(project_dir)}\\"'),
         ('CROSSINK_GIT_DIRTY', f'\\"{get_git_dirty(project_dir)}\\"'),
     ])

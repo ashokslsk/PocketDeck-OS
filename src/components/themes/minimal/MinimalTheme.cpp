@@ -251,7 +251,7 @@ std::string coverPathForImageRect(const RecentBook& book, const Rect& imageRect)
   }
 
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub(book.path, "/.crosspoint").getAdaptiveThumbBmpPath(imageRect.width, imageRect.height);
+    return Epub(book.path, "/.pocketdeck-os").getAdaptiveThumbBmpPath(imageRect.width, imageRect.height);
   }
 
   std::string coverBmpPath = UITheme::getCoverThumbPath(book.coverBmpPath, imageRect.width, imageRect.height);
@@ -682,9 +682,11 @@ void MinimalTheme::drawButtonHints(GfxRenderer& renderer, const char* btn1, cons
   for (int i = 0; i < 4; i++) {
     if (labels[i] != nullptr && labels[i][0] != '\0') {
       const int x = buttonPositions[invertText ? 3 - i : i];
-      const int textWidth = renderer.getTextWidth(SMALL_FONT_ID, labels[i]);
+      // Keep long labels inside the button outline.
+      const std::string label = renderer.truncatedText(SMALL_FONT_ID, labels[i], buttonWidth - 6);
+      const int textWidth = renderer.getTextWidth(SMALL_FONT_ID, label.c_str());
       const int textX = x + (buttonWidth - 1 - textWidth) / 2;
-      renderer.drawText(SMALL_FONT_ID, textX, textY, labels[i]);
+      renderer.drawText(SMALL_FONT_ID, textX, textY, label.c_str());
     }
   }
 

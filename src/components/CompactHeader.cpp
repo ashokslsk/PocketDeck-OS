@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <string>
 
+#include "CrossPointSettings.h"
 #include "HeaderDate.h"
 #include "UITheme.h"
 #include "fontIds.h"
@@ -44,7 +45,9 @@ void drawTitle(const GfxRenderer& renderer, const char* title, const bool showDa
   const int pageWidth = renderer.getScreenWidth();
   GUI.drawHeader(renderer, Rect{0, metrics.topPadding, pageWidth, headerHeight(metrics)}, "");
 
-  const int titleX = metrics.contentSidePadding;
+  // PocketDeck draws its mark at the left of every header; start after it.
+  const int titleX =
+      metrics.contentSidePadding + (SETTINGS.uiTheme == CrossPointSettings::UI_THEME::POCKETDECK ? 40 : 0);
   const int batteryStartX = pageWidth - metrics.contentSidePadding - metrics.batteryWidth;
   const int dateStartX = showDate ? pageWidth - headerDateReservedWidth(renderer) : pageWidth;
   const int titleRightX = std::min(batteryStartX, dateStartX) - metrics.contentSidePadding;

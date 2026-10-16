@@ -19,6 +19,7 @@
 #include "I18n.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/BookReadingStats.h"
+#include "components/HeaderDate.h"
 #include "components/TouchActionButtons.h"
 #include "components/TouchRegistry.h"
 #include "components/UIScale.h"
@@ -202,9 +203,11 @@ void BaseTheme::drawButtonHints(GfxRenderer& renderer, const char* btn1, const c
   for (int i = 0; i < 4; i++) {
     if (labels[i] != nullptr && labels[i][0] != '\0') {
       const int x = buttonPositions[invertText ? 3 - i : i];
-      const int textWidth = renderer.getTextWidth(UI_10_FONT_ID, labels[i]);
+      // Keep long labels inside the button outline.
+      const std::string label = renderer.truncatedText(UI_10_FONT_ID, labels[i], buttonWidth - 6);
+      const int textWidth = renderer.getTextWidth(UI_10_FONT_ID, label.c_str());
       const int textX = x + (buttonWidth - 1 - textWidth) / 2;
-      renderer.drawText(UI_10_FONT_ID, textX, textY, labels[i]);
+      renderer.drawText(UI_10_FONT_ID, textX, textY, label.c_str());
     }
   }
 
@@ -456,6 +459,7 @@ void BaseTheme::drawHeader(const GfxRenderer& renderer, Rect rect, const char* t
                                         SETTINGS.uiTheme == CrossPointSettings::UI_THEME::ROUNDEDRAFF &&
                                         rect.height != metrics.homeTopPadding;
   const bool lyraHeader = SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA ||
+                          SETTINGS.uiTheme == CrossPointSettings::UI_THEME::POCKETDECK ||
                           SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA_3_COVERS ||
                           SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
   const bool roundedRaffHeader = !readerContext && SETTINGS.uiTheme == CrossPointSettings::UI_THEME::ROUNDEDRAFF;
@@ -1051,6 +1055,7 @@ void BaseTheme::drawTopStatusBarClock(const GfxRenderer& renderer, int topY, con
   }
 
   char timeBuf[9];
+  char dateTimeBuf[40];
   const char* timeText = previewTime;
   if (timeText == nullptr) {
     if (!halClock.isAvailable()) {
@@ -1060,6 +1065,13 @@ void BaseTheme::drawTopStatusBarClock(const GfxRenderer& renderer, int topY, con
       return;
     }
     timeText = timeBuf;
+    // Date and time together ("13 Oct 2026  12:32 PM", in Settings > Date
+    // Format) once the date is known; time alone before the first sync.
+    char dateBuf[16];
+    if (formatHeaderDateText(dateBuf, sizeof(dateBuf))) {
+      snprintf(dateTimeBuf, sizeof(dateTimeBuf), "%s  %s", dateBuf, timeBuf);
+      timeText = dateTimeBuf;
+    }
   }
 
   const auto& metrics = UITheme::getInstance().getMetrics();

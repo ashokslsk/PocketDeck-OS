@@ -28,11 +28,28 @@ void renderPerBookStatsPage(GfxRenderer& renderer, const MappedInputManager* map
 void renderGlobalStatsPage(GfxRenderer& renderer, const MappedInputManager* mappedInput, const char* screenTitle,
                            const GlobalReadingStats& stats, bool showButtonHints, bool showMoreButton);
 
+// PocketDeck-OS sleep screen, this week (Monday to Sunday), all books: an
+// overview (total time in a ring of days read, pages, daily average, streak),
+// reading time per day, the books in progress and the week's time of day.
+struct WeeklyBook {
+  std::string title;
+  float progress = 0;    // 0..100
+  uint32_t seconds = 0;  // all-time reading time of the book
+};
+void renderWeeklySleepStatsPage(GfxRenderer& renderer, const GlobalReadingStats& stats, const WeeklyBook* books,
+                                int bookCount);
+
 void renderNoRtcCombinedStatsPage(GfxRenderer& renderer, const MappedInputManager* mappedInput,
                                   const std::string& bookTitle, const BookReadingStats& bookStats,
                                   float progressPercent, bool hasEstimatedTimeLeft, uint32_t estimatedTimeLeftSeconds,
                                   const GlobalReadingStats& deviceStats, const GlobalReadingStats* allDevicesStats,
                                   bool showButtonHints);
+
+struct LibrarySummary;
+// Library dashboard: books and folders on the card, opened vs not, progress,
+// pages read, reading time, sessions and streaks, plus what is being read now.
+void renderLibraryStatsPage(GfxRenderer& renderer, const MappedInputManager* mappedInput, const LibrarySummary& library,
+                            const GlobalReadingStats& stats, bool showButtonHints);
 
 void renderEditBookDatesPage(GfxRenderer& renderer, const MappedInputManager* mappedInput, const std::string& bookTitle,
                              const BookReadingStats& stats, int selectedField, bool showButtonHints);

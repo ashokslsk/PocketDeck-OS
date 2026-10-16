@@ -13,6 +13,7 @@
 #include <cstring>
 #include <iterator>
 
+#include "AboutActivity.h"
 #include "AppCapabilities.h"
 #include "AppVersion.h"
 #include "BackupStatsActivity.h"
@@ -23,6 +24,7 @@
 #include "CrossPointSettings.h"
 #include "FontSelectionActivity.h"
 #include "FrontlightTimePickerActivity.h"
+#include "HelpTextActivity.h"
 #include "KOReaderSettingsActivity.h"
 #include "KeyboardLayoutsActivity.h"
 #include "MappedInputManager.h"
@@ -147,7 +149,7 @@ std::string formatCompactDuration(const uint32_t seconds) {
 
 void drawSystemVersionFooter(const GfxRenderer& renderer, const int pageWidth, const int pageHeight,
                              const ThemeMetrics& metrics) {
-  const std::string label = "CrossInk " CROSSINK_VERSION;
+  const std::string label = "PocketDeck-OS " POCKETDECK_VERSION;
   const int maxWidth = pageWidth - systemVersionFooterSideMargin * 2;
   const int bottomLineY =
       pageHeight - metrics.buttonHintsHeight - metrics.verticalSpacing - systemVersionFooterBottomInset;
@@ -1118,6 +1120,14 @@ void SettingsActivity::toggleCurrentSetting() {
         break;
       case SettingAction::ClockSync:
         startActivityForResult(std::make_unique<ClockSyncActivity>(renderer, mappedInput), resultHandler);
+        break;
+      case SettingAction::About:
+        startActivityForResult(std::make_unique<AboutActivity>(renderer, mappedInput), resultHandler);
+        break;
+      case SettingAction::WallpaperHelp:
+        startActivityForResult(std::make_unique<HelpTextActivity>(renderer, mappedInput, StrId::STR_WALLPAPER_HELP,
+                                                                  StrId::STR_WALLPAPER_HELP_BODY),
+                               resultHandler);
         break;
       case SettingAction::QuickActions:
         startActivityForResult(std::make_unique<QuickActionsActivity>(renderer, mappedInput), resultHandler);

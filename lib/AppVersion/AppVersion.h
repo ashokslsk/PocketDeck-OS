@@ -6,6 +6,10 @@
 #define CROSSINK_VERSION "dev"
 #endif
 
+#ifndef POCKETDECK_VERSION
+#define POCKETDECK_VERSION "1.0.0"
+#endif
+
 #ifndef CROSSINK_GIT_SHA
 #define CROSSINK_GIT_SHA "unknown"
 #endif

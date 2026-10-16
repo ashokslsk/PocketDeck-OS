@@ -18,7 +18,7 @@ namespace {
 constexpr char DICT_BIN[] = "dictionary.bin";
 std::string lookupDictPathOverride;
 bool lookupDictPathOverrideActive = false;
-constexpr char GLOBAL_DICT_DIR[] = "/.crosspoint";
+constexpr char GLOBAL_DICT_DIR[] = "/.pocketdeck-os";
 
 bool isTextDefinitionType(char type) {
   switch (type) {
@@ -1087,10 +1087,44 @@ std::string Dictionary::resolveAltForm(const std::string& word, const char* cach
 // Stemming
 // ---------------------------------------------------------------------------
 
+// Kannada words in a book carry case and verb endings (ಪಿತೃಗಳನ್ನು, ಕಣ್ಣಿನ,
+// ಮಾಡುತ್ತಾನೆ); a dictionary lists ಪಿತೃ, ಕಣ್ಣು, ಮಾಡು. Try the word with letters
+// dropped from the end, longest first, and where it then ends in a bare
+// consonant also with ು (ಕಣ್ಣ -> ಕಣ್ಣು), the usual dictionary form.
+static std::vector<std::string> kannadaStemVariants(const std::string& word) {
+  std::vector<std::string> variants;
+  std::vector<size_t> ends;  // byte offset just after each codepoint
+  std::vector<uint32_t> cps;
+  const auto* p = reinterpret_cast<const unsigned char*>(word.c_str());
+  const auto* start = p;
+  uint32_t cp;
+  while ((cp = utf8NextCodepoint(&p))) {
+    cps.push_back(cp);
+    ends.push_back(static_cast<size_t>(p - start));
+  }
+  constexpr size_t kMinLetters = 2;
+  constexpr size_t kMaxVariants = 40;
+  for (size_t n = cps.size(); n-- > kMinLetters && variants.size() < kMaxVariants;) {
+    const uint32_t last = cps[n - 1];
+    std::string prefix = word.substr(0, ends[n - 1]);
+    const bool bareConsonant = (last >= 0x0C95 && last <= 0x0CB9) || last == 0x0CDE;
+    if (bareConsonant) variants.push_back(prefix + "\xE0\xB3\x81");  // + ು
+    variants.push_back(std::move(prefix));
+  }
+  return variants;
+}
+
 std::vector<std::string> Dictionary::getStemVariants(const std::string& word) {
+  // Kannada (U+0C80..U+0CFF is E0 B2/B3 xx in UTF-8) has its own endings.
+  for (size_t i = 0; i + 1 < word.size(); ++i) {
+    if (static_cast<unsigned char>(word[i]) == 0xE0 &&
+        (static_cast<unsigned char>(word[i + 1]) == 0xB2 || static_cast<unsigned char>(word[i + 1]) == 0xB3)) {
+      return kannadaStemVariants(word);
+    }
+  }
   // These are deliberately English morphology rules. Applying them to UTF-8
   // text can manufacture meaningless variants from another language, so
-  // non-ASCII words use exact and StarDict synonym lookup only.
+  // other non-ASCII words use exact and StarDict synonym lookup only.
   if (std::any_of(word.begin(), word.end(), [](const unsigned char c) { return c >= 0x80; })) return {};
 
   std::string normalized = word;

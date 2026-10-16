@@ -25,7 +25,7 @@ class HomeActivity final : public Activity {
   // through the SD snapshot cache and are paged in on demand.
   static constexpr int kCarouselFrameCount = 1;
   // Must be >= LyraCarouselMetrics::values.homeRecentBooksCount (asserted in .cpp)
-  static constexpr int kMaxCachedBooks = 3;
+  static constexpr int kMaxCachedBooks = 5;
 
  private:
   ButtonNavigator buttonNavigator;
@@ -100,6 +100,7 @@ class HomeActivity final : public Activity {
   void onOpdsBrowserOpen();
   void onReadingStatsOpen();
   void onSavedItemsOpen();
+  void onToolsOpen();
 
   int getMenuItemCount() const;
   bool storeCoverBuffer();    // Store frame buffer for cover image

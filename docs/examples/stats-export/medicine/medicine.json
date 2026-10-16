@@ -1,0 +1,485 @@
+{
+  "feature": "medicine",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "courses": [
+    {
+      "name": "Paracetamol 500 mg",
+      "id": "c0000p01",
+      "status": "active",
+      "doses_per_day": 3,
+      "days": 4,
+      "started": "2026-09-26",
+      "planned_end": "2026-09-29",
+      "stopped_on": null,
+      "completed_on": null,
+      "doses_planned": 12,
+      "doses_due_so_far": 5,
+      "doses_taken": 5,
+      "doses_missed": 0,
+      "adherence_percent": 100,
+      "on_time_percent": 100,
+      "average_delay_minutes": 25,
+      "days_with_every_dose": 1,
+      "dose_times": [
+        "08:00",
+        "13:00",
+        "19:00"
+      ],
+      "days": [
+        {
+          "date": "2026-09-26",
+          "taken_at": [
+            "08:20",
+            "13:17",
+            "19:07"
+          ]
+        },
+        {
+          "date": "2026-09-27",
+          "taken_at": [
+            "08:58",
+            "13:23",
+            false
+          ]
+        },
+        {
+          "date": "2026-09-28",
+          "taken_at": [
+            false,
+            false,
+            false
+          ]
+        },
+        {
+          "date": "2026-09-29",
+          "taken_at": [
+            false,
+            false,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vitamin D3",
+      "id": "c0000v02",
+      "status": "active",
+      "doses_per_day": 1,
+      "days": 30,
+      "started": "2026-09-08",
+      "planned_end": "2026-10-07",
+      "stopped_on": null,
+      "completed_on": null,
+      "doses_planned": 30,
+      "doses_due_so_far": 20,
+      "doses_taken": 18,
+      "doses_missed": 2,
+      "adherence_percent": 90,
+      "on_time_percent": 88,
+      "average_delay_minutes": 20,
+      "days_with_every_dose": 18,
+      "dose_times": [
+        "08:30"
+      ],
+      "days": [
+        {
+          "date": "2026-09-08",
+          "taken_at": [
+            "08:17"
+          ]
+        },
+        {
+          "date": "2026-09-09",
+          "taken_at": [
+            "08:39"
+          ]
+        },
+        {
+          "date": "2026-09-10",
+          "taken_at": [
+            "08:28"
+          ]
+        },
+        {
+          "date": "2026-09-11",
+          "taken_at": [
+            "08:36"
+          ]
+        },
+        {
+          "date": "2026-09-12",
+          "taken_at": [
+            "08:44"
+          ]
+        },
+        {
+          "date": "2026-09-13",
+          "taken_at": [
+            "08:52"
+          ]
+        },
+        {
+          "date": "2026-09-14",
+          "taken_at": [
+            "08:53"
+          ]
+        },
+        {
+          "date": "2026-09-15",
+          "taken_at": [
+            "09:32"
+          ]
+        },
+        {
+          "date": "2026-09-16",
+          "taken_at": [
+            "09:02"
+          ]
+        },
+        {
+          "date": "2026-09-17",
+          "taken_at": [
+            "09:15"
+          ]
+        },
+        {
+          "date": "2026-09-18",
+          "taken_at": [
+            "08:40"
+          ]
+        },
+        {
+          "date": "2026-09-19",
+          "taken_at": [
+            "08:54"
+          ]
+        },
+        {
+          "date": "2026-09-20",
+          "taken_at": [
+            "09:24"
+          ]
+        },
+        {
+          "date": "2026-09-21",
+          "taken_at": [
+            "08:59"
+          ]
+        },
+        {
+          "date": "2026-09-22",
+          "taken_at": [
+            "08:55"
+          ]
+        },
+        {
+          "date": "2026-09-23",
+          "taken_at": [
+            "08:21"
+          ]
+        },
+        {
+          "date": "2026-09-24",
+          "taken_at": [
+            "08:06"
+          ]
+        },
+        {
+          "date": "2026-09-25",
+          "taken_at": [
+            "09:32"
+          ]
+        },
+        {
+          "date": "2026-09-26",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-27",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-28",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-29",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-30",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-01",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-02",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-03",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-04",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-05",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-06",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-07",
+          "taken_at": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Amoxicillin",
+      "id": "c0000a03",
+      "status": "completed",
+      "doses_per_day": 3,
+      "days": 5,
+      "started": "2026-09-03",
+      "planned_end": "2026-09-07",
+      "stopped_on": null,
+      "completed_on": "2026-09-07",
+      "doses_planned": 15,
+      "doses_due_so_far": 15,
+      "doses_taken": 14,
+      "doses_missed": 1,
+      "adherence_percent": 93,
+      "on_time_percent": 100,
+      "average_delay_minutes": 10,
+      "days_with_every_dose": 4,
+      "dose_times": [
+        "08:00",
+        "14:00",
+        "20:00"
+      ],
+      "days": [
+        {
+          "date": "2026-09-03",
+          "taken_at": [
+            "08:14",
+            false,
+            "19:53"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "taken_at": [
+            "08:20",
+            "14:00",
+            "20:29"
+          ]
+        },
+        {
+          "date": "2026-09-05",
+          "taken_at": [
+            "08:17",
+            "14:23",
+            "19:56"
+          ]
+        },
+        {
+          "date": "2026-09-06",
+          "taken_at": [
+            "07:12",
+            "14:07",
+            "19:47"
+          ]
+        },
+        {
+          "date": "2026-09-07",
+          "taken_at": [
+            "08:07",
+            "14:39",
+            "20:57"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Iron supplement",
+      "id": "c0000i04",
+      "status": "stopped",
+      "doses_per_day": 1,
+      "days": 21,
+      "started": "2026-09-12",
+      "planned_end": "2026-10-02",
+      "stopped_on": "2026-09-21",
+      "completed_on": null,
+      "doses_planned": 21,
+      "doses_due_so_far": 10,
+      "doses_taken": 7,
+      "doses_missed": 3,
+      "adherence_percent": 70,
+      "on_time_percent": 100,
+      "average_delay_minutes": -9,
+      "days_with_every_dose": 7,
+      "dose_times": [
+        "21:00"
+      ],
+      "days": [
+        {
+          "date": "2026-09-12",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-13",
+          "taken_at": [
+            "20:53"
+          ]
+        },
+        {
+          "date": "2026-09-14",
+          "taken_at": [
+            "20:38"
+          ]
+        },
+        {
+          "date": "2026-09-15",
+          "taken_at": [
+            "20:18"
+          ]
+        },
+        {
+          "date": "2026-09-16",
+          "taken_at": [
+            "21:29"
+          ]
+        },
+        {
+          "date": "2026-09-17",
+          "taken_at": [
+            "20:59"
+          ]
+        },
+        {
+          "date": "2026-09-18",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-19",
+          "taken_at": [
+            "20:43"
+          ]
+        },
+        {
+          "date": "2026-09-20",
+          "taken_at": [
+            "20:56"
+          ]
+        },
+        {
+          "date": "2026-09-21",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-22",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-23",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-24",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-25",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-26",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-27",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-28",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-29",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-09-30",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-01",
+          "taken_at": [
+            false
+          ]
+        },
+        {
+          "date": "2026-10-02",
+          "taken_at": [
+            false
+          ]
+        }
+      ]
+    }
+  ]
+}

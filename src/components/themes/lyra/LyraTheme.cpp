@@ -71,6 +71,8 @@ const freeink::Icon* LyraTheme::iconForName(UIIcon icon, uint32_t size) {
         return &icon_book_marked_24;
       case UIIcon::File:
         return &icon_file_24;
+      case UIIcon::Tools:
+        return &icon_menu_24;
       default:
         return nullptr;
     }
@@ -94,6 +96,8 @@ const freeink::Icon* LyraTheme::iconForName(UIIcon icon, uint32_t size) {
         return &icon_wifi_32;
       case UIIcon::Hotspot:
         return &icon_radio_tower_32;
+      case UIIcon::Tools:
+        return &icon_menu_32;
       default:
         return nullptr;
     }
@@ -406,9 +410,11 @@ void LyraTheme::drawButtonHints(GfxRenderer& renderer, const char* btn1, const c
   for (int i = 0; i < 4; i++) {
     if (labels[i] != nullptr && labels[i][0] != '\0') {
       const int x = buttonPositions[invertText ? 3 - i : i];
-      const int textWidth = renderer.getTextWidth(SMALL_FONT_ID, labels[i]);
+      // Keep long labels inside the button outline.
+      const std::string label = renderer.truncatedText(SMALL_FONT_ID, labels[i], buttonWidth - 6);
+      const int textWidth = renderer.getTextWidth(SMALL_FONT_ID, label.c_str());
       const int textX = x + (buttonWidth - 1 - textWidth) / 2;
-      renderer.drawText(SMALL_FONT_ID, textX, textY, labels[i]);
+      renderer.drawText(SMALL_FONT_ID, textX, textY, label.c_str());
     }
   }
 

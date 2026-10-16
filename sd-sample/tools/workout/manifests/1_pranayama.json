@@ -1,0 +1,289 @@
+{
+ "title_en": "Pranayama",
+ "title_kn": "ಪ್ರಾಣಾಯಾಮ",
+ "note": "Practise on an empty stomach, sitting tall. Breathe through the nose unless told otherwise. Stop if you feel pain, dizziness or breathlessness. If you are pregnant, recovering from surgery or have a heart, blood-pressure or other medical condition, check with your doctor first.",
+ "items": [
+  {
+   "id": "anuloma_viloma",
+   "name_en": "Alternate Nostril Breathing",
+   "name_kn": "ಅನುಲೋಮ ವಿಲೋಮ",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "pranayama/anuloma_viloma.pbm",
+   "phases": [
+    {
+     "label": "Inhale left",
+     "seconds": 4,
+     "shape": "grow"
+    },
+    {
+     "label": "Exhale right",
+     "seconds": 8,
+     "shape": "shrink"
+    },
+    {
+     "label": "Inhale right",
+     "seconds": 4,
+     "shape": "grow"
+    },
+    {
+     "label": "Exhale left",
+     "seconds": 8,
+     "shape": "shrink"
+    }
+   ],
+   "accessories": [
+    "Cushion or folded blanket",
+    "Quiet place"
+   ],
+   "how": [
+    "Sit cross-legged or on a chair, spine tall, shoulders soft.",
+    "Rest the left hand on the knee. Fold the index and middle fingers of the right hand; use the thumb for the right nostril and the ring finger for the left.",
+    "Close the right nostril and breathe in through the left for 4 counts.",
+    "Close the left, open the right and breathe out for 8 counts.",
+    "Breathe in through the right, switch, and breathe out through the left. That is one round.",
+    "Keep the breath silent and smooth; the out-breath is twice the in-breath."
+   ],
+   "caution": "Never strain. If the nose is blocked, breathe gently through both nostrils."
+  },
+  {
+   "id": "bhastrika",
+   "name_en": "Bellows Breath",
+   "name_kn": "ಭಸ್ತ್ರಿಕಾ",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "pranayama/bhastrika.pbm",
+   "phases": [
+    {
+     "label": "Breathe in fully",
+     "seconds": 1,
+     "shape": "grow"
+    },
+    {
+     "label": "Breathe out fully",
+     "seconds": 1,
+     "shape": "shrink"
+    }
+   ],
+   "repeat": 20,
+   "rest": {
+    "label": "Rest, breathe normally",
+    "seconds": 30,
+    "shape": "hold"
+   },
+   "accessories": [
+    "Cushion",
+    "Tissue"
+   ],
+   "how": [
+    "Sit tall with hands on the knees.",
+    "Breathe in and out through the nose with equal force, about one breath a second, letting the chest and belly move like bellows.",
+    "Do 20 breaths, then rest with normal breathing for 30 seconds. Repeat.",
+    "Keep the face, neck and shoulders relaxed."
+   ],
+   "caution": "Not during pregnancy, or with high blood pressure, heart disease, epilepsy, hernia or recent surgery. Stop at once if you feel light-headed."
+  },
+  {
+   "id": "kapalbhati",
+   "name_en": "Skull-Shining Breath",
+   "name_kn": "ಕಪಾಲಭಾತಿ",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "pranayama/kapalbhati.pbm",
+   "phases": [
+    {
+     "label": "Exhale sharply",
+     "seconds": 1,
+     "shape": "pulse"
+    }
+   ],
+   "repeat": 30,
+   "rest": {
+    "label": "Rest, breathe normally",
+    "seconds": 30,
+    "shape": "hold"
+   },
+   "accessories": [
+    "Cushion",
+    "Empty stomach (3 hours after a meal)"
+   ],
+   "how": [
+    "Sit tall, hands on the knees, and take a comfortable breath in.",
+    "Pull the belly in quickly to push the breath out through the nose. Let the in-breath come back by itself.",
+    "Keep a steady rhythm of about one stroke a second; only the belly moves.",
+    "After 30 strokes, rest with normal breathing for 30 seconds. Repeat."
+   ],
+   "caution": "Not during pregnancy or menstruation, or with high blood pressure, heart disease, hernia, ulcers, epilepsy or recent abdominal surgery."
+  },
+  {
+   "id": "ujjayi",
+   "name_en": "Ocean Breath",
+   "name_kn": "ಉಜ್ಜಾಯಿ",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "pranayama/ujjayi.pbm",
+   "phases": [
+    {
+     "label": "Inhale, soft throat",
+     "seconds": 5,
+     "shape": "grow"
+    },
+    {
+     "label": "Exhale, soft throat",
+     "seconds": 6,
+     "shape": "shrink"
+    }
+   ],
+   "accessories": [
+    "Cushion"
+   ],
+   "how": [
+    "Sit tall with the mouth closed.",
+    "Narrow the back of the throat slightly, as if fogging a mirror with the mouth shut, so the breath makes a soft ocean sound.",
+    "Breathe in for 5 counts and out for 6, keeping the sound even.",
+    "Let the breath be long and quiet; the sound should only be heard by you."
+   ],
+   "caution": "If the throat feels tight, ease the narrowing and breathe normally."
+  },
+  {
+   "id": "bhramari",
+   "name_en": "Humming Bee Breath",
+   "name_kn": "ಭ್ರಾಮರಿ",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "pranayama/bhramari.pbm",
+   "phases": [
+    {
+     "label": "Inhale",
+     "seconds": 4,
+     "shape": "grow"
+    },
+    {
+     "label": "Exhale humming 'mmm'",
+     "seconds": 8,
+     "shape": "shrink"
+    }
+   ],
+   "accessories": [
+    "Cushion",
+    "Quiet room"
+   ],
+   "how": [
+    "Sit tall and close the eyes.",
+    "Gently close the ears with the thumbs (or index fingers) on the small flap of cartilage.",
+    "Breathe in through the nose for 4 counts.",
+    "Breathe out for 8 counts while humming with the lips closed, feeling the vibration in the head.",
+    "Keep the jaw relaxed and the teeth slightly apart."
+   ],
+   "caution": "Do not press into the ear canal. Avoid with an ear infection."
+  },
+  {
+   "id": "sheetali",
+   "name_en": "Cooling Breath (Sheetali / Sheetkari)",
+   "name_kn": "ಶೀತಲಿ / ಶೀತ್ಕಾರಿ",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "pranayama/sheetali.pbm",
+   "phases": [
+    {
+     "label": "Inhale through the mouth",
+     "seconds": 4,
+     "shape": "grow"
+    },
+    {
+     "label": "Hold",
+     "seconds": 2,
+     "shape": "hold"
+    },
+    {
+     "label": "Exhale through the nose",
+     "seconds": 6,
+     "shape": "shrink"
+    }
+   ],
+   "accessories": [
+    "Cushion",
+    "A cool, clean room"
+   ],
+   "how": [
+    "Sheetali: roll the tongue into a tube and breathe in through it. Sheetkari: if you cannot roll the tongue, close the teeth lightly and breathe in through them.",
+    "Close the mouth and hold briefly for 2 counts.",
+    "Breathe out slowly through the nose for 6 counts.",
+    "Feel the cool air on the in-breath; keep the shoulders down."
+   ],
+   "caution": "Avoid in cold weather, or with low blood pressure, asthma, a cold or sensitive teeth."
+  },
+  {
+   "id": "nadi_shodhana",
+   "name_en": "Channel-Cleansing Breath",
+   "name_kn": "ನಾಡೀ ಶೋಧನ",
+   "type": "breath",
+   "minutes": [
+    5,
+    10
+   ],
+   "image": "pranayama/nadi_shodhana.pbm",
+   "phases": [
+    {
+     "label": "Inhale left",
+     "seconds": 4,
+     "shape": "grow"
+    },
+    {
+     "label": "Hold, both closed",
+     "seconds": 4,
+     "shape": "hold"
+    },
+    {
+     "label": "Exhale right",
+     "seconds": 8,
+     "shape": "shrink"
+    },
+    {
+     "label": "Inhale right",
+     "seconds": 4,
+     "shape": "grow"
+    },
+    {
+     "label": "Hold, both closed",
+     "seconds": 4,
+     "shape": "hold"
+    },
+    {
+     "label": "Exhale left",
+     "seconds": 8,
+     "shape": "shrink"
+    }
+   ],
+   "accessories": [
+    "Cushion or folded blanket"
+   ],
+   "how": [
+    "Use the same hand position as alternate nostril breathing.",
+    "Breathe in through the left nostril for 4 counts.",
+    "Close both nostrils and hold the breath gently for 4 counts.",
+    "Breathe out through the right for 8 counts, then in through the right for 4.",
+    "Hold for 4, then breathe out through the left for 8. That is one round."
+   ],
+   "caution": "Leave out the holds if you are pregnant or have high blood pressure or a heart condition."
+  }
+ ]
+}

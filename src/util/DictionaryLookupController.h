@@ -131,6 +131,7 @@ class DictionaryLookupController {
   bool canCreateClipping() const { return allowCreateClipping_; }
 
  private:
+  void chooseDictionaryForWord(const std::string& word);
 #if CROSSINK_APP_CAP_TOUCH
   using AltFormUiApp = freeink::ui::FreeInkApp<3, 1>;
   static constexpr freeink::ui::ActionId ACTION_ALT_FORM_NO = 1;

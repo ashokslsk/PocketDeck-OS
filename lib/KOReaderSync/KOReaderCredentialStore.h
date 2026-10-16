@@ -40,7 +40,7 @@ class KOReaderCredentialStore : public PersistableStore<KOReaderCredentialStore>
   friend class PersistableStore<KOReaderCredentialStore>;
 
  public:
-  static const char* getFilePath() { return "/.crosspoint/koreader.json"; }
+  static const char* getFilePath() { return "/.pocketdeck-os/koreader.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc);
 

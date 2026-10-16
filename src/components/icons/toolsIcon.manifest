@@ -1,0 +1,7 @@
+# Manifest for src/components/icons/toolsIcon.h — regenerate with:
+#   python3 scripts/generate_icons.py --library lucide \
+#     --manifest src/components/icons/toolsIcon.manifest \
+#     --sizes 32 --out src/components/icons/toolsIcon.h
+# then clang-format -i the output.
+layout-grid = layout-grid
+flame = flame

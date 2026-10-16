@@ -11,8 +11,8 @@
 
 namespace {
 constexpr uint8_t WIFI_FILE_VERSION = 2;
-constexpr char WIFI_FILE_BIN[] = "/.crosspoint/wifi.bin";
-constexpr char WIFI_FILE_BAK[] = "/.crosspoint/wifi.bin.bak";
+constexpr char WIFI_FILE_BIN[] = "/.pocketdeck-os/wifi.bin";
+constexpr char WIFI_FILE_BAK[] = "/.pocketdeck-os/wifi.bin.bak";
 constexpr uint8_t LEGACY_OBFUSCATION_KEY[] = {0x43, 0x72, 0x6F, 0x73, 0x73, 0x50, 0x6F, 0x69, 0x6E, 0x74};
 constexpr size_t LEGACY_KEY_LENGTH = sizeof(LEGACY_OBFUSCATION_KEY);
 

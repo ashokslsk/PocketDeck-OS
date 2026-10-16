@@ -1,11 +1,34 @@
 # File Formats
 
-These formats describe the SD-card cache files under `/.crosspoint/epub_<hash>/`.
+## PocketDeck-OS tools files (SD card)
+
+- `/tools/fonts/kannada.knf`: the Kannada font. Header, cmap, pair kerning,
+  per-glyph advances, eight bitmap styles (19 px, 21 px bold, 26 px bold, 24 px for Tools; 28, 32 px
+  and 30, 34 px bold for books; firmware needs at least the first four)
+  and the syllable dictionary (1,084,860 slots of 20 bytes). The full layout is
+  in the docstring of `scripts/kannada/build_kannada_font.py`.
+- `/tools/.cache/festivals.idx` ("FIX1"): layer file names and a per-year
+  bitmask of the calendar-decided festivals, then `{day i32, layer<<28 | offset
+  u32}` records sorted by date. Rebuilt when a layer's name or size changes.
+- `/tools/.cache/mantras.idx` ("MIX1"): categories (kind, kavacha, first
+  mantra, count, key, Kannada and English names; 160 bytes each), kavachas
+  (object offset and names; 132 bytes each), then one u32 file offset per
+  mantra. Rebuilt when `mantras.json` changes size.
+- `/tools/mantras/log-YYYY-MM.txt`: `YYYY-MM-DD HH:MM|count|category|mantra|text`, one line per japa session.
+- `/tools/workout/manifests/*.json`: Workout categories (format in INSTALLATION_GUIDE.md 3.8); figures are
+  binary PBM (P4) files referenced relative to `/tools/workout`. Verse files (`mantra_pages`, e.g.
+  `yoga/surya_mantras.json`) hold `opening` and `pages`; pages are indexed by byte offset and read one at a time.
+- `/tools/workout/log-YYYY-MM.txt`: `YYYY-MM-DD HH:MM|category|id|seconds|count|reps|level|done`, one line
+  per session of 10 s or more. `count` is cycles (breath), holds, rounds (sequence) or sets (interval);
+  `level` is `b` or `a`; `done` is 1 when the session ran to the end.
+
+
+These formats describe the SD-card cache files under `/.pocketdeck-os/epub_<hash>/`.
 All POD fields are written in the ESP32 little-endian representation used by
 `Serialization.h`; strings are length-prefixed UTF-8 unless a format notes a
 fixed-size char buffer.
 
-## `/.crosspoint/sleep-image-index/<directory-hash>-{bmp,all}.idx`
+## `/.pocketdeck-os/sleep-image-index/<directory-hash>-{bmp,all}.idx`
 
 ### Version 1
 
@@ -195,13 +218,13 @@ struct ReaderSettingsBin {
 };
 ```
 
-## `/.crosspoint/clippings/<bookType>_<crc32(path)>.bin`
+## `/.pocketdeck-os/clippings/<bookType>_<crc32(path)>.bin`
 
 ### Versions 1-4
 
 Clipping files store the per-book EPUB clipping list used by the reader. A
 saved clipping is also what CrossInk renders as an in-reader highlight; there is
-no separate highlight file. The file lives in `/.crosspoint/clippings/` instead
+no separate highlight file. The file lives in `/.pocketdeck-os/clippings/` instead
 of the EPUB render-cache directory so clearing/rebuilding layout cache does not
 delete user clippings.
 
@@ -210,7 +233,7 @@ The current implementation only writes EPUB clipping files, so `bookType` is
 example:
 
 ```text
-/.crosspoint/clippings/epub_1234567890.bin
+/.pocketdeck-os/clippings/epub_1234567890.bin
 ```
 
 Binary layout:
@@ -302,6 +325,14 @@ Binary layout:
 - `[69-72]` `estimatedTimeLeftSeconds` (`uint32_t` LE, `0` means unavailable)
 
 ## `section.bin`
+
+### Version 78
+
+Version 78 keeps the serialized layout unchanged. Lexend Deca words containing
+Greek or Cyrillic are now measured and drawn with the built-in Bitter font, so
+older layouts of such books had different word widths. The top bit of the
+render-mode byte also records whether Kannada shaping was active (PocketDeck-OS
+Kannada books), so shaped and unshaped layouts are never mixed.
 
 ### Version 77
 
@@ -732,7 +763,7 @@ acceptance checks, not implied by host workspace accounting.
 
 ### COIX version 1
 
-The local index is `/.crosspoint/epub_<hash>/optimizer-images.idx`. Its header is:
+The local index is `/.pocketdeck-os/epub_<hash>/optimizer-images.idx`. Its header is:
 
 | Offset | Bytes | Field |
 | --- | --- | --- |
@@ -781,7 +812,7 @@ internal-memory guards still apply. Rebuilding an invalid CSS cache also
 invalidates section caches through the existing EPUB-load path, so books that
 previously cached zero rules can restore hidden content and layout rules.
 
-## `/.crosspoint/font-catalog.bin`
+## `/.pocketdeck-os/font-catalog.bin`
 
 ### Version 1
 

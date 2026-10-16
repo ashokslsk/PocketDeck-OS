@@ -17,6 +17,7 @@
 #include "ImageFolderIndex.h"
 #include "fontIds.h"
 #include "images/Logo120.h"
+#include "images/PocketDeckLogo240.h"
 
 namespace {
 
@@ -119,10 +120,14 @@ void drawDefaultBootLogo(const GfxRenderer& renderer) {
   const auto pageHeight = renderer.getScreenHeight();
 
   renderer.clearScreen();
-  renderer.drawImage(Logo120, (pageWidth - 120) / 2, (pageHeight - 120) / 2, 120, 120);
-  renderer.drawCenteredText(UI_10_FONT_ID, pageHeight / 2 + 70, tr(STR_CROSSINK), true, EpdFontFamily::BOLD);
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 95, tr(STR_BOOTING));
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight - 30, CROSSINK_VERSION);
+  const int logoY = pageHeight / 2 - 190;
+  renderer.drawImage(PocketDeckLogo240, (pageWidth - 240) / 2, logoY, 240, 240);
+  int y = logoY + 240 + 18;
+  renderer.drawCenteredText(LEXENDDECA_16_FONT_ID, y, tr(STR_CROSSINK), true, EpdFontFamily::BOLD);
+  y += renderer.getLineHeight(LEXENDDECA_16_FONT_ID) + 4;
+  renderer.drawCenteredText(UI_10_FONT_ID, y, tr(STR_BOOTING));
+  renderer.drawCenteredText(UI_10_FONT_ID, pageHeight - 70, tr(STR_POCKETDECK_DEVELOPED_BY));
+  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight - 40, "v" POCKETDECK_VERSION);
 }
 
 }  // namespace

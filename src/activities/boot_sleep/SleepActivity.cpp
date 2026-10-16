@@ -10,6 +10,7 @@
 #include <HalGPIO.h>
 #include <HalStorage.h>
 #include <I18n.h>
+#include <JpegToBmpConverter.h>
 #include <PNGdec.h>
 #include <Xtc.h>
 
@@ -24,6 +25,7 @@
 #include "../reader/BookStatsView.h"
 #include "../reader/EpubReaderActivity.h"
 #include "../reader/EpubReaderUtils.h"
+#include "../reader/KannadaReading.h"
 #include "../reader/TxtReaderActivity.h"
 #include "../reader/XtcReaderActivity.h"
 #include "AppCapabilities.h"
@@ -40,6 +42,7 @@
 #include "fontIds.h"
 #include "images/Logo120.h"
 #include "images/MoonIcon.h"
+#include "images/PocketDeckLogo240.h"
 
 namespace {
 
@@ -253,10 +256,10 @@ RecentBook recentBookForPath(const std::string& path) {
 
 std::string bookStatsCachePathFor(const std::string& path) {
   if (FsHelpers::hasEpubExtension(path)) {
-    return Epub::cachePathForFilePath(path, "/.crosspoint");
+    return Epub::cachePathForFilePath(path, "/.pocketdeck-os");
   }
   if (FsHelpers::hasXtcExtension(path)) {
-    return Xtc(path, "/.crosspoint").getCachePath();
+    return Xtc(path, "/.pocketdeck-os").getCachePath();
   }
   return {};
 }
@@ -274,7 +277,7 @@ std::string loadChapterTitleForPath(const std::string& path) {
     return {};
   }
 
-  Epub epub(path, "/.crosspoint");
+  Epub epub(path, "/.pocketdeck-os");
   if (!epub.load(false, true, Epub::XLocationLoadMode::Skip)) {
     return {};
   }
@@ -500,6 +503,64 @@ bool selectRandomSleepImage(SleepImageMode mode, SleepImageSelection& selection,
 
 }  // namespace
 
+bool SleepActivity::rotationWake = false;
+
+bool SleepActivity::wallpaperRotationActive(const bool fromReader) {
+  if (CrossPointSettings::wallpaperRotationMinutes(SETTINGS.wallpaperRotation) == 0) return false;
+  return SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM ||
+         (SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM && !fromReader);
+}
+
+int SleepActivity::convertPendingJpegWallpapers(const int maxCount) {
+  std::string sleepDir;
+  if (maxCount <= 0 || !resolvePreferredSleepDirectory(sleepDir)) return 0;
+  FsFile dir;
+  if (!tryOpenSleepDirectory(dir, sleepDir, sleepDir)) return 0;
+  // Collect a few candidates first so only one directory handle is open while
+  // converting (the converter opens two files of its own).
+  constexpr int kBatch = 4;
+  std::string pending[kBatch];
+  int count = 0;
+  char name[256];
+  for (auto file = dir.openNextFile(); file && count < kBatch && count < maxCount; file = dir.openNextFile()) {
+    const bool isDir = file.isDirectory();
+    file.getName(name, sizeof(name));
+    file.close();
+    const std::string_view n(name);
+    if (isDir || n.empty() || n.front() == '.') continue;
+    if (!FsHelpers::checkFileExtension(n, ".jpg") && !FsHelpers::checkFileExtension(n, ".jpeg")) continue;
+    const std::string bmp = sleepDir + "/" + name + ".bmp";
+    if (Storage.exists(bmp.c_str())) continue;
+    pending[count++] = name;
+  }
+  dir.close();
+  int converted = 0;
+  for (int i = 0; i < count; ++i) {
+    const std::string src = sleepDir + "/" + pending[i];
+    const std::string dst = src + ".bmp";
+    const std::string tmp = dst + ".tmp";
+    FsFile in;
+    FsFile out;
+    if (!Storage.openFileForRead("SLP", src, in)) continue;
+    if (!Storage.openFileForWrite("SLP", tmp, out)) {
+      in.close();
+      continue;
+    }
+    LOG_INF("SLP", "Converting wallpaper %s", src.c_str());
+    const bool ok = JpegToBmpConverter::jpegFileToBmpStream(in, out, /*crop=*/true);
+    in.close();
+    out.close();
+    if (ok && Storage.rename(tmp.c_str(), dst.c_str())) {
+      ImageFolderIndex::invalidateForPath(dst.c_str());
+      ++converted;
+    } else {
+      LOG_ERR("SLP", "Wallpaper conversion failed: %s", src.c_str());
+      Storage.remove(tmp.c_str());
+    }
+  }
+  return converted;
+}
+
 void SleepActivity::onEnter() {
   Activity::onEnter();
   const bool renderQuickResume =
@@ -516,8 +577,16 @@ void SleepActivity::onEnter() {
     return renderLastScreenSleepScreen();
   }
 
+  // Kannada book titles on the stats / cover sleep screens are shaped like
+  // on Home; the font opens only if a Kannada title is drawn.
+  struct KannadaUiScope {
+    KannadaUiScope() { kannadareading::beginUi(); }
+    ~KannadaUiScope() { kannadareading::endUi(); }
+  } kannadaUi;
+
   const auto sleepScreen = SETTINGS.sleepScreen;
   const bool sleepScreenUsesRecentBooks = sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::READING_STATS_SLEEP ||
+                                          sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::WEEKLY_STATS_SLEEP ||
                                           sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP ||
                                           sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP ||
                                           sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::DASHBOARD_SLEEP;
@@ -532,7 +601,7 @@ void SleepActivity::onEnter() {
   // X4 Pro and X4 Classic share a panel that can retain this high-contrast
   // transient update beneath the final OEM-style sleep refresh. Render only
   // the final sleep frame on that panel family.
-  const bool showSleepPopup = !BoardConfig::isX4Pro() && !CROSSINK_APP_DEVICE_X4CLASSIC;
+  const bool showSleepPopup = !BoardConfig::isX4Pro() && !CROSSINK_APP_DEVICE_X4CLASSIC && !rotationWake;
   // Show the popup in the orientation that was visible before reader exit restores
   // global settings. Reset to portrait afterwards so sleep screen layout stays unchanged.
   if (APP_STATE.lastSleepFromReader) {
@@ -562,6 +631,8 @@ void SleepActivity::onEnter() {
       return renderOverlaySleepScreen();
     case (CrossPointSettings::SLEEP_SCREEN_MODE::READING_STATS_SLEEP):
       return renderReadingStatsSleepScreen();
+    case (CrossPointSettings::SLEEP_SCREEN_MODE::WEEKLY_STATS_SLEEP):
+      return renderWeeklyStatsSleepScreen();
     case (CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP):
       return renderMinimalSleepScreen();
     case (CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP):
@@ -574,6 +645,10 @@ void SleepActivity::onEnter() {
 }
 
 void SleepActivity::renderCustomSleepScreen() const {
+  // JPG wallpapers become .bmp copies a couple at a time, so a folder of new
+  // photos never makes one sleep take long.
+  convertPendingJpegWallpapers(2);
+
   const auto tryRenderSelection = [this](const SleepImageSelection& selection) {
     FsFile file;
     if (!Storage.openFileForRead("SLP", selection.path, file)) {
@@ -643,10 +718,19 @@ void SleepActivity::renderDefaultSleepScreen() const {
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
 
+  // PocketDeck-OS branded sleep card: large logo, name, credit and version.
   renderer.clearScreen();
-  renderer.drawImage(Logo120, (pageWidth - 120) / 2, (pageHeight - 120) / 2, 120, 120);
-  renderer.drawCenteredText(UI_10_FONT_ID, pageHeight / 2 + 70, tr(STR_CROSSINK), true, EpdFontFamily::BOLD);
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 95, tr(STR_SLEEPING));
+  const int logoY = pageHeight / 2 - 190;
+  renderer.drawImage(PocketDeckLogo240, (pageWidth - 240) / 2, logoY, 240, 240);
+  int y = logoY + 240 + 18;
+  renderer.drawCenteredText(LEXENDDECA_16_FONT_ID, y, tr(STR_CROSSINK), true, EpdFontFamily::BOLD);
+  y += renderer.getLineHeight(LEXENDDECA_16_FONT_ID) + 4;
+  renderer.drawCenteredText(UI_10_FONT_ID, y, tr(STR_SLEEPING));
+  y += renderer.getLineHeight(UI_10_FONT_ID) + 26;
+  renderer.fillRect(pageWidth / 2 - 40, y, 80, 2);
+  y += 16;
+  renderer.drawCenteredText(UI_10_FONT_ID, y, tr(STR_POCKETDECK_DEVELOPED_BY));
+  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight - 40, "v" POCKETDECK_VERSION);
 
   // Make sleep screen dark unless light is selected in settings
   const bool lightSleepScreen = SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::LIGHT;
@@ -803,6 +887,27 @@ void SleepActivity::renderCoverSleepScreen() const {
   return (this->*renderNoCoverSleepScreen)();
 }
 
+void SleepActivity::renderWeeklyStatsSleepScreen() const {
+  // This week, all books: the recent books that are started and not finished.
+  RECENT_BOOKS.ensureLoaded();
+  WeeklyBook books[5];
+  int reading = 0;
+  for (const RecentBook& book : RECENT_BOOKS.getBooks()) {
+    if (reading >= 5) break;
+    const float pct = RecentBookProgress::loadPercent(book);
+    if (pct <= 0.0f || pct >= 99.5f) continue;
+    books[reading].title = book.title.empty() ? filenameFromPath(book.path) : book.title;
+    books[reading].progress = pct;
+    books[reading].seconds = loadBookStatsForPath(book.path).totalReadingSeconds;
+    ++reading;
+  }
+  renderWeeklySleepStatsPage(renderer, GlobalReadingStats::load(), books, reading);
+  if (!sleepCoverFilterInvertsGeneratedScreen()) {
+    renderer.invertScreen();
+  }
+  renderer.displayBuffer(HalDisplay::HALF_REFRESH, TURN_OFF_SCREEN_AFTER_SLEEP_REFRESH);
+}
+
 void SleepActivity::renderReadingStatsSleepScreen() const {
   BookReadingStats bookStats;
   std::string bookTitle = tr(STR_READING_STATS);
@@ -913,6 +1018,26 @@ void SleepActivity::renderLastScreenSleepScreen() const {
   } else {
     renderer.displayBuffer(HalDisplay::HALF_REFRESH);
   }
+}
+
+void SleepActivity::drawBrandedSleepCard(const GfxRenderer& renderer, const int pageWidth, const int pageHeight) {
+  const int cardW = std::min(pageWidth - 32, 480);
+  const int cardH = 156;
+  const int x = (pageWidth - cardW) / 2;
+  const int y = pageHeight - cardH - 60;
+  renderer.fillRoundedRect(x, y, cardW, cardH, 12, Color::White);
+  renderer.drawRoundedRect(x, y, cardW, cardH, 3, 12, true);
+  renderer.drawImage(Logo120, x + 14, y + (cardH - 120) / 2, 120, 120);
+  const int textX = x + 150;
+  int ty = y + 28;
+  renderer.drawText(UI_12_FONT_ID, textX, ty, tr(STR_CROSSINK), true, EpdFontFamily::BOLD);
+  ty += renderer.getLineHeight(UI_12_FONT_ID) + 4;
+  renderer.drawText(UI_10_FONT_ID, textX, ty, tr(STR_SLEEPING));
+  ty += renderer.getLineHeight(UI_10_FONT_ID) + 8;
+  // "Developed by" and the name on separate lines so the credit never truncates.
+  renderer.drawText(SMALL_FONT_ID, textX, ty, tr(STR_POCKETDECK_DEVELOPED_BY_LABEL));
+  ty += renderer.getLineHeight(SMALL_FONT_ID);
+  renderer.drawText(UI_10_FONT_ID, textX, ty, tr(STR_POCKETDECK_DEVELOPER), true, EpdFontFamily::BOLD);
 }
 
 void SleepActivity::renderBlankSleepScreen() const {
@@ -1199,7 +1324,11 @@ void SleepActivity::renderOverlaySleepScreen() const {
       renderer.setOrientation(savedOrientation);
       return renderDefaultSleepScreen();
     }
-    LOG_DBG("SLP", "No overlay image found, displaying background without overlay");
+    // No user overlay image: keep the page visible and add a solid,
+    // high-contrast PocketDeck-OS card rather than leaving the page bare.
+    LOG_DBG("SLP", "No overlay image found, drawing PocketDeck-OS card over the page");
+    drawBrandedSleepCard(renderer, pageWidth, pageHeight);
+    overlayDrawn = true;  // skip the grayscale page pass that would paint over the card
   }
 
   renderer.setOrientation(savedOrientation);

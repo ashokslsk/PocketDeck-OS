@@ -95,6 +95,11 @@ class ClippingStore {
   bool readClippingText(const Clipping& clipping, std::string& out) const;
 
   static bool hasAnyClippings();
+
+  // PocketDeck-OS: clipping count for a book from the file header only, and
+  // the path of its clipping file (used by the book data export).
+  static uint16_t countForBook(const std::string& filePath, const std::string& bookType);
+  static std::string storeFilePathFor(const std::string& filePath, const std::string& bookType);
   static bool getAllClippedBooks(std::vector<ClippedBookEntry>& out);
   static void deleteForFilePath(const std::string& filePath, const std::string& bookType);
   static bool migrateForFilePath(const std::string& oldFilePath, const std::string& newFilePath,

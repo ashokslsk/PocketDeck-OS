@@ -33,6 +33,7 @@ class XtcReaderActivity final : public Activity {
   GlobalReadingStats globalStats;
   ReadingStatsDateTime sessionStartLocalDateTime;
   bool hasSessionStartLocalDateTime = false;
+  uint32_t sessionStartPages = 0;  // book pages turned when the session began
   bool longPowerPageTurnHandled = false;
   // Home-key shortcuts are dispatched before this activity's normal input loop.
   // Queue the turn so it follows the same guarded XTC page-turn path.

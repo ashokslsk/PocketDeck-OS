@@ -28,6 +28,10 @@ enum class FileBrowserAction : int {
   PinBootFavorite = 16,
   UnpinBootFavorite = 17,
   Rename = 18,
+  Move = 19,
+  Info = 20,
+  NewFolder = 21,
+  Copy = 22,
 };
 
 class FileBrowserActionActivity final : public Activity {

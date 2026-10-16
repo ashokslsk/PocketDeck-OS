@@ -13,6 +13,7 @@
 #include "MappedInputManager.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/EpubReaderActivity.h"
+#include "activities/reader/KannadaReading.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/OptionSelectionActivity.h"
 #include "components/CompactHeader.h"
@@ -25,7 +26,6 @@
 namespace fui = freeink::ui;
 
 namespace {
-constexpr size_t MAX_LIST_RECENT_BOOKS = 10;
 // Hold threshold for the long-press action menu (firmware convention).
 constexpr unsigned long LONG_PRESS_MS = 1000;
 constexpr unsigned long ACTION_FEEDBACK_MS = 1000;
@@ -38,38 +38,66 @@ RecentBooksActivity::RecentBooksActivity(GfxRenderer& renderer, MappedInputManag
       app(uiTarget, uiTarget.deviceContext()) {}
 
 void RecentBooksActivity::loadRecentBooks() {
-  recentBooks.clear();
-  const auto& books = RECENT_BOOKS.getBooks();
-  recentBooks.reserve(std::min(books.size(), MAX_LIST_RECENT_BOOKS));
+  // One page; books no longer on the card are skipped.
+  hasOlder = RECENT_BOOKS.loadPage(recentBooks, pageOffset, kPageSize);
+  recentBooks.erase(std::remove_if(recentBooks.begin(), recentBooks.end(), &RecentBooksStore::isMissing),
+                    recentBooks.end());
+}
 
-  for (const auto& book : books) {
-    if (recentBooks.size() >= MAX_LIST_RECENT_BOOKS) {
-      break;
+int RecentBooksActivity::bookForRow(const int row) const {
+  const int first = hasNewer() ? 1 : 0;
+  if (hasNewer() && row == 0) return -1;
+  const int book = row - first;
+  if (book >= 0 && book < static_cast<int>(recentBooks.size())) return book;
+  return -2;
+}
+
+void RecentBooksActivity::showPage(const size_t offset, const bool selectLast) {
+  {
+    RenderLock lock(*this);  // render() reads recentBooks
+    pageOffset = offset;
+    loadRecentBooks();
+    const int rows = rowCount();
+    if (selectLast) {
+      selectorIndex = static_cast<size_t>(std::max(0, rows - 1 - (hasOlder ? 1 : 0)));
+    } else {
+      selectorIndex = hasNewer() && rows > 1 ? 1 : 0;
     }
-    if (RecentBooksStore::isMissing(book)) {
-      continue;
-    }
-    recentBooks.push_back(book);
+    topIndex = followListSelection(static_cast<int>(selectorIndex), 0, visibleRows, rows);
+  }
+  requestUpdate(true);
+}
+
+void RecentBooksActivity::activateRow(const int row) {
+  const int book = bookForRow(row);
+  if (book == -1) {
+    showPage(pageOffset >= kPageSize ? pageOffset - kPageSize : 0, true);
+  } else if (book == -2) {
+    if (hasOlder) showPage(pageOffset + kPageSize);
+  } else {
+    onSelectBook(recentBooks[static_cast<size_t>(book)].path);
   }
 }
 
 void RecentBooksActivity::onRowEvent(const fui::ActionEvent& event, void* user) {
   auto* self = static_cast<RecentBooksActivity*>(user);
-  if (event.value < 0 || event.value >= static_cast<int16_t>(self->recentBooks.size())) return;
+  if (event.value < 0 || event.value >= self->rowCount()) return;
   self->selectorIndex = static_cast<size_t>(event.value);
+  const int book = self->bookForRow(event.value);
   if (event.longPress) {
     self->app.clearTapFlash();
-    self->showBookActionMenu(self->selectorIndex);
+    if (book >= 0) self->showBookActionMenu(static_cast<size_t>(book));
     return;
   }
   // Opening the book leaves this screen; a lingering flash would gray an
   // unrelated row when the list next appears.
   self->app.clearTapFlash();
-  self->onSelectBook(self->recentBooks[self->selectorIndex].path);
+  self->activateRow(event.value);
 }
 
 void RecentBooksActivity::onEnter() {
   Activity::onEnter();
+  kannadareading::beginUi();
 
   // Prune entries whose backing files are gone; this is one of two interaction
   // points where the persistent store gets cleaned.
@@ -78,6 +106,7 @@ void RecentBooksActivity::onEnter() {
   }
 
   // Load data
+  pageOffset = 0;
   loadRecentBooks();
 
   selectorIndex = 0;
@@ -91,8 +120,10 @@ void RecentBooksActivity::onEnter() {
 }
 
 void RecentBooksActivity::onExit() {
+  kannadareading::endUi();
   Activity::onExit();
   recentBooks.clear();
+  recentBooks.shrink_to_fit();
 }
 
 void RecentBooksActivity::loop() {
@@ -106,7 +137,7 @@ void RecentBooksActivity::loop() {
     onGoHome();
     return;
   }
-  const int listSize = static_cast<int>(recentBooks.size());
+  const int listSize = rowCount();
   // After a long-press has fired, swallow input until Confirm is physically released
   // (so the release doesn't also open the book; re-arm only once the button is up).
   if (longPressFired) {
@@ -119,10 +150,10 @@ void RecentBooksActivity::loop() {
   // Long-press Confirm on the selected book: open the same action menu shape used by File Browser.
   // Fires when the hold times out while still held (firmware hold-to-act pattern,
   // cf. FileBrowserActivity BACK long-press).
-  if (!recentBooks.empty() && selectorIndex < recentBooks.size() &&
-      mappedInput.isPressed(MappedInputManager::Button::Confirm) && mappedInput.getHeldTime() >= LONG_PRESS_MS) {
+  if (bookForRow(static_cast<int>(selectorIndex)) >= 0 && mappedInput.isPressed(MappedInputManager::Button::Confirm) &&
+      mappedInput.getHeldTime() >= LONG_PRESS_MS) {
     longPressFired = true;
-    showBookActionMenu(selectorIndex, true);
+    showBookActionMenu(static_cast<size_t>(bookForRow(static_cast<int>(selectorIndex))), true);
     return;
   }
 
@@ -141,8 +172,8 @@ void RecentBooksActivity::loop() {
   }
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
-    if (!recentBooks.empty() && selectorIndex < recentBooks.size()) {
-      onSelectBook(recentBooks[selectorIndex].path);
+    if (static_cast<int>(selectorIndex) < listSize) {
+      activateRow(static_cast<int>(selectorIndex));
       return;
     }
   }
@@ -186,13 +217,17 @@ void RecentBooksActivity::loop() {
 
 void RecentBooksActivity::reloadAfterBookAction() {
   loadRecentBooks();
-  if (recentBooks.empty()) {
-    selectorIndex = 0;
-  } else if (selectorIndex >= recentBooks.size()) {
-    selectorIndex = recentBooks.size() - 1;
+  if (recentBooks.empty() && pageOffset > 0) {
+    pageOffset = pageOffset >= kPageSize ? pageOffset - kPageSize : 0;
+    loadRecentBooks();
   }
-  topIndex =
-      followListSelection(static_cast<int>(selectorIndex), topIndex, visibleRows, static_cast<int>(recentBooks.size()));
+  const int rows = rowCount();
+  if (rows == 0) {
+    selectorIndex = 0;
+  } else if (static_cast<int>(selectorIndex) >= rows) {
+    selectorIndex = static_cast<size_t>(rows - 1);
+  }
+  topIndex = followListSelection(static_cast<int>(selectorIndex), topIndex, visibleRows, rows);
   requestUpdate(true);
 }
 
@@ -358,6 +393,10 @@ void RecentBooksActivity::showBookActionMenu(const size_t bookIndex, const bool 
           case FileBrowserAction::DeleteBookmarks:
           case FileBrowserAction::DeleteClippings:
           case FileBrowserAction::Rename:
+          case FileBrowserAction::Move:
+          case FileBrowserAction::Info:
+          case FileBrowserAction::NewFolder:
+          case FileBrowserAction::Copy:
             return;
         }
       });
@@ -375,14 +414,30 @@ void RecentBooksActivity::buildListScreen(UiApp::ScreenType& screen) {
                   static_cast<int16_t>(metrics.buttonHintsHeight), 0});
   screen.spacer(static_cast<int16_t>(metrics.verticalSpacing));
 
-  if (recentBooks.empty()) {
+  if (rowCount() == 0) {
     screen.centeredText(tr(STR_NO_RECENT_BOOKS), screen.theme().bodyText);
     return;
   }
 
   // Transient per-render: points into the recentBooks strings.
   std::vector<fui::ListItem> items;
-  items.reserve(recentBooks.size());
+  items.reserve(static_cast<size_t>(rowCount()));
+  // Control rows name the books they lead to: "1-10" back, "21+" forward.
+  char newerInfo[24];
+  char olderInfo[24];
+  const size_t newerStart = pageOffset >= kPageSize ? pageOffset - kPageSize : 0;
+  snprintf(newerInfo, sizeof(newerInfo), "%u-%u", static_cast<unsigned>(newerStart + 1),
+           static_cast<unsigned>(newerStart + kPageSize));
+  snprintf(olderInfo, sizeof(olderInfo), "%u+", static_cast<unsigned>(pageOffset + kPageSize + 1));
+  const auto addControl = [&items](const char* label, const char* info) {
+    fui::ListItem item;
+    item.label = label;
+    item.subtitle = info;
+    item.icon = listIconFor(UIIcon::Recent, 32);
+    item.actionValue = static_cast<int16_t>(items.size());
+    items.push_back(item);
+  };
+  if (hasNewer()) addControl(tr(STR_RECENT_NEWER), newerInfo);
   for (const auto& book : recentBooks) {
     fui::ListItem item;
     item.label = book.title.c_str();
@@ -391,6 +446,7 @@ void RecentBooksActivity::buildListScreen(UiApp::ScreenType& screen) {
     item.actionValue = static_cast<int16_t>(items.size());
     items.push_back(item);
   }
+  if (hasOlder) addControl(tr(STR_RECENT_OLDER), olderInfo);
 
   fui::ListProps props;
   props.items = items.data();
@@ -404,7 +460,7 @@ void RecentBooksActivity::buildListScreen(UiApp::ScreenType& screen) {
   const fui::Rect listBounds = screen.body();
   const auto rows = configureUiList(props, screen.theme(), listBounds, UiListRowType::WithSubtitle);
   visibleRows = rows > 0 ? rows : 1;
-  topIndex = scrollListBy(topIndex, 0, visibleRows, static_cast<int>(recentBooks.size()));  // clamp to range
+  topIndex = scrollListBy(topIndex, 0, visibleRows, rowCount());  // clamp to range
   props.topIndex = static_cast<uint16_t>(topIndex);
   screen.list(props);
 }

@@ -1,0 +1,173 @@
+{
+  "feature": "today",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "note": "A day is recorded when Today is opened on a later day.",
+  "days_recorded": 32,
+  "tasks_done": 111,
+  "tasks_total": 162,
+  "completion_percent": 68,
+  "days_with_everything_done": 8,
+  "days": [
+    {
+      "date": "2026-08-13",
+      "done": 2,
+      "total": 5
+    },
+    {
+      "date": "2026-08-15",
+      "done": 5,
+      "total": 5
+    },
+    {
+      "date": "2026-08-16",
+      "done": 7,
+      "total": 7
+    },
+    {
+      "date": "2026-08-17",
+      "done": 4,
+      "total": 5
+    },
+    {
+      "date": "2026-08-18",
+      "done": 1,
+      "total": 4
+    },
+    {
+      "date": "2026-08-19",
+      "done": 6,
+      "total": 7
+    },
+    {
+      "date": "2026-08-21",
+      "done": 3,
+      "total": 6
+    },
+    {
+      "date": "2026-08-25",
+      "done": 5,
+      "total": 7
+    },
+    {
+      "date": "2026-08-26",
+      "done": 3,
+      "total": 5
+    },
+    {
+      "date": "2026-08-27",
+      "done": 3,
+      "total": 4
+    },
+    {
+      "date": "2026-08-28",
+      "done": 4,
+      "total": 5
+    },
+    {
+      "date": "2026-08-29",
+      "done": 2,
+      "total": 4
+    },
+    {
+      "date": "2026-08-30",
+      "done": 4,
+      "total": 4
+    },
+    {
+      "date": "2026-09-01",
+      "done": 2,
+      "total": 5
+    },
+    {
+      "date": "2026-09-02",
+      "done": 6,
+      "total": 7
+    },
+    {
+      "date": "2026-09-04",
+      "done": 0,
+      "total": 3
+    },
+    {
+      "date": "2026-09-05",
+      "done": 2,
+      "total": 4
+    },
+    {
+      "date": "2026-09-06",
+      "done": 6,
+      "total": 6
+    },
+    {
+      "date": "2026-09-07",
+      "done": 4,
+      "total": 7
+    },
+    {
+      "date": "2026-09-08",
+      "done": 3,
+      "total": 6
+    },
+    {
+      "date": "2026-09-09",
+      "done": 1,
+      "total": 3
+    },
+    {
+      "date": "2026-09-10",
+      "done": 2,
+      "total": 3
+    },
+    {
+      "date": "2026-09-12",
+      "done": 6,
+      "total": 7
+    },
+    {
+      "date": "2026-09-13",
+      "done": 3,
+      "total": 6
+    },
+    {
+      "date": "2026-09-15",
+      "done": 3,
+      "total": 5
+    },
+    {
+      "date": "2026-09-16",
+      "done": 2,
+      "total": 5
+    },
+    {
+      "date": "2026-09-17",
+      "done": 1,
+      "total": 3
+    },
+    {
+      "date": "2026-09-19",
+      "done": 7,
+      "total": 7
+    },
+    {
+      "date": "2026-09-21",
+      "done": 4,
+      "total": 4
+    },
+    {
+      "date": "2026-09-22",
+      "done": 1,
+      "total": 4
+    },
+    {
+      "date": "2026-09-25",
+      "done": 5,
+      "total": 5
+    },
+    {
+      "date": "2026-09-26",
+      "done": 4,
+      "total": 4
+    }
+  ]
+}

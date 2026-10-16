@@ -5,7 +5,7 @@
 #include "ReadingStatsUtils.h"
 
 // Cumulative reading statistics across all books, persisted to
-// /.crosspoint/global_stats.bin.
+// /.pocketdeck-os/global_stats.bin.
 struct GlobalReadingStats {
   uint32_t totalSessions = 0;        // Total book-open events across all books
   uint32_t totalReadingSeconds = 0;  // Accumulated reading time across all books
@@ -21,7 +21,7 @@ struct GlobalReadingStats {
   static constexpr size_t CURRENT_FILE_SIZE = 159;
   static constexpr size_t MIN_SUPPORTED_FILE_SIZE = 13;
 
-  // Loads stats from /.crosspoint/global_stats.bin. Returns default-constructed
+  // Loads stats from /.pocketdeck-os/global_stats.bin. Returns default-constructed
   // stats if the file is missing or the version byte does not match.
   static GlobalReadingStats load();
 
@@ -29,7 +29,7 @@ struct GlobalReadingStats {
   static bool hasSyncedStats();
 
   // Loads this device's local stats plus one synced stats file per other device
-  // from /.crosspoint/synced_stats/. A stale file matching this device's MAC is
+  // from /.pocketdeck-os/synced_stats/. A stale file matching this device's MAC is
   // skipped to avoid double counting.
   static GlobalReadingStats loadAggregated();
 
@@ -37,10 +37,10 @@ struct GlobalReadingStats {
   // when the local stats may include in-memory changes that are not saved yet.
   static GlobalReadingStats loadAggregated(const GlobalReadingStats& localStats);
 
-  // Saves stats to /.crosspoint/global_stats.bin.
+  // Saves stats to /.pocketdeck-os/global_stats.bin.
   void save() const;
 
-  // Replaces /.crosspoint/global_stats.bin with a fresh empty file without
+  // Replaces /.pocketdeck-os/global_stats.bin with a fresh empty file without
   // rotating or deleting any backup files.
   static bool resetLocal();
 

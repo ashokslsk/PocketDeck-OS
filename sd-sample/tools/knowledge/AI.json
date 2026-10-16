@@ -1,0 +1,21 @@
+{
+  "topic": "AI",
+  "cards": [
+    {
+      "question": "What is overfitting, and how do you prevent it?",
+      "answer": "A model **overfits** when it memorises the training data instead of learning patterns that generalise. It scores well on data it has seen and poorly on new data.\n\n# Warning signs\n- Training accuracy keeps rising while validation accuracy stalls or falls.\n- The model is very large compared with the amount of data.\n\n# Ways to prevent it\n1. **More data**, or data augmentation such as flipped or cropped images.\n2. **A simpler model** with fewer parameters.\n3. **Regularisation**, for example L2 weight decay, which penalises large weights.\n4. **Dropout**, which randomly disables neurons during training.\n5. **Early stopping**: stop training when validation loss stops improving.\n6. **Cross-validation**, to check results on several splits of the data.\n\n# The opposite problem\n**Underfitting** means the model is too simple to capture the pattern. It does poorly on both training and validation data.\n\nThe goal is the point in between: the lowest error on data the model has never seen."
+    },
+    {
+      "question": "What are precision and recall?",
+      "answer": "Both measure a classifier's positive predictions, from different angles.\n\n- **Precision:** of the items the model flagged, how many were actually positive?\n- **Recall:** of the items that were actually positive, how many did the model find?\n- **F1 score:** the harmonic mean of the two, useful when you need one number.\n\n# Choosing between them\n- A spam filter should favour **precision**: flagging a real email as spam is costly.\n- A disease screening test should favour **recall**: missing a sick patient is costly.\n\nMoving the decision threshold trades one for the other."
+    },
+    {
+      "question": "Why split data into training, validation and test sets?",
+      "answer": "1. **Training set:** fits the model's parameters.\n2. **Validation set:** used to tune hyperparameters and choose between models.\n3. **Test set:** kept untouched until the end, for an honest estimate of real-world performance.\n\nIf you tune on the test set, its score stops being an honest estimate. A common split is 70/15/15, or cross-validation when data is scarce."
+    },
+    {
+      "question": "What is an embedding?",
+      "answer": "An **embedding** maps something such as a word, sentence, image or product to a list of numbers (a vector).\n\n- Similar items end up **close together** in that space.\n- Closeness is usually measured with **cosine similarity**.\n\n# Where they are used\n- Semantic search: find documents that mean the same thing, not just share words.\n- Recommendations: suggest items near the ones you liked.\n- Retrieval for language models: find relevant passages to include in a prompt."
+    }
+  ]
+}

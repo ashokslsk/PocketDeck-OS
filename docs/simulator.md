@@ -59,6 +59,6 @@ The `H` mapping is active only in `x4-pro-simulator`.
 
 ## Cache Note
 
-On first open of an EPUB, an **Indexing...** popup appears while the section cache is built in `.crosspoint/`.
+On first open of an EPUB, an **Indexing...** popup appears while the section cache is built in `.pocketdeck-os/`.
 
-If rendering looks stale after a code change, delete `./fs_/.crosspoint/` to clear simulator caches.
+If rendering looks stale after a code change, delete `./fs_/.pocketdeck-os/` to clear simulator caches.

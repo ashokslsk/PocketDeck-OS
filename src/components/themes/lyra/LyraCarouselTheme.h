@@ -44,6 +44,18 @@ class LyraCarouselTheme : public LyraTheme {
   static constexpr int kSideCoverW = 200;
   static constexpr int kSideCoverH = LyraCarouselMetrics::values.homeCoverHeight - 210;  // 390
 
+  // PocketDeck-OS "Carousel book stats": the half-height carousel gets its own
+  // exact-size thumbnails, so covers are resampled properly instead of being
+  // shrunk at draw time. These return the sizes for the current setting.
+  static constexpr int kStatsCenterThumbW = 144;
+  static constexpr int kStatsCenterThumbH = 233;
+  static constexpr int kStatsSideCoverW = 104;
+  static constexpr int kStatsSideCoverH = 203;
+  static int centerThumbW();
+  static int centerThumbH();
+  static int sideThumbW();
+  static int sideThumbH();
+
   static void setPreRenderIndex(int idx);
   void drawRecentBookCover(GfxRenderer& renderer, Rect rect, const std::vector<RecentBook>& recentBooks,
                            int selectorIndex, bool& coverRendered, bool& coverBufferStored, bool& bufferRestored,

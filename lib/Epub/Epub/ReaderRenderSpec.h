@@ -27,6 +27,9 @@ struct ReaderRenderSpec {
   bool guideReadingEnabled = false;
   uint8_t wordSpacing = 0;
   EpubRenderMode renderMode = EpubRenderMode::CrossInkDefault;
+  // Nonzero while a complex-script shaper (Kannada) is active for the book.
+  // Stored in the top bit of the cached render-mode byte.
+  uint8_t scriptShaping = 0;
 };
 
 inline uint32_t readerRenderSpecSignature(const ReaderRenderSpec& spec) {
@@ -49,5 +52,6 @@ inline uint32_t readerRenderSpecSignature(const ReaderRenderSpec& spec) {
   mix(spec.guideReadingEnabled);
   mix(spec.wordSpacing);
   mix(static_cast<uint8_t>(spec.renderMode));
+  mix(spec.scriptShaping);
   return signature == 0 ? 1 : signature;
 }

@@ -22,6 +22,7 @@
 #include "Epub/css/CssParser.h"
 #include "Epub/css/CssStyle.h"
 #include "Epub/tables/CompactTableLayout.h"
+#include "MathMlText.h"
 
 class GfxRenderer;
 class Epub;
@@ -72,6 +73,8 @@ class ChapterHtmlSlimParser {
   int rubyStartWordIndex = -1;
   bool collectingRubyText = false;
   std::string rubyTextBuffer;
+  // MathML: a <math> element is collected and laid out as one line of text.
+  MathMlText math_;
   std::unique_ptr<Page> currentPage = nullptr;
   int16_t currentPageNextY = 0;
   uint32_t currentPageVisibleOffset = 0;

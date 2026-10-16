@@ -1,0 +1,21 @@
+{
+  "topic": "SQL",
+  "cards": [
+    {
+      "question": "In what order does SQL evaluate a SELECT statement?",
+      "answer": "A query is written in one order but evaluated in another. The logical order is:\n\n1. **FROM** and **JOIN**: pick the tables and combine rows.\n2. **WHERE**: filter individual rows.\n3. **GROUP BY**: form groups.\n4. **HAVING**: filter whole groups.\n5. **SELECT**: compute output columns and aliases.\n6. **DISTINCT**: remove duplicates.\n7. **ORDER BY**: sort the result.\n8. **LIMIT / OFFSET**: keep a slice.\n\n# Why it matters\n- A column alias defined in SELECT cannot be used in WHERE, because WHERE runs first.\n- Aggregates such as `COUNT(*)` cannot appear in WHERE; use HAVING instead.\n- ORDER BY can use SELECT aliases, because it runs later.\n\nKeeping this order in mind explains most \"column does not exist\" errors."
+    },
+    {
+      "question": "What is the difference between WHERE and HAVING?",
+      "answer": "- **WHERE** filters **rows** before any grouping happens.\n- **HAVING** filters **groups** after aggregation.\n\nExample: departments with more than five people earning over 50,000:\n\n`SELECT dept, COUNT(*) FROM staff WHERE salary > 50000 GROUP BY dept HAVING COUNT(*) > 5`\n\nWHERE removes low salaries first; HAVING then drops small departments. Filtering early with WHERE is also faster, because fewer rows reach the grouping step."
+    },
+    {
+      "question": "How do the different JOIN types behave?",
+      "answer": "# INNER JOIN\nOnly rows that match on both sides. The most common join.\n\n# LEFT JOIN\nEvery row from the left table. Where the right table has no match, its columns are **NULL**. Useful for \"customers and their orders, including customers with none\".\n\n# RIGHT JOIN\nThe mirror image of LEFT JOIN. Most people rewrite it as a LEFT JOIN for readability.\n\n# FULL OUTER JOIN\nEvery row from both tables, with NULLs wherever a side has no match.\n\n# CROSS JOIN\nEvery combination of rows. A 1,000-row table crossed with another 1,000-row table produces a million rows, so use it deliberately.\n\n# Tip\nTo find rows with **no** match, LEFT JOIN and then filter `WHERE right_table.id IS NULL`."
+    },
+    {
+      "question": "Why is NULL not a normal value?",
+      "answer": "NULL means \"unknown\", so comparisons with it are also unknown.\n\n- `NULL = NULL` is not true.\n- Test with `IS NULL` and `IS NOT NULL`.\n- `COUNT(column)` skips NULLs, while `COUNT(*)` counts every row.\n- `COALESCE(a, b, c)` returns the first argument that is not NULL, which is handy for defaults."
+    }
+  ]
+}

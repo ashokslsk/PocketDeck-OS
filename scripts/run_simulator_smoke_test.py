@@ -35,6 +35,7 @@ THEMES = {
     "lyra_carousel": 4,
     "carousel": 4,
     "dashboard": 6,
+    "pocketdeck": 7,
 }
 
 

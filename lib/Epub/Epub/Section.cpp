@@ -27,7 +27,7 @@ constexpr uint32_t SECTION_CACHE_MAGIC = 0x535843FF;  // bytes: 0xFF, "CXS"
 // v75: HTML hidden attributes suppress content in all reading modes.
 // v76: Paragraphs without source CSS indentation no longer receive a synthetic indent.
 // v77: Ordered lists, marker suppression, and list-container insets affect page layout.
-constexpr uint8_t SECTION_FILE_VERSION = 77;
+constexpr uint8_t SECTION_FILE_VERSION = 79;  // 79: MathML laid out as linear text (78: Lexend->Bitter fallback)
 // Suspended incremental build: valid pages plus LUTs and a parse-watermark trailer.
 // Change this with layout or payload changes so stale partial pages cannot resume
 // under a different layout contract.
@@ -193,6 +193,13 @@ void Section::releaseBuildFile() {
   }
 }
 
+namespace {
+// The cached render-mode byte also records whether a script shaper was active.
+uint8_t renderModeByte(const ReaderRenderSpec& spec) {
+  return static_cast<uint8_t>(static_cast<uint8_t>(spec.renderMode) | (spec.scriptShaping ? 0x80 : 0));
+}
+}  // namespace
+
 bool Section::writeSectionFileHeader(const ReaderRenderSpec& spec) {
   if (!file) {
     LOG_DBG("SCT", "File not open for writing header");
@@ -221,8 +228,7 @@ bool Section::writeSectionFileHeader(const ReaderRenderSpec& spec) {
          serialization::tryWritePod(file, spec.imageRendering) &&
          serialization::tryWritePod(file, spec.focusReadingEnabled) &&
          serialization::tryWritePod(file, spec.guideReadingEnabled) &&
-         serialization::tryWritePod(file, spec.wordSpacing) &&
-         serialization::tryWritePod(file, static_cast<uint8_t>(spec.renderMode)) &&
+         serialization::tryWritePod(file, spec.wordSpacing) && serialization::tryWritePod(file, renderModeByte(spec)) &&
          serialization::tryWritePod(file,
                                     pageCount) &&  // Placeholder for page count (will be initially 0, patched later)
          serialization::tryWritePod(file, static_cast<uint32_t>(0)) &&  // Protected image units (patched later)
@@ -310,7 +316,7 @@ bool Section::loadSectionFile(const ReaderRenderSpec& spec) {
         spec.hyphenationEnabled != fileHyphenationEnabled || spec.embeddedStyle != fileEmbeddedStyle ||
         spec.imageRendering != fileImageRendering || spec.focusReadingEnabled != fileFocusReadingEnabled ||
         spec.guideReadingEnabled != fileGuideReadingEnabled || spec.wordSpacing != fileWordSpacing ||
-        static_cast<uint8_t>(spec.renderMode) != fileRenderMode) {
+        renderModeByte(spec) != fileRenderMode) {
       file.close();
       LOG_ERR("SCT", "Deserialization failed: Parameters do not match");
       clearCache();

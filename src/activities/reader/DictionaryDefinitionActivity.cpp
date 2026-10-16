@@ -19,6 +19,7 @@
 
 #include "../settings/DictionarySelectActivity.h"
 #include "CrossPointSettings.h"
+#include "KannadaReading.h"
 #include "MappedInputManager.h"
 #include "Memory.h"
 #include "SdCardFontSystem.h"
@@ -364,8 +365,27 @@ void DictionaryDefinitionActivity::onExit() {
     // explicitly so that path does not retain dictionary-only glyph data.
     renderer.releaseSdCardFontForLowMemory(definitionFontId_);
   }
+  if (kannadaDictionary_) {
+    kannadareading::endDictionary(renderer);
+    kannadaDictionary_ = false;
+  }
   sdFontSystem.restoreReaderFont(renderer);
   Activity::onExit();
+}
+
+void DictionaryDefinitionActivity::syncKannadaDictionary() {
+  if (foundLocation.folderPath != kannadaCheckedPath_) {
+    kannadaCheckedPath_ = foundLocation.folderPath;
+    const DictInfo info = Dictionary::readInfo(foundLocation.folderPath.c_str());
+    const bool kannada = strstr(info.lang, "kn") != nullptr || strstr(info.bookname, "Kannada") != nullptr;
+    if (kannada && !kannadaDictionary_) {
+      kannadaDictionary_ = kannadareading::beginDictionary();
+    } else if (!kannada && kannadaDictionary_) {
+      kannadareading::endDictionary(renderer);
+      kannadaDictionary_ = false;
+    }
+  }
+  if (kannadaDictionary_) kannadareading::dictionaryFont(getDefinitionFontId());
 }
 
 int DictionaryDefinitionActivity::getDefinitionFontId(bool) const {
@@ -540,6 +560,7 @@ void DictionaryDefinitionActivity::wrapText() {
 
   // Match the folder-name label shown by DictionarySelectActivity.
   dictionaryName_ = dictionaryNameFromPath(foundLocation.folderPath);
+  syncKannadaDictionary();
 
   const auto orient = renderer.getOrientation();
   const auto metrics = UITheme::getInstance().getMetrics();

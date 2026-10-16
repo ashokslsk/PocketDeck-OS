@@ -7,9 +7,10 @@
 #include "../Activity.h"
 #include "BookReadingStats.h"
 #include "GlobalReadingStats.h"
+#include "LibraryStats.h"
 
 class BookStatsActivity final : public Activity {
-  enum class Page : uint8_t { PerBook, ThisDevice, AllDevices, EditDates };
+  enum class Page : uint8_t { PerBook, ThisDevice, AllDevices, Library, EditDates };
 
   std::string bookTitle;
   std::string bookCachePath;
@@ -17,6 +18,7 @@ class BookStatsActivity final : public Activity {
   GlobalReadingStats globalStats;
   GlobalReadingStats allDevicesStats;
   bool showAllDevicesStats = false;
+  LibrarySummary library;  // scanned the first time the Library page opens
   bool returnToHomeOnExit = false;
   float progressPercent = -1.0f;
   bool hasEstimatedTimeLeft = false;

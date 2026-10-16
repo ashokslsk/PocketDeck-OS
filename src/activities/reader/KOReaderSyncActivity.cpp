@@ -121,7 +121,7 @@ void wifiOff() {
 
 void KOReaderSyncActivity::ensureEpubLoaded() {
   if (!epub) {
-    epub = std::make_shared<Epub>(epubPath, "/.crosspoint");
+    epub = std::make_shared<Epub>(epubPath, "/.pocketdeck-os");
     epub->setupCacheDir();
     // Load metadata only (no CSS needed for progress mapping, don't rebuild if cache is missing).
     if (!epub->load(false, true, Epub::XLocationLoadMode::Immediate, true)) {

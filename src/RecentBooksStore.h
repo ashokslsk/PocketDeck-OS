@@ -22,16 +22,33 @@ class RecentBooksStore : public PersistableStore<RecentBooksStore> {
  private:
   std::vector<RecentBook> recentBooks;
 
-  static constexpr int MAX_RECENT_BOOKS = 18;
+  // The most recent books stay in RAM (Home, sleep screens, quick lookups);
+  // older ones, up to MAX_TOTAL_BOOKS in all, live one per line in
+  // getHistoryPath() on the SD card and are read only by the Recent Books list.
+ public:
+  static constexpr int MAX_RECENT_BOOKS = 10;
+  static constexpr int MAX_TOTAL_BOOKS = 100;
+  static constexpr int MAX_HISTORY_BOOKS = MAX_TOTAL_BOOKS - MAX_RECENT_BOOKS;
+
+ private:
+  // Streams the history file into a new copy: `prepend` (if any) first, the
+  // entry for `dropPath` left out, the entry for `renameFrom` repointed via
+  // `renameTo`, and (if `popFirst` is set) the first remaining entry moved out
+  // into it. Returns true when dropPath / renameFrom was found or popFirst filled.
+  bool rewriteHistory(const RecentBook* prepend, const std::string& dropPath, RecentBook* popFirst,
+                      const std::string& renameFrom = std::string(), const RecentBook* renameTo = nullptr);
 
   RecentBooksStore() = default;
   ~RecentBooksStore() = default;
   bool loadFromBinaryFile();
+  // Entries past MAX_RECENT_BOOKS found in recent.json (older builds kept
+  // more in RAM); moved to the SD history after loading.
+  std::vector<RecentBook> overflow_;
 
   friend class PersistableStore<RecentBooksStore>;
 
  public:
-  static const char* getFilePath() { return "/.crosspoint/recent.json"; }
+  static const char* getFilePath() { return "/.pocketdeck-os/recent.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc);
   bool saveToFile() const;
@@ -66,6 +83,14 @@ class RecentBooksStore : public PersistableStore<RecentBooksStore> {
   // Remove entries whose backing file is no longer on the SD card.
   // Returns true if any entry was removed. Does not persist — caller decides.
   bool pruneMissing();
+
+  static const char* getHistoryPath() { return "/.pocketdeck-os/recent_more.txt"; }
+
+  // One page of the full list, newest first: entries [offset, offset+count)
+  // across the RAM entries and then the SD history. Returns true when more
+  // entries follow the page. Allocates only the page; covers of history
+  // entries are kept only when `keepCovers` is set.
+  bool loadPage(std::vector<RecentBook>& out, size_t offset, size_t count, bool keepCovers = false) const;
 
   // Get the list of recent books (most recent first)
   const std::vector<RecentBook>& getBooks() const {

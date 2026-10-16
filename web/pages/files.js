@@ -3,7 +3,7 @@ const currentPath = decodeURIComponent(new URLSearchParams(window.location.searc
 
 if (currentPath !== "/") {
   const leaf = currentPath.split("/").filter(Boolean).pop();
-  if (leaf) document.title = leaf + " - Files - CrossInk Reader";
+  if (leaf) document.title = leaf + " - Files - PocketDeck-OS";
 }
 
 // Network status monitoring
@@ -1339,6 +1339,19 @@ function clearImagePicker() {
       // Don't let a drop disrupt an in-flight transfer.
       if (uploadBusy()) return;
 
+      // A dropped folder goes through the folder upload (subfolders kept).
+      // Entries must be read now: the drop data is gone after this handler.
+      const items = e.dataTransfer && e.dataTransfer.items;
+      const entries = items
+        ? Array.from(items)
+            .map((item) => (item.webkitGetAsEntry ? item.webkitGetAsEntry() : null))
+            .filter(Boolean)
+        : [];
+      if (entries.some((entry) => entry.isDirectory)) {
+        uploadDroppedEntries(entries);
+        return;
+      }
+
       const dropped = e.dataTransfer && e.dataTransfer.files;
       if (!dropped || dropped.length === 0) return;
 
@@ -1966,7 +1979,7 @@ function exportLogToFile(filename = null, isBatch = false) {
   }
   // Extract text from log entries
   const entries = logContainer.querySelectorAll(".log-entry");
-  let logText = `CrossInk Reader ${crosspointVersion} - EPUB Conversion Log\n`;
+  let logText = `PocketDeck-OS ${crosspointVersion} - EPUB Conversion Log\n`;
   logText += `Generated: ${new Date().toLocaleString()}\n`;
   logText += `${"=".repeat(60)}\n\n`;
 
@@ -4900,7 +4913,7 @@ function getWsUrl() {
 }
 
 // Upload file via WebSocket (faster, binary protocol)
-function uploadFileWebSocket(file, onProgress, onComplete, onError) {
+function uploadFileWebSocket(file, onProgress, onComplete, onError, destPath = currentPath) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(getWsUrl());
     currentUploadWs = ws;
@@ -4913,7 +4926,7 @@ function uploadFileWebSocket(file, onProgress, onComplete, onError) {
     ws.onopen = function () {
       console.log("[WS] Connected, starting upload:", file.name);
       // Send start message: START:<filename>:<size>:<path>
-      ws.send(`START:${file.name}:${file.size}:${currentPath}`);
+      ws.send(`START:${file.name}:${file.size}:${destPath}`);
     };
 
     ws.onmessage = async function (event) {
@@ -5009,14 +5022,14 @@ function uploadFileWebSocket(file, onProgress, onComplete, onError) {
 }
 
 // Upload file via HTTP (fallback method)
-function uploadFileHTTP(file, onProgress, onComplete, onError) {
+function uploadFileHTTP(file, onProgress, onComplete, onError, destPath = currentPath) {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     formData.append("file", file);
 
     const xhr = new XMLHttpRequest();
     currentUploadXhr = xhr;
-    xhr.open("POST", "/upload?path=" + encodeURIComponent(currentPath), true);
+    xhr.open("POST", "/upload?path=" + encodeURIComponent(destPath), true);
 
     xhr.upload.onprogress = function (e) {
       if (e.lengthComputable && onProgress) {
@@ -5630,3 +5643,178 @@ function confirmMove() {
   xhr.send(formData);
 }
 hydrate();
+
+// ---------------------------------------------------------------------------
+// Folder upload: recreates a picked or dropped folder, with its subfolders,
+// inside the current folder, then uploads every file into its place, one at a
+// time (the same transfer the single-file upload uses).
+// ---------------------------------------------------------------------------
+
+// The device's own clean-up for names (StringUtils::sanitizeFilename): characters
+// it cannot store become "_", leading and trailing spaces and dots are dropped.
+function deviceSafeName(name) {
+  const cleaned = name
+    .replace(/["*:<>?\\/|\u0000-\u001f\u007f]/g, "_")
+    .replace(/^[ .]+/, "")
+    .replace(/[ .]+$/, "");
+  return cleaned || "book";
+}
+
+function joinDevicePath(parent, child) {
+  return (parent.endsWith("/") ? parent : parent + "/") + child;
+}
+
+// Device folder for a relative path's directory part ("A/B/c.epub" -> current/A/B).
+function deviceFolderFor(relPath) {
+  const parts = relPath.split("/").filter(Boolean);
+  parts.pop();
+  return parts.length ? joinDevicePath(currentPath, parts.map(deviceSafeName).join("/")) : currentPath;
+}
+
+function pickFolderToUpload() {
+  if (isUploadInProgress) return;
+  const input = document.getElementById("folderInput");
+  input.value = "";
+  input.click();
+}
+
+function uploadPickedFolder() {
+  const input = document.getElementById("folderInput");
+  const items = Array.from(input.files || []).map((file) => ({ file, rel: file.webkitRelativePath || file.name }));
+  uploadFolderItems(items);
+}
+
+// Walks dropped FileSystemEntry objects into {file, rel} pairs.
+async function uploadDroppedEntries(entries) {
+  const items = [];
+  const readAll = (reader) =>
+    new Promise((resolve, reject) => {
+      const all = [];
+      const next = () =>
+        reader.readEntries((batch) => {
+          if (batch.length === 0) return resolve(all);
+          all.push(...batch);
+          next();
+        }, reject);
+      next();
+    });
+  const walk = async (entry, prefix) => {
+    if (entry.isFile) {
+      const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+      items.push({ file, rel: prefix + entry.name });
+    } else if (entry.isDirectory) {
+      for (const child of await readAll(entry.createReader())) {
+        await walk(child, prefix + entry.name + "/");
+      }
+    }
+  };
+  try {
+    for (const entry of entries) await walk(entry, "");
+  } catch (err) {
+    showNotification("Could not read the dropped folder: " + err.message, "error");
+    return;
+  }
+  uploadFolderItems(items);
+}
+
+async function createDeviceFolder(parent, name) {
+  const body = new URLSearchParams({ name, path: parent });
+  const response = await fetch("/mkdir", { method: "POST", body });
+  if (response.ok) return;
+  const text = await response.text();
+  if (text.includes("already exists")) return;  // merging into an existing folder is fine
+  throw new Error(text || "HTTP " + response.status);
+}
+
+async function uploadFolderItems(items) {
+  if (isUploadInProgress) return;
+  // Hidden files (.DS_Store, ._ resource forks) and hidden folders are skipped.
+  items = items.filter((it) => !it.rel.split("/").some((part) => part.startsWith(".")));
+  if (items.length === 0) {
+    showNotification("No files found in that folder", "error");
+    return;
+  }
+
+  openUploadModal();
+  isUploadInProgress = true;
+  operationCancelled = false;
+  document.getElementById("uploadModalClose").classList.add("disabled");
+  document.getElementById("fileInput").disabled = true;
+  document.getElementById("uploadBtn").disabled = true;
+  const progressContainer = document.getElementById("progress-container");
+  const progressFill = document.getElementById("progress-fill");
+  const progressText = document.getElementById("progress-text");
+  progressContainer.style.display = "block";
+  progressFill.style.backgroundColor = "#27ae60";
+  progressText.style.color = "";
+
+  const finish = () => {
+    isUploadInProgress = false;
+    document.getElementById("uploadModalClose").classList.remove("disabled");
+    document.getElementById("fileInput").disabled = false;
+  };
+
+  // 1. Folders, parents before children.
+  const folders = new Set();
+  for (const it of items) {
+    const parts = it.rel.split("/").filter(Boolean);
+    parts.pop();
+    for (let i = 1; i <= parts.length; i++) folders.add(parts.slice(0, i).join("/"));
+  }
+  const ordered = Array.from(folders).sort((a, b) => a.split("/").length - b.split("/").length);
+  for (let i = 0; i < ordered.length; i++) {
+    if (operationCancelled) break;
+    const parts = ordered[i].split("/");
+    const name = deviceSafeName(parts.pop());
+    const parent = parts.length ? joinDevicePath(currentPath, parts.map(deviceSafeName).join("/")) : currentPath;
+    progressText.textContent = `Creating folder ${ordered[i]} (${i + 1}/${ordered.length})`;
+    try {
+      await createDeviceFolder(parent, name);
+    } catch (err) {
+      progressFill.style.backgroundColor = "#e74c3c";
+      progressText.textContent = `Could not create folder ${ordered[i]}: ${err.message}`;
+      finish();
+      return;
+    }
+  }
+
+  // 2. Files, one at a time; WebSocket first, HTTP if that fails.
+  const failed = [];
+  for (let i = 0; i < items.length && !operationCancelled; i++) {
+    const it = items[i];
+    const dest = deviceFolderFor(it.rel);
+    const label = `${it.rel} (${i + 1}/${items.length})`;
+    const onProgress = (loaded, total) => {
+      const overall = (i + (total ? loaded / total : 1)) / items.length;
+      progressFill.style.width = Math.round(overall * 100) + "%";
+      progressText.textContent = `Uploading ${label} — ${Math.round((total ? loaded / total : 1) * 100)}%`;
+    };
+    progressText.textContent = `Uploading ${label}`;
+    try {
+      await uploadFileWebSocket(it.file, onProgress, null, null, dest);
+    } catch (wsErr) {
+      if (operationCancelled) break;
+      try {
+        await uploadFileHTTP(it.file, onProgress, null, null, dest);
+      } catch (httpErr) {
+        failed.push(it.rel + " (" + httpErr.message + ")");
+      }
+    }
+  }
+
+  if (operationCancelled) {
+    finish();
+    restoreAfterCancel();
+    return;
+  }
+  finish();
+  if (failed.length === 0) {
+    progressFill.style.width = "100%";
+    progressFill.style.backgroundColor = "#4caf50";
+    progressText.textContent = `Folder uploaded: ${items.length} file${items.length === 1 ? "" : "s"}`;
+    setTimeout(() => window.location.reload(), 1200);
+  } else {
+    progressFill.style.backgroundColor = "#e74c3c";
+    progressText.textContent = `${items.length - failed.length}/${items.length} uploaded. Failed: ${failed.join(", ")}`;
+  }
+}

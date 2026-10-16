@@ -1,0 +1,165 @@
+{
+  "feature": "pomodoro",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "focus_sessions_last_90_days": 71,
+  "focus_minutes_last_90_days": 1775,
+  "focus_sessions_last_7_days": 14,
+  "active_days_last_90": 25,
+  "sessions_per_active_day": 2.8,
+  "best_day": "2026-09-09",
+  "best_day_sessions": 5,
+  "usual_first_session_time": "09:52",
+  "days": [
+    {
+      "date": "2026-08-14",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "09:50"
+    },
+    {
+      "date": "2026-08-18",
+      "sessions": 4,
+      "focus_minutes": 100,
+      "first_session": "09:57"
+    },
+    {
+      "date": "2026-08-20",
+      "sessions": 4,
+      "focus_minutes": 100,
+      "first_session": "10:34"
+    },
+    {
+      "date": "2026-08-21",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "09:38"
+    },
+    {
+      "date": "2026-08-24",
+      "sessions": 2,
+      "focus_minutes": 50,
+      "first_session": "10:13"
+    },
+    {
+      "date": "2026-08-26",
+      "sessions": 2,
+      "focus_minutes": 50,
+      "first_session": "09:36"
+    },
+    {
+      "date": "2026-08-28",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "10:25"
+    },
+    {
+      "date": "2026-08-31",
+      "sessions": 2,
+      "focus_minutes": 50,
+      "first_session": "09:52"
+    },
+    {
+      "date": "2026-09-01",
+      "sessions": 4,
+      "focus_minutes": 100,
+      "first_session": "09:27"
+    },
+    {
+      "date": "2026-09-02",
+      "sessions": 2,
+      "focus_minutes": 50,
+      "first_session": "09:36"
+    },
+    {
+      "date": "2026-09-03",
+      "sessions": 1,
+      "focus_minutes": 25,
+      "first_session": "09:34"
+    },
+    {
+      "date": "2026-09-07",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "08:55"
+    },
+    {
+      "date": "2026-09-08",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "09:20"
+    },
+    {
+      "date": "2026-09-09",
+      "sessions": 5,
+      "focus_minutes": 125,
+      "first_session": "10:31"
+    },
+    {
+      "date": "2026-09-10",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "10:25"
+    },
+    {
+      "date": "2026-09-11",
+      "sessions": 1,
+      "focus_minutes": 25,
+      "first_session": "10:24"
+    },
+    {
+      "date": "2026-09-14",
+      "sessions": 2,
+      "focus_minutes": 50,
+      "first_session": "10:44"
+    },
+    {
+      "date": "2026-09-15",
+      "sessions": 4,
+      "focus_minutes": 100,
+      "first_session": "08:50"
+    },
+    {
+      "date": "2026-09-16",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "09:58"
+    },
+    {
+      "date": "2026-09-17",
+      "sessions": 1,
+      "focus_minutes": 25,
+      "first_session": "09:50"
+    },
+    {
+      "date": "2026-09-18",
+      "sessions": 2,
+      "focus_minutes": 50,
+      "first_session": "10:20"
+    },
+    {
+      "date": "2026-09-22",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "10:18"
+    },
+    {
+      "date": "2026-09-24",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "09:31"
+    },
+    {
+      "date": "2026-09-25",
+      "sessions": 5,
+      "focus_minutes": 125,
+      "first_session": "09:28"
+    },
+    {
+      "date": "2026-09-27",
+      "sessions": 3,
+      "focus_minutes": 75,
+      "first_session": "09:25"
+    }
+  ]
+}

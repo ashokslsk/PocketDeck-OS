@@ -1,0 +1,158 @@
+{
+  "feature": "flashcards",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "cards_reviewed_last_90_days": 264,
+  "cards_remembered_last_90_days": 215,
+  "recall_percent": 81,
+  "study_days_last_90": 24,
+  "usual_study_time": "20:16",
+  "decks": [
+    {
+      "deck": "python_basics",
+      "sessions": 8,
+      "reviewed": 105,
+      "remembered": 85,
+      "forgot": 20,
+      "recall_percent": 80
+    },
+    {
+      "deck": "sql_basics",
+      "sessions": 8,
+      "reviewed": 87,
+      "remembered": 69,
+      "forgot": 18,
+      "recall_percent": 79
+    },
+    {
+      "deck": "ai_concepts",
+      "sessions": 8,
+      "reviewed": 72,
+      "remembered": 61,
+      "forgot": 11,
+      "recall_percent": 84
+    }
+  ],
+  "days": [
+    {
+      "date": "2026-08-13",
+      "reviewed": 11,
+      "remembered": 9
+    },
+    {
+      "date": "2026-08-14",
+      "reviewed": 15,
+      "remembered": 11
+    },
+    {
+      "date": "2026-08-16",
+      "reviewed": 6,
+      "remembered": 4
+    },
+    {
+      "date": "2026-08-17",
+      "reviewed": 11,
+      "remembered": 9
+    },
+    {
+      "date": "2026-08-19",
+      "reviewed": 12,
+      "remembered": 9
+    },
+    {
+      "date": "2026-08-22",
+      "reviewed": 5,
+      "remembered": 4
+    },
+    {
+      "date": "2026-08-24",
+      "reviewed": 6,
+      "remembered": 5
+    },
+    {
+      "date": "2026-08-25",
+      "reviewed": 13,
+      "remembered": 9
+    },
+    {
+      "date": "2026-08-28",
+      "reviewed": 8,
+      "remembered": 8
+    },
+    {
+      "date": "2026-08-31",
+      "reviewed": 17,
+      "remembered": 14
+    },
+    {
+      "date": "2026-09-01",
+      "reviewed": 18,
+      "remembered": 13
+    },
+    {
+      "date": "2026-09-03",
+      "reviewed": 10,
+      "remembered": 8
+    },
+    {
+      "date": "2026-09-06",
+      "reviewed": 11,
+      "remembered": 10
+    },
+    {
+      "date": "2026-09-08",
+      "reviewed": 10,
+      "remembered": 7
+    },
+    {
+      "date": "2026-09-09",
+      "reviewed": 6,
+      "remembered": 6
+    },
+    {
+      "date": "2026-09-10",
+      "reviewed": 12,
+      "remembered": 9
+    },
+    {
+      "date": "2026-09-14",
+      "reviewed": 13,
+      "remembered": 10
+    },
+    {
+      "date": "2026-09-15",
+      "reviewed": 15,
+      "remembered": 12
+    },
+    {
+      "date": "2026-09-16",
+      "reviewed": 15,
+      "remembered": 14
+    },
+    {
+      "date": "2026-09-17",
+      "reviewed": 9,
+      "remembered": 8
+    },
+    {
+      "date": "2026-09-22",
+      "reviewed": 20,
+      "remembered": 17
+    },
+    {
+      "date": "2026-09-23",
+      "reviewed": 5,
+      "remembered": 5
+    },
+    {
+      "date": "2026-09-24",
+      "reviewed": 7,
+      "remembered": 7
+    },
+    {
+      "date": "2026-09-26",
+      "reviewed": 9,
+      "remembered": 7
+    }
+  ]
+}

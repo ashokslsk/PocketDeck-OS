@@ -21,6 +21,7 @@
 #include "components/themes/lyra/LyraCarouselTheme.h"
 #include "components/themes/lyra/LyraTheme.h"
 #include "components/themes/minimal/MinimalTheme.h"
+#include "components/themes/pocketdeck/PocketDeckTheme.h"
 #include "components/themes/roundedraff/RoundedRaffTheme.h"
 
 namespace {
@@ -101,6 +102,11 @@ void UITheme::setTheme(CrossPointSettings::UI_THEME type) {
       LOG_DBG("UI", "Using Dashboard theme");
       currentTheme = std::make_unique<DashboardTheme>();
       currentMetrics = &DashboardMetrics::values;
+      break;
+    case CrossPointSettings::UI_THEME::POCKETDECK:
+      LOG_DBG("UI", "Using PocketDeck theme");
+      currentTheme = std::make_unique<PocketDeckTheme>();
+      currentMetrics = &PocketDeckMetrics::values;
       break;
     default:
       LOG_ERR("UI", "Unknown theme %d, falling back to Classic", static_cast<int>(type));

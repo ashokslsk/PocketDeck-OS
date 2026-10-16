@@ -44,6 +44,18 @@ class FileBrowserActivity final : public Activity {
   void renameFile(const std::string& oldPath, const std::string& oldEntry, const std::string& newStem,
                   const std::string& extension);
 
+  // File management (Options sheet). The relocate helpers keep a book's reader
+  // state (progress, stats, bookmarks, clippings, recents) with it.
+  bool relocateFile(const std::string& oldPath, const std::string& newPath);
+  bool relocateDirectory(const std::string& oldDir, const std::string& newDir);
+  void startRenameDirectory(const std::string& fullPath, const std::string& entry);
+  void startMove(const std::string& fullPath, const std::string& entry);
+  void startCopy(const std::string& fullPath, const std::string& entry);
+  void startNewFolder();
+  void showInfo(const std::string& fullPath, const std::string& entry);
+  void reloadAndSelect(const std::string& entry);
+  void showToast(const char* message);
+
   ButtonNavigator buttonNavigator;
 
   size_t selectorIndex = 0;
@@ -58,6 +70,12 @@ class FileBrowserActivity final : public Activity {
   // True when this activity was entered while Confirm was already held; we must swallow the next
   // release so we don't immediately auto-open the first entry.
   bool lockNextConfirmRelease = false;
+  unsigned long enteredAtMs = 0;
+  // File-management feedback ("Moved to books", "Copy cancelled"), drawn over the list.
+  std::string toastMessage;
+  unsigned long toastShownMs = 0;
+  static constexpr unsigned long TOAST_MS = 1800;
+  static constexpr unsigned long CONFIRM_CARRYOVER_MS = 400;
 
   Mode mode = Mode::Books;
 
@@ -107,6 +125,11 @@ class FileBrowserActivity final : public Activity {
   size_t findEntry(const std::string& name);
 
  public:
+  // PickDirectory: label for the "choose this folder" button (default "Select").
+  const char* pickDirectoryLabel = nullptr;
+  // PickDirectory: header title (default "Select receive folder").
+  const char* pickDirectoryTitle = nullptr;
+
   explicit FileBrowserActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string initialPath = "/",
                                Mode mode = Mode::Books);
   void onEnter() override;

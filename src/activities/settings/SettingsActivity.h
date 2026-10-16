@@ -50,6 +50,8 @@ enum class SettingAction {
   KeyboardLayouts,
   DownloadFonts,
   ClockSync,
+  About,
+  WallpaperHelp,
 };
 
 struct SettingInfo {

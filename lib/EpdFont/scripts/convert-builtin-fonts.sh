@@ -228,6 +228,14 @@ python fontconvert.py inter_8_regular 8 \
   ../builtinFonts/source/NotoSansArabic/NotoSansArabic-Regular.ttf \
   --additional-intervals 0x05D0,0x05EA "${ARABIC_INTERVALS[@]}" > ../builtinFonts/inter_8_regular.h
 
+# Tools clock digits - Inter (digits, colon, hyphen, space only)
+for size in 44 30; do
+  python fontconvert.py inter_digits_${size}_regular $size ../builtinFonts/source/Inter/Inter-Regular.ttf \
+    --no-default-intervals --additional-intervals 0x20,0x20 --additional-intervals 0x2D,0x2D \
+    --additional-intervals 0x30,0x3A > ../builtinFonts/inter_digits_${size}_regular.h
+  echo "Generated inter_digits_${size}_regular.h"
+done
+
 echo ""
 echo "Running compression verification..."
 python verify_compression.py ../builtinFonts/

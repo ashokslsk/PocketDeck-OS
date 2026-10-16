@@ -1,0 +1,55 @@
+{
+  "feature": "reading-book",
+  "exported": "2026-09-27 18:59",
+  "generator": "PocketDeck-OS 1.0.0",
+  "pocketdeck_book_data": 1,
+  "path": "/books/Frankenstein - Mary Shelley.epub",
+  "file": "Frankenstein - Mary Shelley.epub",
+  "title": "Frankenstein; or, the modern prometheus",
+  "author": "Mary Wollstonecraft Shelley",
+  "format": "epub",
+  "progress_percent": 0.9,
+  "reading": {
+    "sessions": 0,
+    "time_read_seconds": 20,
+    "time_read": "< 1 min",
+    "pages_turned": 6,
+    "finished": false,
+    "average_seconds_per_page": 2,
+    "time_left_seconds": 738,
+    "started": null,
+    "finished_on": null,
+    "seconds_by_time_of_day": {
+      "morning": 0,
+      "afternoon": 0,
+      "evening": 20,
+      "night": 0
+    },
+    "seconds_by_weekday": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      20
+    ]
+  },
+  "bookmarks": [],
+  "clippings": [],
+  "looked_up_words": [],
+  "restore": {
+    "format": 1,
+    "cache": {
+      "progress.bin": [
+        "02000000030000000000"
+      ],
+      "progress_percent.bin": [
+        "50525045015900"
+      ],
+      "stats_v5.bin": [
+        "050000140000000600000000020003000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000014000000e2020000"
+      ]
+    }
+  }
+}

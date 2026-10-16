@@ -50,11 +50,16 @@ bool formatHeaderDateImpl(char* buf, const size_t len) {
                              dateSeparatorChar());
 #endif
 }
+
+// The top status bar shows "date  time" wherever its clock is on; screen
+// headers then leave out their own right-hand date so it is not shown twice.
+bool topBarShowsDate() { return SETTINGS.shouldShowClockOutsideReader() && halClock.isAvailable(); }
 }  // namespace
 
 bool formatHeaderDateText(char* buffer, const size_t length) { return formatHeaderDateImpl(buffer, length); }
 
 int headerDateReservedWidth(const GfxRenderer& renderer) {
+  if (topBarShowsDate()) return 0;
   char dateBuf[13];
   if (!formatHeaderDateImpl(dateBuf, sizeof(dateBuf))) return 0;
 
@@ -78,6 +83,7 @@ void drawHeaderDateAtLineBottom(const GfxRenderer& renderer, const int pageWidth
 }
 
 void drawHeaderDateAtBaseline(const GfxRenderer& renderer, const int pageWidth, const int baselineY) {
+  if (topBarShowsDate()) return;
   char dateBuf[13];
   if (!formatHeaderDateImpl(dateBuf, sizeof(dateBuf))) return;
 

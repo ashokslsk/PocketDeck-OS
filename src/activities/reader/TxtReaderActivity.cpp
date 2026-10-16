@@ -14,6 +14,7 @@
 #include "CrossPointSettings.h"
 #include "CrossPointState.h"
 #include "GlobalActions.h"
+#include "KannadaReading.h"
 #include "MappedInputManager.h"
 #include "QuickActions.h"
 #include "ReaderUtils.h"
@@ -141,12 +142,25 @@ void TxtReaderActivity::onEnter() {
   if (!skipRecentBookUpdateOnEntry) {
     RECENT_BOOKS.addOrUpdateBook(filePath, fileName, "", coverBmpPath);
   }
+  {
+    // Kannada text files: shape Kannada with the SD card Kannada font.
+    char sample[1024];
+    size_t sampleLen = 0;
+    FsFile f;
+    if (Storage.openFileForRead("TRS", filePath.c_str(), f)) {
+      const int n = f.read(sample, sizeof(sample));
+      sampleLen = n > 0 ? static_cast<size_t>(n) : 0;
+      f.close();
+    }
+    kannadareading::beginBook(renderer, nullptr, fileName.c_str(), sample, sampleLen);
+  }
 
   // Trigger first update
   requestUpdate();
 }
 
 void TxtReaderActivity::onExit() {
+  kannadareading::endBook(renderer);
   mappedInput.setReaderTouchscreenOverride(false);
   Activity::onExit();
 
@@ -251,10 +265,10 @@ void TxtReaderActivity::loop() {
     return;
   }
 
-  // Short press BACK goes directly to home
+  // Short press BACK returns to where the book was opened from
   if (!touch.prev && !touch.next && mappedInput.wasReleased(MappedInputManager::Button::Back) &&
       mappedInput.getHeldTime() < ReaderUtils::GO_HOME_MS) {
-    onGoHome();
+    onGoBackFromReader(txt ? txt->getPath() : std::string());
     return;
   }
 
@@ -619,6 +633,7 @@ void TxtReaderActivity::initializeReader() {
 
   // Store current settings for cache validation
   cachedFontId = SETTINGS.getReaderFontId();
+  kannadareading::useReaderFont(cachedFontId);
   cachedVerticalMargin = SETTINGS.screenMarginVertical;
   cachedHorizontalMargin = SETTINGS.screenMarginHorizontal;
   cachedParagraphAlignment = SETTINGS.paragraphAlignment;
@@ -1057,7 +1072,7 @@ void TxtReaderActivity::savePageIndexCache() const {
 }
 
 bool TxtReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, GfxRenderer& renderer) {
-  Txt txt(filePath, "/.crosspoint");
+  Txt txt(filePath, "/.pocketdeck-os");
   if (!txt.load()) {
     LOG_DBG("SLP", "TXT: failed to load %s", filePath.c_str());
     return false;
@@ -1083,6 +1098,7 @@ bool TxtReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, Gfx
 
   // Compute layout values that match what initializeReader() produces
   const int fontId = SETTINGS.getReaderFontId();
+  kannadareading::useReaderFont(fontId);
   const uint8_t verticalMargin = SETTINGS.screenMarginVertical;
   const uint8_t horizontalMargin = SETTINGS.screenMarginHorizontal;
   const uint8_t paragraphAlignment = SETTINGS.paragraphAlignment;

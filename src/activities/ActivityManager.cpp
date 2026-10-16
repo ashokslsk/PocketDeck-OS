@@ -37,6 +37,7 @@
 #include "reader/ReaderActivity.h"
 #include "settings/OpdsServerListActivity.h"
 #include "settings/SettingsActivity.h"
+#include "tools/ToolsMenuActivity.h"
 #include "util/FrontlightPanelActivity.h"
 #include "util/FullScreenMessageActivity.h"
 #include "util/TwoFingerSwipe.h"
@@ -108,7 +109,7 @@ FrontlightPanelContext buildFrontlightPanelContext(Activity& activity, GfxRender
     context.bookPath = APP_STATE.openEpubPath;
     context.bookTitle = fileNameFromPath(context.bookPath);
     statsTitle = context.bookTitle;
-    cachePath = Epub::cachePathForFilePath(context.bookPath, "/.crosspoint");
+    cachePath = Epub::cachePathForFilePath(context.bookPath, "/.pocketdeck-os");
     bookStats = BookReadingStats::load(cachePath);
     const RecentBook book{context.bookPath, context.bookTitle, {}, {}};
     progress = RecentBookProgress::loadCachedEpubPercent(book);
@@ -683,6 +684,8 @@ void ActivityManager::goToRecentBooks() {
   }
 }
 
+void ActivityManager::goToTools() { replaceActivity(std::make_unique<ToolsMenuActivity>(renderer, mappedInput)); }
+
 void ActivityManager::goToBrowser() {
   const auto& servers = OPDS_STORE.getServers();
   // Skip the server picker when there's only one server configured
@@ -725,11 +728,33 @@ bool ActivityManager::goToOpdsServer(const uint32_t serverIndex, const bool netw
 
 void ActivityManager::goToReader(std::string path, const bool suppressBackRelease, const bool allowFastInitialRefresh,
                                  const bool cleanImageBaseOnEntry) {
+  // Remember where the book was opened from, for Back: a book opened in
+  // Browse Files returns to its folder; Home and Recent Books return Home.
+  // Resuming after sleep, the end-of-book suggestions or another reader keep
+  // the previous origin. The reader saves APP_STATE when it opens.
+  if (currentActivity) {
+    const auto& from = currentActivity->name;
+    if (from == "FileBrowser") {
+      APP_STATE.readerReturnTo = CrossPointState::READER_RETURN_FILE_BROWSER;
+    } else if (from == "Home" || from == "RecentBooks" || from == "RecentBooksGrid") {
+      APP_STATE.readerReturnTo = CrossPointState::READER_RETURN_HOME;
+    }
+  }
   // OPDS credentials are unrelated to local reading and may contain several
   // heap-backed strings. Home reloads them lazily when it becomes active.
   OPDS_STORE.release();
   replaceActivity(std::make_unique<ReaderActivity>(renderer, mappedInput, std::move(path), suppressBackRelease,
                                                    allowFastInitialRefresh, cleanImageBaseOnEntry));
+}
+
+void ActivityManager::goBackFromReader(const std::string& bookPath) {
+  if (APP_STATE.readerReturnTo == CrossPointState::READER_RETURN_FILE_BROWSER && !bookPath.empty()) {
+    // The browser opens the book's folder with the book highlighted; a book
+    // moved on exit (e.g. into /Read/) falls back to its old folder.
+    goToFileBrowser(bookPath);
+    return;
+  }
+  goHome();
 }
 
 void ActivityManager::goToReaderAndRunMenuAction(std::string path, const uint8_t action) {
@@ -773,6 +798,8 @@ void ActivityManager::goHome(HomeMenuItem initialMenuItem, const HalDisplay::Ref
       initialMenuItem = HomeMenuItem::FILE_TRANSFER;
     } else if (activityName == "Settings") {
       initialMenuItem = HomeMenuItem::SETTINGS_MENU;
+    } else if (activityName == "Tools") {
+      initialMenuItem = HomeMenuItem::TOOLS;
     }
   }
   replaceActivity(std::make_unique<HomeActivity>(renderer, mappedInput, initialMenuItem, initialRefreshMode,

@@ -112,7 +112,7 @@ float loadEpubSizeProgressPercentFromCachePath(const std::string& cachePath) {
 }
 
 float loadEpubProgressPercent(const RecentBook& book) {
-  Epub epub(book.path, "/.crosspoint");
+  Epub epub(book.path, "/.pocketdeck-os");
   if (!epub.load(false, true)) {
     return -1.0f;
   }
@@ -134,7 +134,7 @@ float loadEpubProgressPercent(const RecentBook& book) {
 }
 
 float loadXtcProgressPercent(const RecentBook& book) {
-  Xtc xtc(book.path, "/.crosspoint");
+  Xtc xtc(book.path, "/.pocketdeck-os");
   if (!xtc.load()) {
     return -1.0f;
   }
@@ -157,7 +157,7 @@ float loadXtcProgressPercent(const RecentBook& book) {
 }
 
 float loadTxtProgressPercent(const RecentBook& book) {
-  Txt txt(book.path, "/.crosspoint");
+  Txt txt(book.path, "/.pocketdeck-os");
   if (!txt.load()) {
     return -1.0f;
   }
@@ -237,7 +237,7 @@ float RecentBookProgress::loadCachedEpubPercent(const RecentBook& book) {
   if (!FsHelpers::hasEpubExtension(book.path)) {
     return -1.0f;
   }
-  const std::string cachePath = Epub::cachePathForFilePath(book.path, "/.crosspoint");
+  const std::string cachePath = Epub::cachePathForFilePath(book.path, "/.pocketdeck-os");
   const float cachedProgress = loadCachedEpubPercentFromCachePath(cachePath);
   if (cachedProgress >= 0.0f) {
     return cachedProgress;

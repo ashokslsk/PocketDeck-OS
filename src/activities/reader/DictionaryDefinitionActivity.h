@@ -140,6 +140,9 @@ class DictionaryDefinitionActivity final : public Activity {
   bool definitionIsHtml_ = false;
   bool definitionHtmlNeedsPlainFallback_ = false;
   bool definitionReadFailed_ = false;
+  // English-Kannada dictionary: Kannada is shaped by KannadaReading while open.
+  std::string kannadaCheckedPath_;
+  bool kannadaDictionary_ = false;
   // Kept per lookup so a failed SD-font prewarm can use the matching built-in
   // reader font without changing the user's selected font setting.
   int definitionFontId_ = 0;
@@ -200,6 +203,9 @@ class DictionaryDefinitionActivity final : public Activity {
 
   bool enterWordSelectMode();
   void wrapText();
+  // Turns Kannada shaping on or off for the current dictionary and sizes it
+  // for the definition font.
+  void syncKannadaDictionary();
   // Re-parse the definition and lay out ONLY page `page` into layoutLines,
   // discarding other pages as they are produced; also recomputes totalPages.
   void loadPage(int page);

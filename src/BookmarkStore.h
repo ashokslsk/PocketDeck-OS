@@ -69,6 +69,12 @@ class BookmarkStore {
   // Returns true if any bookmark files exist on disk (directory scan, no file parsing).
   static bool hasAnyBookmarks();
 
+  // PocketDeck-OS: bookmark count for a book, read from the file header only
+  // (no bookmark records are loaded). 0 when the book has no bookmark file.
+  static uint16_t countForBook(const std::string& filePath, const std::string& bookType);
+  // Path of the bookmark file for a book (used by the book data export).
+  static std::string storeFilePathFor(const std::string& filePath, const std::string& bookType);
+
   // Delete the bookmark file for a given file path and book type without loading the book.
   // bookType must be "epub", "xtc", or "txt".
   static void deleteForFilePath(const std::string& filePath, const std::string& bookType);
@@ -87,7 +93,7 @@ class BookmarkStore {
   static bool commitRenameMigration(RenameMigration& migration);
   static bool rollbackRenameMigration(RenameMigration& migration);
 
-  // Scan /.crosspoint/bookmarks/ and populate `out` with one entry per book that has bookmarks.
+  // Scan /.pocketdeck-os/bookmarks/ and populate `out` with one entry per book that has bookmarks.
   // Reads only the file header (does not load full bookmark records).
   // Caller should reserve `out` before calling.
   static bool getAllBookmarkedBooks(std::vector<BookmarkedBookEntry>& out);

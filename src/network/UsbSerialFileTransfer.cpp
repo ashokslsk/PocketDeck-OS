@@ -36,8 +36,8 @@ constexpr uint32_t SHORT_TIMEOUT_MS = 1000;
 constexpr uint32_t HEADER_TIMEOUT_MS = 2000;
 constexpr uint32_t CHECKSUM_TIMEOUT_MS = 10000;
 constexpr uint32_t CHUNK_TIMEOUT_MS = 45000;
-constexpr const char* TEMP_UPLOAD_PATH = "/.crosspoint/usb-upload.tmp";
-constexpr const char* INTERNAL_DIR = "/.crosspoint";
+constexpr const char* TEMP_UPLOAD_PATH = "/.pocketdeck-os/usb-upload.tmp";
+constexpr const char* INTERNAL_DIR = "/.pocketdeck-os";
 constexpr const char* HIDDEN_ITEMS[] = {"System Volume Information", "XTCache"};
 
 #ifndef CROSSINK_FIRMWARE_DEVICE_TYPE

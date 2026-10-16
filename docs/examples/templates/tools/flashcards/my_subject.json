@@ -1,0 +1,6 @@
+{
+  "cards": [
+    {"question": "Write the question here", "answer": "Write the answer here. **Bold**, - bullets and 1. numbered lines work."},
+    {"question": "Second question", "answer": "Second answer.\n\nA blank line (\\n\\n) starts a new paragraph."}
+  ]
+}

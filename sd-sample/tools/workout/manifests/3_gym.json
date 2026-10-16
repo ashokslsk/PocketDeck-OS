@@ -1,0 +1,411 @@
+{
+ "title_en": "Physical Workouts",
+ "title_kn": "ವ್ಯಾಯಾಮ",
+ "note": "Warm up first and move with control. Choose a weight you can move with good form for every rep. Stop if you feel pain, dizziness or breathlessness. If you are pregnant, recovering from surgery or have a heart, blood-pressure or other medical condition, check with your doctor first.",
+ "checklist": [
+  "Warm up for 5 minutes",
+  "Gloves",
+  "Belt for heavy lifts",
+  "Wrist straps",
+  "Heart-rate monitor",
+  "Water bottle",
+  "Towel"
+ ],
+ "items": [
+  {
+   "id": "kb_swing",
+   "name_en": "Kettlebell Swing",
+   "name_kn": "",
+   "group": "Kettlebell",
+   "type": "interval",
+   "work": [
+    40,
+    45
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 12,
+   "image": "gym/kb_swing.pbm",
+   "how": [
+    "Feet a little wider than the hips, kettlebell in front.",
+    "Hinge at the hips, hike the bell back between the legs.",
+    "Drive the hips forward to float the bell to chest height; let it fall back into the hinge.",
+    "The power comes from the hips, not the arms."
+   ],
+   "accessories": [
+    "Kettlebell",
+    "Gloves",
+    "Flat floor"
+   ],
+   "caution": "Keep the back flat; stop if the lower back hurts."
+  },
+  {
+   "id": "goblet_squat",
+   "name_en": "Goblet Squat",
+   "name_kn": "",
+   "group": "Kettlebell",
+   "type": "interval",
+   "work": [
+    40,
+    45
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 12,
+   "image": "gym/goblet_squat.pbm",
+   "how": [
+    "Hold the kettlebell by the horns at the chest.",
+    "Sit down between the heels, chest up, knees tracking over the toes.",
+    "Stand by pushing the floor away."
+   ],
+   "accessories": [
+    "Kettlebell"
+   ],
+   "caution": "Go only as deep as you can with a flat back."
+  },
+  {
+   "id": "kb_deadlift",
+   "name_en": "Kettlebell Deadlift",
+   "name_kn": "",
+   "group": "Kettlebell",
+   "type": "interval",
+   "work": [
+    40,
+    45
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 12,
+   "image": "gym/kb_deadlift.pbm",
+   "how": [
+    "Stand with the bell between the feet.",
+    "Hinge, grip the handle with straight arms, back flat.",
+    "Stand tall by driving the hips forward; lower with control."
+   ],
+   "accessories": [
+    "Kettlebell",
+    "Belt (optional)"
+   ],
+   "caution": "Keep the bell close to the body."
+  },
+  {
+   "id": "db_press",
+   "name_en": "Dumbbell Shoulder Press",
+   "name_kn": "",
+   "group": "Dumbbell",
+   "type": "interval",
+   "work": [
+    40,
+    45
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 12,
+   "image": "gym/db_press.pbm",
+   "how": [
+    "Stand or sit tall with the dumbbells at shoulder height.",
+    "Press up until the arms are straight, without arching the back.",
+    "Lower slowly to the shoulders."
+   ],
+   "accessories": [
+    "Pair of dumbbells",
+    "Wrist straps (optional)"
+   ],
+   "caution": "Brace the belly; reduce the weight if the back arches."
+  },
+  {
+   "id": "db_row",
+   "name_en": "Dumbbell Row",
+   "name_kn": "",
+   "group": "Dumbbell",
+   "type": "interval",
+   "work": [
+    40,
+    45
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 12,
+   "image": "gym/db_row.pbm",
+   "how": [
+    "Hinge forward with a flat back, one hand on a bench or knee.",
+    "Pull the dumbbell toward the hip, elbow close to the body.",
+    "Lower slowly; complete all reps, then switch arms."
+   ],
+   "accessories": [
+    "Dumbbell",
+    "Bench"
+   ],
+   "caution": "Do not twist the torso."
+  },
+  {
+   "id": "db_curl",
+   "name_en": "Dumbbell Biceps Curl",
+   "name_kn": "",
+   "group": "Dumbbell",
+   "type": "interval",
+   "work": [
+    40,
+    45
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 12,
+   "image": "gym/db_curl.pbm",
+   "how": [
+    "Stand tall with dumbbells by the sides, palms forward.",
+    "Curl up without swinging, elbows at the sides.",
+    "Lower slowly to full arm length."
+   ],
+   "accessories": [
+    "Pair of dumbbells"
+   ],
+   "caution": "Keep the wrists straight."
+  },
+  {
+   "id": "db_lunge",
+   "name_en": "Dumbbell Lunge",
+   "name_kn": "",
+   "group": "Dumbbell",
+   "type": "interval",
+   "work": [
+    40,
+    45
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 12,
+   "image": "gym/db_lunge.pbm",
+   "how": [
+    "Hold dumbbells by the sides and step forward.",
+    "Lower until both knees are bent about 90 degrees, back knee near the floor.",
+    "Push back to standing; alternate legs."
+   ],
+   "accessories": [
+    "Pair of dumbbells",
+    "Clear floor space"
+   ],
+   "caution": "Keep the front knee over the ankle."
+  },
+  {
+   "id": "ab_rollout",
+   "name_en": "Ab Wheel Rollout, Kneeling",
+   "name_kn": "",
+   "group": "Ab wheel",
+   "type": "interval",
+   "work": [
+    30,
+    40
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 10,
+   "image": "gym/ab_rollout.pbm",
+   "how": [
+    "Kneel on a mat and hold the wheel under the shoulders.",
+    "Brace the belly and tuck the hips slightly.",
+    "Roll forward slowly, as far as you can keep the back flat.",
+    "Pull back with the abdominals, not the arms."
+   ],
+   "accessories": [
+    "Ab wheel",
+    "Mat or knee pad"
+   ],
+   "caution": "Stop short before the lower back sags; avoid with a back injury."
+  },
+  {
+   "id": "ab_standing",
+   "name_en": "Ab Wheel Rollout, Standing (advanced)",
+   "name_kn": "",
+   "group": "Ab wheel",
+   "type": "interval",
+   "work": [
+    30,
+    40
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    2,
+    3
+   ],
+   "reps": 6,
+   "image": "gym/ab_standing.pbm",
+   "how": [
+    "Stand with feet hip-width apart and the wheel on the floor in front.",
+    "Fold down to the wheel and roll out until the body is long and straight.",
+    "Roll back to the fold using the core; keep the hips from dropping.",
+    "Master kneeling rollouts first."
+   ],
+   "accessories": [
+    "Ab wheel",
+    "Non-slip floor"
+   ],
+   "caution": "Only when kneeling rollouts are easy; stop if the lower back aches."
+  },
+  {
+   "id": "ab_oblique",
+   "name_en": "Ab Wheel Oblique Rollout",
+   "name_kn": "",
+   "group": "Ab wheel",
+   "type": "interval",
+   "work": [
+    30,
+    40
+   ],
+   "rest_seconds": [
+    20,
+    15
+   ],
+   "sets": [
+    3,
+    4
+   ],
+   "reps": 8,
+   "image": "gym/ab_rollout.pbm",
+   "how": [
+    "Kneel and hold the wheel slightly to the right.",
+    "Roll forward and out at an angle to the right, keeping the hips square.",
+    "Return, then roll to the left. Each side is one rep."
+   ],
+   "accessories": [
+    "Ab wheel",
+    "Mat or knee pad"
+   ],
+   "caution": "Keep the range short until you are strong at the side."
+  },
+  {
+   "id": "ab_plank",
+   "name_en": "Ab Wheel Plank Hold",
+   "name_kn": "",
+   "group": "Ab wheel",
+   "type": "hold",
+   "seconds": [
+    20,
+    60
+   ],
+   "sides": 1,
+   "image": "gym/ab_plank.pbm",
+   "how": [
+    "Kneel or come to a full plank with the hands on the wheel under the shoulders.",
+    "Hold the wheel still, belly tight, back flat, breathing steadily."
+   ],
+   "accessories": [
+    "Ab wheel",
+    "Mat"
+   ],
+   "caution": "Lower to the knees if the back sags."
+  },
+  {
+   "id": "bike_hiit",
+   "name_en": "Spin Bike Intervals (10 kg flywheel)",
+   "name_kn": "",
+   "group": "Spin bike",
+   "type": "interval",
+   "work": [
+    30,
+    40
+   ],
+   "rest_seconds": [
+    60,
+    20
+   ],
+   "sets": [
+    6,
+    10
+   ],
+   "reps": 0,
+   "image": "gym/bike.pbm",
+   "how": [
+    "Set the saddle so the knee is slightly bent at the bottom of the stroke; handlebar at saddle height or a little higher.",
+    "Warm up for 3 minutes with light resistance.",
+    "Work: turn the resistance knob up until it feels hard, and pedal strongly for the work time.",
+    "Rest: turn the resistance down and pedal easily until the next interval.",
+    "The heavy 10 kg flywheel keeps spinning: always slow it with the brake or resistance knob, never by stopping your legs suddenly.",
+    "Cool down with 3 minutes of easy pedalling."
+   ],
+   "accessories": [
+    "Spin bike (10 kg flywheel)",
+    "Cycling shoes or firm trainers",
+    "Heart-rate monitor",
+    "Water bottle",
+    "Towel"
+   ],
+   "caution": "Build up gradually; stop if you feel chest pain or faintness."
+  },
+  {
+   "id": "bike_steady",
+   "name_en": "Spin Bike Steady Ride (10 kg flywheel)",
+   "name_kn": "",
+   "group": "Spin bike",
+   "type": "hold",
+   "seconds": [
+    900,
+    1800
+   ],
+   "sides": 1,
+   "image": "gym/bike.pbm",
+   "how": [
+    "Set a moderate resistance and ride at a pace where you can still talk in short sentences.",
+    "Keep a smooth, steady cadence (about 70-90 turns a minute) and relaxed shoulders.",
+    "Use the resistance knob or brake to slow the flywheel at the end."
+   ],
+   "accessories": [
+    "Spin bike (10 kg flywheel)",
+    "Water bottle",
+    "Towel"
+   ],
+   "caution": "Stop if you feel chest pain, faintness or sharp knee pain."
+  }
+ ]
+}

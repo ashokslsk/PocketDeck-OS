@@ -8,11 +8,14 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstring>
 
 #include "../activities/Activity.h"
 #include "../activities/reader/DictionarySuggestionsActivity.h"
 #include "CrossPointSettings.h"
+#include "Dictionary.h"
 #include "DictionaryLookupWorker.h"
+#include "DictionaryRegistry.h"
 #include "MappedInputManager.h"
 #include "Memory.h"
 #include "MemoryBudget.h"
@@ -64,8 +67,67 @@ void logDictionaryLookupTaskEnd() {
 
 }  // namespace
 
+namespace {
+
+bool containsKannada(const std::string& s) {
+  // U+0C80..U+0CFF is E0 B2 xx / E0 B3 xx in UTF-8.
+  for (size_t i = 0; i + 1 < s.size(); ++i) {
+    if (static_cast<unsigned char>(s[i]) == 0xE0 &&
+        (static_cast<unsigned char>(s[i + 1]) == 0xB2 || static_cast<unsigned char>(s[i + 1]) == 0xB3)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool isKannadaDictionary(const std::string& basePath) {
+  if (basePath.empty()) return false;
+  const DictInfo info = Dictionary::readInfo(basePath.c_str());
+  return strstr(info.lang, "kn") != nullptr || strstr(info.bookname, "Kannada") != nullptr ||
+         strstr(info.bookname, "\xE0\xB2\x95\xE0\xB2\xA8\xE0\xB3\x8D\xE0\xB2\xA8\xE0\xB2\xA1") != nullptr;  // ಕನ್ನಡ
+}
+
+// The first installed Kannada dictionary, found once per boot (empty if none).
+const std::string& installedKannadaDictionary() {
+  static bool scanned = false;
+  static std::string path;
+  if (!scanned) {
+    scanned = true;
+    if (dictionaryRegistry.count() == 0) dictionaryRegistry.discover();
+    for (const DictionaryEntry& e : dictionaryRegistry.getEntries()) {
+      if (isKannadaDictionary(e.basePath)) {
+        path = e.basePath;
+        break;
+      }
+    }
+  }
+  return path;
+}
+
+// Set while this module pointed the lookup at the Kannada dictionary, so an
+// English word afterwards goes back to the reader's own dictionary.
+bool autoKannadaOverride = false;
+
+}  // namespace
+
+// Kannada words go to an installed Kannada dictionary when the book's
+// dictionary is not one; other words use the book's dictionary as before.
+void DictionaryLookupController::chooseDictionaryForWord(const std::string& word) {
+  if (containsKannada(word)) {
+    if (isKannadaDictionary(Dictionary::readDictPath(cachePath.c_str()))) return;
+    const std::string& kannadaDict = installedKannadaDictionary();
+    if (kannadaDict.empty()) return;
+    Dictionary::setLookupDictPathOverride(kannadaDict.c_str());
+    autoKannadaOverride = true;
+  } else if (autoKannadaOverride) {
+    Dictionary::clearLookupDictPathOverride();
+    autoKannadaOverride = false;
+  }
+}
+
 void DictionaryLookupController::startLookup(const std::string& word, bool recordHistory) {
   MemoryBudget::logHeapShape("dict.lookup_start");
+  chooseDictionaryForWord(word);
   lookupWord = word;
   foundWord.clear();
   foundLocation = DictLocation{};

@@ -28,8 +28,20 @@ class RecentBooksActivity final : public Activity {
   bool pendingCacheDeletedFeedback = false;
   unsigned long cacheDeletedFeedbackShowTime = 0UL;
 
-  // Recent tab state
+  // Recent tab state: one page of the recent list. The newest page comes from
+  // RAM; "Older books" fetches the next page from the SD history, so only
+  // kPageSize entries are ever held here.
+  static constexpr size_t kPageSize = 10;
   std::vector<RecentBook> recentBooks;
+  size_t pageOffset = 0;
+  bool hasOlder = false;
+  bool hasNewer() const { return pageOffset > 0; }
+  // Rows: [Newer books] + books + [Older books].
+  int rowCount() const { return static_cast<int>(recentBooks.size()) + (hasNewer() ? 1 : 0) + (hasOlder ? 1 : 0); }
+  // Book index for a row, or -1 for "Newer books", -2 for "Older books".
+  int bookForRow(int row) const;
+  void activateRow(int row);
+  void showPage(size_t offset, bool selectLast = false);
 
   freeink::ui::GfxRendererTarget uiTarget;  // must precede `app`: the app holds a reference to it
   UiApp app;

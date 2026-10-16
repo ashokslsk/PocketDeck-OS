@@ -26,3 +26,5 @@ static_assert(BITTER_16_FONT_ID != 0, "Font ID collision with sentinel");
 static_assert(UI_10_FONT_ID != 0, "Font ID collision with sentinel");
 static_assert(UI_12_FONT_ID != 0, "Font ID collision with sentinel");
 static_assert(SMALL_FONT_ID != 0, "Font ID collision with sentinel");
+#define TOOLS_DIGITS_44_FONT_ID (2124156596)
+#define TOOLS_DIGITS_30_FONT_ID (1603735163)

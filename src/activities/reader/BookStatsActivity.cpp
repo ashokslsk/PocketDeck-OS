@@ -306,10 +306,26 @@ bool BookStatsActivity::showNextStatsPage() {
     return true;
   }
 
+  if (page == Page::ThisDevice || page == Page::AllDevices) {
+    if (!library.scanned) {
+      RenderLock lock(*this);
+      library = LibrarySummary::scan();
+    }
+    page = Page::Library;
+    requestUpdate();
+    return true;
+  }
+
   return false;
 }
 
 bool BookStatsActivity::showPreviousStatsPage() {
+  if (page == Page::Library) {
+    page = showAllDevicesStats ? Page::AllDevices : Page::ThisDevice;
+    requestUpdate();
+    return true;
+  }
+
   if (page == Page::AllDevices) {
     page = Page::ThisDevice;
     requestUpdate();
@@ -475,7 +491,8 @@ void BookStatsActivity::loop() {
     return;
   }
 
-  if (page == Page::ThisDevice && showAllDevicesStats && downOrRightPressed) {
+  // More: This Device -> (All Devices) -> Library.
+  if (downOrRightPressed) {
     showNextStatsPage();
   }
 }
@@ -495,18 +512,23 @@ void BookStatsActivity::render(RenderLock&&) {
                              estimatedTimeLeftSeconds, true, hasEditableBook(), true);
       break;
     case Page::ThisDevice:
-      renderGlobalStatsPage(renderer, &mappedInput, tr(STR_STATS_THIS_DEVICE_SCREEN), globalStats, true,
-                            showAllDevicesStats);
+      renderGlobalStatsPage(renderer, &mappedInput, tr(STR_STATS_THIS_DEVICE_SCREEN), globalStats, true, true);
       break;
     case Page::AllDevices:
-      renderGlobalStatsPage(renderer, &mappedInput, tr(STR_STATS_ALL_DEVICES_SCREEN), allDevicesStats, true, false);
+      renderGlobalStatsPage(renderer, &mappedInput, tr(STR_STATS_ALL_DEVICES_SCREEN), allDevicesStats, true, true);
+      break;
+    case Page::Library:
+      renderLibraryStatsPage(renderer, &mappedInput, library, globalStats, true);
       break;
     case Page::EditDates:
       renderEditBookDatesPage(renderer, &mappedInput, bookTitle, stats, selectedEditField, true);
       break;
   }
   if (page != Page::EditDates) {
-    drawPageIndicators(renderer, static_cast<int>(page), showAllDevicesStats ? 3 : 2);
+    // Library is always the last page; All Devices only exists with synced stats.
+    const int pageCount = showAllDevicesStats ? 4 : 3;
+    const int pageIndex = page == Page::Library ? pageCount - 1 : static_cast<int>(page);
+    drawPageIndicators(renderer, pageIndex, pageCount);
   }
   renderer.displayBuffer();
 }

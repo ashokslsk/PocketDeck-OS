@@ -4,44 +4,28 @@
 #include <array>
 
 #include "HyphenationCommon.h"
-#include "generated/hyph-de.trie.h"
 #include "generated/hyph-en.trie.h"
 #include "generated/hyph-es.trie.h"
-#include "generated/hyph-fr.trie.h"
-#include "generated/hyph-it.trie.h"
-#include "generated/hyph-pl.trie.h"
-#include "generated/hyph-pt.trie.h"
 #include "generated/hyph-ru.trie.h"
-#include "generated/hyph-sv.trie.h"
-#include "generated/hyph-uk.trie.h"
 
 namespace {
 
+// PocketDeck-OS keeps the hyphenation dictionaries for the languages read on
+// this device (English, Russian, Spanish); books in other languages wrap
+// whole words, as untagged books always have. The other generated tries stay
+// in generated/ and can be re-added here. Saves about 265 KB of flash.
+
 // English hyphenation patterns (3/3 minimum prefix/suffix length)
 LanguageHyphenator englishHyphenator(en_patterns, isLatinLetter, toLowerLatin, 3, 3);
-LanguageHyphenator frenchHyphenator(fr_patterns, isLatinLetter, toLowerLatin);
-LanguageHyphenator germanHyphenator(de_patterns, isLatinLetter, toLowerLatin);
 LanguageHyphenator russianHyphenator(ru_patterns, isCyrillicLetter, toLowerCyrillic);
 LanguageHyphenator spanishHyphenator(es_patterns, isLatinLetter, toLowerLatin);
-LanguageHyphenator italianHyphenator(it_patterns, isLatinLetter, toLowerLatin);
-LanguageHyphenator swedishHyphenator(sv_patterns, isLatinLetter, toLowerLatin);
-LanguageHyphenator ukrainianHyphenator(uk_patterns, isCyrillicLetter, toLowerCyrillic);
-LanguageHyphenator polishHyphenator(pl_patterns, isLatinLetter, toLowerLatin);
-LanguageHyphenator portugueseHyphenator(pt_patterns, isLatinLetter, toLowerLatin);
 
-using EntryArray = std::array<LanguageEntry, 10>;
+using EntryArray = std::array<LanguageEntry, 3>;
 
 const EntryArray& entries() {
   static const EntryArray kEntries = {{{"english", "en", &englishHyphenator},
-                                       {"french", "fr", &frenchHyphenator},
-                                       {"german", "de", &germanHyphenator},
                                        {"russian", "ru", &russianHyphenator},
-                                       {"spanish", "es", &spanishHyphenator},
-                                       {"italian", "it", &italianHyphenator},
-                                       {"polish", "pl", &polishHyphenator},
-                                       {"portuguese", "pt", &portugueseHyphenator},
-                                       {"swedish", "sv", &swedishHyphenator},
-                                       {"ukrainian", "uk", &ukrainianHyphenator}}};
+                                       {"spanish", "es", &spanishHyphenator}}};
   return kEntries;
 }
 

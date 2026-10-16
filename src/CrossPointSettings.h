@@ -36,6 +36,7 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
     QUICK_RESUME = 9,
     MINIMAL_STATS_SLEEP = 10,
     DASHBOARD_SLEEP = 11,
+    WEEKLY_STATS_SLEEP = 12,  // PocketDeck-OS: this week's reading stats, all books
     SLEEP_SCREEN_MODE_COUNT
   };
   enum SLEEP_SCREEN_COVER_MODE { FIT = 0, CROP = 1, SLEEP_SCREEN_COVER_MODE_COUNT };
@@ -337,7 +338,8 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
     LYRA_CAROUSEL = 4,
     MINIMAL = 5,
     DASHBOARD = 6,
-    UI_THEME_COUNT = 7
+    POCKETDECK = 7,
+    UI_THEME_COUNT = 8
   };
   enum RECENT_BOOKS_VIEW { RECENT_BOOKS_LIST = 0, RECENT_BOOKS_GRID = 1, RECENT_BOOKS_VIEW_COUNT };
 
@@ -413,7 +415,7 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   static uint8_t defaultUiScale();
 
   // Sleep screen settings
-  uint8_t sleepScreen = DARK;
+  uint8_t sleepScreen = LIGHT;
   // Night mode: inverted output polarity, applied to every activity per render
   // by ActivityManager. Quick Resume preserves it; other sleep screens remain normal.
   uint8_t screenInverted = 0;
@@ -434,11 +436,11 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   uint8_t statusBarBattery = 1;
   uint8_t xtcStatusBarMode = XTC_STATUS_BAR_HIDE;
   // Clock visibility mode (requires an RTC-backed clock).
-  uint8_t hideClock = HIDE_CLOCK_ALWAYS;
+  uint8_t hideClock = HIDE_CLOCK_NEVER;  // date and time in the top bar on every screen
   // Clock UTC offset in quarter-hour steps, biased by 48 so it fits in uint8_t.
   // Value 48 = UTC+0, 0 = UTC-12:00, 104 = UTC+14:00.
   // Quarter-hour granularity supports oddball zones like Nepal (+5:45) and Chatham (+12:45).
-  uint8_t clockUtcOffsetQ = 48;
+  uint8_t clockUtcOffsetQ = 70;  // quarter-hours from UTC-12: 70 = UTC+5:30 (India)
   // Clock display format: 0 = 24-hour, 1 = 12-hour
   uint8_t clockFormat = 0;
   // Date display format. Values match HalClock::DateFormat; 0 preserves the existing "Jan 01, 2026" default.
@@ -559,6 +561,24 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   uint8_t uiScale = defaultUiScale();
   // Sunlight fading compensation
   uint8_t fadingFix = 0;
+  // PocketDeck-OS: Lyra Carousel shows the selected book's stats under a
+  // half-height carousel (1) or keeps the original large covers (0).
+  uint8_t carouselBookStats = 1;
+  // PocketDeck-OS: while asleep, show the next /sleep wallpaper every N
+  // minutes (WALLPAPER_ROTATION); needs Sleep Screen = Custom.
+  enum WALLPAPER_ROTATION : uint8_t {
+    WALLPAPER_ROTATE_OFF = 0,
+    WALLPAPER_ROTATE_15 = 1,
+    WALLPAPER_ROTATE_30 = 2,
+    WALLPAPER_ROTATE_60 = 3,
+    WALLPAPER_ROTATE_120 = 4,
+    WALLPAPER_ROTATION_COUNT
+  };
+  uint8_t wallpaperRotation = WALLPAPER_ROTATE_OFF;
+  static uint16_t wallpaperRotationMinutes(uint8_t value) {
+    static constexpr uint16_t kMinutes[] = {0, 15, 30, 60, 120};
+    return value < WALLPAPER_ROTATION_COUNT ? kMinutes[value] : 0;
+  }
   // Quick-return from footnotes when a footnote shortcut is active.
   uint8_t pwrBtnFootnoteBack = 1;
   // Use book's embedded CSS styles for EPUB rendering (1 = enabled, 0 = disabled)
@@ -707,7 +727,7 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
 
   bool saveToFile() const;
   bool loadFromFile();
-  static const char* getFilePath() { return "/.crosspoint/crossink-settings.json"; }
+  static const char* getFilePath() { return "/.pocketdeck-os/pocketdeck-os-settings.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc, bool importingCrossPoint = false);
 

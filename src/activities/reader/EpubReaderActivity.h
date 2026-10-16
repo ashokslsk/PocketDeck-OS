@@ -171,6 +171,7 @@ class EpubReaderActivity final : public Activity {
   GlobalReadingStats globalStats;
   ReadingStatsDateTime sessionStartLocalDateTime;
   bool hasSessionStartLocalDateTime = false;
+  uint32_t sessionStartPages = 0;  // book pages turned when the session began
   // Signals that the next render should reposition within the newly loaded section
   // based on a cross-book percentage jump.
   bool pendingPercentJump = false;
@@ -190,6 +191,64 @@ class EpubReaderActivity final : public Activity {
   bool pendingScreenshot = false;
   bool pendingSyncSaveError = false;
   bool automaticPageTurnActive = false;
+
+  // Speed Read (reader menu > Speed Read): a 4 px underline marks the phrase to
+  // read and moves on at the chosen words per minute; the page turns by itself
+  // after its last phrase. Phrase weights are in hundredths of an average word,
+  // so the time of a phrase is weight * 600 / wpm milliseconds.
+  struct SpeedReadPhrase {
+    int16_t x;
+    int16_t y;
+    int16_t w;
+    uint16_t weight;
+    uint16_t firstWord;  // page word index, keeps the place when the pace changes
+  };
+  static constexpr uint16_t kSpeedReadMaxPhrases = 200;
+  static constexpr int kSpeedReadBarHeight = 4;
+  static constexpr uint16_t kSpeedReadMinWpm = 40;
+  static constexpr uint16_t kSpeedReadMaxWpm = 600;
+  static constexpr uint16_t kSpeedReadWpmStep = 10;
+  static constexpr unsigned long kSpeedReadPausedStopMs = 2UL * 60UL * 1000UL;
+  static constexpr unsigned long kSpeedReadCheckInMs = 25UL * 60UL * 1000UL;
+  static constexpr unsigned long kSpeedReadCheckInTimeoutMs = 10UL * 1000UL;
+  bool speedReadActive = false;
+  bool speedReadPaused = false;
+  bool speedReadStepPending = false;     // loop() asked render() to move the underline
+  bool speedReadRebuildPending = false;  // re-group phrases (pace changed), keeping the place
+  bool speedReadCheckInOpen = false;     // "Continue speed reading?" is on screen
+  bool speedReadTimerRestart = false;    // restart the phrase clock once the redraw is done
+  bool speedReadIntroOpen = false;       // welcome card shown before pacing starts
+  unsigned long speedReadIntroSinceMs = 0;
+  static constexpr unsigned long kSpeedReadIntroMs = 4000;
+  uint16_t speedReadWpm = 0;
+  uint16_t speedReadStep = 0;
+  uint16_t speedReadPhraseCount = 0;
+  int32_t speedReadPageKey = -1;  // spine * 65536 + page the phrases were built for
+  int speedReadDrawnStep = -1;    // phrase whose underline is in the framebuffer
+  unsigned long speedReadStepStartMs = 0;
+  unsigned long speedReadPausedSinceMs = 0;
+  unsigned long speedReadFocusMs = 0;      // running (not paused) time since start or last check-in
+  unsigned long speedReadFocusMarkMs = 0;  // when speedReadFocusMs was last brought up to date
+  unsigned long speedReadCheckInSinceMs = 0;
+  std::unique_ptr<SpeedReadPhrase[]> speedReadPhrases;
+  std::unique_ptr<uint8_t[]> speedReadSnapshot;  // pixels under the drawn underline
+  size_t speedReadSnapshotBytes = 0;
+  bool speedReadSnapshotValid = false;
+  int16_t speedReadSnapX = 0;
+  int16_t speedReadSnapY = 0;
+  int16_t speedReadSnapW = 0;
+  void openSpeedReadPicker(bool returnToReaderMenu);
+  void startSpeedRead(uint16_t wpm);
+  void stopSpeedRead();
+  void setSpeedReadPaused(bool paused);
+  void updateSpeedReadFocusTime();
+  bool handleSpeedReadInput(bool confirmReleased, bool backReleased);
+  void prepareSpeedReadOverlay(const Page& page, int fontId, int orientedMarginTop, int orientedMarginLeft);
+  void drawSpeedReadUnderline();
+  void drawSpeedReadCheckIn() const;
+  void drawSpeedReadIntro() const;
+  void drawSpeedReadCard(const char* title, const char* const* lines, int lineCount, bool centered) const;
+  unsigned long speedReadStepMs(uint16_t step) const;
   // Session-only display toggle. Layout continues to reserve the same status
   // lane, so switching it never changes the EPUB's page breaks.
   bool statusBarVisible = true;
@@ -350,6 +409,9 @@ class EpubReaderActivity final : public Activity {
   // whole HTML must be inflated before page 1 can lay out (the giant single-spine case), which is
   // a multi-second wait. Normal chapters are well under this and stay popup-free.
   static constexpr size_t BUILD_POPUP_BYTE_THRESHOLD = 96 * 1024;
+  // Larger chapters are not laid out ahead in the background (see
+  // silentIndexNextChapterIfNeeded); they build incrementally when opened.
+  static constexpr size_t SILENT_INDEX_MAX_SPINE_BYTES = 384 * 1024;
   // If a build predicted to be fast still has not produced the requested page within this
   // window, show the popup while the blocking build continues.
   static constexpr unsigned long BUILD_POPUP_DEADLINE_MS = 1000;
@@ -488,7 +550,9 @@ class EpubReaderActivity final : public Activity {
     cleanImageBasePending = true;
     return true;
   }
-  bool preventAutoSleep() override { return automaticPageTurnActive; }
+  bool preventAutoSleep() override {
+    return automaticPageTurnActive || (speedReadActive && (!speedReadPaused || speedReadCheckInOpen));
+  }
   // Hold the loop hot only while the build has work this loop would do: a kept-alive
   // build sitting outside the lookahead window is dormant, and reporting it here would
   // pin the CPU at full clock (no power saving, yield-only loop) for the whole read.

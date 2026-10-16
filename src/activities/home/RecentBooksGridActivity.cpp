@@ -21,6 +21,7 @@
 #include "RecentBookProgress.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/EpubReaderActivity.h"
+#include "activities/reader/KannadaReading.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/OptionSelectionActivity.h"
 #include "components/CompactHeader.h"
@@ -191,10 +192,10 @@ void calculateCoverFillCrop(const Bitmap& bitmap, float& cropX, float& cropY) {
 
 std::string getReusableCoverPath(const RecentBook& book) {
   if (FsHelpers::hasEpubExtension(book.path)) {
-    return Epub(book.path, "/.crosspoint").getThumbBmpPath();
+    return Epub(book.path, "/.pocketdeck-os").getThumbBmpPath();
   }
   if (FsHelpers::hasXtcExtension(book.path)) {
-    return Xtc(book.path, "/.crosspoint").getThumbBmpPath();
+    return Xtc(book.path, "/.pocketdeck-os").getThumbBmpPath();
   }
   return book.coverBmpPath;
 }
@@ -216,7 +217,9 @@ void ensureReusableCoverPath(RecentBook& book) {
 
 void RecentBooksGridActivity::loadRecentBooks() {
   recentBooks.clear();
-  const auto& books = RECENT_BOOKS.getBooks();
+  // RAM entries plus the SD history, covers included (screen-scoped).
+  std::vector<RecentBook> books;
+  RECENT_BOOKS.loadPage(books, 0, MAX_GRID_BOOKS, /*keepCovers=*/true);
   recentBooks.reserve(std::min(books.size(), static_cast<size_t>(MAX_GRID_BOOKS)));
 
   for (const auto& book : books) {
@@ -271,7 +274,7 @@ void RecentBooksGridActivity::loadPageCovers(int pageStart) {
     const std::string coverPath = UITheme::getCoverThumbPath(book.coverBmpPath, COVER_WIDTH, COVER_HEIGHT);
     if (needsCoverThumbGeneration(book, coverPath)) {
       if (FsHelpers::hasEpubExtension(book.path)) {
-        Epub epub(book.path, "/.crosspoint");
+        Epub epub(book.path, "/.pocketdeck-os");
         if (epub.load(true, true, Epub::XLocationLoadMode::Skip)) {
           if (!showingLoading) {
             showingLoading = true;
@@ -287,7 +290,7 @@ void RecentBooksGridActivity::loadPageCovers(int pageStart) {
           }
         }
       } else if (FsHelpers::hasXtcExtension(book.path)) {
-        Xtc xtc(book.path, "/.crosspoint");
+        Xtc xtc(book.path, "/.pocketdeck-os");
         if (xtc.load()) {
           if (!showingLoading) {
             showingLoading = true;
@@ -313,6 +316,7 @@ void RecentBooksGridActivity::loadPageCovers(int pageStart) {
 
 void RecentBooksGridActivity::onEnter() {
   Activity::onEnter();
+  kannadareading::beginUi();
   loadRecentBooks();
   selectorIndex = 0;
   loadedPageStart = NO_PAGE_LOADED;
@@ -321,6 +325,7 @@ void RecentBooksGridActivity::onEnter() {
 }
 
 void RecentBooksGridActivity::onExit() {
+  kannadareading::endUi();
   Activity::onExit();
   recentBooks.clear();
 }
@@ -639,6 +644,10 @@ void RecentBooksGridActivity::showBookActionMenu(const int bookIndex, const bool
           case FileBrowserAction::DeleteBookmarks:
           case FileBrowserAction::DeleteClippings:
           case FileBrowserAction::Rename:
+          case FileBrowserAction::Move:
+          case FileBrowserAction::Info:
+          case FileBrowserAction::NewFolder:
+          case FileBrowserAction::Copy:
             return;
         }
       });

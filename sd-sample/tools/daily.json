@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-27",
+  "todos": [
+    {
+      "text": "Copy the tools folder to the SD card",
+      "done": true
+    },
+    {
+      "text": "Set Settings > System > Clock UTC Offset",
+      "done": false
+    },
+    {
+      "text": "Run one Pomodoro",
+      "done": false
+    },
+    {
+      "text": "Review a flashcard deck",
+      "done": false
+    }
+  ]
+}

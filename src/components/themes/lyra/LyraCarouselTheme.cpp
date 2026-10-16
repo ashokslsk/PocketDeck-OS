@@ -14,8 +14,11 @@
 #include <string>
 #include <vector>
 
+#include "CrossPointSettings.h"
 #include "RecentBooksStore.h"
+#include "activities/reader/BookInsights.h"
 #include "activities/reader/BookReadingStats.h"
+#include "activities/tools/ToolsCharts.h"
 #include "components/TouchRegistry.h"
 #include "components/UITheme.h"
 #include "components/UiAppHelpers.h"
@@ -51,6 +54,35 @@ constexpr int kCoverStackLift = 15;
 constexpr int kCenterCoverTopInset = (((kCenterCoverMaxH - kDisplayCenterH) / 2) > kCoverStackLift)
                                          ? ((kCenterCoverMaxH - kDisplayCenterH) / 2) - kCoverStackLift
                                          : 0;
+
+// PocketDeck-OS: with "Carousel book stats" on, the carousel is drawn at about
+// half height (the cached thumbnails are simply drawn smaller) and the lower
+// half of the tile shows the selected book's reading stats.
+struct CarouselGeom {
+  int centerW, centerH;
+  int nearW, farW;
+  int nearInnerH, nearOuterH, farInnerH, farOuterH;
+  int topInset;
+  int sideRadius;
+};
+
+constexpr int scaled(const int v, const int pct) { return v * pct / 100; }
+
+bool statsMode() { return SETTINGS.carouselBookStats != 0; }
+
+CarouselGeom geom() {
+  const int pct = statsMode() ? 52 : 100;
+  return CarouselGeom{scaled(kDisplayCenterW, pct),
+                      scaled(kDisplayCenterH, pct),
+                      scaled(kNearSideW, pct),
+                      scaled(kFarSideW, pct),
+                      scaled(kNearSideInnerH, pct),
+                      scaled(kNearSideOuterH, pct),
+                      scaled(kFarSideInnerH, pct),
+                      scaled(kFarSideOuterH, pct),
+                      statsMode() ? 6 : kCenterCoverTopInset,
+                      statsMode() ? 3 : kSideCornerRadius};
+}
 
 constexpr int kTitleFontId = UI_12_FONT_ID;
 constexpr int kMenuLabelFontId = SMALL_FONT_ID;
@@ -158,11 +190,12 @@ void fitMenuLabel(const GfxRenderer& renderer, const char* label, int maxWidth, 
 }
 
 Rect computeCenterCoverSlotRect(const GfxRenderer& renderer, Rect rect, const std::vector<RecentBook>& recentBooks) {
+  const CarouselGeom g = geom();
   if (recentBooks.empty()) {
     const int screenW = renderer.getScreenWidth();
-    const int fallbackX = (screenW - kDisplayCenterW) / 2;
-    const int fallbackY = rect.y + kCoverTopPad + kCenterCoverTopInset - kCarouselVerticalLift;
-    return Rect{fallbackX, fallbackY, kDisplayCenterW, kDisplayCenterH};
+    const int fallbackX = (screenW - g.centerW) / 2;
+    const int fallbackY = rect.y + kCoverTopPad + g.topInset - kCarouselVerticalLift;
+    return Rect{fallbackX, fallbackY, g.centerW, g.centerH};
   }
 
   const int screenW = renderer.getScreenWidth();
@@ -170,9 +203,9 @@ Rect computeCenterCoverSlotRect(const GfxRenderer& renderer, Rect rect, const st
   const int reservedTitleBlockHeight = titleLineHeight * 2;
   const int titleY = rect.y + kTitleTopClearance;
   const int centerTileY = std::max(rect.y + kCoverTopPad, titleY + reservedTitleBlockHeight + kTitleBottomGap);
-  const int centerDrawY = centerTileY + kCenterCoverTopInset - kCarouselVerticalLift;
-  const int centerX = (screenW - kDisplayCenterW) / 2;
-  return Rect{centerX, centerDrawY, kDisplayCenterW, kDisplayCenterH};
+  const int centerDrawY = centerTileY + g.topInset - kCarouselVerticalLift;
+  const int centerX = (screenW - g.centerW) / 2;
+  return Rect{centerX, centerDrawY, g.centerW, g.centerH};
 }
 
 void registerCoverTarget(int bookIdx, Rect rect, int bookCount, int* registeredIds, int& registeredCount) {
@@ -191,20 +224,21 @@ void registerCarouselCoverTouchTargets(const GfxRenderer& renderer, Rect rect,
   const int bookCount = static_cast<int>(recentBooks.size());
   if (bookCount <= 0 || centerIdx < 0 || centerIdx >= bookCount) return;
 
+  const CarouselGeom g = geom();
   const int screenW = renderer.getScreenWidth();
   const Rect centerCoverSlotRect = computeCenterCoverSlotRect(renderer, rect, recentBooks);
   const int centerX = centerCoverSlotRect.x;
-  const int sideMaxHeight = std::max(kNearSideInnerH, kNearSideOuterH);
-  const int sideTileY = centerCoverSlotRect.y + (kDisplayCenterH - sideMaxHeight) / 2;
+  const int sideMaxHeight = std::max(g.nearInnerH, g.nearOuterH);
+  const int sideTileY = centerCoverSlotRect.y + (g.centerH - sideMaxHeight) / 2;
   const int nearOverlap = 4;
   const int farOverlap = 2;
   constexpr int nearCoverInset = 10;
-  const int baseLeftNearX = centerX - kNearSideW + nearOverlap;
-  const int baseRightNearX = centerX + kDisplayCenterW - nearOverlap;
+  const int baseLeftNearX = centerX - g.nearW + nearOverlap;
+  const int baseRightNearX = centerX + g.centerW - nearOverlap;
   const int leftNearX = baseLeftNearX + nearCoverInset;
   const int rightNearX = baseRightNearX - nearCoverInset;
-  const int leftFarX = std::max(0, baseLeftNearX - kFarSideW + farOverlap);
-  const int rightFarX = std::min(screenW - kFarSideW, baseRightNearX + kNearSideW - farOverlap);
+  const int leftFarX = std::max(0, baseLeftNearX - g.farW + farOverlap);
+  const int rightFarX = std::min(screenW - g.farW, baseRightNearX + g.nearW - farOverlap);
   int registeredIds[LyraCarouselMetrics::values.homeRecentBooksCount] = {-1, -1, -1};
   int registeredCount = 0;
 
@@ -214,21 +248,20 @@ void registerCarouselCoverTouchTargets(const GfxRenderer& renderer, Rect rect,
   const int rightFarIdx = (centerIdx + 2) % bookCount;
 
   if (bookCount >= 5) {
-    registerCoverTarget(leftFarIdx, Rect{leftFarX, sideTileY, kFarSideW, std::max(kFarSideInnerH, kFarSideOuterH)},
-                        bookCount, registeredIds, registeredCount);
+    registerCoverTarget(leftFarIdx, Rect{leftFarX, sideTileY, g.farW, std::max(g.farInnerH, g.farOuterH)}, bookCount,
+                        registeredIds, registeredCount);
   }
   if (bookCount >= 4) {
-    registerCoverTarget(rightFarIdx, Rect{rightFarX, sideTileY, kFarSideW, std::max(kFarSideOuterH, kFarSideInnerH)},
-                        bookCount, registeredIds, registeredCount);
+    registerCoverTarget(rightFarIdx, Rect{rightFarX, sideTileY, g.farW, std::max(g.farOuterH, g.farInnerH)}, bookCount,
+                        registeredIds, registeredCount);
   }
   if (bookCount >= 2) {
-    registerCoverTarget(leftNearIdx, Rect{leftNearX, sideTileY, kNearSideW, std::max(kNearSideInnerH, kNearSideOuterH)},
+    registerCoverTarget(leftNearIdx, Rect{leftNearX, sideTileY, g.nearW, std::max(g.nearInnerH, g.nearOuterH)},
                         bookCount, registeredIds, registeredCount);
   }
   if (bookCount >= 3) {
-    registerCoverTarget(rightNearIdx,
-                        Rect{rightNearX, sideTileY, kNearSideW, std::max(kNearSideOuterH, kNearSideInnerH)}, bookCount,
-                        registeredIds, registeredCount);
+    registerCoverTarget(rightNearIdx, Rect{rightNearX, sideTileY, g.nearW, std::max(g.nearOuterH, g.nearInnerH)},
+                        bookCount, registeredIds, registeredCount);
   }
   registerCoverTarget(centerIdx, shrinkCenterCoverRect(centerCoverSlotRect), bookCount, registeredIds, registeredCount);
 }
@@ -286,11 +319,90 @@ void formatCompactReadingTime(uint32_t seconds, char* buf, size_t len) {
   }
 }
 
+// Book stats under the half-height carousel: a full-width progress bar, then
+// a grid of the book's numbers. Bookmark / clipping / look-up counts come from
+// file headers (BookInsights) and are cached per book.
+void drawBookStatsPanel(const GfxRenderer& renderer, const Rect& area, const std::string& bookPath,
+                        const BookReadingStats* stats, const float progressPercent) {
+  static std::string insightsPath;
+  static BookInsights insights;
+  if (insightsPath != bookPath || !insights.valid) {
+    insights = BookInsights::load(bookPath);
+    insightsPath = bookPath;
+  }
+  const BookReadingStats empty{};
+  const BookReadingStats& st = stats != nullptr ? *stats : empty;
+  const int side = LyraCarouselMetrics::values.contentSidePadding;
+  const int x = area.x + side;
+  const int w = area.width - side * 2;
+  int y = area.y;
+
+  // Progress bar with the percentage at its right end.
+  const float pct = progressPercent >= 0.0f ? std::clamp(progressPercent, 0.0f, 100.0f) : 0.0f;
+  char pctText[16];
+  snprintf(pctText, sizeof(pctText), "%.0f%%", pct);
+  const int pctW = renderer.getTextWidth(UI_12_FONT_ID, pctText, EpdFontFamily::BOLD);
+  const int barW = w - pctW - 12;
+  const int barH = 10;
+  const int barY = y + (renderer.getLineHeight(UI_12_FONT_ID) - barH) / 2;
+  renderer.fillRectDither(x, barY, barW, barH, Color::LightGray);
+  renderer.fillRect(x, barY, static_cast<int>(barW * pct / 100.0f), barH, true);
+  renderer.drawRect(x, barY, barW, barH, true);
+  renderer.drawText(UI_12_FONT_ID, x + w - pctW, y, pctText, true, EpdFontFamily::BOLD);
+  y += renderer.getLineHeight(UI_12_FONT_ID) + 10;
+
+  charts::Stat tiles[10];
+  int n = 0;
+  auto put = [&](const char* label) { tiles[n++].label = label; };
+  formatCompactReadingTime(st.totalReadingSeconds, tiles[n].value, sizeof(tiles[n].value));
+  put(tr(STR_CAROUSEL_TIME_READ));
+  uint32_t leftSeconds = 0;
+  if (!st.isCompleted && bookTimeLeftSeconds(st, progressPercent, leftSeconds)) {
+    formatCompactReadingTime(leftSeconds, tiles[n].value, sizeof(tiles[n].value));
+  } else {
+    snprintf(tiles[n].value, sizeof(tiles[n].value), "%s", st.isCompleted ? tr(STR_CAROUSEL_DONE) : "-");
+  }
+  put(tr(STR_TIME_LEFT_SHORT));
+  ReadingStatsDate finish;
+  if (bookFinishDate(st, progressPercent, finish)) {
+    formatReadingStatsShortDate(finish, tiles[n].value, sizeof(tiles[n].value));
+  } else {
+    snprintf(tiles[n].value, sizeof(tiles[n].value), "-");
+  }
+  put(st.isCompleted ? tr(STR_STATS_FINISHED_DATE) : tr(STR_CAROUSEL_EST_FINISH));
+  if (st.totalReadingSeconds > 60 && st.totalPagesTurned > 0) {
+    snprintf(tiles[n].value, sizeof(tiles[n].value), "%.1f",
+             static_cast<float>(st.totalPagesTurned) * 60.0f / static_cast<float>(st.totalReadingSeconds));
+  } else {
+    snprintf(tiles[n].value, sizeof(tiles[n].value), "-");
+  }
+  put(tr(STR_STATS_PAGES_PER_MIN));
+  snprintf(tiles[n].value, sizeof(tiles[n].value), "%u", static_cast<unsigned>(st.sessionCount));
+  put(tr(STR_STATS_SESSIONS_LBL));
+  formatReadingStatsShortDate(st.startDate, tiles[n].value, sizeof(tiles[n].value));
+  put(tr(STR_STATS_STARTED));
+  snprintf(tiles[n].value, sizeof(tiles[n].value), "%u", static_cast<unsigned>(insights.bookmarks));
+  put(tr(STR_CAROUSEL_BOOKMARKS));
+  snprintf(tiles[n].value, sizeof(tiles[n].value), "%u", static_cast<unsigned>(insights.clippings));
+  put(tr(STR_CAROUSEL_HIGHLIGHTS));
+  snprintf(tiles[n].value, sizeof(tiles[n].value), "%u", static_cast<unsigned>(insights.lookups));
+  put(tr(STR_CAROUSEL_LOOKUPS));
+  snprintf(tiles[n].value, sizeof(tiles[n].value), "%lu", static_cast<unsigned long>(st.totalPagesTurned));
+  put(tr(STR_STATS_PAGES_READ));
+  // Three narrow columns keep all ten numbers above the icon row.
+  const int cols = 3;
+  charts::statGrid(renderer, Rect{x, y, w, area.y + area.height - y}, cols, tiles, n);
+}
 }  // namespace
 
 // ---------------------------------------------------------------------------
 // Static helpers
 // ---------------------------------------------------------------------------
+int LyraCarouselTheme::centerThumbW() { return statsMode() ? kStatsCenterThumbW : kCenterThumbW; }
+int LyraCarouselTheme::centerThumbH() { return statsMode() ? kStatsCenterThumbH : kCenterThumbH; }
+int LyraCarouselTheme::sideThumbW() { return statsMode() ? kStatsSideCoverW : kSideCoverMaxW; }
+int LyraCarouselTheme::sideThumbH() { return statsMode() ? kStatsSideCoverH : kSideCoverMaxH; }
+
 void LyraCarouselTheme::setPreRenderIndex(int idx) {
   lastCarouselSelectorIndex.store(idx, std::memory_order_relaxed);
   if (idx >= 0 && idx < LyraCarouselMetrics::values.homeRecentBooksCount) {
@@ -349,8 +461,9 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
     coverBufferStored = false;
   }
 
+  const CarouselGeom g = geom();
   const int screenW = renderer.getScreenWidth();
-  const int textMaxWidth = std::min(screenW - 40, kCenterCoverMaxW + 40);
+  const int textMaxWidth = std::min(screenW - 40, statsMode() ? screenW - 40 : kCenterCoverMaxW + 40);
   const auto titleLines =
       renderer.wrappedText(kTitleFontId, recentBooks[centerIdx].title.c_str(), textMaxWidth, 2, EpdFontFamily::BOLD);
   const int titleLineHeight = renderer.getLineHeight(kTitleFontId);
@@ -358,21 +471,21 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
   const int reservedTitleBlockHeight = titleLineHeight * 2;
   const int titleY = rect.y + kTitleTopClearance;
   const int centerTileY = std::max(rect.y + kCoverTopPad, titleY + reservedTitleBlockHeight + kTitleBottomGap);
-  const int sideMaxHeight = std::max(kNearSideInnerH, kNearSideOuterH);
+  const int sideMaxHeight = std::max(g.nearInnerH, g.nearOuterH);
   const Rect centerCoverSlotRect = computeCenterCoverSlotRect(renderer, rect, recentBooks);
   const int centerDrawY = centerCoverSlotRect.y;
-  const int sideTileY = centerDrawY + (kDisplayCenterH - sideMaxHeight) / 2;
+  const int sideTileY = centerDrawY + (g.centerH - sideMaxHeight) / 2;
 
   const int centerX = centerCoverSlotRect.x;
   const int nearOverlap = 4;
   const int farOverlap = 2;
-  constexpr int nearCoverInset = 10;
-  const int baseLeftNearX = centerX - kNearSideW + nearOverlap;
-  const int baseRightNearX = centerX + kDisplayCenterW - nearOverlap;
+  const int nearCoverInset = statsMode() ? 5 : 10;
+  const int baseLeftNearX = centerX - g.nearW + nearOverlap;
+  const int baseRightNearX = centerX + g.centerW - nearOverlap;
   const int leftNearX = baseLeftNearX + nearCoverInset;
   const int rightNearX = baseRightNearX - nearCoverInset;
-  const int leftFarX = std::max(0, baseLeftNearX - kFarSideW + farOverlap);
-  const int rightFarX = std::min(screenW - kFarSideW, baseRightNearX + kNearSideW - farOverlap);
+  const int leftFarX = std::max(0, baseLeftNearX - g.farW + farOverlap);
+  const int rightFarX = std::min(screenW - g.farW, baseRightNearX + g.nearW - farOverlap);
 
   auto drawCenterCover = [&](int bookIdx, Rect& outRect) -> bool {
     if (bookIdx < 0 || bookIdx >= bookCount) return false;
@@ -380,7 +493,7 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
     outRect = shrinkCenterCoverRect(centerCoverSlotRect);
 
     if (!book.coverBmpPath.empty()) {
-      const std::string thumbPath = UITheme::getCoverThumbPath(book.coverBmpPath, kCenterThumbW, kCenterThumbH);
+      const std::string thumbPath = UITheme::getCoverThumbPath(book.coverBmpPath, centerThumbW(), centerThumbH());
       FsFile file;
       if (Storage.openFileForRead("HOME", thumbPath, file)) {
         Bitmap bitmap(file);
@@ -448,7 +561,7 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
     const RecentBook& book = recentBooks[bookIdx];
 
     if (!book.coverBmpPath.empty()) {
-      const std::string thumbPath = UITheme::getCoverThumbPath(book.coverBmpPath, kSideCoverMaxW, kSideCoverMaxH);
+      const std::string thumbPath = UITheme::getCoverThumbPath(book.coverBmpPath, sideThumbW(), sideThumbH());
       FsFile file;
       if (Storage.openFileForRead("HOME", thumbPath, file)) {
         Bitmap bitmap(file);
@@ -456,7 +569,7 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
           const int sideHeight = std::max(leftHeight, rightHeight);
           renderer.fillRect(x, sideTileY, width, sideHeight, false);
           renderer.drawPerspectiveBitmap(bitmap, x, sideTileY, width, leftHeight, rightHeight);
-          renderer.maskRoundedRectOutsideCorners(x, sideTileY, width, sideHeight, kSideCornerRadius, Color::White);
+          renderer.maskRoundedRectOutsideCorners(x, sideTileY, width, sideHeight, g.sideRadius, Color::White);
           file.close();
           drawPerspectiveOutline(renderer, x, sideTileY, width, leftHeight, rightHeight);
           return true;
@@ -466,7 +579,7 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
     }
 
     fillPerspectiveSilhouette(renderer, x, sideTileY, width, leftHeight, rightHeight);
-    renderer.maskRoundedRectOutsideCorners(x, sideTileY, width, std::max(leftHeight, rightHeight), kSideCornerRadius,
+    renderer.maskRoundedRectOutsideCorners(x, sideTileY, width, std::max(leftHeight, rightHeight), g.sideRadius,
                                            Color::White);
     return false;
   };
@@ -484,10 +597,10 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
     const int rightNearIdx = (centerIdx + 1) % bookCount;
     const int rightFarIdx = (centerIdx + 2) % bookCount;
 
-    if (bookCount >= 5) drawSideCover(leftFarIdx, leftFarX, kFarSideW, kFarSideInnerH, kFarSideOuterH);
-    if (bookCount >= 4) drawSideCover(rightFarIdx, rightFarX, kFarSideW, kFarSideOuterH, kFarSideInnerH);
-    if (bookCount >= 2) drawSideCover(leftNearIdx, leftNearX, kNearSideW, kNearSideInnerH, kNearSideOuterH);
-    if (bookCount >= 3) drawSideCover(rightNearIdx, rightNearX, kNearSideW, kNearSideOuterH, kNearSideInnerH);
+    if (bookCount >= 5) drawSideCover(leftFarIdx, leftFarX, g.farW, g.farInnerH, g.farOuterH);
+    if (bookCount >= 4) drawSideCover(rightFarIdx, rightFarX, g.farW, g.farOuterH, g.farInnerH);
+    if (bookCount >= 2) drawSideCover(leftNearIdx, leftNearX, g.nearW, g.nearInnerH, g.nearOuterH);
+    if (bookCount >= 3) drawSideCover(rightNearIdx, rightNearX, g.nearW, g.nearOuterH, g.nearInnerH);
 
     Rect centerCoverRect{};
     drawCenterCover(centerIdx, centerCoverRect);
@@ -519,6 +632,11 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
       dotX += kDotSize + kDotGap;
     }
 
+    if (statsMode()) {
+      drawBookStatsPanel(renderer,
+                         Rect{rect.x, dotsY + kDotSize + 12, rect.width, rect.y + rect.height - dotsY - kDotSize - 12},
+                         recentBooks[centerIdx].path, stats, progressPercent);
+    }
     // Minimal-style reading progress footer below the cover.
     constexpr int footerLabelFontId = UI_10_FONT_ID;
     const int footerLabelLineHeight = renderer.getLineHeight(footerLabelFontId);
@@ -529,14 +647,16 @@ void LyraCarouselTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect,
     const int footerWidth = std::min(footerMaxWidth, centerCoverRect.width);
     const int footerX = centerCoverRect.x + (centerCoverRect.width - footerWidth) / 2;
 
-    if (hasStats) {
+    if (statsMode()) {
+      // Panel above replaces the footer.
+    } else if (hasStats) {
       char buf[48];
       formatCompactReadingTime(stats->totalReadingSeconds, buf, sizeof(buf));
       const auto timeLabel = renderer.truncatedText(footerLabelFontId, buf, footerWidth, EpdFontFamily::REGULAR);
       renderer.drawText(footerLabelFontId, footerX, infoY, timeLabel.c_str(), true, EpdFontFamily::REGULAR);
     }
 
-    if (hasProgress) {
+    if (hasProgress && !statsMode()) {
       const int progressBarY = infoY + (hasStats ? footerLabelLineHeight + kFooterLabelToBarGap : 0);
       const float clampedProgress = std::clamp(progressPercent, 0.0f, 100.0f);
       const int filledWidth = std::clamp(static_cast<int>((clampedProgress / 100.0f) * footerWidth), 0, footerWidth);

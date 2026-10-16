@@ -1,0 +1,7 @@
+# Manifest for src/components/icons/speedIcons.h — regenerate with:
+#   python3 scripts/generate_icons.py --library lucide \
+#     --manifest src/components/icons/speedIcons.manifest \
+#     --sizes 32 --out src/components/icons/speedIcons.h
+# then clang-format -i the output.
+zap = zap
+gauge = gauge

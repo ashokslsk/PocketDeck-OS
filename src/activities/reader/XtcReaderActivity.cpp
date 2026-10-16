@@ -22,6 +22,7 @@
 #include "MappedInputManager.h"
 #include "QuickActions.h"
 #include "ReaderUtils.h"
+#include "ReadingDayLog.h"
 #include "RecentBooksStore.h"
 #include "XtcReaderChapterSelectionActivity.h"
 #include "XtcReaderMenuActivity.h"
@@ -125,6 +126,7 @@ void XtcReaderActivity::onEnter() {
   globalStats = GlobalReadingStats::load();
   sessionReadingSeconds = 0;
   hasSessionStartLocalDateTime = getCurrentLocalReadingStatsDateTime(sessionStartLocalDateTime);
+  sessionStartPages = stats.totalPagesTurned;
 
   // Save current XTC as last opened book and add to recent books
   APP_STATE.openEpubPath = xtc->getPath();
@@ -307,10 +309,10 @@ void XtcReaderActivity::loop() {
     return;
   }
 
-  // Short press BACK goes directly to home
+  // Short press BACK returns to where the book was opened from
   if (!touch.prev && !touch.next && mappedInput.wasReleased(MappedInputManager::Button::Back) &&
       mappedInput.getHeldTime() < ReaderUtils::GO_HOME_MS) {
-    onGoHome();
+    onGoBackFromReader(xtc ? xtc->getPath() : std::string());
     return;
   }
 
@@ -745,6 +747,8 @@ void XtcReaderActivity::commitReadingStats() {
     if (hasSessionStartLocalDateTime) {
       stats.recordReadingSpan(sessionStartLocalDateTime, elapsedSecs);
       globalStats.recordReadingSpan(sessionStartLocalDateTime, elapsedSecs);
+      readingdaylog::record(sessionStartLocalDateTime, elapsedSecs,
+                            stats.totalPagesTurned - std::min(stats.totalPagesTurned, sessionStartPages));
     }
     if (elapsedSecs >= 120 && !stats.startDateManual && !stats.startDate.isValid() && hasSessionStartLocalDateTime) {
       stats.startDate = sessionStartLocalDateTime.date;
@@ -758,6 +762,7 @@ void XtcReaderActivity::resetCurrentBookStatsAfterDelete() {
   stats = BookReadingStats{};
   sessionReadingSeconds = 0;
   hasSessionStartLocalDateTime = getCurrentLocalReadingStatsDateTime(sessionStartLocalDateTime);
+  sessionStartPages = stats.totalPagesTurned;
 }
 
 void XtcReaderActivity::setBookCompleted(const bool isCompleted) {
@@ -1367,7 +1372,7 @@ void XtcReaderActivity::loadProgress() {
 }
 
 bool XtcReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, GfxRenderer& renderer) {
-  Xtc xtc(filePath, "/.crosspoint");
+  Xtc xtc(filePath, "/.pocketdeck-os");
   if (!xtc.load()) {
     LOG_DBG("SLP", "XTC: failed to load %s", filePath.c_str());
     return false;

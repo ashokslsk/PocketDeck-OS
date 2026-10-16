@@ -217,6 +217,7 @@ void ButtonRemapActivity::refreshListItems() {
 bool ButtonRemapActivity::usesLyraValueBadge() const {
   switch (static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme)) {
     case CrossPointSettings::UI_THEME::LYRA:
+    case CrossPointSettings::UI_THEME::POCKETDECK:
     case CrossPointSettings::UI_THEME::LYRA_3_COVERS:
     case CrossPointSettings::UI_THEME::LYRA_CAROUSEL:
     case CrossPointSettings::UI_THEME::MINIMAL:

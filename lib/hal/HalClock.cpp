@@ -287,32 +287,34 @@ bool HalClock::syncSystemTimeFromNTP() {
     return false;
   }
 
-  esp_netif_sntp_deinit();
+  // Right after WiFi connects the first answer can be slow (DNS, a busy pool
+  // server): wait up to 10 s, then try a second server before giving up.
+  static constexpr const char* kServers[] = {"pool.ntp.org", "time.google.com"};
+  for (const char* server : kServers) {
+    esp_netif_sntp_deinit();
 
-  LOG_INF("CLK", "Starting NTP sync...");
-  // esp-netif owns the small temporary SNTP state/semaphore and routes all
-  // lwIP timer changes through its core-lock-safe execution path.
-  esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
-  const esp_err_t initResult = esp_netif_sntp_init(&config);
-  if (initResult != ESP_OK) {
-    LOG_ERR("CLK", "Failed to start NTP sync: %s", esp_err_to_name(initResult));
-    return false;
-  }
+    LOG_INF("CLK", "Starting NTP sync (%s)...", server);
+    // esp-netif owns the small temporary SNTP state/semaphore and routes all
+    // lwIP timer changes through its core-lock-safe execution path.
+    esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG(server);
+    const esp_err_t initResult = esp_netif_sntp_init(&config);
+    if (initResult != ESP_OK) {
+      LOG_ERR("CLK", "Failed to start NTP sync: %s", esp_err_to_name(initResult));
+      return false;
+    }
 
-  const esp_err_t syncResult = esp_netif_sntp_sync_wait(pdMS_TO_TICKS(5000));
-  // An SNTP timeout can leave its DNS callback pending. Drain that callback
-  // under lwIP's core lock before stopping SNTP; the next hostname lookup may
-  // otherwise invoke it from the application task while clearing the cache.
-  const esp_err_t clearResult = esp_netif_tcpip_exec(clearDnsCache, nullptr);
-  esp_netif_sntp_deinit();
-  if (clearResult != ESP_OK) {
-    LOG_ERR("CLK", "Failed to clear DNS after NTP sync: %s", esp_err_to_name(clearResult));
-    return false;
+    const esp_err_t syncResult = esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000));
+    // An SNTP timeout can leave its DNS callback pending. Drain that callback
+    // under lwIP's core lock before stopping SNTP; the next hostname lookup may
+    // otherwise invoke it from the application task while clearing the cache.
+    const esp_err_t clearResult = esp_netif_tcpip_exec(clearDnsCache, nullptr);
+    esp_netif_sntp_deinit();
+    if (clearResult != ESP_OK) {
+      LOG_ERR("CLK", "Failed to clear DNS after NTP sync: %s", esp_err_to_name(clearResult));
+      return false;
+    }
+    if (syncResult == ESP_OK) return true;
+    LOG_ERR("CLK", "NTP sync via %s failed: %s", server, esp_err_to_name(syncResult));
   }
-  if (syncResult != ESP_OK) {
-    LOG_ERR("CLK", "NTP sync failed: %s", esp_err_to_name(syncResult));
-    return false;
-  }
-
-  return true;
+  return false;
 }

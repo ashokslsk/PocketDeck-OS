@@ -1,11 +1,13 @@
 #include "BookMoveUtils.h"
 
 #include <Epub.h>
+#include <FsHelpers.h>
 #include <HalStorage.h>
 #include <Logging.h>
 #include <Txt.h>
 #include <Xtc.h>
 
+#include <algorithm>
 #include <cstring>
 
 #include "BookmarkStore.h"
@@ -18,11 +20,11 @@ constexpr char READ_FOLDER[] = "/Read";
 
 bool getCachePath(const std::string& bookPath, const char* bookType, std::string& cachePath) {
   if (strcmp(bookType, "epub") == 0) {
-    cachePath = Epub::cachePathForFilePath(bookPath, "/.crosspoint");
+    cachePath = Epub::cachePathForFilePath(bookPath, "/.pocketdeck-os");
   } else if (strcmp(bookType, "xtc") == 0) {
-    cachePath = Xtc(bookPath, "/.crosspoint").getCachePath();
+    cachePath = Xtc(bookPath, "/.pocketdeck-os").getCachePath();
   } else if (strcmp(bookType, "txt") == 0) {
-    cachePath = Txt(bookPath, "/.crosspoint").getCachePath();
+    cachePath = Txt(bookPath, "/.pocketdeck-os").getCachePath();
   } else {
     LOG_ERR("BookMove", "Unknown book type for state migration: %s", bookType);
     return false;
@@ -209,11 +211,62 @@ RenameMigrationResult migrateRenamedBookState(const std::string& oldPath, const 
   return RenameMigrationResult::Success;
 }
 
+bool migrateMovedBookState(const std::string& oldPath, const std::string& newPath) {
+  const char* bookType = nullptr;
+  if (FsHelpers::hasEpubExtension(oldPath)) {
+    bookType = "epub";
+  } else if (FsHelpers::hasXtcExtension(oldPath)) {
+    bookType = "xtc";
+  } else if (FsHelpers::hasTxtExtension(oldPath) || FsHelpers::hasMarkdownExtension(oldPath)) {
+    bookType = "txt";
+  } else {
+    return true;
+  }
+
+  std::string oldCachePath;
+  std::string newCachePath;
+  if (!getCachePath(oldPath, bookType, oldCachePath) || !getCachePath(newPath, bookType, newCachePath)) return false;
+
+  std::string title;
+  std::string author;
+  const auto& recentBooks = RECENT_BOOKS.getBooks();
+  const auto recent = std::find_if(recentBooks.begin(), recentBooks.end(),
+                                   [&oldPath](const RecentBook& book) { return book.path == oldPath; });
+  if (recent != recentBooks.end()) {
+    title = recent->title;
+    author = recent->author;
+  }
+  if (title.empty()) {
+    const size_t slash = oldPath.rfind('/');
+    title = slash == std::string::npos ? oldPath : oldPath.substr(slash + 1);
+  }
+
+  bool ok = true;
+  if (Storage.exists(oldCachePath.c_str()) && !Storage.rename(oldCachePath.c_str(), newCachePath.c_str())) {
+    LOG_ERR("BookMove", "Failed to move cache dir %s -> %s", oldCachePath.c_str(), newCachePath.c_str());
+    ok = false;
+  }
+  if (!BookmarkStore::migrateForFilePath(oldPath, newPath, title, author, bookType)) {
+    LOG_ERR("BookMove", "Failed to migrate bookmarks %s -> %s", oldPath.c_str(), newPath.c_str());
+    ok = false;
+  }
+  if (strcmp(bookType, "epub") == 0 && !ClippingStore::migrateForFilePath(oldPath, newPath, title, author, bookType)) {
+    LOG_ERR("BookMove", "Failed to migrate clippings %s -> %s", oldPath.c_str(), newPath.c_str());
+    ok = false;
+  }
+  (void)RECENT_BOOKS.updatePath(oldPath, newPath, oldCachePath, newCachePath);
+  if (APP_STATE.openEpubPath == oldPath) {
+    APP_STATE.openEpubPath = newPath;
+    APP_STATE.saveToFile();
+  }
+  return ok;
+}
+
 bool migrateMovedEpubState(const std::string& oldPath, const std::string& newPath, const std::string& oldCachePath,
                            const std::string& title, const std::string& author, const bool keepInRecents) {
   bool ok = true;
 
-  const std::string newCachePath = Epub::cachePathForFilePath(newPath, "/.crosspoint");
+  const std::string newCachePath = Epub::cachePathForFilePath(newPath, "/.pocketdeck-os");
   if (!oldCachePath.empty() && Storage.exists(oldCachePath.c_str())) {
     if (!Storage.rename(oldCachePath.c_str(), newCachePath.c_str())) {
       LOG_ERR("BookMove", "Failed to rename cache dir %s -> %s (non-fatal)", oldCachePath.c_str(),

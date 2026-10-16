@@ -48,9 +48,9 @@ static constexpr int GLOBAL_STATS_FILE_SIZE_V1 = 13;
 static constexpr uint8_t GLOBAL_STATS_VERSION_V2 = 2;
 static constexpr int GLOBAL_STATS_FILE_SIZE_V2 = 17;
 static constexpr int GLOBAL_STATS_FILE_SIZE = static_cast<int>(GlobalReadingStats::CURRENT_FILE_SIZE);
-static constexpr char GLOBAL_STATS_PATH[] = "/.crosspoint/global_stats.bin";
-static constexpr char GLOBAL_STATS_BAK_PATH[] = "/.crosspoint/global_stats.bin.bak";
-static constexpr char SYNCED_STATS_DIR[] = "/.crosspoint/synced_stats";
+static constexpr char GLOBAL_STATS_PATH[] = "/.pocketdeck-os/global_stats.bin";
+static constexpr char GLOBAL_STATS_BAK_PATH[] = "/.pocketdeck-os/global_stats.bin.bak";
+static constexpr char SYNCED_STATS_DIR[] = "/.pocketdeck-os/synced_stats";
 static bool s_blockDestructiveSave = false;
 
 uint32_t readLe32(const uint8_t* data, const int offset) {

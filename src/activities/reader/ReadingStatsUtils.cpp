@@ -351,6 +351,12 @@ void recordReadingSpanIntoBuckets(std::array<uint32_t, READING_TIME_BUCKET_COUNT
   }
 }
 
+bool readingHistoryHasDay(const uint32_t anchorDay, const std::array<uint8_t, READING_HISTORY_BYTES>& bits,
+                          const uint32_t dayIndex) {
+  if (dayIndex > anchorDay || (anchorDay == 0 && !isBitSet(bits, 0))) return false;
+  return isBitSet(bits, anchorDay - dayIndex);
+}
+
 void markReadingHistoryDay(uint32_t& anchorDay, std::array<uint8_t, READING_HISTORY_BYTES>& bits,
                            const uint32_t dayIndex) {
   if (anchorDay == 0 && !isBitSet(bits, 0)) {

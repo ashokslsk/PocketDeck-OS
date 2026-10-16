@@ -15,14 +15,14 @@ ROOT = Path(__file__).resolve().parents[1]
 def check_resume(program: Path, suffix: str, activity: str, orientation: int) -> None:
     with tempfile.TemporaryDirectory(prefix="crossink-quick-lock-") as directory:
         work = Path(directory)
-        state_dir = work / "fs_" / ".crosspoint"
+        state_dir = work / "fs_" / ".pocketdeck-os"
         state_dir.mkdir(parents=True)
         book = work / "fs_" / f"book.{suffix}"
         if suffix == "epub":
             shutil.copy2(ROOT / "test/epubs/test_reader_rendering_matrix.epub", book)
         else:
             book.write_text("Quick Lock wake regression.\n" * 80)
-        (state_dir / "crossink-settings.json").write_text(json.dumps({"orientation": orientation}))
+        (state_dir / "pocketdeck-os-settings.json").write_text(json.dumps({"orientation": orientation}))
         (state_dir / "state.json").write_text(json.dumps({
             "openEpubPath": f"/book.{suffix}",
             "lastSleepFromReader": True,

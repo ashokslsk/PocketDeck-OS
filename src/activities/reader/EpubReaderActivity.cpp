@@ -38,6 +38,7 @@
 #include "EpubReaderChapterSelectionActivity.h"
 #include "EpubReaderClippingListActivity.h"
 #include "EpubReaderFootnotesActivity.h"
+#include "ReadingDayLog.h"
 #if CROSSINK_APP_CAP_TOUCH
 #include "EpubReaderTouchMenuActivity.h"
 #endif
@@ -47,6 +48,7 @@
 #include "GlobalActions.h"
 #include "KOReaderCredentialStore.h"
 #include "KOReaderSyncActivity.h"
+#include "KannadaReading.h"
 #include "LookedUpWordsActivity.h"
 #include "MappedInputManager.h"
 #include "NearbyBookPositionSyncActivity.h"
@@ -58,6 +60,7 @@
 #include "RecentBooksStore.h"
 #include "SdCardFontSystem.h"
 #include "SilentRestart.h"
+#include "SpeedReadPickerActivity.h"
 #include "WordRef.h"
 #include "activities/home/RecentBookProgress.h"
 #include "activities/util/ConfirmationActivity.h"
@@ -343,10 +346,36 @@ SectionFallbackResult runSectionBuildFallbacks(const EpubRenderMode selectedMode
   return result;
 }
 
+// Collects up to 1 KB from each of the opening chapters (6 KB in all) so a
+// Kannada book tagged with another language is still recognised; stops each
+// chapter's stream early instead of inflating it whole.
+class KannadaSample final : public Print {
+ public:
+  char text[6 * 1024];
+  size_t len = 0;
+  bool full() const { return len >= sizeof(text) - 4; }
+  void beginItem() { itemStart_ = len; }
+  size_t write(uint8_t c) override { return write(&c, 1); }
+  size_t write(const uint8_t* buf, size_t size) override {
+    const size_t itemCap = itemStart_ + 1024 < sizeof(text) ? itemStart_ + 1024 : sizeof(text);
+    if (len >= itemCap) return 0;  // enough of this chapter: stop the stream
+    const size_t n = std::min(size, itemCap - len);
+    memcpy(text + len, buf, n);
+    len += n;
+    return n;
+  }
+
+ private:
+  size_t itemStart_ = 0;
+};
+
 ReaderRenderSpec readerRenderSpecForProfile(const int fontId, const uint16_t viewportWidth,
                                             const uint16_t viewportHeight, const SectionBuildProfile& profile) {
   ReaderRenderSpec spec = SETTINGS.readerRenderSpec(viewportWidth, viewportHeight, profile.renderMode);
   spec.fontId = fontId;
+  // Kannada books: shaping on, and the reader font's taller line for it.
+  kannadareading::useReaderFont(fontId);
+  spec.scriptShaping = kannadareading::layoutFlag();
   spec.embeddedStyle = profile.embeddedStyle;
   spec.focusReadingEnabled = profile.focusReadingEnabled;
   spec.guideReadingEnabled = profile.guideReadingEnabled;
@@ -1392,7 +1421,7 @@ EpubReaderActivity::BookReaderSettingsData EpubReaderActivity::readBookReaderSet
 }
 
 uint8_t EpubReaderActivity::loadBookRenderMode(const std::string& filePath) {
-  Epub epub(filePath, "/.crosspoint");
+  Epub epub(filePath, "/.pocketdeck-os");
   epub.setupCacheDir();
   const BookReaderSettingsData data = loadBookReaderSettingsFile(epub.getCachePath());
   return data.hasRenderModeOverride ? normalizeRenderModeRaw(data.renderMode)
@@ -1400,13 +1429,13 @@ uint8_t EpubReaderActivity::loadBookRenderMode(const std::string& filePath) {
 }
 
 bool EpubReaderActivity::saveBookRenderMode(const std::string& filePath, const uint8_t renderMode) {
-  Epub epub(filePath, "/.crosspoint");
+  Epub epub(filePath, "/.pocketdeck-os");
   epub.setupCacheDir();
   return saveBookRenderModeForCache(epub.getCachePath(), renderMode);
 }
 
 bool EpubReaderActivity::resetBookReaderSettings(const std::string& filePath) {
-  Epub epub(filePath, "/.crosspoint");
+  Epub epub(filePath, "/.pocketdeck-os");
   const std::string settingsPath = epub.getCachePath() + READER_SETTINGS_FILE_NAME;
   if (!Storage.exists(settingsPath.c_str())) {
     return true;
@@ -2164,6 +2193,21 @@ void EpubReaderActivity::onEnter() {
 
   BOOKMARKS.loadForBook(epub->getPath(), epub->getTitle(), epub->getAuthor(), "epub");
   CLIPPINGS.loadForBook(epub->getPath(), epub->getTitle(), epub->getAuthor(), "epub");
+  // Kannada books: shape Kannada text with the SD card Kannada font. Many
+  // Kannada EPUBs are tagged "en", so the opening chapters are sampled too.
+  {
+    // 6 KB scratch on the heap only while the book opens (too big for the stack).
+    auto sample = makeUniqueNoThrow<KannadaSample>();
+    if (sample) {
+      for (int i = 0; i < std::min(epub->getSpineItemsCount(), 6) && !sample->full(); ++i) {
+        const auto item = epub->getSpineItem(i);
+        sample->beginItem();
+        epub->readItemContentsToStream(item.href, *sample, 1024, /*allowEarlyStop=*/true);
+      }
+    }
+    kannadareading::beginBook(renderer, epub->getLanguage().c_str(), epub->getTitle().c_str(),
+                              sample ? sample->text : nullptr, sample ? sample->len : 0);
+  }
 
   uint16_t restartPageBuildSpine = UINT16_MAX;
   uint16_t restartPageBuildTarget = 0;
@@ -2252,6 +2296,7 @@ void EpubReaderActivity::onEnter() {
   armReadingPaceWarmup("reader_open");
   sessionReadingSeconds = 0;
   hasSessionStartLocalDateTime = getCurrentLocalReadingStatsDateTime(sessionStartLocalDateTime);
+  sessionStartPages = stats.totalPagesTurned;
 
   globalStats = GlobalReadingStats::load();
 
@@ -2274,6 +2319,10 @@ void EpubReaderActivity::onEnter() {
 
 void EpubReaderActivity::onExit() {
   sdFontSystem.setSettingsPersistenceCallback(nullptr, nullptr);
+  speedReadActive = false;
+  speedReadPhrases.reset();
+  speedReadSnapshot.reset();
+  speedReadSnapshotBytes = 0;
   clearPendingManualPageTurns(/*requestRecoveryRedraw=*/false);
   mappedInput.setReaderTouchscreenOverride(false);
 
@@ -2285,6 +2334,7 @@ void EpubReaderActivity::onExit() {
   // SD-font caches live in the renderer singleton, so leaving them resident after
   // the reader exits can fragment the contiguous heap needed for Home cover images.
   releaseReaderSdFontCachesForLowMemory(renderer, "ERS", "reader exit");
+  kannadareading::endBook(renderer);
   MemoryBudget::logEpubHeapPools("reader exit after caches");
   Activity::onExit();
 
@@ -2319,6 +2369,8 @@ void EpubReaderActivity::onExit() {
       if (hasSessionStartLocalDateTime) {
         stats.recordReadingSpan(sessionStartLocalDateTime, elapsedSecs);
         globalStats.recordReadingSpan(sessionStartLocalDateTime, elapsedSecs);
+        readingdaylog::record(sessionStartLocalDateTime, elapsedSecs,
+                              stats.totalPagesTurned - std::min(stats.totalPagesTurned, sessionStartPages));
       }
       if (elapsedSecs >= 120 && !stats.startDateManual && !stats.startDate.isValid() && hasSessionStartLocalDateTime) {
         stats.startDate = sessionStartLocalDateTime.date;
@@ -2549,9 +2601,12 @@ bool EpubReaderActivity::backgroundSectionBuildHasHeap() {
 }
 
 void EpubReaderActivity::idlePrewarmNextPage() {
+  // Like Auto Page Turn, a running Speed Read skips this: the prewarm holds the
+  // render lock while it reads the next page's SD-font glyphs (seconds on the C3
+  // for Kannada), which would freeze the pacing underline.
   if (!section || section->isBuilding() || activeFootnotePreview || automaticPageTurnActive ||
-      !renderer.hasFrameBuffer() || RenderLock::peek() || lastRenderCompleteMs == 0 ||
-      (millis() - lastRenderCompleteMs) < IDLE_SD_FONT_PREWARM_DELAY_MS) {
+      (speedReadActive && !speedReadPaused) || !renderer.hasFrameBuffer() || RenderLock::peek() ||
+      lastRenderCompleteMs == 0 || (millis() - lastRenderCompleteMs) < IDLE_SD_FONT_PREWARM_DELAY_MS) {
     return;
   }
 
@@ -2663,7 +2718,9 @@ void EpubReaderActivity::loop() {
   if (goHomeAfterBuildCancel.load(std::memory_order_relaxed) && !RenderLock::peek()) {
     goHomeAfterBuildCancel.store(false, std::memory_order_relaxed);
     sectionBuildCancelRequested.store(false, std::memory_order_relaxed);
-    onGoHome();
+    // Back pressed while the page was still loading: same destination as a
+    // normal Back (the book's folder when opened from Browse Files).
+    onGoBackFromReader(epub ? epub->getPath() : std::string());
     return;
   }
 
@@ -2905,6 +2962,19 @@ void EpubReaderActivity::loop() {
     }
   }
 
+  if (speedReadActive) {
+    if (atEndOfBook || activeFootnotePreview) {
+      stopSpeedRead();
+    } else {
+      const bool backReleased = !touch.prev && !touch.next &&
+                                mappedInput.wasReleased(MappedInputManager::Button::Back) &&
+                                mappedInput.getHeldTime() < ReaderUtils::GO_HOME_MS;
+      if (handleSpeedReadInput(confirmReleased, backReleased)) {
+        return;
+      }
+    }
+  }
+
 #if CROSSINK_APP_CAP_TOUCH
   if (!atEndOfBook && touch.tapped && handleTouchFootnoteLink(touch.x, touch.y)) {
     return;
@@ -2967,14 +3037,15 @@ void EpubReaderActivity::loop() {
     return;
   }
 
-  // Short press BACK goes directly to home (or restores position if viewing footnote)
+  // Short press BACK returns to where the book was opened from (or restores
+  // position if viewing a footnote)
   if (!touch.prev && !touch.next && mappedInput.wasReleased(MappedInputManager::Button::Back) &&
       mappedInput.getHeldTime() < ReaderUtils::GO_HOME_MS) {
     if (footnoteDepth > 0) {
       restoreSavedPosition();
       return;
     }
-    onGoHome();
+    onGoBackFromReader(epub ? epub->getPath() : std::string());
     return;
   }
 
@@ -3695,6 +3766,10 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
     }
     case EpubReaderMenuActivity::MenuAction::LOOKUP: {
       openWordSelect(/*framebufferContainsPage=*/false);
+      break;
+    }
+    case EpubReaderMenuActivity::MenuAction::SPEED_READ: {
+      openSpeedReadPicker(returnToReaderMenu);
       break;
     }
     case EpubReaderMenuActivity::MenuAction::LOOKUP_HISTORY: {
@@ -4632,6 +4707,7 @@ void EpubReaderActivity::resetCurrentBookStatsAfterDelete() {
   sessionPaceSampleCount = 0;
   pendingReadFolderMove = false;
   hasSessionStartLocalDateTime = getCurrentLocalReadingStatsDateTime(sessionStartLocalDateTime);
+  sessionStartPages = stats.totalPagesTurned;
   armReadingPaceWarmup("book_stats_delete");
   initializeCompletionPromptTrigger();
 }
@@ -5465,7 +5541,458 @@ void EpubReaderActivity::cancelSilentNextChapterPrefetchForForwardTurn() {
   LOG_DBG("ERS", "Forward page turn requested while silent next-chapter indexing is busy; cancelling prefetch");
 }
 
+// ---- Speed Read ------------------------------------------------------------
+
+namespace {
+// Last preset chosen per script, so reopening Speed Read lands on it.
+int speedReadLastEnglishPreset = 1;
+int speedReadLastKannadaPreset = 1;
+
+struct SpeedReadWordInfo {
+  uint16_t weight;   // hundredths of an average word
+  bool sentenceEnd;  // ends with . ! ? or a danda: close the phrase here
+  bool visible;      // false for layout-only tokens such as a lone no-break space
+};
+
+bool isSpeedReadClosingMark(const uint32_t cp) {
+  return cp == '"' || cp == '\'' || cp == ')' || cp == ']' || cp == 0x2019 || cp == 0x201D || cp == 0x00BB;
+}
+
+// Long words and pauses at punctuation get more time; short words less. English
+// (and other Latin/Cyrillic text) counts letters, Kannada counts aksharas: a
+// vowel or consonant that does not follow a virama starts a new akshara.
+SpeedReadWordInfo speedReadWordInfo(const char* word, const bool kannada) {
+  const auto* p = reinterpret_cast<const unsigned char*>(word);
+  int units = 0;
+  uint32_t prev = 0;
+  uint32_t tail = 0;
+  uint32_t cp;
+  bool visible = false;
+  while ((cp = utf8NextCodepoint(&p)) != 0) {
+    const bool space =
+        cp <= 0x20 || cp == 0xA0 || (cp >= 0x2000 && cp <= 0x200F) || cp == 0x202F || cp == 0x2060 || cp == 0xFEFF;
+    if (!space) visible = true;
+    if (cp >= 0x0C85 && cp <= 0x0CB9) {
+      if (prev != 0x0CCD) units++;
+    } else if (cp < 0x80) {
+      if (std::isalnum(static_cast<int>(cp))) units++;
+    } else if (cp >= 0xC0 && cp < 0x2000 && cp != 0xD7 && cp != 0xF7 && !(cp >= 0x0C80 && cp <= 0x0CFF)) {
+      units++;
+    }
+    if (!isSpeedReadClosingMark(cp)) tail = cp;
+    prev = cp;
+  }
+  int weight = kannada ? 40 + 15 * units : 50 + 10 * units;
+  weight = std::max(60, std::min(kannada ? 250 : 220, weight));
+  const bool sentenceEnd =
+      tail == '.' || tail == '!' || tail == '?' || tail == 0x2026 || tail == 0x0964 || tail == 0x0965;
+  if (sentenceEnd) {
+    weight += 80;
+  } else if (tail == ',' || tail == ';' || tail == ':' || tail == 0x2014 || tail == 0x2013) {
+    weight += 40;
+  }
+  return {static_cast<uint16_t>(weight), sentenceEnd, visible};
+}
+}  // namespace
+
+void EpubReaderActivity::openSpeedReadPicker(const bool returnToReaderMenu) {
+  const bool kannada = kannadareading::layoutFlag() != 0;
+  const int preset = kannada ? speedReadLastKannadaPreset : speedReadLastEnglishPreset;
+  startActivityForResult(std::make_unique<SpeedReadPickerActivity>(renderer, mappedInput, kannada, preset),
+                         [this, kannada, returnToReaderMenu](const ActivityResult& result) {
+                           const auto* selection = std::get_if<OptionSelectionResult>(&result.data);
+                           if (result.isCancelled || !selection) {
+                             if (returnToReaderMenu) {
+                               openReaderMenu();
+                             } else {
+                               requestUpdate();
+                             }
+                             return;
+                           }
+                           (kannada ? speedReadLastKannadaPreset : speedReadLastEnglishPreset) = selection->index;
+                           startSpeedRead(SpeedReadPickerActivity::wpmFor(kannada, selection->index));
+                         });
+}
+
+void EpubReaderActivity::startSpeedRead(const uint16_t wpm) {
+  // ~2 KB, held only while Speed Read runs and freed by stopSpeedRead()/onExit().
+  auto phrases = makeUniqueNoThrow<SpeedReadPhrase[]>(kSpeedReadMaxPhrases);
+  if (!phrases) {
+    LOG_ERR("ERS", "OOM: Speed Read phrases (%u bytes)",
+            static_cast<unsigned>(sizeof(SpeedReadPhrase) * kSpeedReadMaxPhrases));
+    requestUpdate();
+    return;
+  }
+  {
+    RenderLock lock(*this);
+    speedReadPhrases = std::move(phrases);
+    speedReadSnapshot.reset();
+    speedReadSnapshotBytes = 0;
+    speedReadSnapshotValid = false;
+    speedReadActive = true;
+    speedReadPaused = false;
+    speedReadCheckInOpen = false;
+    speedReadStepPending = false;
+    speedReadRebuildPending = false;
+    speedReadTimerRestart = false;
+    speedReadWpm = std::max(kSpeedReadMinWpm, std::min(kSpeedReadMaxWpm, wpm));
+    speedReadStep = 0;
+    speedReadPhraseCount = 0;
+    speedReadPageKey = -1;
+    speedReadDrawnStep = -1;
+    speedReadFocusMs = 0;
+    speedReadFocusMarkMs = millis();
+    speedReadStepStartMs = speedReadFocusMarkMs;
+    speedReadIntroOpen = true;
+    speedReadIntroSinceMs = speedReadFocusMarkMs;
+    // One pacer at a time.
+    automaticPageTurnActive = false;
+  }
+  LOG_INF("ERS", "Speed Read started at %u WPM", static_cast<unsigned>(speedReadWpm));
+  requestUpdate();
+}
+
+void EpubReaderActivity::stopSpeedRead() {
+  if (!speedReadActive) return;
+  {
+    RenderLock lock(*this);
+    speedReadActive = false;
+    speedReadPaused = false;
+    speedReadCheckInOpen = false;
+    speedReadIntroOpen = false;
+    speedReadStepPending = false;
+    speedReadRebuildPending = false;
+    speedReadTimerRestart = false;
+    speedReadPhraseCount = 0;
+    speedReadPageKey = -1;
+    speedReadDrawnStep = -1;
+    speedReadSnapshotValid = false;
+    speedReadPhrases.reset();
+    speedReadSnapshot.reset();
+    speedReadSnapshotBytes = 0;
+  }
+  LOG_INF("ERS", "Speed Read stopped");
+  // Redraw the page without the underline and with the chapter title back.
+  requestUpdate();
+}
+
+void EpubReaderActivity::updateSpeedReadFocusTime() {
+  const unsigned long now = millis();
+  if (speedReadActive && !speedReadPaused && !speedReadCheckInOpen && !speedReadIntroOpen) {
+    speedReadFocusMs += now - speedReadFocusMarkMs;
+  }
+  speedReadFocusMarkMs = now;
+}
+
+void EpubReaderActivity::setSpeedReadPaused(const bool paused) {
+  updateSpeedReadFocusTime();
+  speedReadPaused = paused;
+  speedReadStepPending = false;
+  if (paused) {
+    speedReadPausedSinceMs = millis();
+  } else {
+    // The current phrase gets its full time again once the page is redrawn.
+    speedReadTimerRestart = true;
+  }
+  // The status bar shows "Paused" / the pace, so redraw.
+  requestUpdate();
+}
+
+unsigned long EpubReaderActivity::speedReadStepMs(const uint16_t step) const {
+  if (!speedReadPhrases || step >= speedReadPhraseCount || speedReadWpm == 0) return 1000;
+  return static_cast<unsigned long>(speedReadPhrases[step].weight) * 600UL / speedReadWpm;
+}
+
+bool EpubReaderActivity::handleSpeedReadInput(const bool confirmReleased, const bool backReleased) {
+  const unsigned long now = millis();
+  updateSpeedReadFocusTime();
+
+  if (speedReadIntroOpen) {
+    // The welcome card stays a few seconds; any front button starts right away
+    // and Back cancels. Pacing starts with the redraw that removes the card.
+    const bool skip = confirmReleased || mappedInput.wasReleased(MappedInputManager::Button::Left) ||
+                      mappedInput.wasReleased(MappedInputManager::Button::Right);
+    if (backReleased) {
+      stopSpeedRead();
+    } else if (skip || (now - speedReadIntroSinceMs >= kSpeedReadIntroMs && !RenderLock::peek())) {
+      speedReadIntroOpen = false;
+      speedReadFocusMarkMs = now;
+      speedReadStepPending = false;
+      requestUpdate();
+    }
+    return true;
+  }
+
+  if (speedReadCheckInOpen) {
+    if (confirmReleased) {
+      speedReadCheckInOpen = false;
+      speedReadFocusMs = 0;
+      speedReadFocusMarkMs = now;
+      speedReadTimerRestart = true;
+      requestUpdate();
+    } else if (backReleased || now - speedReadCheckInSinceMs >= kSpeedReadCheckInTimeoutMs) {
+      // No answer (or Stop): end Speed Read; the device's normal sleep timer
+      // takes over from here.
+      stopSpeedRead();
+    }
+    return true;
+  }
+
+  if (backReleased) {
+    stopSpeedRead();
+    return true;
+  }
+  if (confirmReleased) {
+    setSpeedReadPaused(!speedReadPaused);
+    return true;
+  }
+  const bool slower = mappedInput.wasReleased(MappedInputManager::Button::Left);
+  const bool faster = mappedInput.wasReleased(MappedInputManager::Button::Right);
+  if (slower || faster) {
+    const int next = static_cast<int>(speedReadWpm) + (faster ? kSpeedReadWpmStep : -kSpeedReadWpmStep);
+    const auto wpm = static_cast<uint16_t>(std::max<int>(kSpeedReadMinWpm, std::min<int>(kSpeedReadMaxWpm, next)));
+    if (wpm != speedReadWpm) {
+      RenderLock lock(*this);
+      speedReadWpm = wpm;
+      speedReadRebuildPending = true;
+      speedReadStepPending = false;
+    }
+    requestUpdate();
+    return true;
+  }
+  // Front buttons belong to Speed Read while it runs: no page turns, menu or
+  // long-press shortcuts from them. Side buttons still turn pages.
+  if (mappedInput.isPressed(MappedInputManager::Button::Confirm) ||
+      mappedInput.isPressed(MappedInputManager::Button::Left) ||
+      mappedInput.isPressed(MappedInputManager::Button::Right)) {
+    return true;
+  }
+
+  if (speedReadPaused) {
+    if (now - speedReadPausedSinceMs >= kSpeedReadPausedStopMs) {
+      stopSpeedRead();
+      return true;
+    }
+    return false;
+  }
+
+  // Wait for the render task: it restarts the phrase clock once the underline
+  // is actually on screen, so a slow refresh never eats into reading time.
+  if (RenderLock::peek()) return false;
+  if (speedReadTimerRestart) {
+    speedReadTimerRestart = false;
+    speedReadStepStartMs = now;
+    return false;
+  }
+  if (speedReadStepPending || speedReadRebuildPending || !section ||
+      speedReadPageKey != currentSpineIndex * 65536 + section->currentPage) {
+    return false;
+  }
+
+  if (speedReadFocusMs >= kSpeedReadCheckInMs) {
+    speedReadCheckInOpen = true;
+    speedReadCheckInSinceMs = now;
+    speedReadStepPending = false;
+    requestUpdate();
+    return true;
+  }
+
+  // A page without text (an illustration) gets a short look before turning.
+  const unsigned long stepMs = speedReadPhraseCount > 0 ? speedReadStepMs(speedReadStep) : 2500UL;
+  if (now - speedReadStepStartMs < stepMs) return false;
+  if (speedReadStep + 1 < speedReadPhraseCount) {
+    RenderLock lock(*this);
+    speedReadStep++;
+    speedReadStepPending = true;
+    requestUpdate();
+  } else {
+    pageTurn(true, "speed_read");
+  }
+  return false;
+}
+
+void EpubReaderActivity::prepareSpeedReadOverlay(const Page& page, const int fontId, const int orientedMarginTop,
+                                                 const int orientedMarginLeft) {
+  if (!speedReadActive || !speedReadPhrases || !section || renderer.getRenderMode() != GfxRenderer::BW) return;
+
+  const int32_t pageKey = currentSpineIndex * 65536 + section->currentPage;
+  const bool newPage = pageKey != speedReadPageKey;
+  if (newPage || speedReadRebuildPending) {
+    const uint16_t keepWord =
+        (!newPage && speedReadStep < speedReadPhraseCount) ? speedReadPhrases[speedReadStep].firstWord : 0;
+    const bool kannada = kannadareading::layoutFlag() != 0;
+    // About 1.2 s of reading per step: several words at brisk paces, single
+    // words at slow ones.
+    const uint32_t target = std::max<uint32_t>(100, 2U * speedReadWpm);
+    const int ascender = renderer.getFontAscenderSize(fontId);
+
+    uint16_t count = 0;
+    SpeedReadPhrase current{};
+    uint32_t currentWeight = 0;
+    // forEachTextLine() hands out one reused line object, so a line is told
+    // apart by its position, not its address.
+    bool phraseOpen = false;
+    int phraseLineY = 0;
+    const auto flush = [&]() {
+      if (!phraseOpen) return;
+      current.weight = static_cast<uint16_t>(std::min<uint32_t>(currentWeight, UINT16_MAX));
+      if (count < kSpeedReadMaxPhrases) {
+        speedReadPhrases[count++] = current;
+      } else {
+        auto& last = speedReadPhrases[count - 1];
+        last.weight = static_cast<uint16_t>(std::min<uint32_t>(last.weight + current.weight, UINT16_MAX));
+      }
+      phraseOpen = false;
+      currentWeight = 0;
+    };
+
+    forEachVisiblePageWord(page, [&](const uint16_t pageWordIndex, const PageTextLine& line, const TextBlock& block,
+                                     const size_t i) {
+      if (i >= block.wordCount()) return true;
+      const auto wordIndex = static_cast<uint16_t>(i);
+      const char* wordText = block.wordText(wordIndex);
+      const bool hasEmSpace = hasEmSpacePrefix(wordText);
+      const auto textStyle = static_cast<EpdFontFamily::Style>(block.wordStyle(wordIndex) & ~EpdFontFamily::UNDERLINE);
+      const int skipX = hasEmSpace ? renderer.getTextAdvanceX(fontId, "\xe2\x80\x83", textStyle) : 0;
+      const PageWordGeometry geometry = pageWordGeometry(renderer, fontId, line, block, wordIndex);
+      const char* visibleText = wordText + (hasEmSpace ? 3 : 0);
+      const int wordX = orientedMarginLeft + line.xPos + geometry.xOffset + skipX;
+      const int wordW = geometry.width - skipX;
+      if (wordW <= 0) return true;
+      const SpeedReadWordInfo info = speedReadWordInfo(visibleText, kannada);
+      if (!info.visible) return true;
+
+      if (phraseOpen && phraseLineY != line.yPos) flush();
+      if (!phraseOpen) {
+        // Sit the bar in the blank band between this line and the next, so it
+        // never touches descenders, ottaksharas or hanging vowel signs (their
+        // ink ends at the line boundary) nor the next line's head strokes.
+        const int lineH = line.lineHeight > 0 ? line.lineHeight : renderer.getLineHeight(fontId);
+        const int barTop = std::max(ascender + 3, kannada ? lineH + 1 : lineH + 2);
+        current.x = static_cast<int16_t>(wordX);
+        current.y = static_cast<int16_t>(orientedMarginTop + line.yPos + barTop);
+        current.w = static_cast<int16_t>(wordW);
+        current.firstWord = pageWordIndex;
+        phraseOpen = true;
+        phraseLineY = line.yPos;
+      } else {
+        const int left = std::min<int>(current.x, wordX);
+        const int right = std::max<int>(current.x + current.w, wordX + wordW);
+        current.x = static_cast<int16_t>(left);
+        current.w = static_cast<int16_t>(right - left);
+      }
+      currentWeight += info.weight;
+      if (info.sentenceEnd || currentWeight >= target) flush();
+      return true;
+    });
+    flush();
+
+    uint16_t step = 0;
+    if (!newPage) {
+      for (uint16_t s = 0; s < count; ++s) {
+        if (speedReadPhrases[s].firstWord <= keepWord) step = s;
+      }
+    }
+    speedReadPhraseCount = count;
+    speedReadStep = step;
+    speedReadPageKey = pageKey;
+    speedReadRebuildPending = false;
+    speedReadStepPending = false;
+  }
+  // The phrase on screen gets its full time once this redraw is on the panel.
+  speedReadTimerRestart = true;
+
+  // The framebuffer was just composed from scratch: nothing to restore.
+  speedReadSnapshotValid = false;
+  speedReadDrawnStep = -1;
+  drawSpeedReadUnderline();
+}
+
+void EpubReaderActivity::drawSpeedReadUnderline() {
+  if (speedReadSnapshotValid && speedReadSnapshot) {
+    renderer.copyBufferToRegion(speedReadSnapX, speedReadSnapY, speedReadSnapW, kSpeedReadBarHeight,
+                                speedReadSnapshot.get(), speedReadSnapshotBytes);
+  }
+  speedReadSnapshotValid = false;
+  speedReadDrawnStep = -1;
+  if (!speedReadPhrases || speedReadStep >= speedReadPhraseCount) return;
+
+  const SpeedReadPhrase& phrase = speedReadPhrases[speedReadStep];
+  const size_t needed = renderer.getRegionByteSize(phrase.x, phrase.y, phrase.w, kSpeedReadBarHeight);
+  if (needed > speedReadSnapshotBytes) {
+    // Grows to the widest phrase seen (a few hundred bytes), freed on stop.
+    speedReadSnapshot = makeUniqueNoThrow<uint8_t[]>(needed);
+    speedReadSnapshotBytes = speedReadSnapshot ? needed : 0;
+  }
+  if (!speedReadSnapshot || !renderer.copyRegionToBuffer(phrase.x, phrase.y, phrase.w, kSpeedReadBarHeight,
+                                                         speedReadSnapshot.get(), speedReadSnapshotBytes)) {
+    // Without the pixels underneath, the bar could not be erased cleanly later.
+    LOG_ERR("ERS", "Speed Read underline snapshot failed (%u bytes)", static_cast<unsigned>(needed));
+    return;
+  }
+  speedReadSnapX = phrase.x;
+  speedReadSnapY = phrase.y;
+  speedReadSnapW = phrase.w;
+  speedReadSnapshotValid = true;
+  renderer.fillRect(phrase.x, phrase.y, phrase.w, kSpeedReadBarHeight, ReaderUtils::readerForegroundBlack());
+  speedReadDrawnStep = speedReadStep;
+}
+
+void EpubReaderActivity::drawSpeedReadCard(const char* title, const char* const* lines, const int lineCount,
+                                           const bool centered) const {
+  const bool ink = ReaderUtils::readerForegroundBlack();
+  const int screenW = renderer.getScreenWidth();
+  const int screenH = renderer.getScreenHeight();
+  const int titleH = renderer.getLineHeight(UI_12_FONT_ID);
+  const int bodyH = renderer.getLineHeight(UI_10_FONT_ID);
+  constexpr int padX = 24;
+  constexpr int padY = 22;
+  constexpr int lineGap = 4;
+  const int boxW = std::min(screenW - 40, 440);
+  const int boxH = padY * 2 + titleH + 10 + lineCount * (bodyH + lineGap);
+  const int boxX = (screenW - boxW) / 2;
+  const int boxY = (screenH - boxH) / 2;
+  renderer.fillRoundedRect(boxX, boxY, boxW, boxH, 12, ink ? Color::White : Color::Black);
+  renderer.drawRoundedRect(boxX, boxY, boxW, boxH, 3, 12, ink);
+
+  const int textW = boxW - padX * 2;
+  const auto drawLine = [&](const int fontId, const char* text, const int y, const EpdFontFamily::Style style) {
+    const std::string fitted = renderer.truncatedText(fontId, text, textW, style);
+    const int x = centered ? boxX + (boxW - renderer.getTextWidth(fontId, fitted.c_str(), style)) / 2 : boxX + padX;
+    renderer.drawText(fontId, x, y, fitted.c_str(), ink, style);
+  };
+  int y = boxY + padY;
+  drawLine(UI_12_FONT_ID, title, y, EpdFontFamily::BOLD);
+  y += titleH + 10;
+  for (int i = 0; i < lineCount; ++i) {
+    drawLine(UI_10_FONT_ID, lines[i], y, EpdFontFamily::REGULAR);
+    y += bodyH + lineGap;
+  }
+}
+
+void EpubReaderActivity::drawSpeedReadIntro() const {
+  const char* const lines[] = {tr(STR_SPEED_READ_INTRO_1), tr(STR_SPEED_READ_INTRO_2), tr(STR_SPEED_READ_INTRO_3),
+                               tr(STR_SPEED_READ_INTRO_4)};
+  drawSpeedReadCard(tr(STR_SPEED_READ_INTRO_TITLE), lines, 4, /*centered=*/true);
+}
+
+void EpubReaderActivity::drawSpeedReadCheckIn() const {
+  const char* const lines[] = {tr(STR_SPEED_READ_CHECKIN_BODY), tr(STR_SPEED_READ_CHECKIN_TIMEOUT)};
+  drawSpeedReadCard(tr(STR_SPEED_READ_CHECKIN_TITLE), lines, 2, /*centered=*/false);
+
+  // Button hints replace the status bar while asking, like a system dialog.
+  const bool ink = ReaderUtils::readerForegroundBlack();
+  const int screenW = renderer.getScreenWidth();
+  const int screenH = renderer.getScreenHeight();
+  const int hintsH = UITheme::getInstance().getMetrics().buttonHintsHeight;
+  renderer.fillRect(0, screenH - hintsH, screenW, hintsH, !ink);
+  const auto labels = mappedInput.mapLabels(tr(STR_SPEED_READ_STOP), tr(STR_SPEED_READ_CONTINUE), "", "");
+  GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+}
+
 void EpubReaderActivity::pageTurn(bool isForwardTurn, const char* source) {
+  // A manual or automatic turn supersedes a pending underline move.
+  speedReadStepPending = false;
   pageLoadRetryCount = 0;
   if (activeFootnotePreview) {
     if (isForwardTurn) {
@@ -5552,6 +6079,23 @@ void EpubReaderActivity::render(RenderLock&& lock) {
   if (quickActionsPopup.processRender(renderer, mappedInput)) {
     return;
   }
+
+  // Speed Read step: move only the underline in the composed page and do a
+  // fast partial refresh, instead of laying the whole page out again.
+  if (speedReadStepPending) {
+    speedReadStepPending = false;
+    if (speedReadActive && !speedReadRebuildPending && !speedReadCheckInOpen && !speedReadIntroOpen &&
+        speedReadDrawnStep >= 0 && section && speedReadPageKey == currentSpineIndex * 65536 + section->currentPage &&
+        renderer.getRenderMode() == GfxRenderer::BW) {
+      drawSpeedReadUnderline();
+      renderer.displayBuffer(HalDisplay::FAST_REFRESH);
+      speedReadTimerRestart = true;
+      return;
+    }
+  }
+  // Any other render recomposes the page; the overlay is redrawn with it.
+  speedReadDrawnStep = -1;
+  speedReadSnapshotValid = false;
 
   const auto showPendingSyncSaveError = [this]() {
     if (!pendingSyncSaveError) return;
@@ -5667,7 +6211,14 @@ void EpubReaderActivity::render(RenderLock&& lock) {
             ESP.getFreeHeap(), ESP.getMaxAllocHeap());
     const int readerFontId = SETTINGS.getReaderFontId();
     const EpubRenderMode selectedRenderMode = normalizeRenderMode(SETTINGS.epubRenderMode);
-    const bool fullSectionIndexing = SETTINGS.indexingMethod == CrossPointSettings::INDEXING_FULL_SECTION;
+    // A very large chapter is always built incrementally (first page first),
+    // even with full-section indexing: laid out whole it can take minutes on
+    // the C3 behind the "Indexing" popup.
+    const size_t currentSpineBytes =
+        epub->getCumulativeSpineItemSize(currentSpineIndex) -
+        (currentSpineIndex > 0 ? epub->getCumulativeSpineItemSize(currentSpineIndex - 1) : 0);
+    const bool fullSectionIndexing = SETTINGS.indexingMethod == CrossPointSettings::INDEXING_FULL_SECTION &&
+                                     currentSpineBytes <= SILENT_INDEX_MAX_SPINE_BYTES;
     EpubRenderMode usedRenderMode = selectedRenderMode;
     const bool buildingFootnotePreview = !pendingFootnotePreviewAnchor.empty();
     bool loadedSection = false;
@@ -5890,6 +6441,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
         return SectionBuildAttempt{succeeded, layoutAbortedForLowMemory};
       };
       auto beforeFallbackRetry = [&](const SectionBuildProfile& profile) {
+        kannadareading::releaseForLowMemory();
         if (profile.safeMode) {
           LOG_ERR("ERS", "EPUB section layout aborted for low heap; retrying Safe Mode");
           releaseReaderSdFontCachesForLowMemory(renderer, "ERS", "safe mode section rebuild");
@@ -6355,6 +6907,19 @@ void EpubReaderActivity::silentIndexNextChapterIfNeeded(const uint16_t viewportW
       preparedNextViewportHeight == viewportHeight) {
     return;
   }
+  // A very large chapter (a whole novel in one file) would take minutes to lay
+  // out in full on the C3 and block the reader. Skip the prefetch: opening it
+  // builds incrementally, showing the first page as soon as it is laid out.
+  const size_t nextSpineBytes =
+      epub->getCumulativeSpineItemSize(nextSpineIndex) - epub->getCumulativeSpineItemSize(currentSpineIndex);
+  if (nextSpineBytes > SILENT_INDEX_MAX_SPINE_BYTES) {
+    LOG_DBG("ERS", "Next chapter %d is %u bytes; leaving it to incremental indexing", nextSpineIndex,
+            static_cast<unsigned>(nextSpineBytes));
+    preparedNextSpineIndex = nextSpineIndex;
+    preparedNextViewportWidth = viewportWidth;
+    preparedNextViewportHeight = viewportHeight;
+    return;
+  }
 
   const int readerFontId = SETTINGS.getReaderFontId();
   const EpubRenderMode selectedRenderMode = normalizeRenderMode(SETTINGS.epubRenderMode);
@@ -6449,6 +7014,7 @@ void EpubReaderActivity::silentIndexNextChapterIfNeeded(const uint16_t viewportW
     return SectionBuildAttempt{succeeded, layoutAbortedForLowMemory};
   };
   auto beforeFallbackRetry = [&](const SectionBuildProfile& profile) {
+    kannadareading::releaseForLowMemory();
     releaseReaderSdFontCachesForLowMemory(
         renderer, "ERS",
         profile.safeMode ? "silent next-chapter safe mode indexing" : "silent next-chapter fallback indexing");
@@ -6868,7 +7434,11 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
   const bool pageHasImages = page->hasImages();
   const bool foregroundBlack = ReaderUtils::readerForegroundBlack();
   bool needsImageGrayscale = pageHasImages;
-  bool needsTextGrayscale = SETTINGS.textAntiAliasing && foregroundBlack;
+  // A running Speed Read draws pages in plain black and white: the anti-aliasing
+  // pass keeps the panel busy for seconds (about 9 s for a Kannada page on the
+  // C3), and the pacing underline could not move until it finished. Stopping
+  // Speed Read redraws the page with anti-aliasing again.
+  bool needsTextGrayscale = SETTINGS.textAntiAliasing && foregroundBlack && !speedReadActive;
   const int contentBottom = renderer.getScreenHeight() - orientedMarginBottom;
 
   // The pending count excludes the page currently being rendered. Decide
@@ -6896,6 +7466,7 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
 
   const auto finalizeBufferComposition = [&]() {
     drawClippingHighlights(*page, fontId, orientedMarginTop, orientedMarginLeft);
+    prepareSpeedReadOverlay(*page, fontId, orientedMarginTop, orientedMarginLeft);
     drawPublisherPageMarkers(renderer, *page, orientedMarginTop, contentBottom, foregroundBlack);
 #if CROSSINK_APP_CAP_TOUCH
     if (activeFootnotePreview) {
@@ -6970,6 +7541,11 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
     drawRenderModeToastBuffer(tr(STR_SAFE_MODE));
   } else if (pendingRenderModeToast) {
     drawRenderModeToastBuffer(labelForRenderModeToast(normalizeRenderMode(renderModeToastMode)));
+  }
+  if (speedReadActive && speedReadCheckInOpen) {
+    drawSpeedReadCheckIn();
+  } else if (speedReadActive && speedReadIntroOpen) {
+    drawSpeedReadIntro();
   }
   if (!updatePanel) {
     return true;
@@ -7408,6 +7984,19 @@ void EpubReaderActivity::renderStatusBar() const {
     title = epub->getTitle();
   }
 
+  if (speedReadActive && !automaticPageTurnActive) {
+    // "Speed 200 WPM · Chapter" / "Paused · 200 WPM · Chapter" in the title slot.
+    char speedLabel[64];
+    snprintf(speedLabel, sizeof(speedLabel),
+             speedReadPaused ? tr(STR_SPEED_READ_PAUSED_FORMAT) : tr(STR_SPEED_READ_STATUS_FORMAT),
+             static_cast<unsigned>(speedReadWpm));
+    title = title.empty() ? std::string(speedLabel) : std::string(speedLabel) + " \xc2\xb7 " + title;
+    const uint8_t statusBarHeight = UITheme::getInstance().getStatusBarHeight();
+    if (statusBarHeight == 0 || statusBarHeight == UITheme::getInstance().getProgressBarHeight()) {
+      textYOffset += UITheme::getInstance().getMetrics().statusBarVerticalMargin;
+    }
+  }
+
   const int bookmarkPageCount = estimatedPageCount > 0 ? estimatedPageCount : 1;
   const float rawProgress = (estimatedPageCount > 0)
                                 ? (static_cast<float>(section->currentPage) / static_cast<float>(estimatedPageCount))
@@ -7694,7 +8283,7 @@ void EpubReaderActivity::restoreSavedPosition() {
   requestUpdate();
 }
 bool EpubReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, GfxRenderer& renderer) {
-  auto epub = makeUniqueNoThrow<Epub>(filePath, "/.crosspoint");
+  auto epub = makeUniqueNoThrow<Epub>(filePath, "/.pocketdeck-os");
   if (!epub) {
     LOG_ERR("SLP", "EPUB: failed to allocate book for sleep-page rendering");
     return false;

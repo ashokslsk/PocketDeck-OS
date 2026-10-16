@@ -337,7 +337,30 @@ void GfxRenderer::insertFont(const int fontId, EpdFontFamily font) {
 }
 
 int GfxRenderer::resolveTextFontId(const int fontId, const char* text, const EpdFontFamily::Style style) const {
-  if (fallbackFontMap_.empty() || text == nullptr || *text == '\0') {
+  if (text == nullptr || *text == '\0') {
+    return fontId;
+  }
+  const auto bfIt = builtinFallbackMap_.find(fontId);
+  if (bfIt != builtinFallbackMap_.end()) {
+    // A built-in reader font: route the string to its built-in partner when it
+    // holds a letter only the partner has (Cyrillic in a Lexend Deca book).
+    const auto fontIt = fontMap.find(fontId);
+    const auto partnerIt = fontMap.find(bfIt->second);
+    if (fontIt != fontMap.end() && partnerIt != fontMap.end()) {
+      const char* cursor = text;
+      uint32_t cp;
+      while ((cp = utf8NextCodepoint(reinterpret_cast<const uint8_t**>(&cursor)))) {
+        // Greek/Cyrillic words always go to the partner, so a Lexend Deca page never
+        // mixes its few fallback Cyrillic letters with Bitter's in one sentence.
+        const bool greekOrCyrillic = cp >= 0x0370 && cp < 0x0530;
+        if (cp >= 0x80 && (greekOrCyrillic || !fontIt->second.hasCodepoint(cp, style)) &&
+            partnerIt->second.hasCodepoint(cp, style)) {
+          return bfIt->second;
+        }
+      }
+    }
+  }
+  if (fallbackFontMap_.empty()) {
     return fontId;
   }
   const auto fbIt = fallbackFontMap_.find(fontId);
@@ -1046,6 +1069,7 @@ int GfxRenderer::getTextWidth(const int fontId, const char* text, const EpdFontF
   if (text == nullptr || *text == '\0') {
     return 0;
   }
+  if (shapedText(text)) return scriptShaper_->measure(*this, fontId, text, style);
 
   const int resolvedFontId = resolveTextFontId(fontId, text, style);
 
@@ -1110,9 +1134,19 @@ void GfxRenderer::drawText(const int fontId, const int x, const int y, const cha
   if (text == nullptr || *text == '\0') {
     return;
   }
+  if (shapedText(text)) {
+    // The shaper reads its own font; there is nothing to prewarm in scan mode.
+    if (!(fontCacheManager_ && fontCacheManager_->isScanning()))
+      scriptShaper_->draw(*this, fontId, x, y, text, black, style);
+    return;
+  }
 
   const int resolvedFontId = resolveTextFontId(fontId, text, style);
-  const int yPos = y + getFontAscenderSize(resolvedFontId);
+  // A built-in partner font keeps the requested font's baseline so mixed
+  // lines stay level; SD fallbacks use their own.
+  const auto partner = builtinFallbackMap_.find(fontId);
+  const bool builtinPartner = partner != builtinFallbackMap_.end() && partner->second == resolvedFontId;
+  const int yPos = y + getFontAscenderSize(builtinPartner ? fontId : resolvedFontId);
   int lastBaseX = x;
   int lastBaseLeft = 0;
   int lastBaseWidth = 0;
@@ -2723,6 +2757,7 @@ int GfxRenderer::getKerning(const int fontId, const uint32_t leftCp, const uint3
 
 int GfxRenderer::getTextAdvanceX(const int fontId, const char* text, const EpdFontFamily::Style style,
                                  const uint32_t followingCp) const {
+  if (shapedText(text)) return scriptShaper_->measure(*this, fontId, text, style);
   // Match the font drawText would use for CJK-bearing strings (see resolveTextFontId).
   const int resolvedFontId = resolveTextFontId(fontId, text, style);
   // Measure the exact codepoint stream drawText renders: bidi-reordered and
@@ -2886,7 +2921,8 @@ int GfxRenderer::getFontAscenderSize(const int fontId) const {
     return 0;
   }
 
-  return fontIt->second.getData(EpdFontFamily::REGULAR)->ascender;
+  const int ascender = fontIt->second.getData(EpdFontFamily::REGULAR)->ascender;
+  return fontId == metricFloorFontId_ && ascender < ascenderFloor_ ? ascenderFloor_ : ascender;
 }
 
 int GfxRenderer::getLineHeight(const int fontId) const {
@@ -2896,7 +2932,8 @@ int GfxRenderer::getLineHeight(const int fontId) const {
     return 0;
   }
 
-  return fontIt->second.getData(EpdFontFamily::REGULAR)->advanceY;
+  const int lineHeight = fontIt->second.getData(EpdFontFamily::REGULAR)->advanceY;
+  return fontId == metricFloorFontId_ && lineHeight < lineHeightFloor_ ? lineHeightFloor_ : lineHeight;
 }
 
 int GfxRenderer::getTextHeight(const int fontId) const {
