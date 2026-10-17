@@ -238,6 +238,13 @@ class EpubReaderActivity final : public Activity {
   int16_t speedReadSnapY = 0;
   int16_t speedReadSnapW = 0;
   void openSpeedReadPicker(bool returnToReaderMenu);
+  // View Images / Search in Book.
+  std::string searchQueryForJump;     // applied when the jump's chapter is laid out
+  std::string searchHighlightNeedle;  // underlined on the page where it was found
+  int32_t searchHighlightPageKey = -1;
+  void openImageViewer();
+  void openBookSearch(bool returnToReaderMenu);
+  void drawSearchHighlight(const Page& page, int fontId, int orientedMarginTop, int orientedMarginLeft);
   void startSpeedRead(uint16_t wpm);
   void stopSpeedRead();
   void setSpeedReadPaused(bool paused);

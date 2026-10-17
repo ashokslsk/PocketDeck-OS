@@ -572,6 +572,39 @@ void ImageBlock::render(GfxRenderer& renderer, const int x, const int y, const b
   renderer.preserveImagePolarity(x, y, width, height);
 }
 
+bool ImageBlock::renderScaled(GfxRenderer& renderer, const std::string& imagePath, const std::string& cachePath,
+                              const int x, const int y, const int width, const int height, const bool fresh) {
+  if (width <= 0 || height <= 0) return false;
+  if (fresh) {
+    invalidateRetainedPxcPath(cachePath);
+    if (Storage.exists(cachePath.c_str())) Storage.remove(cachePath.c_str());
+  } else if (renderFromCache(renderer, cachePath, x, y, width, height)) {
+    renderer.preserveImagePolarity(x, y, width, height);
+    return true;
+  }
+  ImageToFramebufferDecoder* decoder = ImageDecoderFactory::getDecoder(imagePath);
+  if (!decoder) {
+    LOG_ERR("IMG", "No decoder for scaled image: %s", imagePath.c_str());
+    return false;
+  }
+  RenderConfig config;
+  config.x = x;
+  config.y = y;
+  config.maxWidth = width;
+  config.maxHeight = height;
+  config.useGrayscale = true;
+  config.useDithering = true;
+  config.performanceMode = false;
+  config.useExactDimensions = true;
+  config.cachePath = cachePath;
+  if (!decoder->decodeToFramebuffer(imagePath, renderer, config)) {
+    LOG_ERR("IMG", "Failed to decode scaled image: %s", imagePath.c_str());
+    return false;
+  }
+  renderer.preserveImagePolarity(x, y, width, height);
+  return true;
+}
+
 bool ImageBlock::serialize(FsFile& file) {
   return serialization::tryWriteString(file, imagePath) && serialization::tryWriteString(file, sourcePath) &&
          serialization::tryWritePod(file, width) && serialization::tryWritePod(file, height);

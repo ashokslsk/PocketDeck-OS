@@ -10,8 +10,9 @@
 // offered by the Dictionary tool.
 namespace clipboard {
 
-constexpr size_t kMaxEntries = 10;
-constexpr size_t kMaxBytes = 512;  // per entry
+constexpr size_t kMaxEntries = 50;
+constexpr size_t kMaxBytes = 256;       // per entry
+constexpr size_t kMaxFileBytes = 5120;  // whole file; the oldest entries give way
 
 // Adds text as the newest entry (whitespace collapsed, trimmed, cut at
 // kMaxBytes on a UTF-8 boundary). The same text copied again moves to the top.

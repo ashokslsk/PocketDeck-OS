@@ -1,0 +1,7 @@
+# Manifest for src/components/icons/powerIcons.h — regenerate with:
+#   python3 scripts/generate_icons.py --library lucide \
+#     --manifest src/components/icons/powerIcons.manifest \
+#     --sizes 48 --out src/components/icons/powerIcons.h
+# then clang-format -i the output.
+power = power
+rotate_ccw = rotate-ccw

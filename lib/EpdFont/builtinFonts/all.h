@@ -1,6 +1,14 @@
 #pragma once
 
 #include <builtinFonts/ui_symbols_10.h>
+#include <builtinFonts/math_10.h>
+#include <builtinFonts/math_12.h>
+#include <builtinFonts/math_14.h>
+#include <builtinFonts/math_16.h>
+#include <builtinFonts/mono_10.h>
+#include <builtinFonts/mono_12.h>
+#include <builtinFonts/mono_14.h>
+#include <builtinFonts/mono_9.h>
 
 // Built-in reading fonts retain the PHM fallback ranges but exclude emoticons.
 #include <builtinFonts/bitter_10_bold.h>

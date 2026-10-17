@@ -1909,18 +1909,23 @@ void FileBrowserActivity::showInfo(const std::string& fullPath, const std::strin
   rows.emplace_back(tr(STR_INFO_LOCATION), FsHelpers::extractFolderPath(path));
   // Card space (the first query after boot scans the card's allocation table).
   uint64_t cardTotal = 0;
+  uint64_t cardUsed = 0;
 #ifndef SIMULATOR  // the desktop storage backend has no volume statistics
   cardTotal = Storage.totalBytes();
+  if (cardTotal > 0) cardUsed = Storage.usedBytes();
+#else
+  cardTotal = 32ULL << 30;  // a stand-in card so the simulator shows the space row
+  cardUsed = 11ULL << 30;
 #endif
+  int usageRow = -1;
+  int usedPermille = 0;
   if (cardTotal > 0) {
-    uint64_t cardUsed = 0;
-#ifndef SIMULATOR
-    cardUsed = Storage.usedBytes();
-#endif
     const std::string freeText = formatByteSize(cardUsed < cardTotal ? cardTotal - cardUsed : 0);
     const std::string totalText = formatByteSize(cardTotal);
     char space[64];
     snprintf(space, sizeof(space), tr(STR_INFO_FREE_OF_FORMAT), freeText.c_str(), totalText.c_str());
+    usageRow = static_cast<int>(rows.size());
+    usedPermille = static_cast<int>(std::min<uint64_t>(cardUsed, cardTotal) * 1000 / cardTotal);
     rows.emplace_back(tr(STR_INFO_SD_CARD), space);
   }
 
@@ -1929,6 +1934,7 @@ void FileBrowserActivity::showInfo(const std::string& fullPath, const std::strin
     LOG_ERR("FileBrowser", "OOM: file info");
     return;
   }
+  info->setUsageBar(usageRow, usedPermille);
   startActivityForResult(std::move(info), [this](const ActivityResult&) { requestUpdate(); });
 }
 

@@ -201,6 +201,11 @@ EpdFontFamily::GlyphData EpdFontFamily::findGlyphData(const uint32_t cp, const S
       return {fallback->data, glyph};
     }
   }
+  if (symbolFallback) {
+    if (const EpdGlyph* glyph = symbolFallback->findGlyph(cp)) {
+      return {symbolFallback->data, glyph};
+    }
+  }
   return {nullptr, nullptr};
 }
 
@@ -231,7 +236,8 @@ uint32_t EpdFontFamily::getFallbackCodepoint(const uint32_t cp, const Style styl
 }
 
 bool EpdFontFamily::hasCodepoint(const uint32_t cp, const Style style) const {
-  return getFont(style)->hasCodepoint(cp) || (fallback && fallback->hasCodepoint(cp));
+  return getFont(style)->hasCodepoint(cp) || (fallback && fallback->hasCodepoint(cp)) ||
+         (symbolFallback && symbolFallback->hasCodepoint(cp));
 }
 
 int8_t EpdFontFamily::getKerning(const uint32_t leftCp, const uint32_t rightCp, const Style style) const {

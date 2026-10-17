@@ -21,6 +21,8 @@ struct Rect;
 class EpubReaderMenuActivity final : public Activity {
  public:
   using MenuAction = EpubReaderMenuAction;
+  // Set by the reader before opening the menu: offers View Images.
+  static bool currentPageHasImages;
 
   explicit EpubReaderMenuActivity(
       GfxRenderer& renderer, MappedInputManager& mappedInput, const std::string& title, const int currentPage,

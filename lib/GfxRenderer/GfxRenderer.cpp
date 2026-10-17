@@ -336,6 +336,26 @@ void GfxRenderer::insertFont(const int fontId, EpdFontFamily font) {
   }
 }
 
+int GfxRenderer::monospaceFontFor(const int fontId) const {
+  if (monoFontIds_.empty()) return fontId;
+  if (std::find(monoFontIds_.begin(), monoFontIds_.end(), fontId) != monoFontIds_.end()) return fontId;
+  const auto cached = monoFontFor_.find(fontId);
+  if (cached != monoFontFor_.end()) return cached->second;
+  // Code reads best a little smaller than prose (the usual 0.8-0.85em).
+  const int target = getLineHeight(fontId) * 85 / 100;
+  int best = monoFontIds_.front();
+  int bestDistance = INT32_MAX;
+  for (const int mono : monoFontIds_) {
+    const int distance = std::abs(getLineHeight(mono) - target);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = mono;
+    }
+  }
+  monoFontFor_[fontId] = best;
+  return best;
+}
+
 int GfxRenderer::resolveTextFontId(const int fontId, const char* text, const EpdFontFamily::Style style) const {
   if (text == nullptr || *text == '\0') {
     return fontId;
@@ -350,10 +370,12 @@ int GfxRenderer::resolveTextFontId(const int fontId, const char* text, const Epd
       const char* cursor = text;
       uint32_t cp;
       while ((cp = utf8NextCodepoint(reinterpret_cast<const uint8_t**>(&cursor)))) {
-        // Greek/Cyrillic words always go to the partner, so a Lexend Deca page never
+        // Cyrillic words always go to the partner, so a Lexend Deca page never
         // mixes its few fallback Cyrillic letters with Bitter's in one sentence.
-        const bool greekOrCyrillic = cp >= 0x0370 && cp < 0x0530;
-        if (cp >= 0x80 && (greekOrCyrillic || !fontIt->second.hasCodepoint(cp, style)) &&
+        // Greek now comes per letter from the size-matched maths fallback, so a
+        // formula like R(τ) stays in the reader's own font.
+        const bool cyrillic = cp >= 0x0400 && cp < 0x0530;
+        if (cp >= 0x80 && (cyrillic || !fontIt->second.hasCodepoint(cp, style)) &&
             partnerIt->second.hasCodepoint(cp, style)) {
           return bfIt->second;
         }
@@ -699,10 +721,12 @@ static void renderCharScaled(const GfxRenderer& renderer, GfxRenderer::RenderMod
                              const EpdFontFamily& fontFamily, const uint32_t cp, int cursorX, int cursorY,
                              const bool pixelState, const EpdFontFamily::Style style) {
   if (renderer.grayPlanesAreAbsolute()) renderMode = GfxRenderer::BW;
-  const EpdGlyph* glyph = fontFamily.getGlyph(cp, style);
-  if (!glyph) return;
+  // The glyph may come from a fallback font, so its bitmap data does too.
+  const auto glyphData = fontFamily.getGlyphData(cp, style);
+  const EpdGlyph* glyph = glyphData.glyph;
+  if (!glyph || !glyphData.fontData) return;
 
-  const EpdFontData* fontData = fontFamily.getData(style);
+  const EpdFontData* fontData = glyphData.fontData;
   const uint8_t* bitmap = renderer.getGlyphBitmap(fontData, glyph);
   if (!bitmap) return;
 
@@ -767,10 +791,12 @@ static void renderCharSmallCaps(const GfxRenderer& renderer, GfxRenderer::Render
                                 const EpdFontFamily& fontFamily, const uint32_t cp, int cursorX, int cursorY,
                                 const bool pixelState, const EpdFontFamily::Style style) {
   if (renderer.grayPlanesAreAbsolute()) renderMode = GfxRenderer::BW;
-  const EpdGlyph* glyph = fontFamily.getGlyph(cp, style);
-  if (!glyph) return;
+  // The glyph may come from a fallback font, so its bitmap data does too.
+  const auto glyphData = fontFamily.getGlyphData(cp, style);
+  const EpdGlyph* glyph = glyphData.glyph;
+  if (!glyph || !glyphData.fontData) return;
 
-  const EpdFontData* fontData = fontFamily.getData(style);
+  const EpdFontData* fontData = glyphData.fontData;
   const uint8_t* bitmap = renderer.getGlyphBitmap(fontData, glyph);
   if (!bitmap) return;
 

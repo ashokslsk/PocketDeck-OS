@@ -85,6 +85,7 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "KOReaderCredentialStore.h"
 #include "MappedInputManager.h"
 #include "OpdsServerStore.h"
+#include "PowerActions.h"
 #include "RecentBooksStore.h"
 #include "SdCardFontSystem.h"
 #include "SilentRestart.h"
@@ -102,6 +103,7 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "activities/settings/KOReaderSettingsActivity.h"
 #include "activities/settings/OtaUpdateActivity.h"
 #include "activities/settings/SdFirmwareUpdateActivity.h"
+#include "activities/util/PowerMenuActivity.h"
 #include "components/UITheme.h"
 #include "components/icons/tablerFilledIcons.h"
 #include "fontIds.h"
@@ -227,6 +229,21 @@ EpdFont smallFont(&inter_8_regular);
 EpdFontFamily smallFontFamily(&smallFont);
 
 const EpdFont uiSymbols10Font(&ui_symbols_10);
+// Maths/symbol fallback per reading size: Greek, sub/superscripts, operators,
+// arrows, letterlike ℝ ℕ ℓ… drawn wherever the reading or UI font lacks a glyph.
+const EpdFont math10Font(&math_10);
+const EpdFont math12Font(&math_12);
+const EpdFont math14Font(&math_14);
+const EpdFont math16Font(&math_16);
+// Monospace (JetBrains Mono) for EPUB code blocks.
+const EpdFont mono9Font(&mono_9);
+const EpdFont mono10Font(&mono_10);
+const EpdFont mono12Font(&mono_12);
+const EpdFont mono14Font(&mono_14);
+EpdFontFamily mono9FontFamily(&mono9Font);
+EpdFontFamily mono10FontFamily(&mono10Font);
+EpdFontFamily mono12FontFamily(&mono12Font);
+EpdFontFamily mono14FontFamily(&mono14Font);
 
 EpdFont ui10RegularFont(&inter_10_regular);
 EpdFont ui10BoldFont(&inter_10_bold);
@@ -513,7 +530,56 @@ bool startGlobalSyncProgress(const bool networkBootReady, const uint8_t readerOr
   return true;
 }
 
+// With the long press set to Sleep (the default), holding Power works in two
+// steps: released after 2 s it sleeps (a hint appears at 2 s); kept down for
+// 4 s it opens the Power menu (Shut down / Restart). A shorter hold does
+// nothing, so a brief press can never put the reader to sleep by accident.
+constexpr unsigned long POWER_SLEEP_HOLD_MS = 2000;
+constexpr unsigned long POWER_MENU_HOLD_MS = 4000;
+
+CrossPointSettings::SHORT_PWRBTN getHoldToSleepPowerAction() {
+  static bool menuOpened = false;
+  static bool hintShown = false;
+  const unsigned long held = mappedInputManager.getHeldTime();
+
+  if (mappedInputManager.wasReleased(MappedInputManager::Button::Power)) {
+    const bool wasMenu = menuOpened;
+    menuOpened = false;
+    hintShown = false;
+    if (wasMenu) return CrossPointSettings::SHORT_PWRBTN::IGNORE;
+    if (held < SETTINGS.getPowerButtonLongPressDuration()) {
+      return static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn);
+    }
+    return held >= POWER_SLEEP_HOLD_MS ? CrossPointSettings::SHORT_PWRBTN::SLEEP
+                                       : CrossPointSettings::SHORT_PWRBTN::IGNORE;
+  }
+
+  if (!mappedInputManager.isPressed(MappedInputManager::Button::Power) || menuOpened) {
+    return CrossPointSettings::SHORT_PWRBTN::IGNORE;
+  }
+  if (held >= POWER_MENU_HOLD_MS) {
+    menuOpened = true;
+    auto menu = makeUniqueNoThrow<PowerMenuActivity>(renderer, mappedInputManager);
+    if (menu) {
+      activityManager.pushActivity(std::move(menu));
+    } else {
+      LOG_ERR("MAIN", "OOM: power menu");
+    }
+    return CrossPointSettings::SHORT_PWRBTN::IGNORE;
+  }
+  if (held >= POWER_SLEEP_HOLD_MS && !hintShown) {
+    hintShown = true;
+    RenderLock lock;
+    GUI.drawPopup(renderer, tr(STR_POWER_HOLD_HINT));
+    renderer.displayBuffer(HalDisplay::FAST_REFRESH);
+  }
+  return CrossPointSettings::SHORT_PWRBTN::IGNORE;
+}
+
 CrossPointSettings::SHORT_PWRBTN getPowerButtonAction() {
+  if (static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn) == CrossPointSettings::SHORT_PWRBTN::SLEEP) {
+    return getHoldToSleepPowerAction();
+  }
   static bool longPowerButtonHandled = false;
 
   if (mappedInputManager.wasReleased(MappedInputManager::Button::Power)) {
@@ -1107,6 +1173,48 @@ static void migrateLegacyDataFolders() {
 }
 
 // Enter deep sleep mode
+namespace {
+enum class PendingPowerAction : uint8_t { None, Shutdown, Restart };
+PendingPowerAction pendingPowerAction = PendingPowerAction::None;
+
+// Replaces the open screen (so a book saves its position on exit) with a
+// full-screen message and waits until it is on the panel.
+void showPowerMessage(const char* message) {
+  activityManager.goToFullScreenMessage(message, EpdFontFamily::BOLD);
+  activityManager.loop();
+  activityManager.requestUpdateAndWait();
+}
+
+void performShutdown() {
+  HalPowerManager::Lock powerLock;
+  LOG_INF("MAIN", "Shutting down");
+  APP_STATE.lastSleepFromReader = false;  // the next start opens Home
+  APP_STATE.saveToFile();
+  deepSleepInProgress = true;
+  showPowerMessage(tr(STR_POWERED_OFF_MESSAGE));
+  delay(POST_SLEEP_SCREEN_SETTLE_MS);
+  Storage.shutdown();
+  putTiltSensorToSleepForDeepSleep();
+  display.deepSleep();
+  mirrorWakeShortPressToNvs();
+  // No wallpaper-rotation timer: "off" stays asleep until Power is pressed.
+  powerManager.startDeepSleep(gpio);
+}
+
+void performRestart() {
+  LOG_INF("MAIN", "Restarting");
+  showPowerMessage(tr(STR_RESTARTING_MESSAGE));
+  APP_STATE.saveToFile();
+  delay(300);
+  ESP.restart();
+}
+}  // namespace
+
+namespace poweractions {
+void requestShutdown() { pendingPowerAction = PendingPowerAction::Shutdown; }
+void requestRestart() { pendingPowerAction = PendingPowerAction::Restart; }
+}  // namespace poweractions
+
 void enterDeepSleep(bool fromTimeout) {
   HalPowerManager::Lock powerLock;  // Ensure we are at normal CPU frequency for sleep preparation
   APP_STATE.lastSleepFromReader = activityManager.isReaderActivity();
@@ -1195,6 +1303,22 @@ void setupDisplayAndFonts(const bool seamless, const bool loadReaderResources, c
   fontCacheManager.setFontDecompressor(&fontDecompressor);
   renderer.setFontCacheManager(&fontCacheManager);
 
+  // Attach the size-matched maths fallback before the families are registered.
+  lexenddeca10FontFamily.setSymbolFallback(&math10Font);
+  lexenddeca12FontFamily.setSymbolFallback(&math12Font);
+  lexenddeca14FontFamily.setSymbolFallback(&math14Font);
+  lexenddeca16FontFamily.setSymbolFallback(&math16Font);
+  bitter10FontFamily.setSymbolFallback(&math10Font);
+  bitter12FontFamily.setSymbolFallback(&math12Font);
+  bitter14FontFamily.setSymbolFallback(&math14Font);
+  bitter16FontFamily.setSymbolFallback(&math16Font);
+  smallFontFamily.setSymbolFallback(&math10Font);
+  ui10FontFamily.setSymbolFallback(&math10Font);
+  ui12FontFamily.setSymbolFallback(&math12Font);
+  mono9FontFamily.setSymbolFallback(&math10Font);
+  mono10FontFamily.setSymbolFallback(&math10Font);
+  mono12FontFamily.setSymbolFallback(&math12Font);
+  mono14FontFamily.setSymbolFallback(&math14Font);
   renderer.insertFont(LEXENDDECA_10_FONT_ID, lexenddeca10FontFamily);
   renderer.insertFont(LEXENDDECA_12_FONT_ID, lexenddeca12FontFamily);
   renderer.insertFont(LEXENDDECA_14_FONT_ID, lexenddeca14FontFamily);
@@ -1206,6 +1330,14 @@ void setupDisplayAndFonts(const bool seamless, const bool loadReaderResources, c
   renderer.insertFont(UI_10_FONT_ID, ui10FontFamily);
   renderer.insertFont(UI_12_FONT_ID, ui12FontFamily);
   renderer.insertFont(SMALL_FONT_ID, smallFontFamily);
+  renderer.insertFont(MONO_9_FONT_ID, mono9FontFamily);
+  renderer.insertFont(MONO_10_FONT_ID, mono10FontFamily);
+  renderer.insertFont(MONO_12_FONT_ID, mono12FontFamily);
+  renderer.insertFont(MONO_14_FONT_ID, mono14FontFamily);
+  renderer.addMonospaceFont(MONO_9_FONT_ID);
+  renderer.addMonospaceFont(MONO_10_FONT_ID);
+  renderer.addMonospaceFont(MONO_12_FONT_ID);
+  renderer.addMonospaceFont(MONO_14_FONT_ID);
   renderer.insertFont(TOOLS_DIGITS_44_FONT_ID, toolsDigits44FontFamily);
   renderer.insertFont(TOOLS_DIGITS_30_FONT_ID, toolsDigits30FontFamily);
   // Lexend Deca has no Cyrillic: such words are drawn in Bitter at the same size.
@@ -1802,6 +1934,18 @@ void loop() {
   if (handleX4ProHomeKeyShortcuts()) {
     // Simulator Home-key events bypass HalGPIO's raw touch activity signal.
     activityManager.notifyUserInput();
+    return;
+  }
+
+  if (pendingPowerAction != PendingPowerAction::None) {
+    const PendingPowerAction action = pendingPowerAction;
+    pendingPowerAction = PendingPowerAction::None;
+    if (action == PendingPowerAction::Shutdown) {
+      performShutdown();
+    } else {
+      performRestart();
+    }
+    lastActivityTime = millis();
     return;
   }
 

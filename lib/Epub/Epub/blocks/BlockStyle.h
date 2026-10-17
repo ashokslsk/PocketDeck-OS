@@ -37,6 +37,9 @@ struct BlockStyle {
   // a full line-height gap when the <br> block stays empty (section-break use case).
   // NOT propagated through getCombinedBlockStyle so it can't leak into sibling blocks.
   bool fromBrElement = false;
+  // A line of a <pre> code block: monospace font, spaces kept, no hyphenation,
+  // left aligned, a rule down the left edge.
+  bool preformatted = false;
 
   // Combined insets (margin + padding)
   [[nodiscard]] int16_t leftInset() const { return marginLeft + paddingLeft; }

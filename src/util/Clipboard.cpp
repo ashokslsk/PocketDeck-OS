@@ -75,8 +75,11 @@ bool add(const std::string& text) {
     return false;
   }
   bool ok = true;
+  size_t written = 0;
   for (const auto& entry : list) {
+    if (written + entry.size() + 1 > kMaxFileBytes) break;  // keep the file within its SD budget
     ok = ok && file.write(entry.data(), entry.size()) == entry.size() && file.write("\n", 1) == 1;
+    written += entry.size() + 1;
   }
   file.close();
   if (!ok) LOG_ERR("CLIP", "Short write to clipboard");

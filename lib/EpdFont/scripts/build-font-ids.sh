@@ -40,6 +40,12 @@ emit_hash_define BITTER_14_FONT_ID \
 emit_hash_define BITTER_16_FONT_ID \
   ./bitter_16_regular.h ./bitter_16_bold.h ./bitter_16_bolditalic.h ./bitter_16_italic.h
 
+# Code (monospace) fonts for <pre> blocks, about 85% of the reading size
+emit_hash_define MONO_9_FONT_ID ./mono_9.h
+emit_hash_define MONO_10_FONT_ID ./mono_10.h
+emit_hash_define MONO_12_FONT_ID ./mono_12.h
+emit_hash_define MONO_14_FONT_ID ./mono_14.h
+
 # UI fonts
 emit_hash_define UI_10_FONT_ID ./inter_10_regular.h ./inter_10_bold.h ./ui_symbols_10.h
 emit_hash_define UI_12_FONT_ID ./inter_12_regular.h ./inter_12_bold.h ./ui_symbols_10.h

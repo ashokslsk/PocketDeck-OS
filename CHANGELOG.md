@@ -1,3 +1,28 @@
+## [PocketDeck-OS 1.0.0, Maths symbols and code blocks] - 2026-10-17
+
+### Added
+
+- Maths and AI/ML symbols in books: Greek letters, sub/superscript letters (xₜ, wᵢ, Aᵀ), operators (∂ ∇ ∈ ∑ ∞ ≈ ≠ ≤ ≥ ⊙ ‖), arrows, set symbols and ✓/✗ now draw from a built-in maths font (Noto Sans + STIX Two Math) instead of showing "?". It backs every built-in reading font and the UI fonts, so search results and menus show them too.
+- Explorer > Info shows SD card space with a capacity bar and the percentage used, plus card statistics: files, folders, books, images and the largest file. Counting runs in the background and is saved, so Info shows the last count straight away even on cards with tens of thousands of books.
+- Code blocks (`<pre>`) in EPUBs are formatted as code: a monospace font (JetBrains Mono), each source line on its own line, indentation kept, no hyphenation or justification, and a rule down the left edge.
+
+### Fixed
+
+- Fallback glyphs inside superscripts, subscripts and small caps no longer render blank.
+- Search and Speed Read underlines sit correctly under code lines.
+
+## [PocketDeck-OS 1.0.0, Power menu, View Images and Search in Book] - 2026-10-17
+
+### Added
+
+- Power button (with the long press set to Sleep, the default): hold 2 seconds and release to sleep (a hint appears), or keep holding to 4 seconds for a Power popup with two icon buttons, Shut down and Restart (Back cancels). Shut down shows "PocketDeck-OS is off" and sleeps without timer wake-ups; the next start opens Home. Restart saves the open book's position first. A shorter hold does nothing, so a brief press can no longer put the reader to sleep by accident.
+- View Images (reader menu, after Speed Read, shown when the page has pictures): the page's images one at a time, fitted to the whole screen in grayscale (small ones enlarged up to 3x); Left/Right or the side buttons move between several, Back returns to the page.
+- Search in Book (reader menu): type or paste a word or phrase; every chapter is searched (Latin case-insensitive, Kannada exact) with a live "chapter n of m" status. Results show the text around each match with its chapter and position; choosing one opens the exact page with the match underlined.
+
+### Changed
+
+- The clipboard keeps the last 50 copies (was 10), within 5 KB on the SD card.
+
 ## [PocketDeck-OS 1.0.0, Copy text and Dictionary tool] - 2026-10-16
 
 ### Added

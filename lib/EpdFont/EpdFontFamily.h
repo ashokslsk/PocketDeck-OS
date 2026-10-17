@@ -36,6 +36,9 @@ class EpdFontFamily {
   /// (interval coverage only — see EpdFont::hasCodepoint).
   bool hasCodepoint(uint32_t cp, Style style = REGULAR) const;
   int8_t getKerning(uint32_t leftCp, uint32_t rightCp, Style style = REGULAR) const;
+  // A second shared fallback, tried last: the size-matched maths/symbol font
+  // (Greek, sub/superscripts, operators, arrows) for glyphs the family lacks.
+  void setSymbolFallback(const EpdFont* font) { symbolFallback = font; }
   uint32_t applyLigatures(uint32_t cp, const char*& text, Style style = REGULAR) const;
 
  private:
@@ -45,6 +48,7 @@ class EpdFontFamily {
   const EpdFont* boldItalic;
   // Optional shared glyphs keep their own bitmap size across font sizes/styles.
   const EpdFont* fallback;
+  const EpdFont* symbolFallback = nullptr;
 
   const EpdFont* getFont(Style style) const;
 };

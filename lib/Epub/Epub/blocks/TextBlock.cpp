@@ -230,11 +230,18 @@ bool TextBlock::hasRuby() const {
   return false;
 }
 
-void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int x, const int y,
+void TextBlock::render(const GfxRenderer& renderer, const int readerFontId, const int x, const int y,
                        const bool foregroundBlack) const {
   if (!isValid) {
     LOG_ERR("TXB", "Render skipped: invalid block");
     return;
+  }
+  // A <pre> code line is drawn in the monospace font it was laid out with, with a
+  // rule down the left edge of the block (padding side when the book sets one).
+  const int fontId = blockStyle.preformatted ? renderer.monospaceFontFor(readerFontId) : readerFontId;
+  if (blockStyle.preformatted && !renderer.isFontCacheScanning()) {
+    const int ruleX = x - std::max<int>(6, blockStyle.paddingLeft);
+    renderer.fillRect(ruleX, y - 2, 2, renderer.getLineHeight(fontId) + 4, foregroundBlack);
   }
 
   const bool scanning = renderer.isFontCacheScanning();
@@ -414,7 +421,8 @@ bool TextBlock::serialize(HalFile& file) const {
          serialization::tryWritePod(file, blockStyle.textIndent) &&
          serialization::tryWritePod(file, blockStyle.textIndentDefined) &&
          serialization::tryWritePod(file, blockStyle.isRtl) &&
-         serialization::tryWritePod(file, blockStyle.directionDefined);
+         serialization::tryWritePod(file, blockStyle.directionDefined) &&
+         serialization::tryWritePod(file, blockStyle.preformatted);
 }
 
 std::unique_ptr<TextBlock> TextBlock::deserialize(HalFile& file) {
@@ -520,7 +528,8 @@ std::unique_ptr<TextBlock> TextBlock::deserialize(HalFile& file) {
       !serialization::tryReadPod(file, blockStyle.textIndent) ||
       !serialization::tryReadPod(file, blockStyle.textIndentDefined) ||
       !serialization::tryReadPod(file, blockStyle.isRtl) ||
-      !serialization::tryReadPod(file, blockStyle.directionDefined)) {
+      !serialization::tryReadPod(file, blockStyle.directionDefined) ||
+      !serialization::tryReadPod(file, blockStyle.preformatted)) {
     LOG_ERR("TXB", "Deserialization failed: truncated block style metadata");
     return nullptr;
   }

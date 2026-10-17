@@ -20,6 +20,12 @@ class ImageBlock final : public Block {
   bool needsDecode() const;
   void renderPlaceholder(GfxRenderer& renderer, int x, int y, bool foregroundBlack) const;
   static void clearSessionRenderFailures();
+  // Draws an already-extracted image at any size (e.g. the reader's full-screen
+  // image view), caching the scaled pixels at `cachePath` so repeated passes
+  // (black & white, then grayscale planes) decode only once. `fresh` discards
+  // a previous image's cache at that path. The page's own cache is untouched.
+  static bool renderScaled(GfxRenderer& renderer, const std::string& imagePath, const std::string& cachePath, int x,
+                           int y, int width, int height, bool fresh);
   static void releaseSessionPixelCache();
 
   // The section builder only reads image headers. The reader supplies this

@@ -33,7 +33,9 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
   - Kannada EPUB/TXT books are shaped with the SD card Kannada font, sized to match the reader font.
   - Japanese, Chinese and Korean books use the included Noto Sans CJK font; Latin and Cyrillic use the built-in fonts.
   - Any `.cpfont` family can be added in `/fonts`.
-- **Copy Text and paste**: select words in a book (reader menu > Copy Text) and paste them into any text field (hold Down), such as Mood notes, Medicine courses or the Dictionary search. The last 10 copies are kept.
+- **View Images**: the page's pictures full-screen in grayscale, one at a time.
+- **Search in Book**: find any word or phrase (typed or pasted, English or Kannada) and jump to the exact page, with the match underlined.
+- **Copy Text and paste**: select words in a book (reader menu > Copy Text) and paste them into any text field (hold Down), such as Mood notes, Medicine courses or the Dictionary search. The last 50 copies are kept.
 - **Kannada dictionary**: Look Up Word on a Kannada word goes to an installed Kannada dictionary even when the book's dictionary is English, and words are reduced to their dictionary form (ಹಕ್ಕಿಗಳ → ಹಕ್ಕಿ).
 - **Hyphenation** for English, Russian and Spanish books; other languages wrap whole words.
 - **Reading Stats**:
@@ -41,6 +43,10 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
   - Library and device dashboards cover all books.
 - **Sleep screens** include Book Reading Stats, **Weekly Reading Stats** (days read, time per day, books in progress, reading pattern), wallpapers rotated from `/sleep`, and Kannada book titles.
 - Everything else from CrossInk is kept as it was: bookmarks, highlights (clippings), Focus Reading, Guide Dots, Auto Page Turn, tilt page turn and per-book render modes.
+
+### Power button
+
+- Hold **2 s** and release to sleep; hold **4 s** for a Power popup with **Shut down** and **Restart**.
 
 ### Explorer (files and folders)
 

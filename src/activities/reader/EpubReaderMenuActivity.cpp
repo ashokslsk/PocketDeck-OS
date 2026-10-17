@@ -187,6 +187,8 @@ void drawSdkIcon(fui::GfxRendererTarget& target, const freeink::Icon& icon, cons
 
 }  // namespace
 
+bool EpubReaderMenuActivity::currentPageHasImages = false;
+
 EpubReaderMenuActivity::EpubReaderMenuActivity(
     GfxRenderer& renderer, MappedInputManager& mappedInput, const std::string& title, const int currentPage,
     const int totalPages, const int bookProgressPercent, const uint8_t currentOrientation, const bool hasFootnotes,
@@ -251,6 +253,10 @@ EpubReaderMenuActivity::TabMenuItems EpubReaderMenuActivity::buildMenuItems(
     mainItems.push_back({MenuAction::LOOKUP, StrId::STR_LOOKUP});
   }
   mainItems.push_back({MenuAction::SPEED_READ, StrId::STR_SPEED_READ});
+  if (currentPageHasImages) {
+    mainItems.push_back({MenuAction::VIEW_IMAGES, StrId::STR_VIEW_IMAGES});
+  }
+  mainItems.push_back({MenuAction::SEARCH_BOOK, StrId::STR_SEARCH_BOOK});
   if (hasDictionary) {
     mainItems.push_back({MenuAction::LOOKUP_HISTORY, StrId::STR_LOOKUP_HISTORY});
   }

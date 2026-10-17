@@ -129,6 +129,8 @@ class GfxRenderer {
   // the first lacks (Lexend Deca has no Cyrillic; Bitter does). Unlike
   // fallbackFontMap_, SD font (re)loads never clear this map.
   std::map<int, int> builtinFallbackMap_;
+  std::vector<int> monoFontIds_;
+  mutable std::map<int, int> monoFontFor_;
 
   // Script shaper (see ScriptShaper) and a per-font metric floor: a book in
   // that script needs taller lines and a lower baseline than the reader font's
@@ -208,6 +210,11 @@ class GfxRenderer {
   // Register/clear size-matched CJK UI fallbacks (see fallbackFontMap_).
   // setFallbackFont maps a primary UI font id to an SD font id of the same size.
   void setFallbackFont(int primaryFontId, int fallbackFontId) { fallbackFontMap_[primaryFontId] = fallbackFontId; }
+  // Code (<pre>) blocks: register the built-in monospace fonts; monospaceFontFor()
+  // returns the one closest to 85% of `fontId`'s line height (a monospace font
+  // maps to itself; with none registered, `fontId` is returned).
+  void addMonospaceFont(int monoFontId) { monoFontIds_.push_back(monoFontId); }
+  int monospaceFontFor(int fontId) const;
   void clearFallbackFonts() { fallbackFontMap_.clear(); }
   void setScriptShaper(const ScriptShaper* shaper) { scriptShaper_ = shaper; }
   void setBuiltinFallbackFont(int primaryFontId, int fallbackFontId) {

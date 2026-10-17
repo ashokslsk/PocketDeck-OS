@@ -792,6 +792,14 @@ bool ParsedText::layoutAndExtractLines(
     return true;
   }
 
+  // A <pre> code line is measured and laid out in the monospace font.
+  if (blockStyle.preformatted) {
+    const int monoFontId = renderer.monospaceFontFor(fontId);
+    if (monoFontId != fontId) {
+      return layoutAndExtractLines(renderer, monoFontId, viewportWidth, processLine, includeLastLine);
+    }
+  }
+
   Arena layoutArena(psramHeapAvailable() ? ArenaBacking::PsramPreferred : ArenaBacking::Default);
   if (!layoutArena.init(LAYOUT_ARENA_SLAB_BYTES)) {
     LOG_ERR("PTX", "Failed to allocate layout scratch arena (%u bytes)",

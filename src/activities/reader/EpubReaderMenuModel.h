@@ -34,7 +34,9 @@ enum class EpubReaderMenuAction : uint8_t {
   LOOKUP_HISTORY,
   SET_BOOK_DICTIONARY,
   STATUS_BAR_SETTINGS,
-  COPY_TEXT,  // select words and copy them to the clipboard (appended: values stay stable)
+  COPY_TEXT,    // select words and copy them to the clipboard (appended: values stay stable)
+  VIEW_IMAGES,  // the current page's images, full screen
+  SEARCH_BOOK,  // find a word or phrase anywhere in the book
 };
 
 enum class ReaderDrawerTab : uint8_t { Font = 0, Layout = 1, More = 2, Location = 3, Settings = 4, Count };

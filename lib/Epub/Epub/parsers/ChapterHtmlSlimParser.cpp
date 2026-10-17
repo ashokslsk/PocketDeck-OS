@@ -72,7 +72,7 @@ constexpr uint32_t MIN_FREE_HEAP_FOR_RICH_TABLE = 96U * 1024U;
 constexpr uint32_t MIN_MAX_ALLOC_FOR_RICH_TABLE = 56U * 1024U;
 
 static constexpr const char* const HEADER_TAGS[] = {"h1", "h2", "h3", "h4", "h5", "h6"};
-static constexpr const char* const BLOCK_TAGS[] = {"p", "li", "div", "br", "blockquote", "ul", "ol"};
+static constexpr const char* const BLOCK_TAGS[] = {"p", "li", "div", "br", "blockquote", "ul", "ol", "pre"};
 static constexpr const char* const BOLD_TAGS[] = {"b", "strong"};
 static constexpr const char* const ITALIC_TAGS[] = {"i", "em"};
 static constexpr const char* const UNDERLINE_TAGS[] = {"u", "ins"};
@@ -804,7 +804,9 @@ void ChapterHtmlSlimParser::startNewTextBlock(const BlockStyle& blockStyle) {
   // If the pending anchor is a TOC chapter boundary, force a page break after the previous
   // block is flushed so the chapter starts on a fresh page.
   flushPendingAnchor();
-  currentTextBlock.reset(new (std::nothrow) ParsedText(extraParagraphSpacing, forceParagraphIndents, hyphenationEnabled,
+  currentTextBlock.reset(new (std::nothrow) ParsedText(extraParagraphSpacing,
+                                                       forceParagraphIndents && !blockStyle.preformatted,
+                                                       hyphenationEnabled && !blockStyle.preformatted,
                                                        focusReadingEnabled, guideReadingEnabled, wordSpacing,
                                                        blockStyle, trackReferenceCharacters));
   if (!currentTextBlock) {
@@ -816,6 +818,41 @@ void ChapterHtmlSlimParser::startNewTextBlock(const BlockStyle& blockStyle) {
   currentTextBlockParagraphIndex = xpathParagraphIndex;
   currentTextBlockListItemIndex = xpathListItemIndex;
   wordsExtractedInBlock = 0;
+}
+
+void ChapterHtmlSlimParser::preLineBreak() {
+  if (partWordBufferIndex > 0) flushPartWordBuffer();
+  if (!currentTextBlock || currentTextBlock->isEmpty()) {
+    // A blank code line: leave one line of space before the next line.
+    if (currentTextBlock) {
+      auto style = currentTextBlock->getBlockStyle();
+      style.marginTop = static_cast<int16_t>(
+          style.marginTop + renderer.getLineHeight(renderer.monospaceFontFor(fontId)) * lineCompression + 0.5f);
+      currentTextBlock->setBlockStyle(style);
+    }
+    return;
+  }
+  // The next source line: the <pre>'s style without its outer margins.
+  startNewTextBlock(blockStyleBuf_[blockStyleCount_ - 1].withoutTop().withoutBottom());
+}
+
+void ChapterHtmlSlimParser::placePreSpaces(const uint32_t visibleOffset, const uint32_t referenceOffset) {
+  // Mid-line, the first space stays an ordinary (breakable) gap; any further
+  // spaces, and all of a line's indentation, become no-break spaces at the front
+  // of the next word so code keeps its alignment in the monospace font.
+  int count = prePendingSpaces_;
+  prePendingSpaces_ = 0;
+  const bool midLine = currentTextBlock && !currentTextBlock->isEmpty();
+  if (midLine) {
+    nextWordContinues = false;
+    --count;
+  }
+  partWordVisibleOffset = visibleOffset;
+  partWordReferenceOffset = referenceOffset;
+  for (int k = 0; k < count && partWordBufferIndex + 2 < MAX_WORD_SIZE; ++k) {
+    partWordBuffer[partWordBufferIndex++] = static_cast<char>(0xC2);
+    partWordBuffer[partWordBufferIndex++] = static_cast<char>(0xA0);
+  }
 }
 
 void ChapterHtmlSlimParser::pushCssAncestor(const int depth, const char* tag, const std::string_view classAttr) {
@@ -2757,8 +2794,22 @@ void XMLCALL ChapterHtmlSlimParser::startElement(void* userData, const XML_Char*
       self->startNewTextBlock(brStyle);
     } else {
       self->currentCssStyle = cssStyle;
-      const auto accumulated = self->blockStyleBuf_[self->blockStyleCount_ - 1].getCombinedBlockStyle(
+      auto accumulated = self->blockStyleBuf_[self->blockStyleCount_ - 1].getCombinedBlockStyle(
           userAlignmentBlockStyle, BlockStyle::CombineAxis::Horizontal);
+      if (strcmp(name, "pre") == 0 && self->preDepth_ < 0) {
+        // Code block: each source line becomes a left-aligned line in the
+        // monospace font, with room for the rule down its left edge.
+        accumulated.preformatted = true;
+        accumulated.alignment = CssTextAlign::Left;
+        accumulated.textAlignDefined = true;
+        accumulated.textIndent = 0;
+        accumulated.textIndentDefined = true;
+        const auto minPad = static_cast<int16_t>(emSize * 0.6f);
+        if (accumulated.paddingLeft < minPad) accumulated.paddingLeft = minPad;
+        self->preDepth_ = self->depth;
+        self->prePendingSpaces_ = 0;
+        self->preAtStart_ = true;
+      }
       if (self->blockStyleCount_ < MAX_BLOCK_STYLE_DEPTH) {
         self->blockStyleBuf_[self->blockStyleCount_++] = accumulated;
       } else {
@@ -3097,6 +3148,31 @@ void XMLCALL ChapterHtmlSlimParser::characterData(void* userData, const XML_Char
       const auto* codepointPtr = reinterpret_cast<const unsigned char*>(s + i);
       const uint32_t codepoint = utf8NextCodepoint(&codepointPtr);
       codepointReferenceOffset = self->consumeReferenceCodepoint(codepoint);
+    }
+    if (self->preDepth_ >= 0) {
+      // Inside <pre>: newlines end the line and spaces keep their width.
+      const char c = s[i];
+      if (c == '\r' || c == '\n') {
+        if (startsCodepoint && countVisibleOffsets) codepointOffset++;
+        if (c == '\r' && i + 1 < len && s[i + 1] == '\n') continue;  // CRLF: the LF breaks the line
+        self->prePendingSpaces_ = 0;
+        if (self->preAtStart_) {
+          self->preAtStart_ = false;  // HTML drops the newline right after <pre>
+          continue;
+        }
+        self->preLineBreak();
+        continue;
+      }
+      self->preAtStart_ = false;
+      if (c == ' ' || c == '\t') {
+        if (self->partWordBufferIndex > 0) self->flushPartWordBuffer();
+        self->prePendingSpaces_ += c == '\t' ? 4 : 1;
+        if (startsCodepoint && countVisibleOffsets) codepointOffset++;
+        continue;
+      }
+      if (self->prePendingSpaces_ > 0 && self->partWordBufferIndex == 0) {
+        self->placePreSpaces(codepointOffset, codepointReferenceOffset);
+      }
     }
     if (isWhitespace(s[i])) {
       // Currently looking at whitespace, if there's anything in the partWordBuffer, flush it
@@ -3516,6 +3592,15 @@ void XMLCALL ChapterHtmlSlimParser::endElement(void* userData, const XML_Char* n
     self->updateEffectiveInlineStyle();
   }
 
+  if (self->preDepth_ >= 0 && self->preDepth_ == self->depth) {
+    // Leaving <pre>: trailing spaces vanish, and an empty last line (the source's
+    // final newline) must not add a blank line after the block.
+    if (self->partWordBufferIndex > 0) self->flushPartWordBuffer();
+    self->preDepth_ = -1;
+    self->prePendingSpaces_ = 0;
+    self->preAtStart_ = false;
+  }
+
   // Clear block style when leaving header or block elements
   if (headerOrBlockTag) {
     self->currentCssStyle.reset();
@@ -3930,7 +4015,12 @@ void ChapterHtmlSlimParser::addLineToPage(std::shared_ptr<TextBlock> line, const
     return;
   }
 
-  const int lineHeight = effectiveLineHeight() + line->getRubyShift(renderer.getFontAscenderSize(fontId));
+  // Code lines advance by the monospace font's (smaller) line height.
+  const int lineHeight =
+      line->getBlockStyle().preformatted
+          ? std::max(1, static_cast<int>(renderer.getLineHeight(renderer.monospaceFontFor(fontId)) * lineCompression +
+                                         0.5f))
+          : effectiveLineHeight() + line->getRubyShift(renderer.getFontAscenderSize(fontId));
 
   if (!currentPage) {
     if (!startNewPage("line layout")) {
@@ -4058,8 +4148,9 @@ void ChapterHtmlSlimParser::makePages() {
     currentPageNextY += blockStyle.paddingBottom;
   }
 
-  // Extra paragraph spacing if enabled (default behavior)
-  if (extraParagraphSpacing) {
+  // Extra paragraph spacing if enabled (default behavior). Code lines are one
+  // block per source line, so they stay tight.
+  if (extraParagraphSpacing && !blockStyle.preformatted) {
     currentPageNextY += lineHeight / 2;
   }
 

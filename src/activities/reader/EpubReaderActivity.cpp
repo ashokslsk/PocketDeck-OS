@@ -42,10 +42,12 @@
 #if CROSSINK_APP_CAP_TOUCH
 #include "EpubReaderTouchMenuActivity.h"
 #endif
+#include "BookSearchActivity.h"
 #include "EpubReaderPercentSelectionActivity.h"
 #include "EpubReaderUtils.h"
 #include "FocusReadingText.h"
 #include "GlobalActions.h"
+#include "ImageViewerActivity.h"
 #include "KOReaderCredentialStore.h"
 #include "KOReaderSyncActivity.h"
 #include "KannadaReading.h"
@@ -65,6 +67,7 @@
 #include "activities/home/RecentBookProgress.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/IntervalSelectionActivity.h"
+#include "activities/util/KeyboardEntryActivity.h"
 #include "clippings/ClippingHighlightGeometry.h"
 #include "clippings/ClippingMatchTracker.h"
 #include "clippings/ClippingTextMatcher.h"
@@ -799,6 +802,52 @@ uint16_t resolveParagraphJumpPage(const Section& section, const uint16_t paragra
   }
 
   return clampedFallback;
+}
+
+// Search in Book: the page's visible text as one string (single spaces, Latin
+// lower-cased, hyphenated halves joined), with each word's start offset so a
+// match can be mapped back to the words to highlight.
+struct SearchPageWord {
+  size_t start;
+  uint16_t pageWordIndex;
+};
+std::string searchPageText(const Page& page, std::vector<SearchPageWord>* words) {
+  std::string text;
+  bool joinNext = false;
+  forEachVisiblePageWord(
+      page, [&](const uint16_t pageWordIndex, const PageTextLine&, const TextBlock& block, const size_t i) {
+        const char* word = block.wordText(static_cast<uint16_t>(i));
+        if (hasEmSpacePrefix(word)) word += 3;
+        if (!text.empty() && !joinNext) text.push_back(' ');
+        if (words) words->push_back({text.size(), pageWordIndex});
+        for (const char* p = word; *p; ++p) {
+          const auto ch = static_cast<unsigned char>(*p);
+          text.push_back(ch < 0x80 ? static_cast<char>(std::tolower(ch)) : *p);
+        }
+        joinNext = block.wordEndsWithInsertedHyphen(static_cast<uint16_t>(i));
+        return true;
+      });
+  return text;
+}
+
+// The page holding the search text, looking outward from where the chapter
+// position landed (the position comes from the chapter's raw bytes, so it can
+// be a page or two off).
+uint16_t resolveSearchJumpPage(Section& section, const std::string& needle, const uint16_t fallbackPage) {
+  if (section.pageCount == 0 || needle.empty()) return fallbackPage;
+  const int pageCount = static_cast<int>(section.pageCount);
+  const int start = std::min(static_cast<int>(fallbackPage), pageCount - 1);
+  for (int distance = 0; distance <= 4; ++distance) {
+    for (const int page : {start + distance, start - distance}) {
+      if (page < 0 || page >= pageCount || (distance == 0 && page != start)) continue;
+      auto loaded = section.loadPage(page);
+      if (loaded && searchPageText(*loaded, nullptr).find(needle) != std::string::npos) {
+        return static_cast<uint16_t>(page);
+      }
+      if (distance == 0) break;
+    }
+  }
+  return static_cast<uint16_t>(start);
 }
 
 uint8_t tableColumnForSelection(const uint16_t tableSelection) {
@@ -2443,6 +2492,11 @@ void EpubReaderActivity::openReaderMenu() {
     }
     isBookCompleted = stats.isCompleted;
     bookProgress = getCurrentBookProgressPercent();
+    EpubReaderMenuActivity::currentPageHasImages = false;
+    if (!previewActive && section) {
+      auto page = section->loadPage(section->currentPage);
+      EpubReaderMenuActivity::currentPageHasImages = page && page->hasImages();
+    }
   }
   const int bookProgressPercent = clampPercent(static_cast<int>(bookProgress + 0.5f));
 
@@ -3763,6 +3817,14 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
     }
     case EpubReaderMenuActivity::MenuAction::SAVE_CLIPPING: {
       startClipSelection();
+      break;
+    }
+    case EpubReaderMenuActivity::MenuAction::VIEW_IMAGES: {
+      openImageViewer();
+      break;
+    }
+    case EpubReaderMenuActivity::MenuAction::SEARCH_BOOK: {
+      openBookSearch(returnToReaderMenu);
       break;
     }
     case EpubReaderMenuActivity::MenuAction::COPY_TEXT: {
@@ -5608,6 +5670,151 @@ SpeedReadWordInfo speedReadWordInfo(const char* word, const bool kannada) {
 }
 }  // namespace
 
+namespace {
+std::string normalizeSearchNeedle(const std::string& query) {
+  std::string needle;
+  bool space = true;
+  for (const char c : query) {
+    if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+      if (!space) needle.push_back(' ');
+      space = true;
+    } else {
+      const auto ch = static_cast<unsigned char>(c);
+      needle.push_back(ch < 0x80 ? static_cast<char>(std::tolower(ch)) : c);
+      space = false;
+    }
+  }
+  while (!needle.empty() && needle.back() == ' ') needle.pop_back();
+  return needle;
+}
+std::string lastBookSearchQuery;
+}  // namespace
+
+void EpubReaderActivity::openImageViewer() {
+  std::vector<std::string> paths;
+  {
+    RenderLock lock(*this);
+    if (section) {
+      auto page = section->loadPage(section->currentPage);
+      if (page) {
+        for (const auto& element : page->elements) {
+          if (element->getTag() != TAG_PageImage) continue;
+          const ImageBlock& block = static_cast<const PageImage&>(*element).getImageBlock();
+          block.prepareCache();  // makes sure the image file is extracted
+          paths.push_back(block.getImagePath());
+        }
+      }
+    }
+  }
+  if (paths.empty()) {
+    drawToast(renderer, tr(STR_NO_IMAGES_ON_PAGE));
+    delay(1000);
+    requestUpdate();
+    return;
+  }
+  auto viewer = makeUniqueNoThrow<ImageViewerActivity>(renderer, mappedInput, std::move(paths));
+  if (!viewer) {
+    LOG_ERR("ERS", "OOM: image viewer");
+    requestUpdate();
+    return;
+  }
+  pauseReadingPaceTimer("image_viewer");
+  startActivityForResult(std::move(viewer), [this](const ActivityResult&) {
+    resumeReadingPaceTimer("image_viewer_return");
+    requestUpdate();
+  });
+}
+
+void EpubReaderActivity::openBookSearch(const bool returnToReaderMenu) {
+  auto keyboard = makeUniqueNoThrow<KeyboardEntryActivity>(renderer, mappedInput, tr(STR_SEARCH_BOOK_TITLE),
+                                                           lastBookSearchQuery, 64, InputType::Text, 1);
+  if (!keyboard) {
+    LOG_ERR("ERS", "OOM: book search keyboard");
+    return;
+  }
+  pauseReadingPaceTimer("book_search");
+  startActivityForResult(std::move(keyboard), [this, returnToReaderMenu](const ActivityResult& result) {
+    const auto* typed = std::get_if<KeyboardResult>(&result.data);
+    const std::string needle = typed ? normalizeSearchNeedle(typed->text) : std::string();
+    if (result.isCancelled || needle.empty()) {
+      resumeReadingPaceTimer("book_search_cancel");
+      if (returnToReaderMenu) {
+        openReaderMenu();
+      } else {
+        requestUpdate();
+      }
+      return;
+    }
+    lastBookSearchQuery = typed->text;
+    auto search = makeUniqueNoThrow<BookSearchActivity>(renderer, mappedInput, epub, typed->text);
+    if (!search) {
+      LOG_ERR("ERS", "OOM: book search");
+      resumeReadingPaceTimer("book_search_alloc_failed");
+      requestUpdate();
+      return;
+    }
+    startActivityForResult(std::move(search), [this, needle](const ActivityResult& found) {
+      const auto* hit = std::get_if<BookmarkResult>(&found.data);
+      if (found.isCancelled || !hit || !epub) {
+        resumeReadingPaceTimer("book_search_back");
+        requestUpdate();
+        return;
+      }
+      {
+        RenderLock lock(*this);
+        clearFootnotePreviewState();
+        currentSpineIndex = hit->spineIndex;
+        pendingSpineProgress = hit->progress;
+        pendingParagraphIndex = UINT16_MAX;
+        pendingPercentJump = true;
+        searchQueryForJump = needle;
+        section.reset();
+      }
+      armReadingPaceWarmup("search_jump");
+      pauseReadingPaceTimer("search_jump");
+      requestUpdate();
+    });
+  });
+}
+
+void EpubReaderActivity::drawSearchHighlight(const Page& page, const int fontId, const int orientedMarginTop,
+                                             const int orientedMarginLeft) {
+  if (searchHighlightNeedle.empty() || !section || renderer.getRenderMode() != GfxRenderer::BW) return;
+  if (searchHighlightPageKey != currentSpineIndex * 65536 + section->currentPage) {
+    searchHighlightNeedle.clear();  // the reader has moved on
+    return;
+  }
+  std::vector<SearchPageWord> words;
+  const std::string text = searchPageText(page, &words);
+  const size_t pos = text.find(searchHighlightNeedle);
+  if (pos == std::string::npos) return;
+  const size_t end = pos + searchHighlightNeedle.size();
+  const bool kannada = kannadareading::layoutFlag() != 0;
+  const bool ink = ReaderUtils::readerForegroundBlack();
+  size_t k = 0;
+  forEachVisiblePageWord(page, [&](const uint16_t, const PageTextLine& line, const TextBlock& block, const size_t i) {
+    if (k >= words.size()) return false;
+    const size_t wordStart = words[k].start;
+    const size_t wordEnd = k + 1 < words.size() ? words[k + 1].start : text.size();
+    ++k;
+    if (wordEnd <= pos) return true;
+    if (wordStart >= end) return false;
+    const auto wordIndex = static_cast<uint16_t>(i);
+    const char* wordText = block.wordText(wordIndex);
+    const bool hasEmSpace = hasEmSpacePrefix(wordText);
+    const auto style = static_cast<EpdFontFamily::Style>(block.wordStyle(wordIndex) & ~EpdFontFamily::UNDERLINE);
+    const int skipX = hasEmSpace ? renderer.getTextAdvanceX(fontId, "\xe2\x80\x83", style) : 0;
+    const PageWordGeometry geometry = pageWordGeometry(renderer, fontId, line, block, wordIndex);
+    const int x = orientedMarginLeft + line.xPos + geometry.xOffset + skipX;
+    const int w = geometry.width - skipX;
+    const int lineFontId = pageLineFontId(renderer, fontId, block);
+    const int lineH = line.lineHeight > 0 ? line.lineHeight : renderer.getLineHeight(lineFontId);
+    const int barTop = std::max(renderer.getFontAscenderSize(lineFontId) + 3, kannada ? lineH + 1 : lineH + 2);
+    if (w > 0) renderer.fillRect(x, orientedMarginTop + line.yPos + barTop, w, 3, ink);
+    return true;
+  });
+}
+
 void EpubReaderActivity::openSpeedReadPicker(const bool returnToReaderMenu) {
   const bool kannada = kannadareading::layoutFlag() != 0;
   const int preset = kannada ? speedReadLastKannadaPreset : speedReadLastEnglishPreset;
@@ -5880,8 +6087,10 @@ void EpubReaderActivity::prepareSpeedReadOverlay(const Page& page, const int fon
         // Sit the bar in the blank band between this line and the next, so it
         // never touches descenders, ottaksharas or hanging vowel signs (their
         // ink ends at the line boundary) nor the next line's head strokes.
-        const int lineH = line.lineHeight > 0 ? line.lineHeight : renderer.getLineHeight(fontId);
-        const int barTop = std::max(ascender + 3, kannada ? lineH + 1 : lineH + 2);
+        const int lineFontId = pageLineFontId(renderer, fontId, block);
+        const int lineH = line.lineHeight > 0 ? line.lineHeight : renderer.getLineHeight(lineFontId);
+        const int lineAscender = lineFontId == fontId ? ascender : renderer.getFontAscenderSize(lineFontId);
+        const int barTop = std::max(lineAscender + 3, kannada ? lineH + 1 : lineH + 2);
         current.x = static_cast<int16_t>(wordX);
         current.y = static_cast<int16_t>(orientedMarginTop + line.yPos + barTop);
         current.w = static_cast<int16_t>(wordW);
@@ -6662,6 +6871,14 @@ void EpubReaderActivity::render(RenderLock&& lock) {
         const uint16_t fallbackPage = static_cast<uint16_t>(std::max(0, section->currentPage));
         section->currentPage = resolveParagraphJumpPage(*section, pendingParagraphIndex, fallbackPage);
         LOG_DBG("ERS", "Resolved paragraph %u to page %d", pendingParagraphIndex, section->currentPage);
+      }
+      if (!searchQueryForJump.empty()) {
+        // Search in Book: land on the exact page holding the text and mark it.
+        const uint16_t fallbackPage = static_cast<uint16_t>(std::max(0, section->currentPage));
+        section->currentPage = resolveSearchJumpPage(*section, searchQueryForJump, fallbackPage);
+        searchHighlightNeedle = searchQueryForJump;
+        searchHighlightPageKey = currentSpineIndex * 65536 + section->currentPage;
+        searchQueryForJump.clear();
       }
       pendingClippingIndex = UINT16_MAX;
       pendingParagraphIndex = UINT16_MAX;
@@ -7479,6 +7696,7 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
 
   const auto finalizeBufferComposition = [&]() {
     drawClippingHighlights(*page, fontId, orientedMarginTop, orientedMarginLeft);
+    drawSearchHighlight(*page, fontId, orientedMarginTop, orientedMarginLeft);
     prepareSpeedReadOverlay(*page, fontId, orientedMarginTop, orientedMarginLeft);
     drawPublisherPageMarkers(renderer, *page, orientedMarginTop, contentBottom, foregroundBlack);
 #if CROSSINK_APP_CAP_TOUCH
@@ -7862,7 +8080,8 @@ void EpubReaderActivity::drawClippingHighlights(const Page& page, const int font
     const int wordX = orientedMarginLeft + line.xPos + geometry.xOffset + skipX;
     const int wordY = orientedMarginTop + line.yPos;
     int wordW = geometry.width - skipX;
-    const int wordH = line.lineHeight > 0 ? line.lineHeight : renderer.getLineHeight(fontId);
+    const int wordH =
+        line.lineHeight > 0 ? line.lineHeight : renderer.getLineHeight(pageLineFontId(renderer, fontId, block));
     if (wordIndex + 1 < block.wordCount()) {
       const uint16_t nextIndex = static_cast<uint16_t>(wordIndex + 1);
       const char* nextWordText = block.wordText(nextIndex);

@@ -67,6 +67,13 @@ class ChapterHtmlSlimParser {
   int referenceExcludedUntilDepth = INT_MAX;
   uint16_t currentTextRunBytes = 0;
   bool nextWordContinues = false;  // true when next flushed word attaches to previous (inline element boundary)
+  // <pre> code block: depth of the open <pre> (-1 outside), spaces waiting to be
+  // placed before the next word, and whether the newline right after <pre> is due.
+  int preDepth_ = -1;
+  int prePendingSpaces_ = 0;
+  bool preAtStart_ = false;
+  void preLineBreak();
+  void placePreSpaces(uint32_t visibleOffset, uint32_t referenceOffset);
   std::unique_ptr<ParsedText> currentTextBlock = nullptr;
   // Ruby text state
   bool inRuby = false;
