@@ -570,7 +570,23 @@ CrossPointSettings::SHORT_PWRBTN getHoldToSleepPowerAction() {
   if (held >= POWER_SLEEP_HOLD_MS && !hintShown) {
     hintShown = true;
     RenderLock lock;
-    GUI.drawPopup(renderer, tr(STR_POWER_HOLD_HINT));
+    // A padded two-line card: the one-line popup was wider than the screen.
+    const char* line1 = tr(STR_POWER_HOLD_HINT_1);
+    const char* line2 = tr(STR_POWER_HOLD_HINT_2);
+    constexpr int kPad = 22;
+    const int h1 = renderer.getLineHeight(UI_12_FONT_ID);
+    const int h2 = renderer.getLineHeight(UI_10_FONT_ID);
+    const int screenW = renderer.getScreenWidth();
+    const int textW = std::max(renderer.getTextWidth(UI_12_FONT_ID, line1, EpdFontFamily::BOLD),
+                               renderer.getTextWidth(UI_10_FONT_ID, line2));
+    const int boxW = std::min(screenW - 24, textW + 2 * kPad);
+    const int boxH = h1 + h2 + 6 + 2 * kPad;
+    const int boxX = (screenW - boxW) / 2;
+    const int boxY = (renderer.getScreenHeight() - boxH) / 2;
+    renderer.fillRoundedRect(boxX, boxY, boxW, boxH, 12, Color::White);
+    renderer.drawRoundedRect(boxX, boxY, boxW, boxH, 2, 12, true);
+    renderer.drawCenteredText(UI_12_FONT_ID, boxY + kPad, line1, true, EpdFontFamily::BOLD);
+    renderer.drawCenteredText(UI_10_FONT_ID, boxY + kPad + h1 + 6, line2, true);
     renderer.displayBuffer(HalDisplay::FAST_REFRESH);
   }
   return CrossPointSettings::SHORT_PWRBTN::IGNORE;
@@ -1037,7 +1053,7 @@ bool handleX4ProHomeKeyShortcuts() {
   return true;
 }
 }  // namespace
-constexpr char SLEEP_FRAME_FILE[] = "/.pocketdeck-os/sleep_frame.bin";
+constexpr char SLEEP_FRAME_FILE[] = "/.pocketdeck-os/system_cache/sleep_frame.bin";
 
 static void saveSleepFrameBuffer() {
   HalFile file;
@@ -1500,6 +1516,7 @@ void setup() {
   }
   logBootHeap("storage ready");
   migrateLegacyDataFolders();
+  FsHelpers::migrateDataLayout();
 
   HalSystem::checkPanic();
 
@@ -1562,7 +1579,7 @@ void setup() {
             (BoardConfig::isX4Pro() || CROSSINK_APP_DEVICE_X4CLASSIC) ? "DOWN" : "UP");
   }
 
-  LOG_DBG("MAIN", "Starting CrossInk version " CROSSINK_VERSION);
+  LOG_DBG("MAIN", "Starting PocketDeck-OS version " CROSSINK_VERSION);
   logMemoryStats("Boot");
 
   // Resolve the single boot-presentation decision. Skipping the splash also

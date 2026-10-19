@@ -272,3 +272,185 @@ void sanitizePathComponentForFat32(const char* input, char* output, size_t maxLe
 }
 
 }  // namespace FsHelpers
+
+namespace FsHelpers {
+
+namespace {
+constexpr char kDataDirPrefix[] = "/.pocketdeck-os/";
+constexpr const char* kBookCachePrefixes[] = {"epub_", "xtc_", "txt_"};
+
+// Length of the book-cache name at `name` (prefix + digits), 0 if none.
+size_t bookCacheNameLength(const char* name) {
+  for (const char* prefix : kBookCachePrefixes) {
+    const size_t plen = strlen(prefix);
+    if (strncmp(name, prefix, plen) != 0) continue;
+    size_t n = plen;
+    while (name[n] >= '0' && name[n] <= '9') ++n;
+    return n > plen ? n : 0;
+  }
+  return 0;
+}
+
+void shardName(const uint64_t id, char shard[3]) {
+  snprintf(shard, 3, "%02x", static_cast<unsigned>(id % kBookCacheShards));
+}
+
+// Moves one book folder (by name) from `fromDir` into its shard. Never
+// overwrites: if the destination exists the source stays where it is.
+bool moveBookFolderToShard(const std::string& fromDir, const char* name) {
+  char shard[3];
+  if (!bookCacheShardOf(name, shard)) return false;
+  const std::string shardDir = std::string(kBookCacheDir) + "/" + shard;
+  const std::string to = shardDir + "/" + name;
+  if (Storage.exists(to.c_str())) return false;
+  Storage.mkdir(shardDir.c_str());
+  const std::string from = fromDir + "/" + name;
+  if (!Storage.rename(from.c_str(), to.c_str())) {
+    LOG_ERR("FSH", "Could not move %s into %s", from.c_str(), shardDir.c_str());
+    return false;
+  }
+  return true;
+}
+
+// Moves every book folder directly inside `dir` into its shard, in batches
+// (renaming while iterating a directory is not safe), with bounded memory.
+void shardBookFoldersIn(const char* dir) {
+  char name[128];
+  for (int pass = 0; pass < 4096; ++pass) {
+    std::vector<std::string> batch;
+    batch.reserve(32);
+    HalFile root = Storage.open(dir);
+    if (!root || !root.isDirectory()) {
+      if (root) root.close();
+      return;
+    }
+    for (HalFile entry = root.openNextFile(); entry && batch.size() < 32; entry = root.openNextFile()) {
+      entry.getName(name, sizeof(name));
+      const bool isDir = entry.isDirectory();
+      entry.close();
+      if (isDir && bookCacheNameLength(name) == strlen(name)) batch.emplace_back(name);
+    }
+    root.close();
+    if (batch.empty()) return;
+    size_t moved = 0;
+    for (const auto& folder : batch) {
+      if (moveBookFolderToShard(dir, folder.c_str())) ++moved;
+    }
+    LOG_INF("FSH", "Moved %u book cache folders from %s into shards", static_cast<unsigned>(moved), dir);
+    if (moved == 0) return;  // only unmovable ones left; do not loop on them
+  }
+}
+}  // namespace
+
+uint32_t entryHash(const char* name, const size_t len, const bool isDir) {
+  if (!name || len == 0 || name[0] == '.') return 0;
+  uint32_t h = 2166136261u;
+  for (size_t i = 0; i < len; ++i) {
+    h ^= static_cast<uint8_t>(name[i]);
+    h *= 16777619u;
+  }
+  h ^= isDir ? 0x9E3779B9u : 0u;
+  // Spread before summing so swapped/duplicated names do not cancel.
+  h ^= h >> 16;
+  h *= 0x7FEB352Du;
+  h ^= h >> 15;
+  return h | 1u;  // never zero: every counted entry changes the sum
+}
+
+void recordBookSource(const std::string& cachePath, const std::string& bookPath) {
+  if (cachePath.empty() || bookPath.empty()) return;
+  std::string current;
+  if (readBookSource(cachePath, current) && current == bookPath) return;
+  const std::string path = cachePath + "/source.path";
+  HalFile file;
+  if (!Storage.openFileForWrite("FSH", path, file)) return;
+  file.write(reinterpret_cast<const uint8_t*>(bookPath.data()), bookPath.size());
+  file.close();
+}
+
+bool readBookSource(const std::string& cachePath, std::string& bookPath) {
+  const std::string path = cachePath + "/source.path";
+  HalFile file;
+  if (!Storage.exists(path.c_str()) || !Storage.openFileForRead("FSH", path, file)) return false;
+  char buf[512];
+  const int n = file.read(buf, sizeof(buf) - 1);
+  file.close();
+  if (n <= 0) return false;
+  bookPath.assign(buf, static_cast<size_t>(n));
+  return bookPath[0] == '/';
+}
+
+std::string bookCacheFolder(const std::string& dataDir, const char* prefix, const uint64_t id) {
+  char shard[3];
+  shardName(id, shard);
+  return dataDir + "/" + kBookCacheDirName + "/" + shard + "/" + prefix + std::to_string(id);
+}
+
+bool bookCacheShardOf(const char* folderName, char shard[3]) {
+  const size_t len = bookCacheNameLength(folderName);
+  if (len == 0) return false;
+  const char* digits = strchr(folderName, '_') + 1;
+  uint64_t id = 0;
+  for (const char* p = digits; p < folderName + len; ++p) id = id * 10 + static_cast<uint64_t>(*p - '0');
+  shardName(id, shard);
+  return true;
+}
+
+bool upgradeSavedDataPath(std::string& path) {
+  bool changed = false;
+  static constexpr char kLegacyDataDir[] = "/.crosspoint/";
+  if (path.rfind(kLegacyDataDir, 0) == 0) {
+    path.replace(0, sizeof(kLegacyDataDir) - 1, kDataDirPrefix);
+    changed = true;
+  }
+  // A book folder directly under /.pocketdeck-os/ or directly under
+  // book_reading_cache/ (before sharding) moves into its shard.
+  const std::string flatCache = std::string(kBookCacheDir) + "/";
+  size_t nameAt = std::string::npos;
+  if (path.rfind(flatCache, 0) == 0 && bookCacheNameLength(path.c_str() + flatCache.size()) > 0) {
+    nameAt = flatCache.size();
+  } else if (path.rfind(kDataDirPrefix, 0) == 0 && bookCacheNameLength(path.c_str() + sizeof(kDataDirPrefix) - 1) > 0) {
+    nameAt = sizeof(kDataDirPrefix) - 1;
+  }
+  if (nameAt != std::string::npos) {
+    char shard[3];
+    bookCacheShardOf(path.c_str() + nameAt, shard);
+    std::string prefix = flatCache + shard + "/";
+    path = prefix + path.substr(nameAt);
+    changed = true;
+  }
+  return changed;
+}
+
+void migrateDataLayout() {
+  if (!Storage.exists("/.pocketdeck-os")) return;
+  // Written once the layout is current, so later boots skip the folder scans.
+  static constexpr char kLayoutMarker[] = "/.pocketdeck-os/system_cache/layout-v2";
+  if (Storage.exists(kLayoutMarker)) return;
+  Storage.mkdir(kBookCacheDir);
+  Storage.mkdir(kSystemCacheDir);
+
+  // App caches that used to sit at the top level.
+  static constexpr const char* kSystemCaches[] = {"fileindex",        "card_stats.bin", "home_carousel_cache.bin",
+                                                   "font-catalog.bin", "image_view.pxc", "sleep_frame.bin",
+                                                   "sleep-image-index"};
+  for (const char* name : kSystemCaches) {
+    const std::string from = std::string(kDataDirPrefix) + name;
+    const std::string to = std::string(kSystemCacheDir) + "/" + name;
+    if (Storage.exists(from.c_str()) && !Storage.exists(to.c_str()) && !Storage.rename(from.c_str(), to.c_str())) {
+      LOG_ERR("FSH", "Could not move %s into system_cache", from.c_str());
+    }
+  }
+
+  // Book folders from older layouts: top level, then unsharded cache root.
+  shardBookFoldersIn("/.pocketdeck-os");
+  shardBookFoldersIn(kBookCacheDir);
+
+  HalFile marker;
+  if (Storage.openFileForWrite("FSH", kLayoutMarker, marker)) {
+    marker.write(reinterpret_cast<const uint8_t*>("2"), 1);
+    marker.close();
+  }
+}
+
+}  // namespace FsHelpers

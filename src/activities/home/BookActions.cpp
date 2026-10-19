@@ -1,5 +1,7 @@
 #include "BookActions.h"
 
+#include <Txt.h>
+
 #include <Epub.h>
 #include <Epub/EpubRenderMode.h>
 #include <FsHelpers.h>
@@ -81,8 +83,10 @@ void clearFileMetadata(const std::string& fullPath) {
     BookmarkStore::deleteForFilePath(fullPath, "epub");
     ClippingStore::deleteForFilePath(fullPath, "epub");
   } else if (FsHelpers::hasXtcExtension(fullPath)) {
+    Xtc(fullPath, "/.pocketdeck-os").clearCache();
     BookmarkStore::deleteForFilePath(fullPath, "xtc");
   } else if (FsHelpers::hasTxtExtension(fullPath) || FsHelpers::hasMarkdownExtension(fullPath)) {
+    Txt(fullPath, "/.pocketdeck-os").clearCache();
     BookmarkStore::deleteForFilePath(fullPath, "txt");
   }
 }

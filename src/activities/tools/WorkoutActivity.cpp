@@ -18,6 +18,7 @@ using workout::Shape;
 using workout::Type;
 
 namespace {
+constexpr char kPaceFile[] = "/tools/workout/pace.txt";
 constexpr int kListRowH = 70;
 constexpr int kFigure = 160;  // figure sprites are 160 x 160
 
@@ -95,6 +96,16 @@ void WorkoutActivity::onEnter() {
   item_ = makeUniqueNoThrow<workout::Item>();
   text_ = makeUniqueNoThrow<char[]>(kTextCap);
   catCount_ = (cat_ && item_ && text_) ? workout::listCategories(cats_, workout::kMaxCategories) : 0;
+  {
+    HalFile pace;
+    char c[2] = {0, 0};
+    if (Storage.exists(kPaceFile) && Storage.openFileForRead("WKT", kPaceFile, pace)) {
+      if (pace.read(c, 2) < 1) c[0] = 0;
+      pace.close();
+    }
+    slowPace_ = c[0] == '1';
+    if (c[1] >= '0' && c[1] < '0' + kLevelCount) level_ = c[1] - '0';
+  }
   if (!cat_ || !item_ || !text_) LOG_ERR("WKT", "Out of memory");
   show(catCount_ > 0 ? Screen::Categories : Screen::Missing);
   requestUpdate();
@@ -251,8 +262,13 @@ void WorkoutActivity::loop() {
         } else {
           requestStart();
         }
+      } else if (input_.confirmLong) {
+        slowPace_ = !slowPace_;  // hold Start: Slow pace on/off
+        savePace();
+        requestUpdate();
       } else if (input_.leftUp) {
-        level_ ^= 1;
+        level_ = (level_ + 1) % kLevelCount;  // Rookie .. Go Nuts
+        savePace();
         requestUpdate();
       } else if ((next || prev) && detailPages_ > 1) {
         detailPage_ = (detailPage_ + (next ? 1 : detailPages_ - 1)) % detailPages_;
@@ -343,9 +359,9 @@ int WorkoutActivity::segCount() const {
     case Type::Hold:
       return it.sides * 2 - 1;
     case Type::Sequence:
-      return std::max<int>(1, it.rounds[level_]) * std::max<int>(1, it.stepCount);
+      return std::max<int>(1, levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1])) * std::max<int>(1, it.stepCount);
     case Type::Interval:
-      return std::max<int>(1, it.sets[level_]) * 2 - 1;
+      return std::max<int>(1, levelValue(LevelField::Sets, it.sets[0], it.sets[1])) * 2 - 1;
   }
   return 1;
 }
@@ -360,21 +376,21 @@ WorkoutActivity::Seg WorkoutActivity::seg(const int i) const {
       const int j = i % len;
       if (j >= pattern) return {SegKind::BreathRest, 0, it.rest.seconds};
       const int p = j % pc;
-      return {SegKind::Phase, static_cast<uint8_t>(p), it.phaseCount ? it.phases[p].seconds : uint16_t{4}};
+      return {SegKind::Phase, static_cast<uint8_t>(p), it.phaseCount ? phaseSeconds(it.phases[p]) : uint16_t{4}};
     }
     case Type::Hold:
       if (i % 2 == 1) return {SegKind::Switch, static_cast<uint8_t>(i / 2), kSwitchSeconds};
-      return {SegKind::Hold, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, it.seconds[level_])};
+      return {SegKind::Hold, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]))};
     case Type::Sequence: {
       const int sc = std::max<int>(1, it.stepCount);
       const workout::Step& st = it.steps[i % sc];
-      const uint16_t secs = st.seconds ? st.seconds : it.stepSeconds[level_];
+      const uint16_t secs = stepSeconds(st.seconds ? st.seconds : levelValue(LevelField::StepSeconds, it.stepSeconds[0], it.stepSeconds[1]));
       return {SegKind::Step, static_cast<uint8_t>(i % sc), std::max<uint16_t>(1, secs)};
     }
     case Type::Interval:
       if (i % 2 == 1)
-        return {SegKind::Recover, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, it.restSeconds[level_])};
-      return {SegKind::Work, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, it.work[level_])};
+        return {SegKind::Recover, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, levelValue(LevelField::Rest, it.restSeconds[0], it.restSeconds[1]))};
+      return {SegKind::Work, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, levelValue(LevelField::Work, it.work[0], it.work[1]))};
   }
   return {SegKind::Hold, 0, 1};
 }
@@ -384,7 +400,7 @@ uint32_t WorkoutActivity::elapsedMs() const {
   return accMs_ + (running_ ? millis() - runStartMs_ : 0);
 }
 
-uint32_t WorkoutActivity::totalMs() const { return static_cast<uint32_t>(item_->minutes[level_]) * 60000UL; }
+uint32_t WorkoutActivity::totalMs() const { return static_cast<uint32_t>(levelValue(LevelField::Minutes, item_->minutes[0], item_->minutes[1])) * 60000UL; }
 
 void WorkoutActivity::startSession() {
   running_ = true;
@@ -445,7 +461,7 @@ void WorkoutActivity::finishSession(const bool done) {
   if (durationSec_ >= kMinLogSeconds && tlog::now(at)) {
     char fields[tlog::kLineCap - 20];
     snprintf(fields, sizeof(fields), "%s|%s|%lu|%u|%u|%c|%d", cat_->info.key, item_->id,
-             static_cast<unsigned long>(durationSec_), count_, reps_, level_ ? 'a' : 'b', done ? 1 : 0);
+             static_cast<unsigned long>(durationSec_), count_, reps_, level_ >= 3 ? 'a' : 'b', done ? 1 : 0);
     saved_ = tlog::append("workout", at, fields);
     if (!saved_) LOG_ERR("WKT", "Could not save the session log");
   }
@@ -476,7 +492,82 @@ int WorkoutActivity::drawKannadaLine(const char* text, const kannada::Style s, c
 }
 
 const char* WorkoutActivity::levelName() const {
-  return level_ ? tr(STR_TOOLS_WORKOUT_ADVANCED) : tr(STR_TOOLS_WORKOUT_BEGINNER);
+  static const StrId kNames[kLevelCount] = {StrId::STR_TOOLS_WORKOUT_ROOKIE, StrId::STR_TOOLS_WORKOUT_BEGINNER,
+                                            StrId::STR_TOOLS_WORKOUT_EXPERT, StrId::STR_TOOLS_WORKOUT_VETERAN,
+                                            StrId::STR_TOOLS_WORKOUT_GO_NUTS};
+  static char name[48];
+  snprintf(name, sizeof(name), "%s%s%s", I18N.get(kNames[std::clamp(level_, 0, kLevelCount - 1)]),
+           slowPace_ ? " · " : "", slowPace_ ? tr(STR_TOOLS_WORKOUT_SLOW_PACE) : "");
+  return name;
+}
+
+uint16_t WorkoutActivity::levelValue(const LevelField field, const uint16_t beginner, const uint16_t advanced) const {
+  const uint16_t b = std::max<uint16_t>(1, beginner);
+  const uint16_t a = std::max<uint16_t>(1, advanced);
+  const uint16_t mid = static_cast<uint16_t>((b + a + 1) / 2);
+  switch (level_) {
+    case 1:
+      return b;
+    case 3:
+      return a;
+    case 2:
+      return mid;
+    case 0:  // Rookie: a gentle start
+      switch (field) {
+        case LevelField::Rounds:
+          return 1;
+        case LevelField::StepSeconds:
+          return std::max<uint16_t>(b, 10);  // slower, guided poses
+        case LevelField::HoldSeconds:
+          return std::max<uint16_t>(5, std::min<uint16_t>(b, 10));
+        case LevelField::Sets:
+          return std::max<uint16_t>(1, b - 1);
+        case LevelField::Work:
+          return std::max<uint16_t>(5, b * 3 / 4);
+        case LevelField::Rest:
+          return b * 5 / 4;
+        case LevelField::Minutes:
+        default:
+          return std::max<uint16_t>(1, b / 2);
+      }
+    case 4:  // Go Nuts
+    default:
+      switch (field) {
+        case LevelField::StepSeconds:
+          return a;  // no faster than the file's quickest safe flow
+        case LevelField::Sets:
+          return a + 2;
+        case LevelField::Work:
+          return a * 5 / 4;
+        case LevelField::Rest:
+          return std::max<uint16_t>(5, a * 3 / 4);
+        case LevelField::Rounds:
+        case LevelField::HoldSeconds:
+        case LevelField::Minutes:
+        default:
+          return a * 3 / 2;
+      }
+  }
+}
+
+uint16_t WorkoutActivity::phaseSeconds(const workout::Phase& phase) const {
+  // Fast breathing (Kapalabhati, Bhastrika: 1-2 s phases) keeps its rhythm.
+  if (!slowPace_ || phase.seconds < 3) return phase.seconds;
+  if (phase.shape == workout::Shape::Grow) return 10;    // inhale
+  if (phase.shape == workout::Shape::Shrink) return 15;  // exhale
+  return phase.seconds;                                  // holds as written
+}
+
+uint16_t WorkoutActivity::stepSeconds(const uint16_t written) const {
+  return slowPace_ ? std::max<uint16_t>(written, 30) : written;
+}
+
+void WorkoutActivity::savePace() const {
+  HalFile pace;
+  if (!Storage.openFileForWrite("WKT", kPaceFile, pace)) return;
+  const uint8_t c[2] = {static_cast<uint8_t>(slowPace_ ? '1' : '0'), static_cast<uint8_t>('0' + level_)};
+  pace.write(c, 2);
+  pace.close();
 }
 
 void WorkoutActivity::timingLine(char* buf, const size_t len) const {
@@ -487,27 +578,27 @@ void WorkoutActivity::timingLine(char* buf, const size_t len) const {
       char pattern[40] = "";
       for (int i = 0; i < it.phaseCount; ++i) {
         const size_t n = strlen(pattern);
-        snprintf(pattern + n, sizeof(pattern) - n, i ? "-%u" : "%u", it.phases[i].seconds);
+        snprintf(pattern + n, sizeof(pattern) - n, i ? "-%u" : "%u", phaseSeconds(it.phases[i]));
       }
-      snprintf(buf, len, "%u %s  |  %s %s", it.minutes[level_], tr(STR_TOOLS_WORKOUT_MIN), pattern, s);
+      snprintf(buf, len, "%u %s  |  %s %s", levelValue(LevelField::Minutes, it.minutes[0], it.minutes[1]), tr(STR_TOOLS_WORKOUT_MIN), pattern, s);
       break;
     }
     case Type::Hold:
       if (it.sides > 1) {
-        snprintf(buf, len, "%u %s  |  %s %u", it.seconds[level_], s, tr(STR_TOOLS_WORKOUT_SIDES), it.sides);
+        snprintf(buf, len, "%u %s  |  %s %u", levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]), s, tr(STR_TOOLS_WORKOUT_SIDES), it.sides);
       } else {
-        snprintf(buf, len, "%u %s", it.seconds[level_], s);
+        snprintf(buf, len, "%u %s", levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]), s);
       }
       break;
     case Type::Sequence: {
-      const uint16_t step = it.stepSeconds[level_];
-      snprintf(buf, len, "%s %u  |  %s %u  |  %u %s", tr(STR_TOOLS_WORKOUT_ROUNDS), it.rounds[level_],
+      const uint16_t step = stepSeconds(levelValue(LevelField::StepSeconds, it.stepSeconds[0], it.stepSeconds[1]));
+      snprintf(buf, len, "%s %u  |  %s %u  |  %u %s", tr(STR_TOOLS_WORKOUT_ROUNDS), levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]),
                tr(STR_TOOLS_WORKOUT_STEPS), it.stepCount, step, s);
       break;
     }
     case Type::Interval:
-      snprintf(buf, len, "%s %u  |  %s %u %s  |  %s %u %s", tr(STR_TOOLS_WORKOUT_SETS), it.sets[level_],
-               tr(STR_TOOLS_WORKOUT_WORK), it.work[level_], s, tr(STR_TOOLS_WORKOUT_REST), it.restSeconds[level_], s);
+      snprintf(buf, len, "%s %u  |  %s %u %s  |  %s %u %s", tr(STR_TOOLS_WORKOUT_SETS), levelValue(LevelField::Sets, it.sets[0], it.sets[1]),
+               tr(STR_TOOLS_WORKOUT_WORK), levelValue(LevelField::Work, it.work[0], it.work[1]), s, tr(STR_TOOLS_WORKOUT_REST), levelValue(LevelField::Rest, it.restSeconds[0], it.restSeconds[1]), s);
       if (it.reps > 0) {
         const size_t n = strlen(buf);
         snprintf(buf + n, len - n, "  |  %s %u", tr(STR_TOOLS_WORKOUT_REPS), it.reps);
@@ -651,7 +742,11 @@ void WorkoutActivity::renderDetail() {
   small.fontId = UI_10_FONT_ID;
   small.maxLines = 3;
   y += tools::drawWrappedText(renderer, Rect{tx, y, tw, 90}, timing, small) * renderer.getLineHeight(UI_10_FONT_ID);
-  if (it.group[0]) renderer.drawText(SMALL_FONT_ID, tx, y + 2, it.group, true);
+  if (it.group[0]) {
+    renderer.drawText(SMALL_FONT_ID, tx, y + 2, it.group, true);
+    y += renderer.getLineHeight(SMALL_FONT_ID) + 2;
+  }
+  renderer.drawText(SMALL_FONT_ID, tx, y + 4, tr(STR_TOOLS_WORKOUT_PACE_HINT), true);
 
   // Paged text under the figure.
   const int boxTop = std::max(content.y + kFigure + 10, y + 24);
@@ -793,7 +888,7 @@ void WorkoutActivity::renderFigureSession(const Rect& c, const Seg& s, const uin
       renderer.drawCenteredText(UI_12_FONT_ID, y, step->name, true, EpdFontFamily::BOLD);
       y += lineH;
       snprintf(buf, sizeof(buf), "%s %u / %u  |  %s %u / %u", tr(STR_TOOLS_WORKOUT_ROUNDS),
-               static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1), it.rounds[level_],
+               static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1), levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]),
                tr(STR_TOOLS_WORKOUT_STEPS), static_cast<unsigned>(s.index + 1), it.stepCount);
       break;
     case SegKind::Hold:
@@ -815,7 +910,7 @@ void WorkoutActivity::renderFigureSession(const Rect& c, const Seg& s, const uin
                                 EpdFontFamily::BOLD);
       y += lineH;
       snprintf(buf, sizeof(buf), "%s %u / %u", tr(STR_TOOLS_WORKOUT_SETS),
-               static_cast<unsigned>(s.index + (s.kind == SegKind::Recover ? 2 : 1)), it.sets[level_]);
+               static_cast<unsigned>(s.index + (s.kind == SegKind::Recover ? 2 : 1)), levelValue(LevelField::Sets, it.sets[0], it.sets[1]));
       break;
   }
 
@@ -970,7 +1065,7 @@ void WorkoutActivity::renderMantraStep(const Rect& c, const Seg& s, const uint32
   if (segMs > 0) renderer.fillRect(barX, y, static_cast<int>(static_cast<uint64_t>(barW) * done / segMs), 10, true);
   y += 18;
   snprintf(buf, sizeof(buf), "%s %u / %u  |  %s %u / %u", tr(STR_TOOLS_WORKOUT_ROUNDS),
-           static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1), it.rounds[level_],
+           static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1), levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]),
            tr(STR_TOOLS_WORKOUT_STEPS), static_cast<unsigned>(s.index + 1), it.stepCount);
   renderer.drawCenteredText(UI_10_FONT_ID, y, buf);
   y += smallH;

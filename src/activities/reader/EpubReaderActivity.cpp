@@ -34,6 +34,10 @@
 #include "CrossPointState.h"
 #include "DictionaryWordSelectActivity.h"
 #include "EpubGrayscale.h"
+#include "activities/home/HomeActivity.h"
+#include "util/PrepareEta.h"
+#include "util/PreparedMarks.h"
+#include "activities/tools/KannadaText.h"
 #include "EpubReaderBookmarkListActivity.h"
 #include "EpubReaderChapterSelectionActivity.h"
 #include "EpubReaderClippingListActivity.h"
@@ -109,6 +113,9 @@ constexpr char BALANCED_SECTION_CACHE_SUFFIX[] = "_balanced";
 constexpr char LIGHT_SECTION_CACHE_SUFFIX[] = "_light";
 constexpr unsigned long RENDER_MODE_TOAST_MS = 1500UL;
 constexpr unsigned long MIN_MANUAL_PAGE_TURN_GAP_MS = 200UL;
+// Idle time after an interrupted anti-aliasing pass before the page is redrawn
+// with it.
+constexpr uint32_t GRAYSCALE_RESUME_IDLE_MS = 1500U;
 // Shared dwell time for the transient bookmark/completed/tilt confirmations.
 constexpr unsigned long TRANSIENT_FEEDBACK_MS = 1000UL;
 constexpr unsigned long IDLE_SD_FONT_PREWARM_DELAY_MS = 400UL;
@@ -2246,17 +2253,42 @@ void EpubReaderActivity::onEnter() {
   // Kannada books: shape Kannada text with the SD card Kannada font. Many
   // Kannada EPUBs are tagged "en", so the opening chapters are sampled too.
   {
-    // 6 KB scratch on the heap only while the book opens (too big for the stack).
-    auto sample = makeUniqueNoThrow<KannadaSample>();
-    if (sample) {
-      for (int i = 0; i < std::min(epub->getSpineItemsCount(), 6) && !sample->full(); ++i) {
-        const auto item = epub->getSpineItem(i);
-        sample->beginItem();
-        epub->readItemContentsToStream(item.href, *sample, 1024, /*allowEarlyStop=*/true);
+    // Whether the text is Kannada is decided from the language, the title, or
+    // (failing both) the opening of the first chapters. Decompressing those
+    // chapters costs time on every open, so the answer is kept in the book's
+    // cache folder ("1"/"0") after the first look.
+    const std::string flagPath = epub->getCachePath() + "/kannada.flag";
+    const char* language = epub->getLanguage().c_str();
+    const char* title = epub->getTitle().c_str();
+    if (!kannadareading::beginBook(renderer, language, title)) {
+      char cached = 0;
+      HalFile flag;
+      if (Storage.exists(flagPath.c_str()) && Storage.openFileForRead("ERS", flagPath, flag)) {
+        if (flag.read(&cached, 1) != 1) cached = 0;
+        flag.close();
+      }
+      if (cached == '1') {
+        static constexpr char kKannadaMark[] = "\xe0\xb2\x95";  // KA: marks the book as Kannada
+        kannadareading::beginBook(renderer, language, title, kKannadaMark, sizeof(kKannadaMark) - 1);
+      } else if (cached != '0') {
+        // 6 KB scratch on the heap only while the book opens (too big for the stack).
+        auto sample = makeUniqueNoThrow<KannadaSample>();
+        if (sample) {
+          for (int i = 0; i < std::min(epub->getSpineItemsCount(), 6) && !sample->full(); ++i) {
+            const auto item = epub->getSpineItem(i);
+            sample->beginItem();
+            epub->readItemContentsToStream(item.href, *sample, 1024, /*allowEarlyStop=*/true);
+          }
+          const bool kannadaText = kannada::hasKannada(sample->text, sample->len);
+          if (kannadaText) kannadareading::beginBook(renderer, language, title, sample->text, sample->len);
+          if (Storage.openFileForWrite("ERS", flagPath, flag)) {
+            const uint8_t value = kannadaText ? '1' : '0';
+            flag.write(&value, 1);
+            flag.close();
+          }
+        }
       }
     }
-    kannadareading::beginBook(renderer, epub->getLanguage().c_str(), epub->getTitle().c_str(),
-                              sample ? sample->text : nullptr, sample ? sample->len : 0);
   }
 
   uint16_t restartPageBuildSpine = UINT16_MAX;
@@ -2655,6 +2687,32 @@ bool EpubReaderActivity::backgroundSectionBuildHasHeap() {
   return false;
 }
 
+void EpubReaderActivity::idlePrepareHomeCovers() {
+  constexpr unsigned long kIdleBeforeCoversMs = 4000;
+  constexpr uint8_t kMaxAttempts = 3;
+  // Only when nothing else is going on: no build, render, prepare, Speed Read
+  // or Auto Page Turn, and the reader has rested on this page for a while.
+  if (homeCoversDone || !epub || !section || section->isBuilding() || prepareBookActive || prepareBookSummary ||
+      automaticPageTurnActive || speedReadActive || activeFootnotePreview || RenderLock::peek() ||
+      lastRenderCompleteMs == 0 || millis() - lastRenderCompleteMs < kIdleBeforeCoversMs) {
+    return;
+  }
+  // Extracting the cover from the EPUB needs a 32 KB inflate block and the
+  // decoder a little more; without it, try again on a later page (Home makes
+  // the covers itself as before if this never succeeds).
+  const auto heap = MemoryBudget::snapshot();
+  if (!MemoryBudget::hasHeap(heap, 56U * 1024U, 36U * 1024U)) {
+    if (++homeCoverAttempts >= kMaxAttempts) homeCoversDone = true;
+    lastRenderCompleteMs = millis();  // wait another idle period before retrying
+    return;
+  }
+  homeCoversDone = true;  // one go per book, whatever the outcome
+  RenderLock lock(*this);
+  const unsigned long startedAt = millis();
+  HomeActivity::prepareHomeCovers(*epub, renderer);
+  LOG_DBG("ERS", "Home covers prepared in %lums", millis() - startedAt);
+}
+
 void EpubReaderActivity::idlePrewarmNextPage() {
   // Like Auto Page Turn, a running Speed Read skips this: the prewarm holds the
   // render lock while it reads the next page's SD-font glyphs (seconds on the C3
@@ -2721,6 +2779,20 @@ bool EpubReaderActivity::transientFeedbackDismissed(const unsigned long showTime
 }
 
 void EpubReaderActivity::loop() {
+  if (prepareBookActive || prepareBookSummary) {
+    // The prepare screen owns the reader: no page turns, no background builds.
+    if (prepareBookActive) {
+      if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
+        prepareBookCancel.store(true, std::memory_order_relaxed);
+      }
+      requestUpdate();  // the next chapter (render() does one per pass)
+    } else if (mappedInput.wasAnyReleased()) {
+      prepareBookSummary = false;
+      pagesUntilFullRefresh = 1;
+      requestUpdate();
+    }
+    return;
+  }
   bool rawTouchInput = false;
 #if CROSSINK_APP_CAP_TOUCH
   int touchDownX = 0;
@@ -2728,6 +2800,21 @@ void EpubReaderActivity::loop() {
   rawTouchInput = mappedInput.wasScreenTouchDown(touchDownX, touchDownY) || mappedInput.wasScreenTouchReleased();
 #endif
   const bool rawReaderInput = mappedInput.wasAnyPressed() || mappedInput.wasAnyReleased() || rawTouchInput;
+  if (mappedInput.wasAnyPressed() || rawTouchInput) {
+    // Respond now: stop a running anti-aliasing pass instead of queueing
+    // behind it.
+    EpubGrayscale::requestAbort();
+  }
+  if (const uint32_t cutShort = grayscaleCutShortMs.load(std::memory_order_relaxed)) {
+    if (rawReaderInput) {
+      grayscaleCutShortMs.store(static_cast<uint32_t>(millis()) | 1U, std::memory_order_relaxed);
+    } else if (!RenderLock::peek() && !pendingManualPageTurns.hasPending() &&
+               static_cast<uint32_t>(millis()) - cutShort >= GRAYSCALE_RESUME_IDLE_MS) {
+      // The reader settled on the page: give it its anti-aliasing back.
+      grayscaleCutShortMs.store(0, std::memory_order_relaxed);
+      requestUpdate();
+    }
+  }
   if (rawReaderInput) {
     // This only cancels Full Section's optional next-chapter work. The input
     // itself remains available to the normal reader routing below.
@@ -3278,6 +3365,7 @@ void EpubReaderActivity::loop() {
       return;
     }
     idlePrewarmNextPage();
+    idlePrepareHomeCovers();
     return;
   }
 
@@ -3837,6 +3925,10 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
     }
     case EpubReaderMenuActivity::MenuAction::SPEED_READ: {
       openSpeedReadPicker(returnToReaderMenu);
+      break;
+    }
+    case EpubReaderMenuActivity::MenuAction::PREPARE_BOOK: {
+      startPrepareBook();
       break;
     }
     case EpubReaderMenuActivity::MenuAction::LOOKUP_HISTORY: {
@@ -6301,6 +6393,10 @@ void EpubReaderActivity::render(RenderLock&& lock) {
   if (quickActionsPopup.processRender(renderer, mappedInput)) {
     return;
   }
+  if (prepareBookActive || prepareBookSummary) {
+    renderPrepareBookStep();
+    return;
+  }
 
   // Speed Read step: move only the underline in the composed page and do a
   // fast partial refresh, instead of laying the whole page out again.
@@ -6465,6 +6561,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
       }
       activeSectionFontId = fontId;
       activeSectionLayoutSignature = readerRenderSpecSignature(spec);
+      PreparedMarks::writeLayoutSignature(epub->getCachePath(), activeSectionLayoutSignature);
       usedRenderMode = renderMode;
       return true;
     };
@@ -6644,6 +6741,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
         if (buildSucceeded) {
           activeSectionFontId = fontId;
           activeSectionLayoutSignature = readerRenderSpecSignature(spec);
+      PreparedMarks::writeLayoutSignature(epub->getCachePath(), activeSectionLayoutSignature);
           usedRenderMode = profile.renderMode;
           safeModeBuildSucceeded = profile.safeMode;
           LOG_DBG("ERS",
@@ -7302,6 +7400,234 @@ void EpubReaderActivity::silentIndexNextChapterIfNeeded(const uint16_t viewportW
   preparedNextViewportHeight = viewportHeight;
 }
 
+void EpubReaderActivity::startPrepareBook() {
+  if (!epub || speedReadActive) return;
+  automaticPageTurnActive = false;
+  prepareBookCancel.store(false, std::memory_order_relaxed);
+  prepareBookActive = true;
+  prepareBookSummary = false;
+  prepareCancelled = false;
+  prepareFirstDraw = true;
+  prepareSpine = 0;
+  prepareReady = 0;
+  prepareFailed = 0;
+  prepareBuiltCount = 0;
+  preparePages = 0;
+  prepareBuildMs = 0;
+  prepareStartMs = millis();
+  requestUpdate();
+}
+
+void EpubReaderActivity::renderPrepareBookStep() {
+  if (prepareBookSummary) {
+    drawPrepareBookScreen();
+    return;
+  }
+  const int total = epub->getSpineItemsCount();
+  const int readerFontId = SETTINGS.getReaderFontId();
+  const EpubRenderMode mode = normalizeRenderMode(SETTINGS.epubRenderMode);
+  // The same viewport the reader lays its pages out in.
+  uint16_t viewportWidth = buildViewportWidth;
+  uint16_t viewportHeight = buildViewportHeight;
+  if (viewportWidth == 0 || viewportHeight == 0) {
+    const ReaderViewportLayout layout = computeReaderViewportLayout(renderer, false, false);
+    viewportWidth = layout.viewportWidth;
+    viewportHeight = layout.viewportHeight;
+  }
+  const ReaderRenderSpec spec =
+      readerRenderSpecForProfile(readerFontId, viewportWidth, viewportHeight, buildProfileForRenderMode(mode));
+
+  // Skip chapters that are already prepared (a few per pass, so the progress
+  // keeps moving), then lay out the next missing one.
+  int checked = 0;
+  while (!prepareBookCancel.load(std::memory_order_relaxed) && prepareSpine < total) {
+    const int spine = prepareSpine;
+    if (spine == currentSpineIndex && section) {
+      // The open chapter belongs to the reader; count it when it is complete.
+      if (!section->isPartial() && !section->isBuilding()) {
+        preparePages += section->pageCount;
+        prepareReady++;
+      } else {
+        prepareFailed++;
+      }
+      prepareSpine++;
+      continue;
+    }
+    {
+      auto existing = makeUniqueNoThrow<Section>(epub, spine, renderer, sectionCacheSuffixForRenderMode(mode));
+      if (existing && existing->loadSectionFile(spec) && !existing->isPartial()) {
+        preparePages += existing->pageCount;
+        prepareReady++;
+        prepareSpine++;
+        if (++checked >= 8) break;
+        continue;
+      }
+    }
+    // Show which chapter is being laid out before the (seconds-long) build.
+    drawPrepareBookScreen();
+    uint16_t pages = 0;
+    const unsigned long startedAt = millis();
+    const bool built = prepareBuildChapter(spine, viewportWidth, viewportHeight, pages);
+    if (prepareBookCancel.load(std::memory_order_relaxed)) break;
+    prepareBuildMs += millis() - startedAt;
+    prepareBuiltCount++;
+    if (built) {
+      preparePages += pages;
+      prepareReady++;
+    } else {
+      prepareFailed++;
+    }
+    prepareSpine++;
+    break;  // one build per render pass
+  }
+
+  if (prepareBookCancel.load(std::memory_order_relaxed) || prepareSpine >= total) {
+    prepareCancelled = prepareBookCancel.load(std::memory_order_relaxed) && prepareSpine < total;
+    prepareBookActive = false;
+    prepareBookSummary = true;
+    // Explorer's two-tick mark: every chapter is laid out for this layout.
+    if (!prepareCancelled && prepareFailed == 0) {
+      PreparedMarks::writeWholeBookSignature(epub->getCachePath(), readerRenderSpecSignature(spec));
+    } else {
+      PreparedMarks::clearWholeBookSignature(epub->getCachePath());
+    }
+    // Chapter caches changed under the reader: re-check the status-bar estimate.
+    chapterGroupEstimate.valid = false;
+    preparedNextSpineIndex = -1;
+  }
+  drawPrepareBookScreen();
+}
+
+bool EpubReaderActivity::prepareBuildChapter(const int spineIndex, const uint16_t viewportWidth,
+                                             const uint16_t viewportHeight, uint16_t& pagesOut) {
+  const int readerFontId = SETTINGS.getReaderFontId();
+  const EpubRenderMode mode = normalizeRenderMode(SETTINGS.epubRenderMode);
+  releaseGrayscaleStripScratch(/*force=*/true);
+  releaseReaderSdFontCachesForLowMemory(renderer, "ERS", "preparing book");
+  // An explicit, foreground job: use the reader's own entry rule for laying out
+  // a chapter (the background-prefetch rule wants ~96 KB free, which the C3
+  // rarely has with a book open, and skipped nearly every chapter). The build
+  // itself still stops cleanly if memory runs short (abortedForLowMemory).
+  if (!MemoryBudget::hasHeapForEpubTextLayoutStart(MemoryBudget::snapshot())) {
+    LOG_ERR("ERS", "Prepare book: too little memory to lay out chapter %d (%u free, %u max alloc)", spineIndex,
+            ESP.getFreeHeap(), ESP.getMaxAllocHeap());
+    return false;
+  }
+  auto builder = makeUniqueNoThrow<Section>(epub, spineIndex, renderer, sectionCacheSuffixForRenderMode(mode));
+  if (!builder) {
+    LOG_ERR("ERS", "Prepare book: no memory for chapter %d", spineIndex);
+    return false;
+  }
+  bool abortedForLowMemory = false;
+  bool cancelled = false;
+  SectionBuildOptions options;
+  options.shouldCancel = [](void* context) {
+    return static_cast<EpubReaderActivity*>(context)->prepareBookCancel.load(std::memory_order_relaxed);
+  };
+  options.cancelContext = this;
+  options.cancellationObserved = &cancelled;
+  bool built = false;
+  {
+    // Lend the framebuffer to the inflater as the silent prefetch does; the
+    // progress screen is redrawn afterwards.
+    GfxRenderer::FrameBufferLoan loan(renderer);
+    built = builder->createSectionFile(
+        readerRenderSpecForProfile(readerFontId, viewportWidth, viewportHeight, buildProfileForRenderMode(mode)),
+        nullptr, nullptr, &abortedForLowMemory, options);
+  }
+  if (cancelled || !built) {
+    if (!cancelled) {
+      LOG_ERR("ERS", "Prepare book: chapter %d left for the reader (%s, %u free, %u max alloc)", spineIndex,
+              abortedForLowMemory ? "low memory" : "build failed", ESP.getFreeHeap(), ESP.getMaxAllocHeap());
+    }
+    return false;
+  }
+  pagesOut = builder->pageCount;
+  return true;
+}
+
+void EpubReaderActivity::drawPrepareBookScreen() {
+  const auto& metrics = UITheme::getInstance().getMetrics();
+  const int screenW = renderer.getScreenWidth();
+  const int total = std::max(1, epub->getSpineItemsCount());
+  renderer.clearScreen();
+  GUI.drawHeader(renderer, Rect{0, metrics.topPadding, screenW, metrics.headerHeight}, tr(STR_PREPARE_BOOK), "");
+  const int x = metrics.contentSidePadding;
+  const int w = screenW - 2 * metrics.contentSidePadding;
+  int y = metrics.topPadding + metrics.headerHeight + metrics.verticalSpacing + 8;
+  const int titleH = renderer.getLineHeight(UI_12_FONT_ID);
+  const int lineH = renderer.getLineHeight(UI_10_FONT_ID);
+
+  const std::string title = renderer.truncatedText(UI_12_FONT_ID, epub->getTitle().c_str(), w, EpdFontFamily::BOLD);
+  renderer.drawText(UI_12_FONT_ID, x, y, title.c_str(), true, EpdFontFamily::BOLD);
+  y += titleH + 18;
+
+  // Progress bar: chapters checked or laid out so far.
+  constexpr int kBarH = 24;
+  const int done = std::min(prepareSpine, total);
+  renderer.drawRoundedRect(x, y, w, kBarH, 2, kBarH / 2, true);
+  const int inner = w - 8;
+  int fillW = static_cast<int>(static_cast<int64_t>(inner) * done / total);
+  if (done > 0 && fillW < kBarH - 8) fillW = kBarH - 8;
+  if (fillW > 0) renderer.fillRoundedRect(x + 4, y + 4, fillW, kBarH - 8, (kBarH - 8) / 2, Color::Black);
+  y += kBarH + 16;
+
+  char line[96];
+  const auto drawLine = [&](const char* text, const bool bold) {
+    renderer.drawText(UI_10_FONT_ID, x, y, text, true, bold ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR);
+    y += lineH + 8;
+  };
+  if (prepareBookSummary) {
+    if (prepareCancelled) {
+      snprintf(line, sizeof(line), tr(STR_PREPARE_STOPPED_FORMAT), done, total);
+    } else {
+      snprintf(line, sizeof(line), tr(STR_PREPARE_DONE_FORMAT), total);
+    }
+    drawLine(line, true);
+    snprintf(line, sizeof(line), prepareCancelled ? tr(STR_PREPARE_PAGES_SO_FAR_FORMAT) : tr(STR_PREPARE_PAGES_TOTAL_FORMAT),
+             static_cast<unsigned>(preparePages));
+    drawLine(line, false);
+    if (prepareFailed > 0) {
+      snprintf(line, sizeof(line), tr(STR_PREPARE_FAILED_FORMAT), prepareFailed);
+      drawLine(line, false);
+    }
+    snprintf(line, sizeof(line), tr(STR_PREPARE_TOOK_FORMAT), PrepareEta::duration(millis() - prepareStartMs).c_str());
+    drawLine(line, false);
+    drawLine(prepareCancelled ? tr(STR_PREPARE_KEPT) : tr(STR_PREPARE_SMOOTH), false);
+  } else {
+    snprintf(line, sizeof(line), tr(STR_PREPARE_CHAPTER_FORMAT), std::min(done + 1, total), total);
+    drawLine(line, true);
+    snprintf(line, sizeof(line), tr(STR_PREPARE_PAGES_SO_FAR_FORMAT), static_cast<unsigned>(preparePages));
+    drawLine(line, false);
+    snprintf(line, sizeof(line), tr(STR_PREPARE_ELAPSED_FORMAT), PrepareEta::duration(millis() - prepareStartMs).c_str());
+    drawLine(line, false);
+    if (prepareBuiltCount > 0) {
+      // Rough: the average build so far times the chapters still unchecked.
+      const unsigned long avgMs = prepareBuildMs / static_cast<unsigned long>(prepareBuiltCount);
+      const unsigned long leftMs = avgMs * static_cast<unsigned long>(total - done);
+      if (leftMs < 30000UL) {
+        drawLine(tr(STR_PREPARE_UNDER_MINUTE), false);
+      } else {
+        snprintf(line, sizeof(line), tr(STR_PREPARE_LEFT_FORMAT), PrepareEta::duration(leftMs).c_str());
+        drawLine(line, false);
+      }
+      char clock[16];
+      if (PrepareEta::clockAhead(leftMs, clock, sizeof(clock))) {
+        snprintf(line, sizeof(line), tr(STR_PREPARE_DONE_AROUND_FORMAT), clock);
+        drawLine(line, false);
+      }
+    }
+    drawLine(tr(STR_PREPARE_KEPT), false);
+  }
+
+  const auto labels = prepareBookSummary
+                          ? mappedInput.mapLabels(tr(STR_PREPARE_BACK_TO_BOOK), "", "", "")
+                          : mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_PREPARE_STOP)), "", "", "");
+  GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  renderer.displayBuffer(prepareFirstDraw ? HalDisplay::HALF_REFRESH : HalDisplay::FAST_REFRESH);
+  prepareFirstDraw = false;
+}
+
 void EpubReaderActivity::cancelSilentPrefetchForInput() {
   if (silentPrefetchBuildActive.load(std::memory_order_relaxed) &&
       !silentPrefetchCancelRequested.exchange(true, std::memory_order_relaxed)) {
@@ -7454,7 +7780,15 @@ bool EpubReaderActivity::saveProgress(int spineIndex, int currentPage, int pageC
     // another file open while a still-building EPUB section keeps files open.
     section->releaseBuildFile();
   }
-  const bool saved = EpubReaderUtils::saveProgress(*epub, spineIndex, currentPage, pageCount, visibleTextOffset);
+  bool saved = EpubReaderUtils::saveProgress(*epub, spineIndex, currentPage, pageCount, visibleTextOffset);
+  if (!saved) {
+    // A card that is briefly busy (long jobs, a warm card) can refuse one
+    // write; one short retry avoids a false "could not save" for that.
+    delay(60);
+    saved = EpubReaderUtils::saveProgress(*epub, spineIndex, currentPage, pageCount, visibleTextOffset);
+    LOG_ERR("ERS", "Progress save %s on retry (spine=%d page=%d)", saved ? "succeeded" : "failed", spineIndex,
+            currentPage);
+  }
   if (saved) {
     lastSavedSpineIndex = spineIndex;
     lastSavedPage = currentPage;
@@ -7669,6 +8003,11 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
   // C3), and the pacing underline could not move until it finished. Stopping
   // Speed Read redraws the page with anti-aliasing again.
   bool needsTextGrayscale = SETTINGS.textAntiAliasing && foregroundBlack && !speedReadActive;
+  if (updatePanel) {
+    // A new page: earlier presses no longer cut its anti-aliasing short.
+    EpubGrayscale::clearAbort();
+    grayscaleCutShortMs.store(0, std::memory_order_relaxed);
+  }
   const int contentBottom = renderer.getScreenHeight() - orientedMarginBottom;
 
   // The pending count excludes the page currently being rendered. Decide
@@ -7848,6 +8187,9 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
   if (EpubGrayscale::runTiledGrayscalePass(renderer, *page, fontId, orientedMarginLeft, orientedMarginTop,
                                            foregroundBlack, needsTextGrayscale, needsImageGrayscale,
                                            grayscaleStripScratch.get(), grayscaleStripScratchSize, overlapRefresh)) {
+    if (EpubGrayscale::lastPassAborted()) {
+      grayscaleCutShortMs.store(static_cast<uint32_t>(millis()) | 1U, std::memory_order_relaxed);
+    }
     return true;
   }
 

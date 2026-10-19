@@ -246,10 +246,23 @@ void TextBlock::render(const GfxRenderer& renderer, const int readerFontId, cons
 
   const bool scanning = renderer.isFontCacheScanning();
   const int ascender = renderer.getFontAscenderSize(fontId);
+  // The anti-aliasing pass draws the page once per 80-row strip. Skipping the
+  // words that cannot reach the current strip avoids shaping and glyph lookups
+  // (SD-card fonts for Kannada) for most of the page on every strip. The box is
+  // padded by a line height for overhanging marks, accents and super/subscripts.
+  const bool cullToStrip = renderer.isStripTargetActive() && !scanning;
+  const int cullPad = cullToStrip ? renderer.getLineHeight(fontId) : 0;
   for (uint16_t i = 0; i < numWords; i++) {
     const char* word = wordText(i);
     const uint16_t wordLen = wordTextLen(i);
     const int wordX = wordXpos(i) + x;
+    if (cullToStrip && (i >= rubyTexts.size() || rubyTexts[i].empty())) {
+      const bool knownRight = i + 1 < numWords && wordXpos(i + 1) > wordXpos(i);
+      const int right = knownRight ? x + wordXpos(i + 1) : renderer.getScreenWidth() + cullPad;
+      if (!renderer.glyphIntersectsStrip(wordX - cullPad, y - cullPad, right + cullPad, y + 2 * cullPad)) {
+        continue;
+      }
+    }
     const EpdFontFamily::Style currentStyle = wordStyle(i);
     const uint8_t boundary = focusBoundary(i);
     const auto baseDir =

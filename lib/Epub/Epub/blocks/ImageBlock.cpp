@@ -1,5 +1,7 @@
 #include "ImageBlock.h"
 
+#include <FsHelpers.h>
+
 #include <FontCacheManager.h>
 #include <GfxRenderer.h>
 #include <Logging.h>
@@ -621,6 +623,9 @@ std::unique_ptr<ImageBlock> ImageBlock::deserialize(FsFile& file) {
     LOG_ERR("IMG", "Deserialization failed: could not read image source path");
     return nullptr;
   }
+  // Pages laid out before the cache moved into book_reading_cache/ hold the
+  // old image path.
+  FsHelpers::upgradeSavedDataPath(path);
   int16_t w, h;
   if (!serialization::tryReadPod(file, w) || !serialization::tryReadPod(file, h)) {
     LOG_ERR("IMG", "Deserialization failed: truncated image metadata");

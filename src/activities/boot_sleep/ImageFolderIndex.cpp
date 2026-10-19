@@ -24,7 +24,7 @@ namespace {
 // rebuilt rotations, so one cache directory (keyed by a hash of each indexed
 // folder's path) is simpler than splitting per subsystem. The name predates
 // the boot-screen use and is kept to avoid orphaning existing sleep caches.
-constexpr char INDEX_DIR[] = "/.pocketdeck-os/sleep-image-index";
+constexpr char INDEX_DIR[] = "/.pocketdeck-os/system_cache/sleep-image-index";
 constexpr char INDEX_MAGIC[] = {'C', 'S', 'I', 'X'};
 constexpr uint8_t INDEX_VERSION = 1;
 constexpr uint8_t FLAG_INCLUDE_PNG = 1 << 0;

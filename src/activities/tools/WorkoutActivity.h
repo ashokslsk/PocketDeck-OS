@@ -101,7 +101,20 @@ class WorkoutActivity final : public Activity {
   int itemSel_ = 0;
   std::unique_ptr<workout::Item> item_;
   std::unique_ptr<char[]> text_;  // the detail page (Markdown subset)
-  int level_ = 0;                 // 0 beginner, 1 advanced
+  // 0 Rookie, 1 Beginner, 2 Expert, 3 Veteran, 4 Go Nuts. The practice files
+  // hold Beginner and Advanced values; Beginner = file Beginner, Veteran = file
+  // Advanced, and the other three are derived (see levelValue()).
+  static constexpr int kLevelCount = 5;
+  int level_ = 1;
+  enum class LevelField : uint8_t { Minutes, HoldSeconds, Rounds, StepSeconds, Sets, Work, Rest };
+  uint16_t levelValue(LevelField field, uint16_t beginner, uint16_t advanced) const;
+  // Slow pace (remembered in /tools/workout/pace.txt): slow-breathing phases
+  // become 10 s in / 15 s out (holds and fast breathing as written) and
+  // every sequence pose (Sun Salutation...) lasts at least 30 s.
+  bool slowPace_ = false;  // with level_, remembered in /tools/workout/pace.txt
+  uint16_t phaseSeconds(const workout::Phase& phase) const;
+  uint16_t stepSeconds(uint16_t written) const;
+  void savePace() const;
   int detailPage_ = 0;
   int detailPages_ = 1;  // set by render
   bool checklistShown_ = false;

@@ -1,6 +1,10 @@
 #define HAL_STORAGE_IMPL
 #include "HalStorage.h"
 
+#include <string>
+
+#include <cstring>
+
 #include <Arduino.h>
 #include <FS.h>  // need to be included before SdFat.h for compatibility with FS.h's File class
 #include <HalClock.h>
@@ -130,9 +134,55 @@ HalStorage::~HalStorage() = default;
 
 // begin() and ready() are only called from setup, no need to acquire mutex for them
 
+HalStorage::RootAlias HalStorage::rootAliases_[3] = {
+    {"/tools", "/.tools", true, true, false},
+    {"/My Clippings.txt", "/.clippings/My Clippings.txt", true, true, false},
+    // Finished books move here; hiding it hides them from Explorer, so only
+    // when the reader renamed it.
+    {"/Read", "/.Read", false, false, false},
+};
+
 bool HalStorage::begin() {
-  HalSpiBus::Lock spiLock;
-  return SDCard.begin();
+  bool ok = false;
+  {
+    HalSpiBus::Lock spiLock;
+    ok = SDCard.begin();
+  }
+  if (ok) resolveRootAliases();
+  return ok;
+}
+
+void HalStorage::resolveRootAliases() {
+  for (auto& alias : rootAliases_) {
+    alias.useHidden = false;  // probe the real names
+    bool hidden = SDCard.exists(alias.hidden);
+    const bool visible = SDCard.exists(alias.visible);
+    // The hidden home may sit in a folder of its own (/.clippings/...).
+    const char* slash = strrchr(alias.hidden, '/');
+    const std::string parent(alias.hidden, slash && slash != alias.hidden ? slash - alias.hidden : 0);
+    if (!hidden && visible && alias.moveVisible) {
+      // Rename only (instant, nothing copied or deleted); left alone on failure.
+      if (!parent.empty()) SDCard.mkdir(parent.c_str());
+      hidden = SDCard.rename(alias.visible, alias.hidden);
+      LOG_INF("SD", "Moved %s to %s: %s", alias.visible, alias.hidden, hidden ? "ok" : "failed");
+    }
+    alias.useHidden = hidden || (!visible && alias.hiddenByDefault);
+    if (alias.useHidden && !parent.empty() && !SDCard.exists(parent.c_str())) SDCard.mkdir(parent.c_str());
+    LOG_INF("SD", "%s -> %s", alias.visible, alias.useHidden ? alias.hidden : alias.visible);
+  }
+}
+
+const char* HalStorage::aliasPath(const char* path, std::string& scratch) {
+  if (!path || path[0] != '/') return path;
+  for (const auto& alias : rootAliases_) {
+    if (!alias.useHidden) continue;
+    const size_t len = strlen(alias.visible);
+    if (strncasecmp(path, alias.visible, len) != 0 || (path[len] != '\0' && path[len] != '/')) continue;
+    scratch.assign(alias.hidden);
+    scratch.append(path + len);
+    return scratch.c_str();
+  }
+  return path;
 }
 
 bool HalStorage::ready() const { return SDCard.ready(); }
@@ -233,24 +283,40 @@ uint64_t HalStorage::totalBytes() const { return SDCard.sdTotalBytes(); }
 uint64_t HalStorage::usedBytes() { HAL_STORAGE_WRAPPED_CALL(sdUsedBytes); }
 
 std::vector<String> HalStorage::listFiles(const char* path, int maxFiles) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
   HAL_STORAGE_WRAPPED_CALL(listFiles, path, maxFiles);
 }
 
-String HalStorage::readFile(const char* path) { HAL_STORAGE_WRAPPED_CALL(readFile, path); }
+String HalStorage::readFile(const char* path) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
+  HAL_STORAGE_WRAPPED_CALL(readFile, path);
+}
 
 bool HalStorage::readFileToStream(const char* path, Print& out, size_t chunkSize) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
   HAL_STORAGE_WRAPPED_CALL(readFileToStream, path, out, chunkSize);
 }
 
 size_t HalStorage::readFileToBuffer(const char* path, char* buffer, size_t bufferSize, size_t maxBytes) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
   HAL_STORAGE_WRAPPED_CALL(readFileToBuffer, path, buffer, bufferSize, maxBytes);
 }
 
 bool HalStorage::writeFile(const char* path, const String& content) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
   HAL_STORAGE_WRAPPED_CALL(writeFile, path, content);
 }
 
-bool HalStorage::ensureDirectoryExists(const char* path) { HAL_STORAGE_WRAPPED_CALL(ensureDirectoryExists, path); }
+bool HalStorage::ensureDirectoryExists(const char* path) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
+  HAL_STORAGE_WRAPPED_CALL(ensureDirectoryExists, path);
+}
 
 void HalStorage::installDateTimeCallback(const uint8_t* utcOffsetQuarterHoursBiased) {
   if (!halClock.isAvailable()) return;
@@ -299,6 +365,8 @@ HalFile& HalFile::operator=(HalFile&& other) {
 }
 
 HalFile HalStorage::open(const char* path, const oflag_t oflag) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
   FsFile fsFile;
   {
     StorageLock lock;  // ensure thread safety for the duration of this function
@@ -321,18 +389,40 @@ HalFile HalStorage::open(const char* path, const oflag_t oflag) {
   return HalFile(std::move(impl));
 }
 
-bool HalStorage::mkdir(const char* path, const bool pFlag) { HAL_STORAGE_WRAPPED_CALL(mkdir, path, pFlag); }
+bool HalStorage::mkdir(const char* path, const bool pFlag) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
+  HAL_STORAGE_WRAPPED_CALL(mkdir, path, pFlag);
+}
 
-bool HalStorage::exists(const char* path) { HAL_STORAGE_WRAPPED_CALL(exists, path); }
+bool HalStorage::exists(const char* path) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
+  HAL_STORAGE_WRAPPED_CALL(exists, path);
+}
 
-bool HalStorage::remove(const char* path) { HAL_STORAGE_WRAPPED_CALL(remove, path); }
+bool HalStorage::remove(const char* path) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
+  HAL_STORAGE_WRAPPED_CALL(remove, path);
+}
 bool HalStorage::rename(const char* oldPath, const char* newPath) {
+  std::string mappedOld;
+  std::string mappedNew;
+  oldPath = aliasPath(oldPath, mappedOld);
+  newPath = aliasPath(newPath, mappedNew);
   HAL_STORAGE_WRAPPED_CALL(rename, oldPath, newPath);
 }
 
-bool HalStorage::rmdir(const char* path) { HAL_STORAGE_WRAPPED_CALL(rmdir, path); }
+bool HalStorage::rmdir(const char* path) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
+  HAL_STORAGE_WRAPPED_CALL(rmdir, path);
+}
 
 bool HalStorage::openFileForRead(const char* moduleName, const char* path, HalFile& file) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
   file.close();
   FsFile fsFile;
   bool ok = false;
@@ -365,6 +455,8 @@ bool HalStorage::openFileForRead(const char* moduleName, const String& path, Hal
 }
 
 bool HalStorage::openFileForWrite(const char* moduleName, const char* path, HalFile& file) {
+  std::string mapped;
+  path = aliasPath(path, mapped);
   file.close();
   FsFile fsFile;
   bool ok = false;

@@ -305,7 +305,7 @@ std::string getAdaptiveThumbBmpPathForDimensions(const std::string& cachePath, i
 }
 
 std::string legacyCachePathForFilePath(const std::string& filepath, const std::string& cacheDir) {
-  return cacheDir + "/epub_" + std::to_string(std::hash<std::string>{}(filepath));
+  return FsHelpers::bookCacheFolder(cacheDir, "epub_", std::hash<std::string>{}(filepath));
 }
 
 class CoverImageRefScanner final : public Print {
@@ -494,7 +494,7 @@ Epub::Epub(std::string filepath, const std::string& cacheDir) : filepath(std::mo
 
 std::string Epub::cachePathForFilePath(const std::string& filepath, const std::string& cacheDir) {
   // Keep on-disk EPUB cache keys stable across standard library/toolchain changes.
-  return cacheDir + "/epub_" + std::to_string(ZipFile::fnvHash64(filepath.c_str(), filepath.size()));
+  return FsHelpers::bookCacheFolder(cacheDir, "epub_", ZipFile::fnvHash64(filepath.c_str(), filepath.size()));
 }
 
 bool Epub::hasCache(const std::string& filepath, const std::string& cacheDir) {
@@ -1112,11 +1112,8 @@ bool Epub::clearCache() const {
 }
 
 void Epub::setupCacheDir() const {
-  if (Storage.exists(cachePath.c_str())) {
-    return;
-  }
-
-  Storage.mkdir(cachePath.c_str());
+  if (!Storage.exists(cachePath.c_str())) Storage.mkdir(cachePath.c_str());
+  FsHelpers::recordBookSource(cachePath, filepath);
 }
 
 const std::string& Epub::getCachePath() const { return cachePath; }

@@ -5,3 +5,5 @@
 # then clang-format -i the output.
 zap = zap
 gauge = gauge
+fast_forward = fast-forward
+rocket = rocket

@@ -151,10 +151,10 @@ void FileInfoActivity::finishScan() {
   saveStats();
 }
 
-// /.pocketdeck-os/card_stats.bin: "CST1", files, folders, books, images (u32),
+// /.pocketdeck-os/system_cache/card_stats.bin: "CST1", files, folders, books, images (u32),
 // largest size (u64), name length (u8), name.
 namespace {
-constexpr char kStatsPath[] = "/.pocketdeck-os/card_stats.bin";
+constexpr char kStatsPath[] = "/.pocketdeck-os/system_cache/card_stats.bin";
 constexpr char kStatsMagic[4] = {'C', 'S', 'T', '1'};
 }  // namespace
 

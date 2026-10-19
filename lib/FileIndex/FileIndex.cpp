@@ -11,7 +11,7 @@
 
 namespace {
 constexpr const char* INDEX_ROOT = "/.pocketdeck-os";
-constexpr const char* INDEX_DIR = "/.pocketdeck-os/fileindex";
+constexpr const char* INDEX_DIR = "/.pocketdeck-os/system_cache/fileindex";
 constexpr char MAGIC[4] = {'C', 'P', 'F', 'I'};
 constexpr uint8_t INDEX_VERSION = 1;
 constexpr size_t CHUNK_ENTRIES = 64;
@@ -88,7 +88,77 @@ bool FileIndex::open(const char* dirPath, AcceptFn accept) {
   return build(dirPath, accept, signature, dirs, files);
 }
 
+bool FileIndex::openCached(const char* dirPath) {
+  close();
+  directoryReadFailed_ = false;
+  if (!nameBuf) nameBuf = makeUniqueNoThrow<char[]>(NAME_BUF_SIZE);
+  if (!nameBuf) return false;
+  return loadExisting(dirPath, 0, 0, 0, /*checkSignature=*/false);
+}
+
+bool FileIndex::beginVerify(const char* dirPath, AcceptFn accept) {
+  endVerify();
+  if (!opened) return false;
+  if (!verifyName) verifyName = makeUniqueNoThrow<char[]>(NAME_BUF_SIZE);
+  if (!verifyName) return false;
+  verifyDir = Storage.open(dirPath);
+  if (!verifyDir || !verifyDir.isDirectory()) {
+    endVerify();
+    return false;
+  }
+  verifyDir.rewindDirectory();
+  verifyAccept = accept;
+  verifySig = FNV32_BASIS;
+  verifyDirs = 0;
+  verifyFiles = 0;
+  verifySetFp = 0;
+  verifySetCount = 0;
+  return true;
+}
+
+FileIndex::VerifyStatus FileIndex::verifyStep(const uint32_t budgetMs) {
+  if (!verifyDir) return VerifyStatus::Changed;
+  // Same signature as scanDirectory(): accepted names in directory order.
+  const unsigned long start = millis();
+  while (millis() - start < budgetMs) {
+    auto file = verifyDir.openNextFile();
+    if (!file) {
+      const bool failed = FsHelpers::directoryIterationFailed(verifyDir);
+      endVerify();
+      if (failed) return VerifyStatus::Changed;  // rebuild through the normal path
+      setFingerprint_ = verifySetFp;
+      setEntries_ = verifySetCount;
+      const bool same =
+          verifySig == hdr.dirSignature && verifyDirs == hdr.dirCount && verifyFiles == hdr.fileCount;
+      return same ? VerifyStatus::Unchanged : VerifyStatus::Changed;
+    }
+    file.getName(verifyName.get(), NAME_BUF_SIZE);
+    const bool isDir = file.isDirectory();
+    file.close();
+    if (!verifyAccept(verifyName.get(), isDir)) continue;
+    const uint8_t dirByte = isDir ? 1 : 0;
+    verifySig = fnv1a32(verifyName.get(), strlen(verifyName.get()), verifySig);
+    verifySig = fnv1a32(&dirByte, sizeof(dirByte), verifySig);
+    if (const uint32_t h = FsHelpers::entryHash(verifyName.get(), strlen(verifyName.get()), isDir)) {
+      verifySetFp += h;
+      verifySetCount++;
+    }
+    if (isDir) {
+      verifyDirs++;
+    } else {
+      verifyFiles++;
+    }
+  }
+  return VerifyStatus::Running;
+}
+
+void FileIndex::endVerify() {
+  if (verifyDir) verifyDir.close();
+  verifyAccept = nullptr;
+}
+
 void FileIndex::close() {
+  endVerify();
   if (idxFile) idxFile.close();
   opened = false;
   offsetsCacheFirst = SIZE_MAX;
@@ -108,6 +178,8 @@ bool FileIndex::scanDirectory(const char* dirPath, AcceptFn accept, uint32_t& si
   dirs = 0;
   files = 0;
   uint32_t yieldCounter = 0;
+  uint32_t setFp = 0;
+  uint32_t setCount = 0;
 
   for (auto file = root.openNextFile(); file; file = root.openNextFile()) {
     file.getName(nameBuf.get(), NAME_BUF_SIZE);
@@ -120,6 +192,10 @@ bool FileIndex::scanDirectory(const char* dirPath, AcceptFn accept, uint32_t& si
     const uint8_t dirByte = isDir ? 1 : 0;
     sig = fnv1a32(nameBuf.get(), strlen(nameBuf.get()), sig);
     sig = fnv1a32(&dirByte, sizeof(dirByte), sig);
+    if (const uint32_t h = FsHelpers::entryHash(nameBuf.get(), strlen(nameBuf.get()), isDir)) {
+      setFp += h;
+      setCount++;
+    }
 
     if (isDir) {
       dirs++;
@@ -141,11 +217,14 @@ bool FileIndex::scanDirectory(const char* dirPath, AcceptFn accept, uint32_t& si
   }
   root.close();
 
+  setFingerprint_ = setFp;
+  setEntries_ = setCount;
   signature = sig;
   return true;
 }
 
-bool FileIndex::loadExisting(const char* dirPath, uint32_t signature, uint32_t dirs, uint32_t files) {
+bool FileIndex::loadExisting(const char* dirPath, uint32_t signature, uint32_t dirs, uint32_t files,
+                             const bool checkSignature) {
   snprintf(idxPath, sizeof(idxPath), "%s/%016llx.idx", INDEX_DIR, static_cast<unsigned long long>(fnv1a64(dirPath)));
 
   auto file = Storage.open(idxPath);
@@ -153,8 +232,9 @@ bool FileIndex::loadExisting(const char* dirPath, uint32_t signature, uint32_t d
 
   IndexHeader h{};
   bool valid = file.read(&h, sizeof(h)) == static_cast<int>(sizeof(h)) && memcmp(h.magic, MAGIC, sizeof(MAGIC)) == 0 &&
-               h.version == INDEX_VERSION && h.dirSignature == signature && h.dirCount == dirs &&
-               h.fileCount == files && h.pathLen == strlen(dirPath) && h.pathLen < NAME_BUF_SIZE;
+               h.version == INDEX_VERSION &&
+               (!checkSignature || (h.dirSignature == signature && h.dirCount == dirs && h.fileCount == files)) &&
+               h.pathLen == strlen(dirPath) && h.pathLen < NAME_BUF_SIZE;
 
   if (valid) {
     valid = file.read(nameBuf.get(), h.pathLen) == static_cast<int>(h.pathLen) &&

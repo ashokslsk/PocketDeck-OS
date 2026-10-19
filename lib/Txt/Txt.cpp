@@ -8,7 +8,7 @@ Txt::Txt(std::string path, std::string cacheBasePath)
     : filepath(std::move(path)), cacheBasePath(std::move(cacheBasePath)) {
   // Generate cache path from file path hash
   const size_t hash = std::hash<std::string>{}(filepath);
-  cachePath = this->cacheBasePath + "/txt_" + std::to_string(hash);
+  cachePath = FsHelpers::bookCacheFolder(this->cacheBasePath, "txt_", hash);
 }
 
 bool Txt::load() {
@@ -54,6 +54,7 @@ void Txt::setupCacheDir() const {
   if (!Storage.exists(cachePath.c_str())) {
     Storage.mkdir(cachePath.c_str());
   }
+  FsHelpers::recordBookSource(cachePath, filepath);
 }
 
 std::string Txt::findCoverImage() const {

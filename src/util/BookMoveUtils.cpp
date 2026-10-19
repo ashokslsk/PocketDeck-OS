@@ -191,6 +191,7 @@ RenameMigrationResult migrateRenamedBookState(const std::string& oldPath, const 
     return recover();
   }
   bookRenamed = true;
+  if (cacheMoved) FsHelpers::recordBookSource(newCachePath, newPath);
 
   if (!RECENT_BOOKS.updatePath(oldPath, newPath, oldCachePath, newCachePath)) {
     return recover();
@@ -246,6 +247,7 @@ bool migrateMovedBookState(const std::string& oldPath, const std::string& newPat
     LOG_ERR("BookMove", "Failed to move cache dir %s -> %s", oldCachePath.c_str(), newCachePath.c_str());
     ok = false;
   }
+  if (Storage.exists(newCachePath.c_str())) FsHelpers::recordBookSource(newCachePath, newPath);
   if (!BookmarkStore::migrateForFilePath(oldPath, newPath, title, author, bookType)) {
     LOG_ERR("BookMove", "Failed to migrate bookmarks %s -> %s", oldPath.c_str(), newPath.c_str());
     ok = false;
@@ -273,6 +275,7 @@ bool migrateMovedEpubState(const std::string& oldPath, const std::string& newPat
               newCachePath.c_str());
       ok = false;
     }
+    if (Storage.exists(newCachePath.c_str())) FsHelpers::recordBookSource(newCachePath, newPath);
   }
 
   if (!BookmarkStore::migrateForFilePath(oldPath, newPath, title, author, "epub")) {

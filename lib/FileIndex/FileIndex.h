@@ -23,6 +23,19 @@ class FileIndex {
   FileIndex& operator=(const FileIndex&) = delete;
 
   bool open(const char* dirPath, AcceptFn accept);
+  // Opens the saved index for `dirPath` without re-reading the folder (instant
+  // even for thousands of entries). Pair it with the verify calls below, which
+  // re-read the folder a slice at a time and report whether it changed.
+  bool openCached(const char* dirPath);
+  bool beginVerify(const char* dirPath, AcceptFn accept);
+  enum class VerifyStatus : uint8_t { Running, Unchanged, Changed };
+  VerifyStatus verifyStep(uint32_t budgetMs);
+  void endVerify();
+  bool verifying() const { return static_cast<bool>(verifyDir); }
+  // Order-independent fingerprint (FsHelpers::entryHash sum) and entry count of
+  // the folder as last scanned by open() or a finished verify.
+  uint32_t setFingerprint() const { return setFingerprint_; }
+  uint32_t setEntries() const { return setEntries_; }
   void close();
   bool isOpen() const { return opened; }
   bool directoryReadFailed() const { return directoryReadFailed_; }
@@ -62,7 +75,8 @@ class FileIndex {
   struct BuildState;
 
   bool scanDirectory(const char* dirPath, AcceptFn accept, uint32_t& signature, uint32_t& dirs, uint32_t& files);
-  bool loadExisting(const char* dirPath, uint32_t signature, uint32_t dirs, uint32_t files);
+  bool loadExisting(const char* dirPath, uint32_t signature, uint32_t dirs, uint32_t files,
+                    bool checkSignature = true);
   bool build(const char* dirPath, AcceptFn accept, uint32_t signature, uint32_t dirs, uint32_t files);
   bool flushChunk(BuildState& bs);
   bool mergeRuns(BuildState& bs, uint32_t recordCount);
@@ -72,6 +86,16 @@ class FileIndex {
   bool readOffsetForPhysIndex(size_t physIndex, uint32_t& recordOffset);
 
   HalFile idxFile;
+  HalFile verifyDir;
+  AcceptFn verifyAccept = nullptr;
+  uint32_t verifySig = 0;
+  uint32_t verifyDirs = 0;
+  uint32_t verifyFiles = 0;
+  std::unique_ptr<char[]> verifyName;
+  uint32_t verifySetFp = 0;
+  uint32_t verifySetCount = 0;
+  uint32_t setFingerprint_ = 0;
+  uint32_t setEntries_ = 0;
   IndexHeader hdr{};
   bool opened = false;
   bool directoryReadFailed_ = false;

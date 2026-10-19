@@ -45,6 +45,7 @@ bool parseHistoryLine(const std::string& line, RecentBook& out) {
     field->assign(line, fieldStart, tab - fieldStart);
     fieldStart = tab + 1;
   }
+  FsHelpers::upgradeSavedDataPath(out.coverBmpPath);
   out.coverState = fieldStart < line.size() && line[fieldStart] == '1' ? RecentBook::CoverState::Missing
                                                                        : RecentBook::CoverState::Unknown;
   return !out.path.empty();
@@ -193,12 +194,9 @@ bool RecentBooksStore::fromJson(JsonVariantConst doc) {
     book.title = obj["title"] | "";
     book.author = obj["author"] | "";
     book.coverBmpPath = obj["coverBmpPath"] | "";
-    // Cover paths saved by CrossInk point into /.crosspoint, which
-    // PocketDeck-OS moved to /.pocketdeck-os on first start.
-    static constexpr char kLegacyDataDir[] = "/.crosspoint/";
-    if (book.coverBmpPath.rfind(kLegacyDataDir, 0) == 0) {
-      book.coverBmpPath.replace(0, sizeof(kLegacyDataDir) - 2, "/.pocketdeck-os");
-    }
+    // Cover paths saved under an older data layout (/.crosspoint, or book
+    // folders directly under /.pocketdeck-os) point at the current one.
+    FsHelpers::upgradeSavedDataPath(book.coverBmpPath);
     const int storedCoverState = obj["coverState"] | 0;
     if (storedCoverState == static_cast<int>(RecentBook::CoverState::Missing)) {
       book.coverState = RecentBook::CoverState::Missing;
@@ -459,6 +457,7 @@ bool RecentBooksStore::loadFromBinaryFile() {
       serialization::readString(inputFile, title);
       serialization::readString(inputFile, author);
       serialization::readString(inputFile, coverBmpPath);
+      FsHelpers::upgradeSavedDataPath(coverBmpPath);
 
       // Omit books with missing title (e.g. saved before metadata was available)
       if (title.empty()) {

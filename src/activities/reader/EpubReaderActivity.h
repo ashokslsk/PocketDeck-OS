@@ -351,6 +351,9 @@ class EpubReaderActivity final : public Activity {
   // Full-section next-chapter prefetch is speculative. A forward page turn may
   // stop it, but the visible build at the chapter boundary remains full-section.
   std::atomic<bool> silentPrefetchBuildActive{false};
+  // When a button cut the anti-aliasing pass short (render task), the time it
+  // happened; the input loop redraws the page smoothly once the reader is idle.
+  std::atomic<uint32_t> grayscaleCutShortMs{0};
   std::atomic<bool> silentPrefetchCancelRequested{false};
   std::atomic<bool> sectionBuildCancelRequested{false};
   std::atomic<bool> goHomeAfterBuildCancel{false};
@@ -389,6 +392,31 @@ class EpubReaderActivity final : public Activity {
   std::string footnotePreviewCacheSuffix(EpubRenderMode renderMode, const std::string& anchor) const;
   void clearFootnotePreviewState();
   void silentIndexNextChapterIfNeeded(uint16_t viewportWidth, uint16_t viewportHeight);
+
+  // Reader menu > Prepare Whole Book: lays out every chapter ahead of time for
+  // the current reading settings, one chapter per render pass, behind a
+  // progress screen. Back stops it; finished chapters stay prepared.
+  bool prepareBookActive = false;
+  bool prepareBookSummary = false;
+  bool prepareCancelled = false;
+  bool prepareFirstDraw = true;
+  std::atomic<bool> prepareBookCancel{false};
+  int prepareSpine = 0;
+  int prepareReady = 0;
+  int prepareFailed = 0;
+  int prepareBuiltCount = 0;
+  uint32_t preparePages = 0;
+  unsigned long prepareBuildMs = 0;
+  unsigned long prepareStartMs = 0;
+  // Once per book, while the reader sits idle on a page: make the cover
+  // thumbnails Home needs, so returning Home never shows "Loading" for it.
+  uint8_t homeCoverAttempts = 0;
+  bool homeCoversDone = false;
+  void idlePrepareHomeCovers();
+  void startPrepareBook();
+  void renderPrepareBookStep();
+  bool prepareBuildChapter(int spineIndex, uint16_t viewportWidth, uint16_t viewportHeight, uint16_t& pagesOut);
+  void drawPrepareBookScreen();
   void cancelSilentPrefetchForInput();
   bool restoreCurrentPageBufferAfterSilentIndex();
   // Larger batches are reserved for non-interactive work such as sleep-page preparation.
@@ -559,7 +587,8 @@ class EpubReaderActivity final : public Activity {
     return true;
   }
   bool preventAutoSleep() override {
-    return automaticPageTurnActive || (speedReadActive && (!speedReadPaused || speedReadCheckInOpen));
+    return automaticPageTurnActive || prepareBookActive ||
+           (speedReadActive && (!speedReadPaused || speedReadCheckInOpen));
   }
   // Hold the loop hot only while the build has work this loop would do: a kept-alive
   // build sitting outside the lookahead window is dormant, and reporting it here would

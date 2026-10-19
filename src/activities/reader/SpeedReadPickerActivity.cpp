@@ -16,19 +16,20 @@
 #include "fontIds.h"
 
 namespace {
-constexpr uint16_t kEnglishWpm[SpeedReadPickerActivity::kPresetCount] = {125, 200, 275, 350};
-constexpr uint16_t kKannadaWpm[SpeedReadPickerActivity::kPresetCount] = {60, 100, 150, 200};
+constexpr uint16_t kEnglishWpm[] = {125, 200, 275, 350};
+constexpr uint16_t kKannadaWpm[] = {60, 100, 150, 200, 250, 350};
+static_assert(sizeof(kKannadaWpm) / sizeof(kKannadaWpm[0]) == SpeedReadPickerActivity::kMaxPresetCount, "presets");
 }  // namespace
 
 uint16_t SpeedReadPickerActivity::wpmFor(const bool kannada, int index) {
   if (index < 0) index = 0;
-  if (index >= kPresetCount) index = kPresetCount - 1;
+  if (index >= presetCount(kannada)) index = presetCount(kannada) - 1;
   return kannada ? kKannadaWpm[index] : kEnglishWpm[index];
 }
 
 void SpeedReadPickerActivity::onEnter() {
   Activity::onEnter();
-  if (selected_ < 0 || selected_ >= kPresetCount) selected_ = 1;
+  if (selected_ < 0 || selected_ >= presetCount(kannada_)) selected_ = 1;
   requestUpdate();
 }
 
@@ -46,11 +47,11 @@ void SpeedReadPickerActivity::loop() {
     return;
   }
   buttonNavigator_.onNextRelease([this] {
-    selected_ = ButtonNavigator::nextIndex(selected_, kPresetCount);
+    selected_ = ButtonNavigator::nextIndex(selected_, presetCount(kannada_));
     requestUpdate();
   });
   buttonNavigator_.onPreviousRelease([this] {
-    selected_ = ButtonNavigator::previousIndex(selected_, kPresetCount);
+    selected_ = ButtonNavigator::previousIndex(selected_, presetCount(kannada_));
     requestUpdate();
   });
 }
@@ -63,22 +64,25 @@ void SpeedReadPickerActivity::render(RenderLock&&) {
   GUI.drawHeader(renderer, Rect{0, metrics.topPadding, screenW, metrics.headerHeight}, tr(STR_SPEED_READ),
                  kannada_ ? tr(STR_SPEED_READ_KANNADA) : tr(STR_SPEED_READ_ENGLISH));
 
-  // A rounded card of four rows: icon, "125 WPM", what the pace is for.
-  static const freeink::Icon* const kIcons[kPresetCount] = {&icon_book_open_32, &icon_book_32, &icon_zap_32,
-                                                            &icon_gauge_32};
-  static constexpr StrId kCaptions[kPresetCount] = {StrId::STR_SPEED_READ_CAREFUL, StrId::STR_SPEED_READ_COMFORTABLE,
-                                                    StrId::STR_SPEED_READ_FLUENT, StrId::STR_SPEED_READ_FAST};
+  // A rounded card of rows: icon, "125 WPM", what the pace is for.
+  static const freeink::Icon* const kIcons[kMaxPresetCount] = {&icon_book_open_32, &icon_book_32,
+                                                               &icon_zap_32,       &icon_gauge_32,
+                                                               &icon_fast_forward_32, &icon_rocket_32};
+  static constexpr StrId kCaptions[kMaxPresetCount] = {
+      StrId::STR_SPEED_READ_CAREFUL, StrId::STR_SPEED_READ_COMFORTABLE, StrId::STR_SPEED_READ_FLUENT,
+      StrId::STR_SPEED_READ_FAST,    StrId::STR_SPEED_READ_RAPID,       StrId::STR_SPEED_READ_SPRINT};
+  const int count = presetCount(kannada_);
   const int x = metrics.contentSidePadding;
   const int w = screenW - 2 * metrics.contentSidePadding;
   const int top = metrics.topPadding + metrics.headerHeight + metrics.verticalSpacing;
   const int available = screenH - top - metrics.buttonHintsHeight - metrics.verticalSpacing;
-  const int rowH = std::min(96, std::max(60, available / kPresetCount));
-  const int cardH = rowH * kPresetCount;
+  const int rowH = std::min(96, std::max(60, available / count));
+  const int cardH = rowH * count;
   renderer.drawRoundedRect(x, top, w, cardH, 1, 10, true);
   const int valueH = renderer.getLineHeight(UI_12_FONT_ID);
   const int captionH = renderer.getLineHeight(UI_10_FONT_ID);
   char value[24];
-  for (int i = 0; i < kPresetCount; ++i) {
+  for (int i = 0; i < count; ++i) {
     const int y = top + i * rowH;
     const bool selected = i == selected_;
     if (selected) {

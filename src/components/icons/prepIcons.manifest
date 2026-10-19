@@ -1,0 +1,7 @@
+# Manifest for src/components/icons/prepIcons.h — regenerate with:
+#   python3 scripts/generate_icons.py --library lucide \
+#     --manifest src/components/icons/prepIcons.manifest \
+#     --sizes 24,32 --out src/components/icons/prepIcons.h
+# Explorer marks for prepared books (book info / whole book laid out).
+book_check = book-check
+book_open_check = book-open-check

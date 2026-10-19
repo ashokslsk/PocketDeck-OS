@@ -25,6 +25,9 @@
 #include "CrossPointState.h"
 #include "FileBrowserActionActivity.h"
 #include "FileInfoActivity.h"
+#include "PrepareLibraryActivity.h"
+#include "components/icons/prepIcons.h"
+#include "util/PreparedMarks.h"
 #include "FileSearchActivity.h"
 #include "MappedInputManager.h"
 #include "RecentBookProgress.h"
@@ -220,25 +223,54 @@ bool containsHiddenPathSegment(const std::string& path) {
   return false;
 }
 
-void collectMetadataPathsRecursively(const std::string& dirPath, std::vector<std::string>& paths) {
-  auto dir = Storage.open(dirPath.c_str());
-  if (!dir || !dir.isDirectory()) {
-    LOG_ERR("FileBrowser", "Failed to scan directory metadata before delete: %s", dirPath.c_str());
-    return;
+// Calls `visit` for every book (a file with reader data) under `dirPath`, as
+// the walk finds it: one open handle per level and nothing collected, so
+// memory stays fixed however many books the folder holds.
+using BookVisitor = void (*)(void* context, const std::string& bookPath);
+uint32_t forEachBookUnder(const std::string& dirPath, BookVisitor visit, void* context) {
+  struct Level {
+    HalFile dir;
+    std::string path;
+  };
+  constexpr int kMaxDepth = 16;
+  Level stack[kMaxDepth];
+  stack[0].dir = Storage.open(dirPath.c_str());
+  if (!stack[0].dir || !stack[0].dir.isDirectory()) {
+    LOG_ERR("FileBrowser", "Failed to scan directory: %s", dirPath.c_str());
+    if (stack[0].dir) stack[0].dir.close();
+    return 0;
   }
-
-  char name[256];
-  for (auto file = dir.openNextFile(); file; file = dir.openNextFile()) {
-    file.getName(name, sizeof(name));
-    const std::string childPath = buildFullPath(dirPath, name);
-    if (file.isDirectory()) {
-      collectMetadataPathsRecursively(childPath, paths);
-    } else if (hasFileMetadata(childPath)) {
-      paths.push_back(childPath);
+  stack[0].path = dirPath;
+  int depth = 1;
+  char name[256];  // FAT long names
+  uint32_t books = 0;
+  while (depth > 0) {
+    Level& level = stack[depth - 1];
+    HalFile entry = level.dir.openNextFile();
+    if (!entry) {
+      level.dir.close();
+      --depth;
+      continue;
     }
-    file.close();
+    entry.getName(name, sizeof(name));
+    const bool isDir = entry.isDirectory();
+    std::string child = buildFullPath(level.path, name);
+    if (isDir) {
+      if (depth < kMaxDepth) {
+        stack[depth].dir = std::move(entry);
+        stack[depth].path = std::move(child);
+        ++depth;
+      } else {
+        entry.close();
+      }
+      continue;
+    }
+    entry.close();
+    if (!hasFileMetadata(child)) continue;
+    visit(context, child);
+    ++books;
   }
-  dir.close();
+  return books;
 }
 
 std::string getFileName(std::string filename);
@@ -326,17 +358,39 @@ bool FileBrowserActivity::loadFilesIntoVector(size_t cap, bool& overflow) {
   return true;
 }
 
-void FileBrowserActivity::loadFiles() {
+void FileBrowserActivity::loadFiles(const bool allowCachedIndex) {
   RenderLock lock(*this);
-  loadFilesLocked();
+  loadFilesLocked(allowCachedIndex);
 }
 
-void FileBrowserActivity::loadFilesLocked() {
+void FileBrowserActivity::loadFilesLocked(const bool allowCachedIndex) {
   usingIndex = false;
+  indexVerifyPending = false;
+  rowMarks.clear();
   clearIndexNameCache();
   fileListMemoryLimited = false;
   fileListReadFailed = false;
   if (fileIndex) fileIndex->close();
+
+  const auto acceptFn =
+      mode == Mode::PickFirmware ? acceptFirmware : (mode == Mode::PickDirectory ? acceptDirectory : acceptCommon);
+  if (allowCachedIndex) {
+    // A folder too big for the in-memory list has a saved sorted index. Show it
+    // straight away instead of re-reading thousands of entries first; loop()
+    // re-reads the folder in slices and rebuilds the list if anything changed.
+    if (!fileIndex) fileIndex = makeUniqueNoThrow<FileIndex>();
+    if (!indexEntry) indexEntry = makeUniqueNoThrow<FileIndex::Entry>();
+    if (fileIndex && indexEntry && fileIndex->openCached(basepath.c_str())) {
+      usingIndex = true;
+      indexVerifyPending = fileIndex->beginVerify(basepath.c_str(), acceptFn);
+      if (!indexVerifyPending) {
+        fileIndex->close();
+        usingIndex = false;
+      } else {
+        return;
+      }
+    }
+  }
 
   bool overflow = false;
   if (!loadFilesIntoVector(INDEX_THRESHOLD, overflow)) {
@@ -345,6 +399,7 @@ void FileBrowserActivity::loadFilesLocked() {
 
   if (!overflow || fileListMemoryLimited) {
     FsHelpers::sortFileList(files);
+    if (!fileListMemoryLimited) validateFolderMarkAfterLoad();
     return;
   }
 
@@ -356,10 +411,9 @@ void FileBrowserActivity::loadFilesLocked() {
   if (fileIndex && indexEntry) {
     GUI.drawPopup(renderer, tr(STR_LOADING_POPUP));
 
-    const auto accept =
-        mode == Mode::PickFirmware ? acceptFirmware : (mode == Mode::PickDirectory ? acceptDirectory : acceptCommon);
-    if (fileIndex->open(basepath.c_str(), accept)) {
+    if (fileIndex->open(basepath.c_str(), acceptFn)) {
       usingIndex = true;
+      validateFolderMarkAfterLoad();
       return;
     }
     if (fileIndex->directoryReadFailed()) {
@@ -451,13 +505,13 @@ void FileBrowserActivity::onEnter() {
 
     const std::string oldPath = basepath;
     basepath = FsHelpers::extractFolderPath(basepath);
-    loadFiles();
+    loadFiles(true);
 
     const auto pos = oldPath.find_last_of('/');
     const std::string fileName = oldPath.substr(pos + 1);
     selectorIndex = findEntry(fileName);
   } else {
-    loadFiles();
+    loadFiles(true);
   }
 
   uiReady = false;
@@ -532,8 +586,29 @@ void FileBrowserActivity::promptDeleteDirectory(const std::string& fullPath, con
       return;
     }
 
-    std::vector<std::string> metadataPaths;
-    collectMetadataPathsRecursively(dirPath, metadataPaths);
+    // Clean every book's saved data first (streamed: a folder of thousands of
+    // books never lists them all in memory), then remove the folder.
+    struct DeleteProgress {
+      FileBrowserActivity* self;
+      uint32_t cleaned;
+      unsigned long lastDraw;
+    } progress{this, 0, millis()};
+    forEachBookUnder(
+        dirPath,
+        [](void* context, const std::string& bookPath) {
+          auto* p = static_cast<DeleteProgress*>(context);
+          BookActions::clearFileMetadata(bookPath);
+          ++p->cleaned;
+          if (millis() - p->lastDraw < 1500) return;
+          p->lastDraw = millis();
+          char msg[64];
+          snprintf(msg, sizeof(msg), tr(STR_DELETING_FOLDER_FORMAT), static_cast<unsigned>(p->cleaned));
+          RenderLock lock(*p->self);
+          GUI.drawPopup(p->self->renderer, msg);
+          p->self->renderer.displayBuffer(HalDisplay::FAST_REFRESH);
+        },
+        &progress);
+    PreparedMarks::dropFolderMark(dirPath);
 
     if (!Storage.removeDir(dirPath.c_str())) {
       LOG_ERR("FileBrowser", "Failed to delete directory: %s", dirPath.c_str());
@@ -541,10 +616,6 @@ void FileBrowserActivity::promptDeleteDirectory(const std::string& fullPath, con
     }
     ImageFolderIndex::invalidateForPath(dirPath.c_str());
     sdFontSystem.markRegistryDirtyForPath(dirPath.c_str());
-
-    for (const auto& metadataPath : metadataPaths) {
-      BookActions::clearFileMetadata(metadataPath);
-    }
 
     const std::string favoritePrefix = dirPath + "/";
     if (!APP_STATE.favoriteSleepImagePath.empty() && APP_STATE.favoriteSleepImagePath.rfind(favoritePrefix, 0) == 0) {
@@ -593,6 +664,7 @@ void FileBrowserActivity::showDirectoryActionMenu(const std::string& entry, bool
   items.push_back({FileBrowserAction::Delete, StrId::STR_DELETE});
   items.push_back({useDefaultFolders ? FileBrowserAction::ClearSleepFolder : FileBrowserAction::SetSleepFolder,
                    useDefaultFolders ? StrId::STR_USE_DEFAULT_SLEEP_FOLDERS : StrId::STR_SET_AS_SLEEP_FOLDER});
+  items.push_back({FileBrowserAction::PrepareFolder, StrId::STR_PREPARE_FOLDER});
   items.push_back({FileBrowserAction::Info, StrId::STR_FILE_INFO});
   items.push_back({FileBrowserAction::Search, StrId::STR_SEARCH_FILES});
 
@@ -621,6 +693,11 @@ void FileBrowserActivity::showDirectoryActionMenu(const std::string& entry, bool
                                return;
                              case FileBrowserAction::Search:
                                startSearch();
+                               return;
+                             case FileBrowserAction::PrepareFolder:
+                               startActivityForResult(
+                                   std::make_unique<PrepareLibraryActivity>(renderer, mappedInput, fullPath, false),
+                                   [this](const ActivityResult&) { loadFiles(true); requestUpdate(); });
                                return;
                              case FileBrowserAction::NewFolder:
                                startNewFolder();
@@ -814,6 +891,8 @@ void FileBrowserActivity::showFileActionMenu(const std::string& entry, bool igno
             return;
           case FileBrowserAction::Search:
             startSearch();
+            return;
+          case FileBrowserAction::PrepareFolder:
             return;
           case FileBrowserAction::Info:
             showInfo(fullPath, entry);
@@ -1121,7 +1200,7 @@ void FileBrowserActivity::openSettings() {
           if (!SETTINGS.showHiddenFiles && containsHiddenPathSegment(basepath)) {
             basepath = "/";
           }
-          loadFilesLocked();
+          loadFilesLocked(true);
           selectorIndex = selectedEntry.empty() ? 0 : findEntry(selectedEntry);
           if (entryCount() > 0 && selectorIndex >= entryCount()) {
             selectorIndex = entryCount() - 1;
@@ -1165,7 +1244,7 @@ void FileBrowserActivity::activateSelected() {
     if (basepath.back() != '/') basepath += "/";
     if (isDirectory) {
       basepath += entry.substr(0, entry.length() - 1);
-      loadFilesLocked();
+      loadFilesLocked(true);
       selectorIndex = 0;
       topIndex = 0;
       showFileSelection = true;
@@ -1185,6 +1264,23 @@ void FileBrowserActivity::activateSelected() {
 }
 
 void FileBrowserActivity::loop() {
+  if (indexVerifyPending && fileIndex) {
+    // Background check of a big folder shown from its saved index.
+    RenderLock lock(*this);
+    const auto status = fileIndex->verifyStep(25);
+    if (status != FileIndex::VerifyStatus::Running) {
+      indexVerifyPending = false;
+      validateFolderMarkAfterLoad();
+      if (status == FileIndex::VerifyStatus::Changed) {
+        const std::string current =
+            (entryCount() > 0 && selectorIndex < entryCount()) ? entryNameAt(selectorIndex) : std::string();
+        loadFilesLocked();
+        selectorIndex = current.empty() ? 0 : findEntry(current);
+        if (entryCount() > 0 && selectorIndex >= entryCount()) selectorIndex = entryCount() - 1;
+        requestUpdate();
+      }
+    }
+  }
   // Confirm was held as this screen opened (e.g. choosing "Move to…" in the
   // Options sheet). Its release may arrive in the first moments here or may
   // have been spent during the screen change; either way, a release after
@@ -1386,7 +1482,7 @@ void FileBrowserActivity::navigateBack() {
       const std::string oldPath = basepath;
       basepath.replace(basepath.find_last_of('/'), std::string::npos, "");
       if (basepath.empty()) basepath = "/";
-      loadFilesLocked();
+      loadFilesLocked(true);
 
       const std::string dirName = oldPath.substr(oldPath.find_last_of('/') + 1) + "/";
       selectorIndex = findEntry(dirName);
@@ -1558,10 +1654,26 @@ void FileBrowserActivity::buildListScreen(UiApp::ScreenType& screen) {
     if ((entry.back() == '/' && isPreferredSleepFolder(fullPath)) || isPinnedSleepFavorite(fullPath)) {
       values[i] = values[i].empty() ? "*" : "* " + values[i];
     }
+    // Prepared marks (Books mode only): a checked book icon for a book whose
+    // info is ready, an open checked book once it is laid out whole, and a
+    // tick after a prepared folder's name.
+    uint8_t mark = 0;
+    const bool isDirectoryEntry = entry.back() == '/';
+    if (mode == Mode::Books && (isDirectoryEntry || FsHelpers::hasEpubExtension(entry))) {
+      mark = rowMarkFor(isDirectoryEntry ? normalizeDirectoryPath(fullPath) : fullPath, isDirectoryEntry);
+    }
+    if (isDirectoryEntry && mark) {
+      values[i] = values[i].empty() ? "\xe2\x9c\x93" : "\xe2\x9c\x93 " + values[i];  // check mark
+    }
     fui::ListItem item;
     item.label = names[i].c_str();
     if (!values[i].empty()) item.value = values[i].c_str();
     item.icon = listIconFor(UITheme::getFileIcon(entry), twoLineRows ? 32 : 24);
+    if (!isDirectoryEntry && mark == static_cast<uint8_t>(PreparedMarks::BookState::Info)) {
+      item.icon = freeink::ui::bitmapFromIcon(twoLineRows ? icon_book_check_32 : icon_book_check_24);
+    } else if (!isDirectoryEntry && mark == static_cast<uint8_t>(PreparedMarks::BookState::Whole)) {
+      item.icon = freeink::ui::bitmapFromIcon(twoLineRows ? icon_book_open_check_32 : icon_book_open_check_24);
+    }
     item.actionValue = static_cast<int16_t>(usesVirtualList ? entryIndex : i);
     items.push_back(item);
   }
@@ -1714,18 +1826,27 @@ void FileBrowserActivity::reloadAndSelect(const std::string& entry) {
 bool FileBrowserActivity::relocateDirectory(const std::string& oldDir, const std::string& newDir) {
   // Books anywhere inside keep their reader state: note their paths before the
   // folder moves, then carry each one's state to its new path.
-  std::vector<std::string> books;
-  collectMetadataPathsRecursively(oldDir, books);
   if (!Storage.rename(oldDir.c_str(), newDir.c_str())) {
     LOG_ERR("FileBrowser", "Failed to move folder: %s -> %s", oldDir.c_str(), newDir.c_str());
     return false;
   }
-  for (const auto& oldBook : books) {
-    const std::string newBook = newDir + oldBook.substr(oldDir.size());
-    if (!BookMoveUtils::migrateMovedBookState(oldBook, newBook)) {
-      LOG_ERR("FileBrowser", "Reader state partly left behind for %s", newBook.c_str());
-    }
-  }
+  // Walk the moved folder and carry each book's state from its old path
+  // (streamed, so a huge folder never lists every book in memory).
+  struct MoveContext {
+    const std::string* oldDir;
+    const std::string* newDir;
+  } move{&oldDir, &newDir};
+  forEachBookUnder(
+      newDir,
+      [](void* context, const std::string& newBook) {
+        auto* m = static_cast<MoveContext*>(context);
+        const std::string oldBook = *m->oldDir + newBook.substr(m->newDir->size());
+        if (!BookMoveUtils::migrateMovedBookState(oldBook, newBook)) {
+          LOG_ERR("FileBrowser", "Reader state partly left behind for %s", newBook.c_str());
+        }
+      },
+      &move);
+  PreparedMarks::dropFolderMark(oldDir);
 
   const std::string oldPrefix = oldDir + "/";
   const auto follow = [&](std::string& path) {
@@ -2038,4 +2159,39 @@ void FileBrowserActivity::startSearch() {
     }
     startActivityForResult(std::move(search), [this](const ActivityResult&) { requestUpdate(); });
   });
+}
+
+bool FileBrowserActivity::acceptBrowserEntry(const char* name, const bool isDir) { return acceptCommon(name, isDir); }
+
+uint8_t FileBrowserActivity::rowMarkFor(const std::string& fullPath, const bool isDirectory) {
+  for (const auto& known : rowMarks) {
+    if (known.path == fullPath) return known.mark;
+  }
+  const uint8_t mark = isDirectory ? (PreparedMarks::hasFolderMark(fullPath) ? 1 : 0)
+                                   : static_cast<uint8_t>(PreparedMarks::bookState(fullPath));
+  if (rowMarks.size() >= 96) rowMarks.erase(rowMarks.begin(), rowMarks.begin() + 32);
+  rowMarks.push_back({fullPath, mark});
+  return mark;
+}
+
+void FileBrowserActivity::validateFolderMarkAfterLoad() {
+  if (mode != Mode::Books) return;
+  const std::string folder = normalizeDirectoryPath(basepath);
+  if (!PreparedMarks::hasFolderMark(folder)) return;
+  uint32_t fingerprint = 0;
+  uint32_t entries = 0;
+  if (usingIndex && fileIndex) {
+    fingerprint = fileIndex->setFingerprint();
+    entries = fileIndex->setEntries();
+  } else {
+    for (const auto& entry : files) {
+      const bool isDir = !entry.empty() && entry.back() == '/';
+      const size_t len = isDir ? entry.size() - 1 : entry.size();
+      if (const uint32_t h = FsHelpers::entryHash(entry.c_str(), len, isDir)) {
+        fingerprint += h;
+        entries++;
+      }
+    }
+  }
+  PreparedMarks::validateFolderMark(folder, fingerprint, entries);
 }

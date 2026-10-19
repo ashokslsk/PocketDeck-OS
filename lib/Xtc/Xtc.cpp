@@ -274,17 +274,16 @@ bool Xtc::clearCache() const {
 }
 
 void Xtc::setupCacheDir() const {
-  if (Storage.exists(cachePath.c_str())) {
-    return;
-  }
-
-  // Create directories recursively
-  for (size_t i = 1; i < cachePath.length(); i++) {
-    if (cachePath[i] == '/') {
-      Storage.mkdir(cachePath.substr(0, i).c_str());
+  if (!Storage.exists(cachePath.c_str())) {
+    // Create directories recursively
+    for (size_t i = 1; i < cachePath.length(); i++) {
+      if (cachePath[i] == '/') {
+        Storage.mkdir(cachePath.substr(0, i).c_str());
+      }
     }
+    Storage.mkdir(cachePath.c_str());
   }
-  Storage.mkdir(cachePath.c_str());
+  FsHelpers::recordBookSource(cachePath, filepath);
 }
 
 std::string Xtc::getTitle() const {

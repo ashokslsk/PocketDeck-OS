@@ -1,6 +1,9 @@
 #pragma once
 #include <HalDisplay.h>
 
+class Epub;
+class GfxRenderer;
+
 #include <array>
 #include <functional>
 #include <optional>
@@ -21,6 +24,11 @@ struct Rect;
 
 class HomeActivity final : public Activity {
  public:
+  // Makes the cover thumbnails Home shows for `epub` with the active theme
+  // (Now Reading and Recent covers), skipping any that already exist. Called by
+  // the reader while it is idle so Home never has to show "Loading" for the
+  // book. A book without a cover image is marked so Home stops retrying.
+  static void prepareHomeCovers(const Epub& epub, const GfxRenderer& renderer);
   // Keep one rendered carousel frame in RAM. Additional frames remain available
   // through the SD snapshot cache and are paged in on demand.
   static constexpr int kCarouselFrameCount = 1;

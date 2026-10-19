@@ -12,7 +12,10 @@ file manager and a speed-reading pacer, all offline and all on the SD card.
 
 ## What's new
 
-- **Speed Read**: a 4 px pacing underline glides under each phrase while the page turns by itself. Presets for English (125 / 200 / 275 / 350 WPM) and Kannada (60 / 100 / 150 / 200 WPM), picked automatically for the book.
+- **Speed Read**: a 4 px pacing underline glides under each phrase while the page turns by itself. Presets for English (125 / 200 / 275 / 350 WPM) and Kannada (60 / 100 / 150 / 200 / 250 / 350 WPM), picked automatically for the book; Left/Right fine-tune the pace by 10 WPM while reading (40–600).
+- **Prepare books ahead**: Prepare Whole Book (reader menu) lays out every chapter so page turns are instant; Prepare Folder (Explorer) and Prepare Library (Settings) get book info and folder lists ready for big libraries. Each shows a progress bar, time left and the time it should finish. Clear Prepared Data frees that space and keeps your progress.
+- **Built for huge libraries**: tested with 20,000+ books; book caches are sharded so 40,000+ stay fast, big folders open instantly from a saved list, and the SD layer remembers recently opened books.
+- **Image zoom**: View Images zooms to 2x and 3x and steps through the picture a screenful at a time.
 - **File manager in Explorer**: hold Open on any file or folder to Rename, Move, Copy (with a progress bar), Delete, see Info, or create a New folder. Reading progress, stats, bookmarks and highlights move with a book.
 - **Back takes you where you came from**: a book opened from Explorer returns to its folder with the book highlighted; books opened from Home or Recent Books return Home.
 - **SD card space** in Info ("12.3 GB free of 29.7 GB"), and Copy checks the space before it starts.

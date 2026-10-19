@@ -19,6 +19,7 @@
 #include "BackupStatsActivity.h"
 #include "ButtonRemapActivity.h"
 #include "ClearCacheActivity.h"
+#include "activities/home/PrepareLibraryActivity.h"
 #include "ClockOffsetActivity.h"
 #include "ClockSyncActivity.h"
 #include "CrossPointSettings.h"
@@ -1102,6 +1103,20 @@ void SettingsActivity::toggleCurrentSetting() {
         break;
       case SettingAction::ClearCache:
         startActivityForResult(std::make_unique<ClearCacheActivity>(renderer, mappedInput), resultHandler);
+        break;
+      case SettingAction::PrepareLibrary:
+        startActivityForResult(std::make_unique<PrepareLibraryActivity>(renderer, mappedInput, "/", true),
+                               resultHandler);
+        break;
+      case SettingAction::ClearPreparedData:
+        startActivityForResult(
+            std::make_unique<ClearCacheActivity>(renderer, mappedInput, ClearCacheActivity::Mode::PreparedOnly),
+            resultHandler);
+        break;
+      case SettingAction::ClearUnusedData:
+        startActivityForResult(
+            std::make_unique<ClearCacheActivity>(renderer, mappedInput, ClearCacheActivity::Mode::Unused),
+            resultHandler);
         break;
       case SettingAction::CheckForUpdates:
         silentRestartToNetwork(NetworkBootTarget::OTA);

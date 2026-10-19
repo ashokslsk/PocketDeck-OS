@@ -33,6 +33,7 @@ enum class FileBrowserAction : int {
   NewFolder = 21,
   Copy = 22,
   Search = 23,
+  PrepareFolder = 24,
 };
 
 class FileBrowserActionActivity final : public Activity {

@@ -3,14 +3,15 @@
 #include "activities/Activity.h"
 #include "util/ButtonNavigator.h"
 
-// Reader menu > Speed Read: pick a pace. Four presets per language, chosen
-// for the book's script (Kannada words are longer, so the pace is lower):
+// Reader menu > Speed Read: pick a pace. Presets per language, chosen for the
+// book's script (Kannada words are longer, so the pace is lower):
 //   English 125 / 200 / 275 / 350 words per minute
-//   Kannada  60 / 100 / 150 / 200 words per minute
+//   Kannada  60 / 100 / 150 / 200 / 250 / 350 words per minute
 // Returns OptionSelectionResult{index}; wpmFor() maps it to words per minute.
 class SpeedReadPickerActivity final : public Activity {
  public:
-  static constexpr int kPresetCount = 4;
+  static constexpr int kMaxPresetCount = 6;
+  static int presetCount(bool kannada) { return kannada ? 6 : 4; }
   static uint16_t wpmFor(bool kannada, int index);
 
   SpeedReadPickerActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, bool kannada, int selected)

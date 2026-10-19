@@ -50,8 +50,8 @@ constexpr uint32_t CAROUSEL_CACHE_MAGIC = 0x43434152;  // "CCAR"
 // Cached frames include all Home visuals, including the menu icons. Bump this
 // whenever their rendering changes so stale snapshots are rebuilt after OTA.
 constexpr uint16_t CAROUSEL_CACHE_VERSION = 6;
-constexpr char CAROUSEL_CACHE_PATH[] = "/.pocketdeck-os/home_carousel_cache.bin";
-constexpr char CAROUSEL_CACHE_TMP_PATH[] = "/.pocketdeck-os/home_carousel_cache.tmp";
+constexpr char CAROUSEL_CACHE_PATH[] = "/.pocketdeck-os/system_cache/home_carousel_cache.bin";
+constexpr char CAROUSEL_CACHE_TMP_PATH[] = "/.pocketdeck-os/system_cache/home_carousel_cache.tmp";
 constexpr uint32_t CAROUSEL_FRAME_MIN_FREE_AFTER_ALLOC = 64U * 1024U;
 constexpr uint32_t CAROUSEL_FRAME_MIN_MAX_ALLOC_AFTER_ALLOC = 24U * 1024U;
 constexpr unsigned long HOME_BOOK_SWAP_LONG_PRESS_MS = 1000;
@@ -696,6 +696,41 @@ void HomeActivity::loadAllBookStats() {
   }
   bookStatsCached = true;
   LOG_DBG("HOME", "carousel: cached stats/progress for %d book(s) in %lums", count, millis() - start);
+}
+
+void HomeActivity::prepareHomeCovers(const Epub& epub, const GfxRenderer& renderer) {
+  const int fontId = SETTINGS.getReaderFontId();
+  const auto theme = static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme);
+  const int coverHeight = UITheme::getInstance().getMetrics().homeCoverHeight;
+  // The same sizes loadRecentCovers() asks for, theme by theme. Each generate
+  // call returns at once when its thumbnail already exists at that size.
+  bool ok = true;
+  if (theme == CrossPointSettings::UI_THEME::LYRA_CAROUSEL) {
+    ok = epub.generateThumbBmp(LyraCarouselTheme::centerThumbW(), LyraCarouselTheme::centerThumbH(), &renderer,
+                               fontId);
+    ok = epub.generateThumbBmp(LyraCarouselTheme::sideThumbW(), LyraCarouselTheme::sideThumbH(), &renderer, fontId) &&
+         ok;
+  } else if (isDashboardTheme()) {
+    ok = epub.generateAdaptiveThumbBmp(dashboardHomeCoverWidth(coverHeight), dashboardHomeCoverHeight(coverHeight),
+                                       &renderer, fontId);
+  } else if (isMinimalTheme()) {
+    ok = epub.generateAdaptiveThumbBmp(minimalHomeCoverWidth(coverHeight), minimalHomeCoverHeight(coverHeight),
+                                       &renderer, fontId);
+  } else {
+    ok = epub.generateThumbBmp(0, coverHeight, &renderer, fontId);
+    if (theme == CrossPointSettings::UI_THEME::POCKETDECK) {
+      ok = epub.generateThumbBmp(0, PocketDeckMetrics::kRecentCoverHeight, &renderer, fontId) && ok;
+    }
+  }
+  if (!ok && !epub.hasCoverImage()) {
+    // No cover to draw: record it, as Home would, so Home does not keep trying.
+    for (const auto& recent : RECENT_BOOKS.getBooks()) {
+      if (recent.path != epub.getPath()) continue;
+      RecentBook book = recent;
+      if (book.coverState != RecentBook::CoverState::Missing) markCoverMissing(book);
+      break;
+    }
+  }
 }
 
 void HomeActivity::loadRecentCovers(int coverHeight) {

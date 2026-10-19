@@ -8,8 +8,21 @@
 #include <MemoryBudget.h>
 
 #include <algorithm>
+#include <atomic>
 
 namespace EpubGrayscale {
+
+namespace {
+std::atomic<bool> abortRequested{false};
+std::atomic<bool> passAborted{false};
+}  // namespace
+
+void clearAbort() {
+  abortRequested.store(false, std::memory_order_relaxed);
+  passAborted.store(false, std::memory_order_relaxed);
+}
+void requestAbort() { abortRequested.store(true, std::memory_order_relaxed); }
+bool lastPassAborted() { return passAborted.load(std::memory_order_relaxed); }
 
 bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fontId, const int marginLeft,
                            const int marginTop, const bool foregroundBlack, const bool needsTextGrayscale,
@@ -18,6 +31,18 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
   if ((!needsTextGrayscale && !needsImageGrayscale) || !renderer.supportsStripGrayscale()) {
     return false;
   }
+
+  const auto aborted = [] { return abortRequested.load(std::memory_order_relaxed); };
+  // Leave the controller as a finished pass would, minus the gray overlay.
+  const auto finishAborted = [&](const bool refreshMayBePending) {
+    if (refreshMayBePending) renderer.waitRefreshComplete();
+    renderer.setRenderMode(GfxRenderer::BW);
+    renderer.cleanupGrayscaleWithFrameBuffer();
+    passAborted.store(true, std::memory_order_relaxed);
+    LOG_DBG("EPS", "Grayscale pass cut short by input");
+    return true;
+  };
+  if (aborted()) return finishAborted(asyncRefreshPending);
 
   const int displayHeight = renderer.getDisplayHeight();
   const int displayWidthBytes = renderer.getDisplayWidthBytes();
@@ -64,8 +89,10 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
               msbPlaneBuf ? 2U : 1U);
     }
     renderPlaneToBuffer(GfxRenderer::GRAYSCALE_LSB, lsbPlaneBuf.get());
+    if (aborted()) return finishAborted(asyncRefreshPending);
     if (msbPlaneBuf) {
       renderPlaneToBuffer(GfxRenderer::GRAYSCALE_MSB, msbPlaneBuf.get());
+      if (aborted()) return finishAborted(asyncRefreshPending);
     }
 
     renderer.waitRefreshComplete();
@@ -104,6 +131,7 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
   const auto renderPlane = [&](const GfxRenderer::RenderMode mode, const bool lsbPlane) {
     renderer.setRenderMode(mode);
     for (int y = 0; y < displayHeight; y += GRAYSCALE_STRIP_ROWS) {
+      if (aborted()) return false;
       const int rows = std::min(GRAYSCALE_STRIP_ROWS, displayHeight - y);
       renderer.beginStripTarget(scratch, y, rows);
       renderer.clearScreen(0x00);
@@ -115,11 +143,12 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
       renderer.endStripTarget();
       renderer.writeGrayscalePlaneStrip(lsbPlane, scratch, y, rows);
     }
+    return true;
   };
 
-  renderPlane(GfxRenderer::GRAYSCALE_LSB, true);
-
-  renderPlane(GfxRenderer::GRAYSCALE_MSB, false);
+  if (!renderPlane(GfxRenderer::GRAYSCALE_LSB, true) || !renderPlane(GfxRenderer::GRAYSCALE_MSB, false)) {
+    return finishAborted(false);
+  }
 
   renderer.setRenderMode(GfxRenderer::BW);
   renderer.displayGrayBuffer();

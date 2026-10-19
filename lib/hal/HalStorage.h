@@ -74,6 +74,21 @@ class HalStorage {
   class StorageLock;  // private class, used internally
 
  private:
+  // Root items the app addresses by their visible name ("/tools", "/Read",
+  // "/My Clippings.txt") but which live hidden ("/.tools", "/.clippings/...") so the
+  // card root can show only books. Chosen once at mount (begin()); every path
+  // taken by this class is mapped, so callers keep using the visible names.
+  struct RootAlias {
+    const char* visible;
+    const char* hidden;
+    bool hiddenByDefault;  // fresh card: create the hidden one
+    bool moveVisible;      // app data: move an existing visible one into place
+    bool useHidden;
+  };
+  static RootAlias rootAliases_[3];
+  void resolveRootAliases();
+  static const char* aliasPath(const char* path, std::string& scratch);
+
 #if FREEINK_CAP_USB_MSC
   class UsbDriveContext;
 #endif

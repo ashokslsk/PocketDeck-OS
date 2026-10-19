@@ -19,6 +19,9 @@ class FileBrowserActivity final : public Activity {
  public:
   // Picker modes return their selected path via ActivityResult.
   enum class Mode { Books, PickFirmware, PickDirectory };
+  // Explorer's own filter for the book list (hidden/system entries, supported
+  // types). Shared so a prepared folder index matches what Explorer expects.
+  static bool acceptBrowserEntry(const char* name, bool isDir);
 
  private:
   // FreeInkApp hosts the file list (themed rows, icons, touch routing); the
@@ -90,6 +93,20 @@ class FileBrowserActivity final : public Activity {
   std::array<std::string, INDEX_ROW_CACHE_SIZE> indexCachedNames;
   std::array<size_t, INDEX_ROW_CACHE_SIZE> indexCachedRows{};
   bool usingIndex = false;
+  // A big folder shown from its saved index while the folder is re-read in
+  // the background (loop()); a change rebuilds the list.
+  bool indexVerifyPending = false;
+  // Prepared marks for rows already shown in this folder (path -> mark), so
+  // scrolling back does not touch the card again. Cleared when the folder
+  // reloads; bounded so a long scroll cannot grow it without limit.
+  struct RowMark {
+    std::string path;
+    uint8_t mark;  // books: PreparedMarks::BookState; folders: 1 = prepared
+  };
+  std::vector<RowMark> rowMarks;
+  uint8_t rowMarkFor(const std::string& fullPath, bool isDirectory);
+  // Re-check this folder's own mark against what is on the card now.
+  void validateFolderMarkAfterLoad();
   bool fileListMemoryLimited = false;
   bool fileListReadFailed = false;
 
@@ -115,10 +132,12 @@ class FileBrowserActivity final : public Activity {
 
   // Data loading
   void clearIndexNameCache();
-  void loadFiles();
+  // allowCachedIndex: navigation may show a big folder from its saved index at
+  // once; after the app itself changed the folder, pass false.
+  void loadFiles(bool allowCachedIndex = false);
   // Caller holds RenderLock while replacing the list backing storage together
   // with its associated navigation state.
-  void loadFilesLocked();
+  void loadFilesLocked(bool allowCachedIndex = false);
   bool loadFilesIntoVector(size_t cap, bool& overflow);
   size_t entryCount() const;
   const char* entryNameAt(size_t row);

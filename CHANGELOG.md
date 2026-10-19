@@ -1,3 +1,32 @@
+## [PocketDeck-OS 1.0.0, Prepare books, image zoom and a tidier data folder] - 2026-10-18
+
+### Added
+
+- Reader menu > Prepare Whole Book (below Speed Read): lays out every chapter ahead of time for your current font and layout, with a progress bar, chapter count, pages so far, time elapsed, time left and the clock time it should finish. Back stops it and keeps the chapters already done; afterwards page turns in that book never wait for "Indexing".
+- Explorer > hold a folder > Prepare Folder, and Settings > Prepare Library: count the books, save Explorer's list for every big folder and read each EPUB's book info ahead of time, so folders and books open quickly. Same progress screen and timer; running it again skips books that are ready, and files that are not readable EPUBs leave nothing behind.
+- Settings > Remove Unused Book Data: deletes the saved data (prepared pages, progress, stats, bookmarks, clippings) of books no longer on the card, e.g. deleted on a computer. A cache is removed only when it names its book (new `source.path` file), that name maps back to exactly that cache folder, the book is missing, and the cache folder still reads, so books still on the card are never touched. Books opened before this update are skipped until they are opened or prepared again.
+- Explorer marks prepared items: a checked book icon when a book's info is ready, an open checked book once Prepare Whole Book has laid it all out for the layout you read it with, and a tick after a folder Prepare Folder finished. A folder's tick is re-checked whenever it is opened and drops if its contents changed; Clear Prepared Data and Clear Reading Cache remove all marks.
+- Workout levels: Rookie, Beginner, Expert, Veteran and Go Nuts (Left cycles them; remembered). Beginner and Veteran are the practice files' Beginner/Advanced values; Rookie is a gentle start (half-length breathing sessions, holds up to 10 s, one Sun Salutation round at 10 s a pose, fewer gym sets with more rest), Expert sits halfway, and Go Nuts goes 1.5x Advanced (18 rounds, +2 sets, shorter rest). Hold Start toggles Slow pace on any level: slow-breathing inhales 10 s, exhales 15 s, every pose at least 30 s.
+- Tools list: tool names in 14 pt bold with the description beneath, a page at a time.
+- Home covers are made while you read: once per book, after a few idle seconds on a page and only with enough free memory, the reader makes the cover thumbnails your theme shows, so returning Home never shows "Loading" for a newly opened book.
+- Prepare Folder/Library work in batches with a free-memory check before each book, show the title of the book being prepared and the RAM in use, and write `/.pocketdeck-os/prepare-report.txt` (summary plus every unreadable book or folder read error, with the memory at that moment).
+- Settings > Clear Prepared Data: removes only what the reader rebuilds by itself (chapter layouts, book info, covers, extracted images, folder lists, app caches) and keeps every book's progress, stats, bookmarks, clippings and settings.
+- View Images zoom: the front Right/Left buttons zoom in and out (2x, 3x) and the side buttons pan the zoomed image half a screen at a time in reading order; Confirm moves to the next image. In grayscale.
+
+### Fixed
+
+- Prepare Folder/Library no longer stops early and reports "Done" when a folder read fails (low memory or a card error): it reopens the folder and carries on, and the finish screen shows how many books were checked.
+- Prepare Whole Book now really lays out every chapter on the device: it used the background-prefetch memory rule (~96 KB free), which the X3 rarely has with a book open, so most chapters were skipped and indexed later while reading. It now uses the reader's own layout rule and logs the reason for any chapter it cannot prepare.
+- Deleting or moving a folder in Explorer no longer lists every book in memory first (a crash risk with thousands of books): it walks the folder and cleans up or carries over each book's data as it goes, with a progress message. Clear Reading Cache and Clear Prepared Data also work one cache shard at a time, with progress and Back to stop.
+- Deleting an XTC or TXT book also removes its cache folder.
+- A progress save that fails once (a briefly busy card) is retried before "Could not save progress" is shown.
+- The "Release to sleep" power hint is a padded two-line card instead of a single line cut off at the edges.
+
+### Changed
+
+- A cleaner card root: the tools data lives in `/.tools` and the clippings export in `/.clippings/My Clippings.txt`; an existing `/tools` or `/My Clippings.txt` is moved there on first start (renamed, never deleted). Sleep images (`/.sleep`) and fonts (`/.fonts`) already work hidden, and a `/.Read` folder is used if you rename `Read`.
+- Book caches are split across 256 sub-folders (`book_reading_cache/00` to `ff`), so lookups stay fast with 40,000+ books; existing book folders are moved there on first start and old saved paths are upgraded as they are read.
+
 ## [PocketDeck-OS 1.0.0, Maths symbols and code blocks] - 2026-10-17
 
 ### Added
@@ -5,6 +34,16 @@
 - Maths and AI/ML symbols in books: Greek letters, sub/superscript letters (xₜ, wᵢ, Aᵀ), operators (∂ ∇ ∈ ∑ ∞ ≈ ≠ ≤ ≥ ⊙ ‖), arrows, set symbols and ✓/✗ now draw from a built-in maths font (Noto Sans + STIX Two Math) instead of showing "?". It backs every built-in reading font and the UI fonts, so search results and menus show them too.
 - Explorer > Info shows SD card space with a capacity bar and the percentage used, plus card statistics: files, folders, books, images and the largest file. Counting runs in the background and is saved, so Info shows the last count straight away even on cards with tens of thousands of books.
 - Code blocks (`<pre>`) in EPUBs are formatted as code: a monospace font (JetBrains Mono), each source line on its own line, indentation kept, no hyphenation or justification, and a rule down the left edge.
+
+### Changed
+
+- Tidier data folder: every book's cache now lives in `/.pocketdeck-os/book_reading_cache/` and rebuildable app caches (folder lists, Home cover cache, font catalogue, card stats, image and sleep-screen caches) in `/.pocketdeck-os/system_cache/`, leaving settings, recents, stats, bookmarks and clippings at the top level. Existing folders are moved (not copied) on first start, keeping reading progress, and saved paths from the old layout are upgraded as they are read.
+- Speed Read for Kannada gains two faster presets, 250 and 350 words per minute (Rapid and Sprint).
+- Snappier reading: a button press now interrupts the text anti-aliasing pass that runs after each page turn (several seconds on Kannada pages) instead of waiting for it; the page gets its smoothing back once you stop on it.
+- The anti-aliasing pass now draws only the words inside each screen strip, cutting its work several-fold, most of all on Kannada pages.
+- Big folders open instantly: Explorer shows a folder of hundreds or thousands of books from its saved index straight away and re-checks the folder in the background, refreshing the list only if something changed.
+- Books in big folders open and index much faster: the SD card layer remembers where recently opened books sit in their folder, so the reader's many re-opens of a book file no longer search the whole folder each time.
+- Books open faster: whether a book is in Kannada is worked out once and remembered in its cache folder instead of decompressing its first chapters on every open.
 
 ### Fixed
 
