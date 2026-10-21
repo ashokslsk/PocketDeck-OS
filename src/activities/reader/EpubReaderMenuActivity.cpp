@@ -119,7 +119,9 @@ ReaderSettingsChangeMask classifyReaderSettingsChange(const ReaderLayoutSettings
                                                       const ReaderLayoutSettingsSnapshot& after) {
   ReaderSettingsChangeMask changeMask = ReaderSettingsChangeMask::None;
 
-  if (before.textAntiAliasing != after.textAntiAliasing) {
+  // Publisher page numbers sit in the status bar now, so toggling them only
+  // redraws; the text column is the same width either way.
+  if (before.textAntiAliasing != after.textAntiAliasing || before.publisherPageNumbers != after.publisherPageNumbers) {
     changeMask = changeMask | ReaderSettingsChangeMask::NonLayout;
   }
   if (before.orientation != after.orientation) {
@@ -129,7 +131,6 @@ ReaderSettingsChangeMask classifyReaderSettingsChange(const ReaderLayoutSettings
       before.lineHeightPercent != after.lineHeightPercent || before.wordSpacing != after.wordSpacing ||
       before.screenMarginVertical != after.screenMarginVertical ||
       before.screenMarginHorizontal != after.screenMarginHorizontal ||
-      before.publisherPageNumbers != after.publisherPageNumbers ||
       before.paragraphAlignment != after.paragraphAlignment || before.embeddedStyle != after.embeddedStyle ||
       before.hyphenationEnabled != after.hyphenationEnabled ||
       before.extraParagraphSpacing != after.extraParagraphSpacing ||

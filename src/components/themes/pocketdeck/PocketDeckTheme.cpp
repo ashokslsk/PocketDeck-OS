@@ -360,11 +360,17 @@ void drawRecentReads(GfxRenderer& r, const std::vector<RecentBook>& books, const
 }
 }  // namespace
 
+int PocketDeckTheme::headerLeftInset() const {
+  using namespace PocketDeckMetrics;
+  const auto& metrics = UITheme::getInstance().getMetrics();
+  return metrics.headerSidePadding + kMarkSize + kMarkGap - metrics.headerSidePadding / 2;
+}
+
 void PocketDeckTheme::drawHeader(const GfxRenderer& renderer, const Rect rect, const char* title, const char* subtitle,
                                  const bool readerContext) const {
   using namespace PocketDeckMetrics;
   const auto& metrics = UITheme::getInstance().getMetrics();
-  const int markArea = metrics.headerSidePadding + kMarkSize + kMarkGap - metrics.headerSidePadding / 2;
+  const int markArea = headerLeftInset();
   // Standard Lyra header shifted right to make room for the mark.
   LyraTheme::drawHeader(renderer, Rect{rect.x + markArea, rect.y, rect.width - markArea, rect.height}, title, subtitle,
                         readerContext);

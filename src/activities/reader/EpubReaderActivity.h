@@ -412,6 +412,9 @@ class EpubReaderActivity final : public Activity {
   // thumbnails Home needs, so returning Home never shows "Loading" for it.
   uint8_t homeCoverAttempts = 0;
   bool homeCoversDone = false;
+  // Publisher (print edition) page label for the current page, shown at the
+  // front of the bottom status bar's title slot. Empty when there is none.
+  char publisherPageLabel[24] = {};
   void idlePrepareHomeCovers();
   void startPrepareBook();
   void renderPrepareBookStep();

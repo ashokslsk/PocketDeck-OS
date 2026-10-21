@@ -1,3 +1,15 @@
+## [PocketDeck-OS 1.0.0, Speed Read and status bar polish] - 2026-10-21
+
+### Fixed
+
+- Speed Read: pausing no longer leaves the underline stuck on the paused words after Resume. The underline is hidden while paused (the status bar shows "Paused") and comes back on the same words when you resume; a bar left on screen through a long pause could not be fully cleared by the quick refresh that moves it.
+- Speed Read and Auto Page Turn no longer keep the processor at full speed between steps; it now slows down a few seconds after your last button press like normal reading, which saves battery during long Speed Read sessions.
+
+### Changed
+
+- Kannada text in Tools (Mantras, Workout, quotes and flashcards) is one size larger: labels 19 to 24 px, bold names and mantras 21 to 26 px, paragraphs 24 to 28 px (28 px needs a current `kannada.knf`; older files stay at 24 px).
+- Publisher page numbers now appear at the front of the bottom status bar ("p. 143 · Chapter title", or "p. 143-144" when a printed page starts on this screen) instead of letters stacked down the left margin. The left margin no longer widens when they are on, so books reflow once after updating, and turning the option on or off just redraws the page.
+
 ## [PocketDeck-OS 1.0.0, Prepare books, image zoom and a tidier data folder] - 2026-10-18
 
 ### Added

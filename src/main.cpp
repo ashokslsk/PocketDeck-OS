@@ -1847,9 +1847,17 @@ void loop() {
 
   // Check for any user activity (button press or release) or active background work
   static unsigned long lastActivityTime = millis();
-  if (userInputReceived || activityManager.preventAutoSleep()) {
-    lastActivityTime = millis();         // Reset inactivity timer
+  // Idle CPU throttling follows real input only. Keeping the device awake
+  // (Speed Read, Auto Page Turn, timers) no longer pins the CPU at full clock
+  // between steps: rendering takes a HalPowerManager::Lock (ActivityManager),
+  // and work that needs speed asks for it through skipLoopDelay().
+  static unsigned long lastInputTime = millis();
+  if (userInputReceived) {
+    lastInputTime = millis();
     powerManager.setPowerSaving(false);  // Restore normal CPU frequency on user activity
+  }
+  if (userInputReceived || activityManager.preventAutoSleep()) {
+    lastActivityTime = millis();  // Reset the auto-sleep timer
   }
   if (userInputReceived) {
     activityManager.notifyUserInput();
@@ -2056,7 +2064,7 @@ void loop() {
     powerManager.setPowerSaving(false);  // Make sure we're at full performance when skipLoopDelay is requested
     yield();                             // Give FreeRTOS a chance to run tasks, but return immediately
   } else {
-    if (millis() - lastActivityTime >= HalPowerManager::IDLE_POWER_SAVING_MS) {
+    if (millis() - lastInputTime >= HalPowerManager::IDLE_POWER_SAVING_MS) {
       // If we've been inactive for a while, increase the delay to save power
       powerManager.setPowerSaving(true);  // Lower CPU frequency after extended inactivity
       delay(50);

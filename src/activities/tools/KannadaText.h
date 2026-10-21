@@ -44,6 +44,13 @@ int width(const GfxRenderer& r, const char* text, Style s, size_t len = SIZE_MAX
 // Draws with the line box top at `top`; returns the width drawn.
 int draw(const GfxRenderer& r, int x, int top, const char* text, Style s, bool black = true, size_t len = SIZE_MAX);
 bool hasKannada(const char* text, size_t len = SIZE_MAX);
+
+// Tools screens (Mantras, Workout, quotes, flashcards) draw Kannada one size
+// up from the base styles: the 19 px label was hard to read next to Latin.
+// The 28 px size needs a newer kannada.knf; older files fall back to Body.
+constexpr Style kToolSmall = Style::Body;   // was Label (19 px) -> 24 px
+constexpr Style kToolBold = Style::Title;   // was Value (21 px bold) -> 26 px bold
+constexpr Style kToolText = Style::Read28;  // was Body (24 px) -> 28 px
 // One line of mixed text where Latin runs use a given font and style (the
 // EPUB reader's font) instead of the UI font; draw=false only measures.
 // Latin shares the Kannada baseline at top + ascent(s). Returns the width.

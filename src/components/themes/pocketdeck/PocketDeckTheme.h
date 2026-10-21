@@ -32,6 +32,7 @@ constexpr int kMarkGap = 8;
 
 class PocketDeckTheme : public LyraTheme {
  public:
+  int headerLeftInset() const override;
   void drawHeader(const GfxRenderer& renderer, Rect rect, const char* title, const char* subtitle = nullptr,
                   bool readerContext = false) const override;
   void drawRecentBookCover(GfxRenderer& renderer, Rect rect, const std::vector<RecentBook>& recentBooks,

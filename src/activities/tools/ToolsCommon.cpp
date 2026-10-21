@@ -352,7 +352,7 @@ const char* wordEnd(const char* p, const char* end) {
 // same paragraphs, Markdown prefixes, paging and centring as below.
 namespace {
 kannada::Style kannadaStyleFor(const int fontId) {
-  return fontId == UI_10_FONT_ID || fontId == SMALL_FONT_ID ? kannada::Style::Label : kannada::Style::Body;
+  return fontId == UI_10_FONT_ID || fontId == SMALL_FONT_ID ? kannada::kToolSmall : kannada::kToolText;
 }
 
 int drawWrappedKannada(const GfxRenderer& renderer, const Rect& box, const char* text, const WrapOptions& opt) {
@@ -373,7 +373,7 @@ int drawWrappedKannada(const GfxRenderer& renderer, const Rect& box, const char*
     if (opt.markdown) {
       if (*p == '#') {
         while (p < paraEnd && *p == '#') ++p;
-        style = kannada::Style::Value;
+        style = kannada::kToolBold;
       } else if ((p[0] == '-' || p[0] == '*') && p + 1 < paraEnd && p[1] == ' ') {
         bullet = true;
         p += 2;

@@ -1386,9 +1386,10 @@ void EpubReaderTouchMenuActivity::toggleSetting(const RowId row) {
     default:
       return;
   }
-  if (row == RowId::TextAa) {
-    // Anti-aliasing changes pixels only. Rebuilding the EPUB section here
-    // makes the in-drawer preview appear to zoom while the page reflows.
+  if (row == RowId::TextAa || row == RowId::PublisherPages) {
+    // Anti-aliasing and the status bar's publisher page change pixels only.
+    // Rebuilding the EPUB section here makes the in-drawer preview appear to
+    // zoom while the page reflows.
     markSettingChanged(ReaderSettingsChangeMask::Preview | ReaderSettingsChangeMask::NonLayout);
   } else {
     const bool previews = row == RowId::Focus || row == RowId::GuideDots;

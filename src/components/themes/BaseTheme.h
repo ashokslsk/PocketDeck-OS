@@ -261,6 +261,9 @@ class BaseTheme {
                         const std::function<bool(int index)>& rowDimmed = nullptr,
                         const std::function<bool(int index)>& isHeader = nullptr, int rowHeightScale = 1,
                         bool showSelection = true) const;
+  // Width a theme reserves at the header's left edge (PocketDeck's logo mark).
+  // Screens that pass "" and draw their own header title start it after this.
+  virtual int headerLeftInset() const { return 0; }
   virtual void drawHeader(const GfxRenderer& renderer, Rect rect, const char* title, const char* subtitle = nullptr,
                           bool readerContext = false) const;
   virtual void drawSubHeader(const GfxRenderer& renderer, Rect rect, const char* label,

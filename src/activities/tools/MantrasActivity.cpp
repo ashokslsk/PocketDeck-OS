@@ -785,8 +785,8 @@ void MantrasActivity::renderHome() {
     // One mixed line, so the Kannada name and the Latin text share a baseline.
     snprintf(buf, sizeof(buf), "%s  -  %s %s", en::kWeekday[weekday_],
              useKannada(todayCat_.kannada) ? todayCat_.kannada : "", todayCat_.english);
-    kannada::draw(renderer, x0, y, buf, kannada::Style::Label);
-    y += 30;
+    kannada::draw(renderer, x0, y, buf, kannada::kToolSmall);
+    y += std::max(30, kannada::lineHeight(renderer, kannada::kToolSmall) + 2);
   }
 
   // Today's mantra card (row 0).
@@ -802,11 +802,11 @@ void MantrasActivity::renderHome() {
     int ty = y + 28;
     if (useKannada(mantra_->kannada)) {
       kannada::Line lines[2];
-      const size_t n = kannada::wrap(renderer, mantra_->kannada, kannada::Style::Value, w - 28, lines, 2);
+      const size_t n = kannada::wrap(renderer, mantra_->kannada, kannada::kToolBold, w - 28, lines, 2);
       for (size_t i = 0; i < n && i < 2; ++i) {
-        kannada::draw(renderer, x0 + 14, ty, mantra_->kannada + lines[i].start, kannada::Style::Value, !cardOn,
+        kannada::draw(renderer, x0 + 14, ty, mantra_->kannada + lines[i].start, kannada::kToolBold, !cardOn,
                       lines[i].length);
-        ty += 30;
+        ty += kannada::lineHeight(renderer, kannada::kToolBold);
       }
     }
     const std::string en = renderer.truncatedText(UI_10_FONT_ID, mantra_->english, w - 28, EpdFontFamily::REGULAR);
@@ -913,8 +913,8 @@ void MantrasActivity::renderGroups() {
     if (useKannada(kn)) {
       // Same baseline as the English name drawn at ry + 10.
       const int top =
-          ry + 10 + renderer.getFontAscenderSize(UI_12_FONT_ID) - kannada::ascent(renderer, kannada::Style::Label);
-      x += drawText(kn, kannada::Style::Label, x, top, (w - cw) / 2, !on) + 10;
+          ry + 10 + renderer.getFontAscenderSize(UI_12_FONT_ID) - kannada::ascent(renderer, kannada::kToolSmall);
+      x += drawText(kn, kannada::kToolSmall, x, top, (w - cw) / 2, !on) + 10;
     }
     const std::string shown = renderer.truncatedText(UI_12_FONT_ID, en, x0 + w - cw - x, EpdFontFamily::REGULAR);
     renderer.drawText(UI_12_FONT_ID, x, ry + 10, shown.c_str(), !on,
@@ -940,8 +940,8 @@ void MantrasActivity::renderList() {
     const Preview& p = previews_[i];
     int ty = ry + 2;
     if (useKannada(p.kannada)) {
-      drawText(p.kannada, kannada::Style::Label, x0 + 6, ty, w - 12, !on);
-      ty += 28;
+      drawText(p.kannada, kannada::kToolSmall, x0 + 6, ty, w - 12, !on);
+      ty += kannada::lineHeight(renderer, kannada::kToolSmall);
     }
     const std::string en = renderer.truncatedText(UI_10_FONT_ID, p.english, w - 12, EpdFontFamily::REGULAR);
     renderer.drawText(UI_10_FONT_ID, x0 + 6, ty + 2, en.c_str(), !on);
@@ -971,13 +971,13 @@ void MantrasActivity::renderView() {
     int gapBefore;
     const char* heading;
   } blocks[5] = {
-      {useKannada(m.kannada) ? m.kannada : "", kannada::Style::Body, 0, nullptr},
-      {m.english, kannada::Style::Body, 14, nullptr},
-      {showKn ? m.meaningKannada : "", kannada::Style::Label, 18,
+      {useKannada(m.kannada) ? m.kannada : "", kannada::kToolText, 0, nullptr},
+      {m.english, kannada::kToolText, 14, nullptr},
+      {showKn ? m.meaningKannada : "", kannada::kToolSmall, 18,
        both ? tr(STR_TOOLS_MANTRA_MEANING_KN_HEAD) : tr(STR_TOOLS_MANTRA_MEANING)},
-      {showEn ? m.meaningEnglish : "", kannada::Style::Label, 14,
+      {showEn ? m.meaningEnglish : "", kannada::kToolSmall, 14,
        both ? tr(STR_TOOLS_MANTRA_MEANING_EN_HEAD) : tr(STR_TOOLS_MANTRA_MEANING)},
-      {m.use, kannada::Style::Label, 14, tr(STR_TOOLS_MANTRA_USE)},
+      {m.use, kannada::kToolSmall, 14, tr(STR_TOOLS_MANTRA_USE)},
   };
   const int bottom = content.y + content.height - renderer.getLineHeight(SMALL_FONT_ID) - 4;
   int page = 0;
@@ -986,7 +986,7 @@ void MantrasActivity::renderView() {
   kannada::Line lines[kMaxLines];
   for (const Block& b : blocks) {
     if (b.text == nullptr || b.text[0] == '\0') continue;
-    const int lh = kannada::lineHeight(renderer, b.style) + (b.style == kannada::Style::Body ? 2 : 0);
+    const int lh = kannada::lineHeight(renderer, b.style) + (b.style == kannada::kToolText ? 2 : 0);
     const int headH = b.heading ? renderer.getLineHeight(SMALL_FONT_ID) + 2 : 0;
     if (y > content.y) y += b.gapBefore;
     if (y + headH + lh > bottom) {
@@ -1030,13 +1030,13 @@ void MantrasActivity::renderJapa() {
   if (mantra_ && loadedMantra_ == japaIdx_) {
     if (useKannada(mantra_->kannada)) {
       kannada::Line lines[3];
-      const size_t n = kannada::wrap(renderer, mantra_->kannada, kannada::Style::Value, w, lines, 3);
+      const size_t n = kannada::wrap(renderer, mantra_->kannada, kannada::kToolBold, w, lines, 3);
       for (size_t i = 0; i < n && i < 3; ++i) {
         const int lw =
-            kannada::width(renderer, mantra_->kannada + lines[i].start, kannada::Style::Value, lines[i].length);
-        kannada::draw(renderer, x0 + (w - lw) / 2, y, mantra_->kannada + lines[i].start, kannada::Style::Value, true,
+            kannada::width(renderer, mantra_->kannada + lines[i].start, kannada::kToolBold, lines[i].length);
+        kannada::draw(renderer, x0 + (w - lw) / 2, y, mantra_->kannada + lines[i].start, kannada::kToolBold, true,
                       lines[i].length);
-        y += 30;
+        y += kannada::lineHeight(renderer, kannada::kToolBold);
       }
     }
     const std::string en = renderer.truncatedText(UI_10_FONT_ID, mantra_->english, w, EpdFontFamily::REGULAR);
@@ -1080,7 +1080,7 @@ void MantrasActivity::renderAbout() {
   lib_.kavacha(static_cast<uint8_t>(std::max(0, kav)), k);
   const Rect content = tools::drawFrame(renderer, tr(STR_TOOLS_MANTRA_ABOUT), k.english);
   if (!about_) return;
-  const auto style = kannada::Style::Label;
+  const auto style = kannada::kToolSmall;
   const int lh = kannada::lineHeight(renderer, style) + 2;
   const int perPage = std::max(1, (content.height - renderer.getLineHeight(SMALL_FONT_ID) - 4) / lh);
   static constexpr size_t kMaxLines = 160;

@@ -679,7 +679,7 @@ void WorkoutActivity::renderCategories() {
     if (on) renderer.fillRoundedRect(x0 - 6, ry, w + 12, rowH - 8, 10, Color::Black);
     renderer.drawText(UI_12_FONT_ID, x0 + 8, ry + 10, cats_[i].titleEn, !on, EpdFontFamily::BOLD);
     if (useKannada(cats_[i].titleKn)) {
-      drawKannadaLine(cats_[i].titleKn, kannada::Style::Label, x0 + 8, ry + 46, UI_12_FONT_ID, w - 16, !on);
+      drawKannadaLine(cats_[i].titleKn, kannada::kToolSmall, x0 + 8, ry + 46, UI_12_FONT_ID, w - 16, !on);
     }
   }
   tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_OPEN), tr(STR_TOOLS_STATS_SHORT), tr(STR_TOOLS_NEXT));
@@ -703,7 +703,7 @@ void WorkoutActivity::renderList() {
     renderer.drawText(UI_12_FONT_ID, x0 + 6, ry + 6, en.c_str(), !on);
     if (gw) renderer.drawText(SMALL_FONT_ID, x0 + w - gw + 6, ry + 10, it.group, !on);
     if (useKannada(it.nameKn)) {
-      drawKannadaLine(it.nameKn, kannada::Style::Label, x0 + 6, ry + 36, UI_10_FONT_ID, w - 12, !on);
+      drawKannadaLine(it.nameKn, kannada::kToolSmall, x0 + 6, ry + 36, UI_10_FONT_ID, w - 12, !on);
     }
   }
   tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_OPEN), tr(STR_TOOLS_PREVIOUS), tr(STR_TOOLS_NEXT));
@@ -722,10 +722,10 @@ void WorkoutActivity::renderDetail() {
   int y = content.y;
   if (useKannada(it.nameKn)) {
     kannada::Line lines[2];
-    const size_t n = std::min<size_t>(2, kannada::wrap(renderer, it.nameKn, kannada::Style::Value, tw, lines, 2));
+    const size_t n = std::min<size_t>(2, kannada::wrap(renderer, it.nameKn, kannada::kToolBold, tw, lines, 2));
     for (size_t i = 0; i < n; ++i) {
-      kannada::draw(renderer, tx, y, it.nameKn + lines[i].start, kannada::Style::Value, true, lines[i].length);
-      y += kannada::lineHeight(renderer, kannada::Style::Value);
+      kannada::draw(renderer, tx, y, it.nameKn + lines[i].start, kannada::kToolBold, true, lines[i].length);
+      y += kannada::lineHeight(renderer, kannada::kToolBold);
     }
   }
   tools::WrapOptions bold;
@@ -880,10 +880,10 @@ void WorkoutActivity::renderFigureSession(const Rect& c, const Seg& s, const uin
   switch (s.kind) {
     case SegKind::Step:
       if (useKannada(step->nameKn)) {
-        const int kw = kannada::width(renderer, step->nameKn, kannada::Style::Label);
-        drawKannadaLine(step->nameKn, kannada::Style::Label, std::max(c.x, (renderer.getScreenWidth() - kw) / 2), y,
+        const int kw = kannada::width(renderer, step->nameKn, kannada::kToolSmall);
+        drawKannadaLine(step->nameKn, kannada::kToolSmall, std::max(c.x, (renderer.getScreenWidth() - kw) / 2), y,
                         UI_12_FONT_ID, c.width, true);
-        y += kannada::lineHeight(renderer, kannada::Style::Label);
+        y += kannada::lineHeight(renderer, kannada::kToolSmall);
       }
       renderer.drawCenteredText(UI_12_FONT_ID, y, step->name, true, EpdFontFamily::BOLD);
       y += lineH;
@@ -957,9 +957,9 @@ void WorkoutActivity::renderSummary() {
       tools::drawFrame(renderer, done_ ? tr(STR_TOOLS_WORKOUT_DONE_TITLE) : tr(STR_TOOLS_WORKOUT_ENDED_TITLE));
   int y = c.y;
   if (useKannada(it.nameKn)) {
-    const int kw = kannada::width(renderer, it.nameKn, kannada::Style::Value);
-    kannada::draw(renderer, std::max(c.x, (renderer.getScreenWidth() - kw) / 2), y, it.nameKn, kannada::Style::Value);
-    y += kannada::lineHeight(renderer, kannada::Style::Value);
+    const int kw = kannada::width(renderer, it.nameKn, kannada::kToolBold);
+    kannada::draw(renderer, std::max(c.x, (renderer.getScreenWidth() - kw) / 2), y, it.nameKn, kannada::kToolBold);
+    y += kannada::lineHeight(renderer, kannada::kToolBold);
   }
   renderer.drawCenteredText(UI_12_FONT_ID, y, it.nameEn, true, EpdFontFamily::BOLD);
   y += renderer.getLineHeight(UI_12_FONT_ID) + 16;
@@ -1010,9 +1010,9 @@ void WorkoutActivity::renderMantraStep(const Rect& c, const Seg& s, const uint32
 
   // The pose.
   if (useKannada(st.nameKn)) {
-    const int kw = std::min(c.width, kannada::width(renderer, st.nameKn, kannada::Style::Label));
-    drawKannadaLine(st.nameKn, kannada::Style::Label, (sw - kw) / 2, y, UI_10_FONT_ID, c.width, true);
-    y += kannada::lineHeight(renderer, kannada::Style::Label);
+    const int kw = std::min(c.width, kannada::width(renderer, st.nameKn, kannada::kToolSmall));
+    drawKannadaLine(st.nameKn, kannada::kToolSmall, (sw - kw) / 2, y, UI_10_FONT_ID, c.width, true);
+    y += kannada::lineHeight(renderer, kannada::kToolSmall);
   }
   const std::string pose = renderer.truncatedText(UI_10_FONT_ID, st.name, c.width, EpdFontFamily::BOLD);
   renderer.drawCenteredText(UI_10_FONT_ID, y, pose.c_str(), true, EpdFontFamily::BOLD);
@@ -1022,13 +1022,13 @@ void WorkoutActivity::renderMantraStep(const Rect& c, const Seg& s, const uint32
   const int boxTop = y;
   y += 6;
   if (useKannada(st.mantraKn)) {
-    const int kw = std::min(c.width - 16, kannada::width(renderer, st.mantraKn, kannada::Style::Value));
+    const int kw = std::min(c.width - 16, kannada::width(renderer, st.mantraKn, kannada::kToolBold));
     kannada::Line line[1];
-    if (kannada::wrap(renderer, st.mantraKn, kannada::Style::Value, c.width - 16, line, 1) > 0) {
-      kannada::draw(renderer, (sw - kw) / 2, y, st.mantraKn + line[0].start, kannada::Style::Value, true,
+    if (kannada::wrap(renderer, st.mantraKn, kannada::kToolBold, c.width - 16, line, 1) > 0) {
+      kannada::draw(renderer, (sw - kw) / 2, y, st.mantraKn + line[0].start, kannada::kToolBold, true,
                     line[0].length);
     }
-    y += kannada::lineHeight(renderer, kannada::Style::Value);
+    y += kannada::lineHeight(renderer, kannada::kToolBold);
   }
   if (st.mantraEn[0]) {
     renderer.drawCenteredText(UI_12_FONT_ID, y, st.mantraEn, true, EpdFontFamily::BOLD);
@@ -1089,9 +1089,9 @@ void WorkoutActivity::renderVerse() {
   const int sw = renderer.getScreenWidth();
   int y = c.y;
   if (useKannada(v.sectionKn)) {
-    const int kw = std::min(c.width, kannada::width(renderer, v.sectionKn, kannada::Style::Label));
-    drawKannadaLine(v.sectionKn, kannada::Style::Label, (sw - kw) / 2, y, UI_10_FONT_ID, c.width, true);
-    y += kannada::lineHeight(renderer, kannada::Style::Label);
+    const int kw = std::min(c.width, kannada::width(renderer, v.sectionKn, kannada::kToolSmall));
+    drawKannadaLine(v.sectionKn, kannada::kToolSmall, (sw - kw) / 2, y, UI_10_FONT_ID, c.width, true);
+    y += kannada::lineHeight(renderer, kannada::kToolSmall);
   }
   if (v.number > 0) {
     char num[24];
@@ -1104,11 +1104,11 @@ void WorkoutActivity::renderVerse() {
     constexpr size_t kMaxLines = 9;
     kannada::Line lines[kMaxLines];
     const size_t n =
-        std::min(kMaxLines, kannada::wrap(renderer, v.kn, kannada::Style::Body, c.width, lines, kMaxLines));
-    const int lh = kannada::lineHeight(renderer, kannada::Style::Body) + 2;
+        std::min(kMaxLines, kannada::wrap(renderer, v.kn, kannada::kToolText, c.width, lines, kMaxLines));
+    const int lh = kannada::lineHeight(renderer, kannada::kToolText) + 2;
     for (size_t i = 0; i < n; ++i) {
-      const int lw = kannada::width(renderer, v.kn + lines[i].start, kannada::Style::Body, lines[i].length);
-      kannada::draw(renderer, (sw - lw) / 2, y, v.kn + lines[i].start, kannada::Style::Body, true, lines[i].length);
+      const int lw = kannada::width(renderer, v.kn + lines[i].start, kannada::kToolText, lines[i].length);
+      kannada::draw(renderer, (sw - lw) / 2, y, v.kn + lines[i].start, kannada::kToolText, true, lines[i].length);
       y += lh;
     }
     y += 12;

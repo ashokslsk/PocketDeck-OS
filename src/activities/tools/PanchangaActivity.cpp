@@ -460,7 +460,9 @@ void PanchangaActivity::renderMain() {
     const auto& metrics = UITheme::getInstance().getMetrics();
     const int th = kannada::lineHeight(renderer, kannada::Style::Title);
     char title[48];
-    kannada::draw(renderer, content.x, metrics.topPadding + (metrics.headerHeight - th) / 2,
+    // Start after the theme's header mark (PocketDeck's logo) so they don't overlap.
+    const int titleX = std::max(content.x, GUI.headerLeftInset());
+    kannada::draw(renderer, titleX, metrics.topPadding + (metrics.headerHeight - th) / 2,
                   kn::toUtf8(kn::kTitle, title, sizeof(title)), kannada::Style::Title);
   }
 

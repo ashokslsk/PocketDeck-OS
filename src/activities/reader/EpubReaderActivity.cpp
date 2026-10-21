@@ -134,20 +134,7 @@ constexpr uint16_t FOOTNOTE_PREVIEW_MAX_PAGES = 3;
 #if CROSSINK_APP_CAP_TOUCH
 constexpr int TOUCH_FOOTNOTE_TARGET_SIZE = 48;
 #endif
-constexpr uint8_t PUBLISHER_PAGE_NUMBER_LEFT_MARGIN_MIN = 15;
-constexpr int PUBLISHER_PAGE_NUMBER_X = 5;
 constexpr uint16_t CLIP_ADVANCE_CODEPOINT_CAPACITY = 256;
-
-int publisherPageNumberX(const GfxRenderer& renderer) {
-#if (defined(FREEINK_DEVICE_X4PRO) && FREEINK_DEVICE_X4PRO) || \
-    (defined(FREEINK_DEVICE_X4CLASSIC) && FREEINK_DEVICE_X4CLASSIC)
-  if (renderer.getOrientation() == GfxRenderer::Orientation::LandscapeCounterClockwise) {
-    return PUBLISHER_PAGE_NUMBER_X + 5;
-  }
-#endif
-
-  return PUBLISHER_PAGE_NUMBER_X;
-}
 
 struct ClipAdvanceCollector {
   static constexpr uint8_t STYLE_COUNT = 4;
@@ -957,76 +944,27 @@ void drawToast(const GfxRenderer& renderer, const char* msg) {
   renderer.displayBuffer();
 }
 
-void drawPublisherPageMarkers(const GfxRenderer& renderer, const Page& page, const int contentTop,
-                              const int contentBottom, const bool foregroundBlack = true) {
+// "p. viii" (or "p. viii-ix" when a page boundary falls inside this page) for
+// the bottom status bar. Returns false when there is nothing to show.
+bool formatPublisherPageLabel(const Page& page, char* out, const size_t outSize) {
+  out[0] = '\0';
   if (!SETTINGS.publisherPageNumbers || page.publisherPageMarkers.empty()) {
-    return;
+    return false;
   }
-
-  const int lineHeight = renderer.getLineHeight(SMALL_FONT_ID);
-  const int lineStep = std::max(1, lineHeight - 2);
-  const int availableHeight = contentBottom - contentTop;
-  if (availableHeight <= lineHeight) {
-    return;
-  }
-
+  const char* first = nullptr;
+  const char* last = nullptr;
   for (const auto& marker : page.publisherPageMarkers) {
-    const char* label = marker.label;
-    if (!label || label[0] == '\0') {
-      continue;
-    }
-
-    bool hasNonAscii = false;
-    int labelLen = 0;
-    int maxCharWidth = 0;
-    for (const unsigned char* p = reinterpret_cast<const unsigned char*>(label); *p != '\0'; p++) {
-      if (*p >= 0x80) {
-        hasNonAscii = true;
-        break;
-      }
-      if (*p <= ' ') {
-        continue;
-      }
-      const char ch[2] = {static_cast<char>(*p), '\0'};
-      maxCharWidth = std::max(maxCharWidth, renderer.getTextWidth(SMALL_FONT_ID, ch));
-      labelLen++;
-    }
-
-    if (labelLen == 0) {
-      continue;
-    }
-
-    const int x = publisherPageNumberX(renderer);
-    if (hasNonAscii) {
-      const int textWidth = renderer.getTextWidth(SMALL_FONT_ID, label);
-      const int maxY = contentBottom - lineHeight;
-      const int y = maxY < contentTop ? contentTop : std::min(std::max(contentTop + marker.yPos, contentTop), maxY);
-      renderer.drawTextRotated90CW(SMALL_FONT_ID, x, y + textWidth, label, foregroundBlack);
-      continue;
-    }
-
-    const int markerHeight = lineHeight + (labelLen - 1) * lineStep;
-    int y = contentTop + marker.yPos - lineHeight / 2;
-    const int maxY = contentBottom - markerHeight;
-    y = maxY < contentTop ? contentTop : std::min(std::max(y, contentTop), maxY);
-
-    int row = 0;
-    for (const char* p = label; *p != '\0'; p++) {
-      if (static_cast<unsigned char>(*p) <= ' ') {
-        continue;
-      }
-      const char ch[2] = {*p, '\0'};
-      const int charWidth = renderer.getTextWidth(SMALL_FONT_ID, ch);
-      renderer.drawText(SMALL_FONT_ID, x + (maxCharWidth - charWidth) / 2, y + row * lineStep, ch, foregroundBlack);
-      row++;
-    }
+    if (marker.label[0] == '\0') continue;
+    if (!first) first = marker.label;
+    last = marker.label;
   }
-}
-
-uint8_t effectiveReaderLeftMargin() {
-  return SETTINGS.publisherPageNumbers
-             ? std::max<uint8_t>(SETTINGS.screenMarginHorizontal, PUBLISHER_PAGE_NUMBER_LEFT_MARGIN_MIN)
-             : SETTINGS.screenMarginHorizontal;
+  if (!first) return false;
+  if (strcmp(first, last) != 0) {
+    snprintf(out, outSize, tr(STR_PUBLISHER_PAGES_FORMAT), first, last);
+  } else {
+    snprintf(out, outSize, tr(STR_PUBLISHER_PAGE_FORMAT), first);
+  }
+  return true;
 }
 
 struct ReaderViewportLayout {
@@ -1042,7 +980,7 @@ ReaderViewportLayout computeReaderViewportLayout(GfxRenderer& renderer, const bo
                                                  const bool showFootnoteHeader = false) {
   ReaderViewportLayout layout{};
   renderer.getOrientedViewableTRBL(&layout.marginTop, &layout.marginRight, &layout.marginBottom, &layout.marginLeft);
-  layout.marginLeft += effectiveReaderLeftMargin();
+  layout.marginLeft += SETTINGS.screenMarginHorizontal;
   layout.marginRight += SETTINGS.screenMarginHorizontal;
 
   const int topStatusBarReservedHeight = ReaderUtils::getTopClockStatusBarReservedHeight(renderer);
@@ -6006,7 +5944,8 @@ void EpubReaderActivity::setSpeedReadPaused(const bool paused) {
     // The current phrase gets its full time again once the page is redrawn.
     speedReadTimerRestart = true;
   }
-  // The status bar shows "Paused" / the pace, so redraw.
+  // The status bar shows "Paused" / the pace, and the underline is hidden while
+  // paused, so redraw.
   requestUpdate();
 }
 
@@ -6229,6 +6168,11 @@ void EpubReaderActivity::drawSpeedReadUnderline() {
   }
   speedReadSnapshotValid = false;
   speedReadDrawnStep = -1;
+  // No bar while paused. The panel's quick refresh only nudges changed pixels
+  // briefly; a bar left standing through a long pause sinks in and that short
+  // pulse could not fully clear it on resume (it stayed until the next page).
+  // Taking it off right away keeps every bar on screen for one phrase at most.
+  if (speedReadPaused) return;
   if (!speedReadPhrases || speedReadStep >= speedReadPhraseCount) return;
 
   const SpeedReadPhrase& phrase = speedReadPhrases[speedReadStep];
@@ -7106,6 +7050,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
   }
 
   renderer.clearScreen(ReaderUtils::readerBackgroundColor());
+  publisherPageLabel[0] = '\0';
 
   if (section->pageCount == 0) {
     LOG_DBG("ERS", "No pages to render");
@@ -7995,6 +7940,7 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
   buildFootnoteTouchTargets(*page, fontId, orientedMarginTop, orientedMarginLeft);
 #endif
 
+  formatPublisherPageLabel(*page, publisherPageLabel, sizeof(publisherPageLabel));
   const bool pageHasImages = page->hasImages();
   const bool foregroundBlack = ReaderUtils::readerForegroundBlack();
   bool needsImageGrayscale = pageHasImages;
@@ -8008,7 +7954,6 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
     EpubGrayscale::clearAbort();
     grayscaleCutShortMs.store(0, std::memory_order_relaxed);
   }
-  const int contentBottom = renderer.getScreenHeight() - orientedMarginBottom;
 
   // The pending count excludes the page currently being rendered. Decide
   // before checking image caches or materializing image data, so an
@@ -8037,7 +7982,6 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
     drawClippingHighlights(*page, fontId, orientedMarginTop, orientedMarginLeft);
     drawSearchHighlight(*page, fontId, orientedMarginTop, orientedMarginLeft);
     prepareSpeedReadOverlay(*page, fontId, orientedMarginTop, orientedMarginLeft);
-    drawPublisherPageMarkers(renderer, *page, orientedMarginTop, contentBottom, foregroundBlack);
 #if CROSSINK_APP_CAP_TOUCH
     if (activeFootnotePreview) {
       TouchHeaderBackButton::draw(renderer, TouchHeaderBackButton::headerRect(renderer, mappedInput), tr(STR_FOOTNOTES),
@@ -8558,6 +8502,12 @@ void EpubReaderActivity::renderStatusBar() const {
     title = epub->getTitle();
   }
 
+  if (publisherPageLabel[0] != '\0' && !activeFootnotePreview) {
+    // "p. 143 · Chapter" — the print edition's page leads the title slot.
+    title = title.empty() ? std::string(publisherPageLabel)
+                          : std::string(publisherPageLabel) + " \xc2\xb7\xc2\xa0" + title;
+  }
+
   if (speedReadActive && !automaticPageTurnActive) {
     // "Speed 200 WPM · Chapter" / "Paused · 200 WPM · Chapter" in the title slot.
     char speedLabel[64];
@@ -9021,8 +8971,6 @@ bool EpubReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, Gf
   }
   renderer.clearScreen(ReaderUtils::readerBackgroundColor());
   page->render(renderer, renderFontId, layout.marginLeft, layout.marginTop, ReaderUtils::readerForegroundBlack());
-  drawPublisherPageMarkers(renderer, *page, layout.marginTop, renderer.getScreenHeight() - layout.marginBottom,
-                           ReaderUtils::readerForegroundBlack());
   // No displayBuffer call; caller (SleepActivity) handles that after compositing the overlay.
   return true;
 }
