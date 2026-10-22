@@ -691,6 +691,8 @@ void FileBrowserActivity::showDirectoryActionMenu(const std::string& entry, bool
                              case FileBrowserAction::Copy:
                                startCopy(fullPath, entry);
                                return;
+                             case FileBrowserAction::SortRecents:
+                             case FileBrowserAction::BookInfo:
                              case FileBrowserAction::Search:
                                startSearch();
                                return;
@@ -889,6 +891,8 @@ void FileBrowserActivity::showFileActionMenu(const std::string& entry, bool igno
           case FileBrowserAction::Copy:
             startCopy(fullPath, entry);
             return;
+          case FileBrowserAction::SortRecents:
+          case FileBrowserAction::BookInfo:
           case FileBrowserAction::Search:
             startSearch();
             return;

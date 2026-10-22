@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <vector>
 
 #include "RecentBooksStore.h"
 #include "activities/reader/EpubReaderUtils.h"
@@ -231,6 +232,29 @@ float RecentBookProgress::loadPercent(const RecentBook& book) {
     return loadTxtProgressPercent(book);
   }
   return -1.0f;
+}
+
+int RecentBookProgress::countRecentBooksAbove(const float minPercent) {
+  const unsigned long started = millis();
+  constexpr size_t kPage = 10;
+  std::vector<RecentBook> page;
+  page.reserve(kPage);
+  int count = 0;
+  size_t offset = 0;
+  bool more = true;
+  while (more && offset < static_cast<size_t>(RecentBooksStore::MAX_TOTAL_BOOKS)) {
+    page.clear();
+    more = RECENT_BOOKS.loadPage(page, offset, kPage);
+    if (page.empty()) break;
+    for (const RecentBook& book : page) {
+      const float pct = FsHelpers::hasEpubExtension(book.path) ? loadCachedEpubPercent(book) : loadPercent(book);
+      if (hasPercent(pct) && pct > minPercent) ++count;
+    }
+    offset += page.size();
+  }
+  LOG_DBG("RBPR", "%d of %u recent books above %.0f%% (%lums)", count, static_cast<unsigned>(offset), minPercent,
+          millis() - started);
+  return count;
 }
 
 float RecentBookProgress::loadCachedEpubPercent(const RecentBook& book) {

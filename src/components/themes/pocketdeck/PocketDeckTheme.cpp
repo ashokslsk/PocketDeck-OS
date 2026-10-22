@@ -29,7 +29,8 @@ constexpr int kRadius = 10;   // card corners
 constexpr int kCardGap = 14;  // between cards
 constexpr int kNowH = 250;    // Now Reading card
 constexpr int kStatsH = 150;  // Reading Stats card
-constexpr int kRecentCovers = 4;
+constexpr int kRecentSlots = 4;   // covers plus the View All Recents tile
+constexpr int kRecentCovers = 3;  // == homeRecentBooksCount
 constexpr int kRecentH = 166;     // Recent Books card
 constexpr int kButtonH = 40;      // Continue Reading button
 constexpr int kRecentTopPad = 8;  // heading to covers
@@ -333,7 +334,11 @@ void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, 
   rightText(UI_10_FONT_ID, ringCy - (valueH + labelH) / 2 + valueH, tr(STR_STATS_LAST_7_DAYS), EpdFontFamily::REGULAR);
 }
 
-int recentSlotWidth(const int w) { return (w - 2 * kInset) / kRecentCovers; }
+// Recent books past 10%, counted when the Recent Books card is drawn (once
+// per Home visit); -1 until then.
+int sRecentAboveTenCount = -1;
+
+int recentSlotWidth(const int w) { return (w - 2 * kInset) / kRecentSlots; }
 
 void drawRecentReads(GfxRenderer& r, const std::vector<RecentBook>& books, const int x, const int y, const int w,
                      const int h, const freeink::Icon* (*iconFor)(UIIcon, uint32_t)) {
@@ -356,6 +361,48 @@ void drawRecentReads(GfxRenderer& r, const std::vector<RecentBook>& books, const
   }
   if (count == 0) {
     r.drawText(UI_10_FONT_ID, x + kInset, top + 10, tr(STR_NO_RECENT_BOOKS), true);
+  }
+
+  // Last slot: View All Recents (the full Recent Books list), set off from the
+  // covers by a divider like the Reading Stats card's.
+  const int divX = x + kInset + kRecentCovers * slot;
+  r.drawLine(divX, top - 2, divX, y + h - kInset, true);
+  // How many recent books are past 10%, for the heading when the tile is
+  // selected. Counted here: this part is drawn once per Home visit.
+  sRecentAboveTenCount = RecentBookProgress::countRecentBooksAbove(10.0f);
+
+  const int tx = divX + 6;
+  const int tw = slot - 10;
+  const int areaTop = top;
+  const int areaBottom = y + h - kInset;
+  const int lineH = r.getLineHeight(UI_10_FONT_ID);
+  const auto lines = r.wrappedText(UI_10_FONT_ID, tr(STR_VIEW_ALL_RECENTS), tw - 14, 2, EpdFontFamily::BOLD);
+  const int textH = static_cast<int>(lines.size()) * lineH;
+  constexpr int kIcon = 32;
+  constexpr int kIconGap = 8;
+  int ty = areaTop + std::max(0, (areaBottom - areaTop - kIcon - kIconGap - textH) / 2);
+  if (const freeink::Icon* bmp = iconFor(UIIcon::Library, kIcon)) {
+    drawLucideIcon(r, *bmp, tx + (tw - kIcon) / 2, ty);
+  }
+  ty += kIcon + kIconGap;
+  constexpr int kChevronW = 5;
+  constexpr int kChevronGap = 5;
+  for (size_t n = 0; n < lines.size(); ++n) {
+    const bool last = n + 1 == lines.size();
+    const int lw = r.getTextWidth(UI_10_FONT_ID, lines[n].c_str(), EpdFontFamily::BOLD);
+    // The last line carries the ">" so text and arrow centre as one group.
+    const int groupW = lw + (last ? kChevronGap + kChevronW : 0);
+    const int lx = tx + (tw - groupW) / 2;
+    r.drawText(UI_10_FONT_ID, lx, ty, lines[n].c_str(), true, EpdFontFamily::BOLD);
+    if (last) {
+      const int cx = lx + lw + kChevronGap;
+      const int cy = ty + lineH / 2 + 1;
+      for (int d = 0; d < 2; ++d) {
+        r.drawLine(cx + d, cy - 5, cx + 4 + d, cy);
+        r.drawLine(cx + 4 + d, cy, cx + d, cy + 5);
+      }
+    }
+    ty += lineH;
   }
 }
 }  // namespace
@@ -432,6 +479,35 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
   for (int i = 1; i < count; ++i) {
     TouchRegistry::getInstance().add(Rect{x + kInset + i * slot, recentY, slot, recentH}, i, TouchRegistry::Cover);
   }
+  // The View All tile is Home menu entry 0 (Recent Books): it follows the
+  // covers in the selection order, so it is selected at index `count`.
+  const int tileX = x + kInset + kRecentCovers * slot;
+  TouchRegistry::getInstance().add(Rect{tileX, recentY, slot, recentH}, 0, TouchRegistry::Item);
+  if (selectorIndex == count && sRecentAboveTenCount >= 0) {
+    // "Recent Books – 9 books above 10%" while the tile is selected.
+    char summary[48];
+    snprintf(summary, sizeof(summary),
+             sRecentAboveTenCount == 1 ? tr(STR_RECENT_ONE_ABOVE_10) : tr(STR_RECENT_ABOVE_10_FORMAT),
+             sRecentAboveTenCount);
+    const int headX = x + kInset + 34;
+    const int headY = recentY + 4 + (32 - renderer.getLineHeight(UI_12_FONT_ID)) / 2;
+    const int afterHead =
+        headX + renderer.getTextWidth(UI_12_FONT_ID, tr(STR_MENU_RECENT_BOOKS), EpdFontFamily::BOLD);
+    const int space = renderer.getTextWidth(UI_12_FONT_ID, "n");
+    const char* dash = "\xE2\x80\x93";  // en dash
+    const int dashX = afterHead + space;
+    const int textX = dashX + renderer.getTextWidth(UI_12_FONT_ID, dash) + space;
+    if (x + w - kInset - textX > 40) {
+      const std::string text =
+          renderer.truncatedText(UI_12_FONT_ID, summary, x + w - kInset - textX, EpdFontFamily::REGULAR);
+      renderer.drawText(UI_12_FONT_ID, dashX, headY, dash, true, EpdFontFamily::REGULAR);
+      renderer.drawText(UI_12_FONT_ID, textX, headY, text.c_str(), true, EpdFontFamily::REGULAR);
+    }
+  }
+  if (selectorIndex == count) {
+    const int top = recentY + 40 + kRecentTopPad;
+    renderer.drawRoundedRect(tileX + 2, top - 6, slot - 4, recentY + recentH - kInset + 4 - (top - 6), 3, 6, true);
+  }
   if (selectorIndex >= 0 && selectorIndex < count) {
     // Heading names the selected book: "Recent Books – <title>".
     const char* heading = tr(STR_MENU_RECENT_BOOKS);
@@ -463,20 +539,29 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
 void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, const int buttonCount,
                                      const int selectedIndex, const std::function<const char*(int index)>& buttonLabel,
                                      const std::function<UIIcon(int index)>& rowIcon) const {
-  // Bottom bar: one framed tile per Home menu item, icon over a bold label,
-  // six per row. The selected tile is solid black; Tools has a double frame so it
-  // stands out (it is also one Up press from the top of Home).
+  // Bottom bar: a tab bar under one hairline rule. Items share the width
+  // equally with no frames, icon over label; the selected item sits on a
+  // light-gray rounded pill.
   if (buttonCount <= 0) return;
+  // Recent Books lives in the Recent Books card (View All Recents), not here.
+  // Entries keep their menu index for touch and selection; only slots shift.
+  const auto shownInBar = [&rowIcon](const int i) { return rowIcon == nullptr || rowIcon(i) != UIIcon::Recent; };
+  int shownCount = 0;
+  for (int i = 0; i < buttonCount; ++i) shownCount += shownInBar(i) ? 1 : 0;
+  if (shownCount <= 0) return;
   const int x = rect.x + kPad;
   const int w = rect.width - 2 * kPad;
-  const int cols = std::min(buttonCount, 7);  // one row, even with OPDS
-  const int rows = (buttonCount + cols - 1) / cols;
-  constexpr int kGap = 4;
+  const int cols = std::min(shownCount, 7);  // one row, even with OPDS
+  const int rows = (shownCount + cols - 1) / cols;
   const int rowH = std::min(76, std::max(30, (rect.height - 6) / rows));
   // Sit on the bottom of the area (just above the button hints).
   const int barTop = rect.y + std::max(0, rect.height - 4 - rows * rowH);
   const bool withIcons = rowH >= 58;
-  const int cellW = (w - (cols - 1) * kGap) / cols;
+  // Equal columns; the pixels integer division leaves over go to both ends.
+  const int cellW = w / cols;
+  const int barX = x + (w - cols * cellW) / 2;
+  // The rule separating the bar from the cards above.
+  renderer.drawLine(rect.x + kPad / 2, barTop - 6, rect.x + rect.width - kPad / 2 - 1, barTop - 6, true);
   // Short tab names for the common items; others keep their menu label.
   const auto tabLabel = [&](const int i) -> const char* {
     switch (rowIcon != nullptr ? rowIcon(i) : UIIcon::File) {
@@ -496,36 +581,39 @@ void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, con
       }
     }
   };
-  // One label size for the whole bar: 10 pt bold if every label fits.
+  // One label size for the whole bar: 10 pt if every label fits.
   int labelFont = UI_10_FONT_ID;
   for (int i = 0; i < buttonCount; ++i) {
-    if (renderer.getTextWidth(UI_10_FONT_ID, tabLabel(i), EpdFontFamily::BOLD) > cellW - 6) labelFont = SMALL_FONT_ID;
+    if (!shownInBar(i)) continue;
+    if (renderer.getTextWidth(UI_10_FONT_ID, tabLabel(i)) > cellW - 12) labelFont = SMALL_FONT_ID;
   }
   const int labelH = renderer.getLineHeight(labelFont);
+  // Selection pill: soft 4 px corners, inset so neighbouring pills never touch.
+  constexpr int kPillInsetX = 8;
+  constexpr int kPillInsetY = 2;
+  constexpr int kPillRadius = 4;
+  int slotIndex = 0;
   for (int i = 0; i < buttonCount; ++i) {
-    const int cx = x + (i % cols) * (cellW + kGap);
-    const int cy = barTop + (i / cols) * rowH;
-    const int ch = rowH - kGap;
+    if (!shownInBar(i)) continue;
+    const int slotPos = slotIndex++;
+    const int cx = barX + (slotPos % cols) * cellW;
+    const int cy = barTop + (slotPos / cols) * rowH;
+    const int ch = rowH - 4;
     TouchRegistry::getInstance().add(Rect{cx, cy, cellW, ch}, i, TouchRegistry::Item);
     const UIIcon icon = rowIcon != nullptr ? rowIcon(i) : UIIcon::File;
-    const bool selected = i == selectedIndex;
-    const bool isTools = icon == UIIcon::Tools;
-    if (selected) {
-      renderer.fillRoundedRect(cx, cy, cellW, ch, 8, Color::Black);
-    } else {
-      renderer.drawRoundedRect(cx, cy, cellW, ch, isTools ? 3 : 1, 8, true);
-      if (isTools) renderer.drawRoundedRect(cx + 5, cy + 5, cellW - 10, ch - 10, 1, 5, true);
+    if (i == selectedIndex) {
+      renderer.fillRoundedRect(cx + kPillInsetX, cy + kPillInsetY, cellW - 2 * kPillInsetX, ch - 2 * kPillInsetY,
+                               kPillRadius, Color::LightGray);
     }
     if (withIcons) {
-      const freeink::Icon* bmp = isTools ? &icon_layout_grid_32 : iconForName(icon, 32);
+      const freeink::Icon* bmp = icon == UIIcon::Tools ? &icon_layout_grid_32 : iconForName(icon, 32);
       if (bmp == nullptr) bmp = iconForName(UIIcon::Book, 32);
-      if (bmp != nullptr) drawLucideIcon(renderer, *bmp, cx + (cellW - 32) / 2, cy + 6, !selected);
+      if (bmp != nullptr) drawLucideIcon(renderer, *bmp, cx + (cellW - 32) / 2, cy + 8, true);
     }
     const char* label = tabLabel(i);
-    const char* safe = label ? label : "";
-    const std::string text = renderer.truncatedText(labelFont, safe, cellW - 6, EpdFontFamily::BOLD);
-    const int lw = renderer.getTextWidth(labelFont, text.c_str(), EpdFontFamily::BOLD);
-    const int ly = withIcons ? cy + ch - labelH - 5 : cy + (ch - labelH) / 2;
-    renderer.drawText(labelFont, cx + (cellW - lw) / 2, ly, text.c_str(), !selected, EpdFontFamily::BOLD);
+    const std::string text = renderer.truncatedText(labelFont, label ? label : "", cellW - 12);
+    const int lw = renderer.getTextWidth(labelFont, text.c_str());
+    const int ly = withIcons ? cy + ch - labelH - 6 : cy + (ch - labelH) / 2;
+    renderer.drawText(labelFont, cx + (cellW - lw) / 2, ly, text.c_str(), true);
   }
 }

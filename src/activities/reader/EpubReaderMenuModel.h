@@ -38,6 +38,7 @@ enum class EpubReaderMenuAction : uint8_t {
   VIEW_IMAGES,  // the current page's images, full screen
   SEARCH_BOOK,  // find a word or phrase anywhere in the book
   PREPARE_BOOK,  // lay out every chapter ahead of time
+  BOOK_INFO,     // metadata, progress and this book's reading stats in one popup
 };
 
 enum class ReaderDrawerTab : uint8_t { Font = 0, Layout = 1, More = 2, Location = 3, Settings = 4, Count };

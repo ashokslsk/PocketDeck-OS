@@ -27,6 +27,7 @@
 
 #include "../settings/DictionarySelectActivity.h"
 #include "../settings/KOReaderSettingsActivity.h"
+#include "BookInfoActivity.h"
 #include "BookStatsActivity.h"
 #include "ClipSelectionActivity.h"
 #include "ClippingStore.h"
@@ -3988,6 +3989,44 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
         pendingScreenshot = true;
       }
       requestUpdate();
+      break;
+    }
+    case EpubReaderMenuActivity::MenuAction::BOOK_INFO: {
+      auto data = makeUniqueNoThrow<BookInfoData>();
+      if (!data) {
+        LOG_ERR("ERS", "OOM: BookInfoData (%u bytes)", static_cast<unsigned>(sizeof(BookInfoData)));
+        break;
+      }
+      data->title = epub->getTitle();
+      data->author = epub->getAuthor();
+      // Not in the metadata cache: read straight from the OPF (one short ZIP stream).
+      epub->readOpfMetadataField("dc:publisher", data->publisher, sizeof(data->publisher));
+      data->progressPercent = getCurrentBookProgressPercent();
+      data->stats = stats;
+      if (SETTINGS.shouldTrackReadingStats()) {
+        uint32_t extra = sessionReadingSeconds;
+        uint32_t currentPageSeconds = 0;
+        if (currentPageReadingSecondsForStats(currentPageSeconds, "book_info_preview")) extra += currentPageSeconds;
+        data->stats.totalReadingSeconds = data->stats.totalReadingSeconds > UINT32_MAX - extra
+                                              ? UINT32_MAX
+                                              : data->stats.totalReadingSeconds + extra;
+      }
+      data->hasTimeLeft = estimateTimeLeftSeconds(true, data->timeLeftSeconds);
+      data->globalStats = globalStats;
+      auto info = makeUniqueNoThrow<BookInfoActivity>(renderer, mappedInput, std::move(*data));
+      if (!info) {
+        LOG_ERR("ERS", "OOM: BookInfoActivity");
+        break;
+      }
+      pauseReadingPaceTimer("book_info");
+      startActivityForResult(std::move(info), [this, returnToReaderMenu](const ActivityResult&) {
+                               resumeReadingPaceTimer("book_info_return");
+                               if (returnToReaderMenu) {
+                                 openReaderMenu();
+                               } else {
+                                 requestUpdate();
+                               }
+                             });
       break;
     }
     case EpubReaderMenuActivity::MenuAction::READING_STATS: {

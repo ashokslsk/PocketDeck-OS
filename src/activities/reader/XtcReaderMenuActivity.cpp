@@ -36,10 +36,11 @@ std::vector<XtcReaderMenuActivity::MenuItem> XtcReaderMenuActivity::buildMenuIte
                                                                                    const bool isBookCompleted,
                                                                                    const bool hasTouch) {
   std::vector<MenuItem> menuItems;
-  menuItems.reserve(6 + (hasTouch ? 1u : 0u));
+  menuItems.reserve(7 + (hasTouch ? 1u : 0u));
   if (hasChapters) {
     menuItems.push_back({MenuAction::SELECT_CHAPTER, StrId::STR_SELECT_CHAPTER});
   }
+  menuItems.push_back({MenuAction::BOOK_INFO, StrId::STR_BOOK_INFO});
   menuItems.push_back({MenuAction::READING_STATS, StrId::STR_READING_STATS});
   menuItems.push_back(
       {MenuAction::TOGGLE_COMPLETED, isBookCompleted ? StrId::STR_MARK_UNFINISHED : StrId::STR_MARK_FINISHED});

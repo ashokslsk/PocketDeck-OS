@@ -648,6 +648,8 @@ void RecentBooksGridActivity::showBookActionMenu(const int bookIndex, const bool
           case FileBrowserAction::Info:
           case FileBrowserAction::NewFolder:
           case FileBrowserAction::Copy:
+          case FileBrowserAction::SortRecents:
+          case FileBrowserAction::BookInfo:
           case FileBrowserAction::Search:
             return;
         }

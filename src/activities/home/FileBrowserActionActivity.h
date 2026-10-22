@@ -34,6 +34,8 @@ enum class FileBrowserAction : int {
   Copy = 22,
   Search = 23,
   PrepareFolder = 24,
+  SortRecents = 25,  // Recent Books: choose the list order
+  BookInfo = 26,     // Recent Books: metadata, progress and stats popup
 };
 
 class FileBrowserActionActivity final : public Activity {

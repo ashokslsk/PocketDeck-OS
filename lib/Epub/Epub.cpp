@@ -1422,6 +1422,123 @@ uint8_t* Epub::readItemContentsToBytes(const std::string& itemHref, size_t* size
   return content;
 }
 
+namespace {
+// Streaming scan for "<tag ...>text<": no buffering of the OPF, a few bytes of
+// state. write() returns 0 after the match so the ZIP stream stops early.
+class OpfFieldScanner final : public Print {
+ public:
+  OpfFieldScanner(const char* tag, char* out, const size_t outSize) : tag_(tag), out_(out), outSize_(outSize) {
+    tagLen_ = strlen(tag);
+    out_[0] = '\0';
+  }
+  bool found() const { return state_ == State::Done && len_ > 0; }
+
+  size_t write(const uint8_t c) override { return write(&c, 1); }
+  size_t write(const uint8_t* buf, const size_t size) override {
+    for (size_t i = 0; i < size; ++i) {
+      if (state_ == State::Done) return 0;
+      step(static_cast<char>(buf[i]));
+    }
+    return state_ == State::Done ? 0 : size;
+  }
+
+ private:
+  enum class State : uint8_t { Seek, Match, Attrs, Text, Done };
+  void step(const char c) {
+    switch (state_) {
+      case State::Seek:
+        if (c == '<') {
+          matched_ = 0;
+          state_ = State::Match;
+        }
+        break;
+      case State::Match:
+        if (matched_ < tagLen_ && c == tag_[matched_]) {
+          ++matched_;
+        } else if (matched_ == tagLen_ && (c == '>' || c == ' ' || c == '\t' || c == '\n' || c == '\r')) {
+          state_ = c == '>' ? State::Text : State::Attrs;
+        } else {
+          state_ = c == '<' ? State::Match : State::Seek;
+          matched_ = 0;
+        }
+        break;
+      case State::Attrs:
+        if (c == '>') state_ = State::Text;
+        break;
+      case State::Text:
+        if (c == '<') {
+          while (len_ > 0 && out_[len_ - 1] == ' ') --len_;
+          out_[len_] = '\0';
+          state_ = State::Done;
+        } else if (len_ + 1 < outSize_) {
+          const char ch = (c == '\n' || c == '\r' || c == '\t') ? ' ' : c;
+          if (ch == ' ' && (len_ == 0 || out_[len_ - 1] == ' ')) break;  // collapse whitespace
+          out_[len_++] = ch;
+          out_[len_] = '\0';
+        }
+        break;
+      case State::Done:
+        break;
+    }
+  }
+
+  const char* tag_;
+  char* out_;
+  size_t outSize_;
+  size_t tagLen_ = 0;
+  size_t matched_ = 0;
+  size_t len_ = 0;
+  State state_ = State::Seek;
+};
+
+// "&amp;" and friends, in place (the OPF is XML).
+void decodeBasicXmlEntities(char* s) {
+  static constexpr struct {
+    const char* entity;
+    char ch;
+  } kEntities[] = {{"&amp;", '&'}, {"&lt;", '<'}, {"&gt;", '>'}, {"&quot;", '"'}, {"&apos;", '\''}};
+  char* w = s;
+  for (const char* r = s; *r != '\0';) {
+    bool replaced = false;
+    if (*r == '&') {
+      for (const auto& e : kEntities) {
+        const size_t n = strlen(e.entity);
+        if (strncmp(r, e.entity, n) == 0) {
+          *w++ = e.ch;
+          r += n;
+          replaced = true;
+          break;
+        }
+      }
+    }
+    if (!replaced) *w++ = *r++;
+  }
+  *w = '\0';
+}
+}  // namespace
+
+bool Epub::readOpfMetadataField(const char* tag, char* out, const size_t outSize) const {
+  if (out == nullptr || outSize == 0) return false;
+  out[0] = '\0';
+  std::string opfPath;
+  if (!findContentOpfFile(&opfPath)) {
+    LOG_ERR("EBP", "OPF field %s: no content.opf", tag);
+    return false;
+  }
+  OpfFieldScanner scanner(tag, out, outSize);
+  if (!readItemContentsToStream(opfPath, scanner, 1024, /*allowEarlyStop=*/true) && !scanner.found()) {
+    LOG_ERR("EBP", "OPF field %s: could not stream %s", tag, opfPath.c_str());
+    out[0] = '\0';
+    return false;
+  }
+  if (!scanner.found()) {
+    out[0] = '\0';
+    return false;
+  }
+  decodeBasicXmlEntities(out);
+  return true;
+}
+
 bool Epub::readItemContentsToStream(const std::string& itemHref, Print& out, const size_t chunkSize,
                                     const bool allowEarlyStop) const {
   if (itemHref.empty()) {

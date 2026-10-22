@@ -15,6 +15,7 @@
 
 #include <algorithm>
 
+#include "BookInfoActivity.h"
 #include "BookStatsActivity.h"
 #include "CrossPointSettings.h"
 #include "CrossPointState.h"
@@ -887,6 +888,39 @@ void XtcReaderActivity::openReadingStats() {
   });
 }
 
+void XtcReaderActivity::openBookInfo() {
+  auto data = makeUniqueNoThrow<BookInfoData>();
+  if (!xtc || !data) {
+    LOG_ERR("XTR", "Book Info unavailable (book=%d data=%d)", xtc != nullptr, data != nullptr);
+    resumeReadingStatsTimer("book_info_none");
+    requestUpdate();
+    return;
+  }
+  data->title = xtc->getTitle();
+  data->author = xtc->getAuthor();
+  data->progressPercent = getCurrentBookProgressPercent();
+  data->stats = stats;
+  if (SETTINGS.shouldTrackReadingStats()) {
+    uint32_t extra = sessionReadingSeconds;
+    uint32_t currentPageSeconds = 0;
+    if (currentPageReadingSecondsForStats(currentPageSeconds, "book_info_preview")) extra += currentPageSeconds;
+    data->stats.totalReadingSeconds =
+        data->stats.totalReadingSeconds > UINT32_MAX - extra ? UINT32_MAX : data->stats.totalReadingSeconds + extra;
+  }
+  data->globalStats = globalStats;
+  auto info = makeUniqueNoThrow<BookInfoActivity>(renderer, mappedInput, std::move(*data));
+  if (!info) {
+    LOG_ERR("XTR", "OOM: BookInfoActivity");
+    resumeReadingStatsTimer("book_info_oom");
+    requestUpdate();
+    return;
+  }
+  startActivityForResult(std::move(info), [this](const ActivityResult&) {
+    resumeReadingStatsTimer("book_info_return");
+    requestUpdate();
+  });
+}
+
 void XtcReaderActivity::deleteBookStats() {
   startActivityForResult(
       std::make_unique<ConfirmationActivity>(renderer, mappedInput, confirmationHeading(StrId::STR_DELETE_BOOK_STATS),
@@ -946,6 +980,9 @@ void XtcReaderActivity::onReaderMenuConfirm(const int action) {
       break;
     case XtcReaderMenuActivity::MenuAction::READING_STATS:
       openReadingStats();
+      break;
+    case XtcReaderMenuActivity::MenuAction::BOOK_INFO:
+      openBookInfo();
       break;
     case XtcReaderMenuActivity::MenuAction::TOGGLE_COMPLETED:
       setBookCompleted(!stats.isCompleted);

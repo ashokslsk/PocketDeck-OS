@@ -6,7 +6,7 @@
 // heavy header rule and high-contrast (inverted) selection rows. Home is a
 // card dashboard: Now Reading (cover, progress, three figures and a Continue
 // Reading button), Reading Stats (weekday columns, streak, days read this
-// week), Recent Books (four covers with their progress) and a bottom bar with
+// week), Recent Books (three latest covers plus a View All Recents tile) and a bottom bar with
 // the Home menu as icons.
 namespace PocketDeckMetrics {
 constexpr ThemeMetrics makeValues() {
@@ -18,7 +18,7 @@ constexpr ThemeMetrics makeValues() {
   // restored from the cover snapshot on every selection change).
   v.homeCoverHeight = 226;  // Now Reading cover, drawn at thumbnail size (Lyra's too)
   v.homeCoverTileHeight = 604;
-  v.homeRecentBooksCount = 4;
+  v.homeRecentBooksCount = 3;  // fourth Recent Books slot is the View All Recents tile
   v.homeMenuTopOffset = 14;
   return v;
 }

@@ -273,11 +273,18 @@ void appendHomeMenuItems(HomeMenuEntries& items, bool hasOpdsServers, bool hasRe
   // with Reading Stats.
   const bool pocketDeck =
       static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::POCKETDECK;
+  // On PocketDeck, Recent Books comes first: the theme draws it as the View All
+  // Recents tile right after the recent covers (same selection order), not in
+  // the bottom bar.
+  if (pocketDeck) {
+    items.push({tr(STR_MENU_RECENT_BOOKS), Recent, HomeMenuAction::RecentBooks});
+  }
   items.push({tr(STR_BROWSE_FILES), Folder, HomeMenuAction::BrowseFiles});
   if (pocketDeck) {
     items.push({tr(STR_TOOLS), Tools, HomeMenuAction::Tools});
+  } else {
+    items.push({tr(STR_MENU_RECENT_BOOKS), Recent, HomeMenuAction::RecentBooks});
   }
-  items.push({tr(STR_MENU_RECENT_BOOKS), Recent, HomeMenuAction::RecentBooks});
 
   if (hasOpdsServers) {
     items.push({tr(STR_OPDS_BROWSER), Library, HomeMenuAction::OpdsBrowser});

@@ -1,3 +1,17 @@
+## [PocketDeck-OS 1.0.0, Book Info, Recent progress and more World Clock cities] - 2026-10-22
+
+### Added
+
+- Reader menu > Book Info (EPUB and XTC): a popup card with the title, author, publisher (EPUB, read from the book itself), a progress bar with the percentage, and this book's stats: start date, days reading, time read and sessions, pages read, time left with an estimated finish date (or the finished date), current and best reading streak, and days not read since you started.
+- Recent books shows each book's reading percentage at the right of its row.
+- Recent books: hold a book for two new menu items. Sort by orders the whole list by Recently read, Least recently read, Reading percentage, Name (A-Z) or Date finished (finished books first, newest finish first); the choice stays until restart. Book Info opens the same popup as the reader's Book Info, without opening the book.
+- PocketDeck Home: the Recent Books card shows your three latest books and a View All Recents tile (opens the full Recent Books list) set off by a divider; with the tile selected, the card heading reads "Recent Books – 9 books above 10%", and the Recent tab is gone from the bottom bar. Selection runs covers, View All Recents, then Explorer, Tools, Transfer, Settings, Stats.
+- World Clock holds up to 30 cities (was 6). Cities that do not fit on the screen go to further pages: Right or the side buttons page through them, with "1 / 3" shown at the top.
+
+### Fixed
+
+- Panchanga's Kannada title no longer sits under the PocketDeck logo in the header.
+
 ## [PocketDeck-OS 1.0.0, Speed Read and status bar polish] - 2026-10-21
 
 ### Fixed
@@ -7,6 +21,7 @@
 
 ### Changed
 
+- PocketDeck Home bottom bar is a clean tab bar: one rule above it, evenly spaced icons and labels with no boxes, and a light-gray pill marking the selected item.
 - Kannada text in Tools (Mantras, Workout, quotes and flashcards) is one size larger: labels 19 to 24 px, bold names and mantras 21 to 26 px, paragraphs 24 to 28 px (28 px needs a current `kannada.knf`; older files stay at 24 px).
 - Publisher page numbers now appear at the front of the bottom status bar ("p. 143 · Chapter title", or "p. 143-144" when a printed page starts on this screen) instead of letters stacked down the left margin. The left margin no longer widens when they are on, so books reflow once after updating, and turning the option on or off just redraws the page.
 

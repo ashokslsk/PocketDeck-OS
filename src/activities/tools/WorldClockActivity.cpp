@@ -66,7 +66,7 @@ void trimRight(char* s) {
 
 bool WorldClockActivity::writeDefaults(FsFile& out, void*) {
   return tools::writeText(out,
-                          "# World Clock cities (max 6): Name|UTC offset in standard time|DST rule\n"
+                          "# World Clock cities (max 30): Name|UTC offset in standard time|DST rule\n"
                           "# Offset: hours (+9, -5, +5:30) or minutes (330). DST rules: US, EU, AU, NZ, NONE\n"
                           "New York|-5|US\n"
                           "London|0|EU\n"
@@ -77,7 +77,7 @@ bool WorldClockActivity::writeDefaults(FsFile& out, void*) {
 bool WorldClockActivity::writeCities(FsFile& out, void* ctx) {
   const auto* self = static_cast<const WorldClockActivity*>(ctx);
   if (!tools::writeText(out,
-                        "# World Clock cities (max 6): Name|UTC offset in standard time|DST rule\n"
+                        "# World Clock cities (max 30): Name|UTC offset in standard time|DST rule\n"
                         "# Offset: hours (+9, -5, +5:30) or minutes (330). DST rules: US, EU, AU, NZ, NONE\n"
                         "# Tip: hold Confirm in World Clock to pick cities on the device.\n")) {
     return false;
@@ -238,6 +238,13 @@ void WorldClockActivity::loop() {
     syncClock();
     return;
   }
+  // Right and the side buttons page through the cities (Left opens Cities).
+  if (pageCount_ > 1 && (input_.right || input_.down || input_.pageForward || input_.up || input_.pageBack)) {
+    const bool forward = input_.right || input_.down || input_.pageForward;
+    page_ = (page_ + (forward ? 1 : pageCount_ - 1)) % pageCount_;
+    requestUpdate();
+    return;
+  }
   const unsigned long now = millis();
   if (now - lastPollMs_ >= kPollMs) {
     lastPollMs_ = now;
@@ -293,14 +300,22 @@ void WorldClockActivity::render(RenderLock&&) {
   // City rows.
   const int64_t utcMinutes = static_cast<int64_t>(tools::daysOf(utc)) * 1440 + utc.hour * 60 + utc.minute;
   const int rowsAreaH = content.y + content.height - y;
-  const int rowH = cityCount_ > 0 ? std::min(rowsAreaH / cityCount_, 80) : 0;
   const int nameH = renderer.getLineHeight(UI_12_FONT_ID);
-  for (int i = 0; i < cityCount_; ++i) {
+  // Rows keep a readable height; cities that do not fit go to further pages.
+  const int minRowH = nameH + renderer.getLineHeight(UI_10_FONT_ID) + 14;
+  const int perPage = std::max(1, rowsAreaH / minRowH);
+  pageCount_ = cityCount_ > 0 ? (cityCount_ + perPage - 1) / perPage : 1;
+  if (page_ >= pageCount_) page_ = 0;
+  const int first = page_ * perPage;
+  const int shown = std::min(perPage, cityCount_ - first);
+  const int rowH = shown > 0 ? std::min(rowsAreaH / std::max(shown, 1), 80) : 0;
+  for (int r = 0; r < shown; ++r) {
+    const int i = first + r;
     const City& city = cities_[i];
     const int16_t offset = tools::effectiveUtcOffset(city.standardOffset, city.rule, utcMinutes);
     tools::DateTime t;
     tools::getTimeAtOffset(offset, t);
-    const int rowY = y + i * rowH;
+    const int rowY = y + r * rowH;
     renderer.drawLine(content.x, rowY, content.x + content.width, rowY);
 
     renderer.drawText(UI_12_FONT_ID, content.x, rowY + 8, city.name, true, EpdFontFamily::BOLD);
@@ -325,7 +340,14 @@ void WorldClockActivity::render(RenderLock&&) {
                       EpdFontFamily::BOLD);
   }
 
-  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SYNC), tr(STR_TOOLS_CITIES), "");
+  char pageLabel[16] = "";
+  if (pageCount_ > 1) snprintf(pageLabel, sizeof(pageLabel), "%d / %d", page_ + 1, pageCount_);
+  if (pageLabel[0]) {
+    const int pw = renderer.getTextWidth(SMALL_FONT_ID, pageLabel);
+    renderer.drawText(SMALL_FONT_ID, content.x + content.width - pw, content.y, pageLabel);
+  }
+  tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_SYNC), tr(STR_TOOLS_CITIES),
+                   pageCount_ > 1 ? tr(STR_TOOLS_NEXT) : "");
   const bool transition = transitionPending_;
   transitionPending_ = false;
   renderer.displayBuffer(transition ? tools::transitionRefresh() : HalDisplay::FAST_REFRESH);

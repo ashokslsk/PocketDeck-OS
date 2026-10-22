@@ -146,6 +146,8 @@ std::string confirmationHeading(const StrId actionLabelId) {
   return std::string(tr(STR_CONFIRM)) + ": " + std::string(I18N.get(actionLabelId));
 }
 
+std::string statsCachePath(const std::string& fullPath) { return bookStatsCachePath(fullPath); }
+
 bool isBookCompleted(const std::string& fullPath) {
   const std::string cachePath = bookStatsCachePath(fullPath);
   return !cachePath.empty() && BookReadingStats::load(cachePath).isCompleted;

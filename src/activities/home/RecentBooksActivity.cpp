@@ -1,18 +1,26 @@
 #include "RecentBooksActivity.h"
 
 #include <Arduino.h>
+#include <Epub.h>
+#include <FsHelpers.h>
 #include <GfxRenderer.h>
 #include <HalStorage.h>
 #include <I18n.h>
+#include <Logging.h>
+#include <Memory.h>
 
 #include <algorithm>
+#include <cstring>
 #include <memory>
 
 #include "BookActions.h"
 #include "FileBrowserActionActivity.h"
 #include "MappedInputManager.h"
+#include "RecentBookProgress.h"
 #include "RecentBooksStore.h"
+#include "activities/reader/BookInfoActivity.h"
 #include "activities/reader/EpubReaderActivity.h"
+#include "activities/reader/ReadingStatsUtils.h"
 #include "activities/reader/KannadaReading.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/OptionSelectionActivity.h"
@@ -37,11 +45,109 @@ RecentBooksActivity::RecentBooksActivity(GfxRenderer& renderer, MappedInputManag
       uiTarget(makeUiTarget(renderer)),
       app(uiTarget, uiTarget.deviceContext()) {}
 
+RecentBooksActivity::SortMode RecentBooksActivity::sortMode = RecentBooksActivity::SortMode::RecentFirst;
+
+void RecentBooksActivity::rebuildOrder() {
+  orderDirty_ = false;
+  order_.clear();
+  if (sortMode == SortMode::RecentFirst) return;
+  const unsigned long started = millis();
+
+  struct Entry {
+    uint8_t pos;
+    int32_t key;  // larger first; ties keep recent-first order
+  };
+  std::vector<Entry> entries;
+  std::vector<std::string> titles;  // Title sort only
+  entries.reserve(RecentBooksStore::MAX_TOTAL_BOOKS);
+  if (sortMode == SortMode::Title) titles.reserve(RecentBooksStore::MAX_TOTAL_BOOKS);
+
+  std::vector<RecentBook> page;
+  page.reserve(kPageSize);
+  size_t offset = 0;
+  bool more = true;
+  while (more && offset < static_cast<size_t>(RecentBooksStore::MAX_TOTAL_BOOKS)) {
+    page.clear();
+    more = RECENT_BOOKS.loadPage(page, offset, kPageSize);
+    if (page.empty()) break;
+    for (const RecentBook& book : page) {
+      const auto pos = static_cast<uint8_t>(offset);
+      int32_t key = 0;
+      switch (sortMode) {
+        case SortMode::OldestFirst:
+          key = static_cast<int32_t>(offset);
+          break;
+        case SortMode::Progress: {
+          const float pct = FsHelpers::hasEpubExtension(book.path) ? RecentBookProgress::loadCachedEpubPercent(book)
+                                                                    : RecentBookProgress::loadPercent(book);
+          key = RecentBookProgress::hasPercent(pct) ? static_cast<int32_t>(pct * 100.0f) : -1;
+          break;
+        }
+        case SortMode::Finished: {
+          // Finished books first, newest finish date first; then the rest.
+          const std::string cachePath = BookActions::statsCachePath(book.path);
+          const BookReadingStats stats = cachePath.empty() ? BookReadingStats{} : BookReadingStats::load(cachePath);
+          if (stats.isCompleted) {
+            key = stats.finishedDate.isValid() ? static_cast<int32_t>(readingStatsDayIndex(stats.finishedDate)) : 0;
+          } else {
+            key = -1;
+          }
+          break;
+        }
+        case SortMode::Title:
+          titles.push_back(book.title.empty() ? book.path : book.title);
+          break;
+        case SortMode::RecentFirst:
+        case SortMode::Count:
+          break;
+      }
+      entries.push_back({pos, key});
+      ++offset;
+    }
+  }
+
+  if (sortMode == SortMode::Title) {
+    std::stable_sort(entries.begin(), entries.end(), [&titles](const Entry& a, const Entry& b) {
+      return strcasecmp(titles[a.pos].c_str(), titles[b.pos].c_str()) < 0;
+    });
+  } else {
+    std::stable_sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) { return a.key > b.key; });
+  }
+  order_.reserve(entries.size());
+  for (const Entry& e : entries) order_.push_back(e.pos);
+  LOG_DBG("RBA", "Sorted %u recent books (mode %u) in %lums", static_cast<unsigned>(order_.size()),
+          static_cast<unsigned>(sortMode), millis() - started);
+}
+
 void RecentBooksActivity::loadRecentBooks() {
   // One page; books no longer on the card are skipped.
-  hasOlder = RECENT_BOOKS.loadPage(recentBooks, pageOffset, kPageSize);
+  if (sortMode == SortMode::RecentFirst) {
+    hasOlder = RECENT_BOOKS.loadPage(recentBooks, pageOffset, kPageSize);
+  } else {
+    if (orderDirty_) rebuildOrder();
+    recentBooks.clear();
+    std::vector<RecentBook> one;
+    for (size_t i = pageOffset; i < order_.size() && i < pageOffset + kPageSize; ++i) {
+      one.clear();
+      RECENT_BOOKS.loadPage(one, order_[i], 1);
+      if (!one.empty()) recentBooks.push_back(std::move(one.front()));
+    }
+    hasOlder = pageOffset + kPageSize < order_.size();
+  }
   recentBooks.erase(std::remove_if(recentBooks.begin(), recentBooks.end(), &RecentBooksStore::isMissing),
                     recentBooks.end());
+  // EPUBs use the small cached percentage (no book open); XTC/TXT read their
+  // own progress file. Done here, not in render(), so redraws stay SD-free.
+  for (size_t i = 0; i < kPageSize; ++i) {
+    percentLabels[i][0] = '\0';
+    if (i >= recentBooks.size()) continue;
+    const RecentBook& book = recentBooks[i];
+    const float pct = FsHelpers::hasEpubExtension(book.path) ? RecentBookProgress::loadCachedEpubPercent(book)
+                                                              : RecentBookProgress::loadPercent(book);
+    if (RecentBookProgress::hasPercent(pct)) {
+      snprintf(percentLabels[i], sizeof(percentLabels[i]), "%d%%", static_cast<int>(pct + 0.5f));
+    }
+  }
 }
 
 int RecentBooksActivity::bookForRow(const int row) const {
@@ -107,6 +213,7 @@ void RecentBooksActivity::onEnter() {
 
   // Load data
   pageOffset = 0;
+  orderDirty_ = true;
   loadRecentBooks();
 
   selectorIndex = 0;
@@ -124,6 +231,8 @@ void RecentBooksActivity::onExit() {
   Activity::onExit();
   recentBooks.clear();
   recentBooks.shrink_to_fit();
+  order_.clear();
+  order_.shrink_to_fit();
 }
 
 void RecentBooksActivity::loop() {
@@ -216,6 +325,7 @@ void RecentBooksActivity::loop() {
 }
 
 void RecentBooksActivity::reloadAfterBookAction() {
+  orderDirty_ = true;  // a removed or finished book moves the sorted order
   loadRecentBooks();
   if (recentBooks.empty() && pageOffset > 0) {
     pageOffset = pageOffset >= kPageSize ? pageOffset - kPageSize : 0;
@@ -275,6 +385,9 @@ void RecentBooksActivity::showBookActionMenu(const size_t bookIndex, const bool 
   const RecentBook book = recentBooks[bookIndex];
   std::vector<FileBrowserActionActivity::MenuItem> items =
       BookActions::buildBookActionItems(book.path, /*includeRemoveFromRecents=*/true);
+  // List-wide Sort by and this book's Book Info lead the menu.
+  items.insert(items.begin(), {FileBrowserAction::BookInfo, StrId::STR_BOOK_INFO});
+  items.insert(items.begin(), {FileBrowserAction::SortRecents, StrId::STR_RECENT_SORT_BY});
   if (BookActions::canSendNearby(book.path)) {
     items.push_back({FileBrowserAction::SendNearby, StrId::STR_SEND_NEARBY_BOOK});
   }
@@ -376,6 +489,12 @@ void RecentBooksActivity::showBookActionMenu(const size_t bookIndex, const bool 
                 });
             return;
           }
+          case FileBrowserAction::SortRecents:
+            showSortMenu();
+            return;
+          case FileBrowserAction::BookInfo:
+            showBookInfo(book);
+            return;
           case FileBrowserAction::RemoveFromRecents:
             promptRemoveBook(book.path, book.title);
             return;
@@ -401,6 +520,57 @@ void RecentBooksActivity::showBookActionMenu(const size_t bookIndex, const bool 
             return;
         }
       });
+}
+
+void RecentBooksActivity::showSortMenu() {
+  std::vector<std::string> options;
+  options.reserve(static_cast<size_t>(SortMode::Count));
+  options.emplace_back(tr(STR_RECENT_SORT_RECENT));
+  options.emplace_back(tr(STR_RECENT_SORT_OLDEST));
+  options.emplace_back(tr(STR_RECENT_SORT_PROGRESS));
+  options.emplace_back(tr(STR_RECENT_SORT_TITLE));
+  options.emplace_back(tr(STR_RECENT_SORT_FINISHED));
+  startActivityForResult(
+      std::make_unique<OptionSelectionActivity>(renderer, mappedInput, "RecentSort", StrId::STR_RECENT_SORT_BY,
+                                                std::move(options), static_cast<uint8_t>(sortMode)),
+      [this](const ActivityResult& result) {
+        const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+        if (!result.isCancelled && sel != nullptr && sel->index < static_cast<int>(SortMode::Count)) {
+          sortMode = static_cast<SortMode>(sel->index);
+          orderDirty_ = true;
+          showPage(0);
+          return;
+        }
+        requestUpdate();
+      });
+}
+
+void RecentBooksActivity::showBookInfo(const RecentBook& book) {
+  auto data = makeUniqueNoThrow<BookInfoData>();
+  if (!data) {
+    LOG_ERR("RBA", "OOM: BookInfoData (%u bytes)", static_cast<unsigned>(sizeof(BookInfoData)));
+    return;
+  }
+  data->title = book.title;
+  data->author = book.author;
+  if (FsHelpers::hasEpubExtension(book.path)) {
+    Epub(book.path, "/.pocketdeck-os").readOpfMetadataField("dc:publisher", data->publisher, sizeof(data->publisher));
+    data->progressPercent = RecentBookProgress::loadCachedEpubPercent(book);
+  } else {
+    data->progressPercent = RecentBookProgress::loadPercent(book);
+  }
+  const std::string cachePath = BookActions::statsCachePath(book.path);
+  if (!cachePath.empty()) data->stats = BookReadingStats::load(cachePath);
+  // The reader saves its last time-left estimate with the stats.
+  data->timeLeftSeconds = data->stats.estimatedTimeLeftSeconds;
+  data->hasTimeLeft = data->timeLeftSeconds > 0;
+  data->globalStats = GlobalReadingStats::load();
+  auto info = makeUniqueNoThrow<BookInfoActivity>(renderer, mappedInput, std::move(*data));
+  if (!info) {
+    LOG_ERR("RBA", "OOM: BookInfoActivity");
+    return;
+  }
+  startActivityForResult(std::move(info), [this](const ActivityResult&) { requestUpdate(); });
 }
 
 void RecentBooksActivity::listScreen(UiApp::ScreenType& screen, void* user) {
@@ -439,10 +609,12 @@ void RecentBooksActivity::buildListScreen(UiApp::ScreenType& screen) {
     items.push_back(item);
   };
   if (hasNewer()) addControl(tr(STR_RECENT_NEWER), newerInfo);
-  for (const auto& book : recentBooks) {
+  for (size_t b = 0; b < recentBooks.size(); ++b) {
+    const auto& book = recentBooks[b];
     fui::ListItem item;
     item.label = book.title.c_str();
     if (!book.author.empty()) item.subtitle = book.author.c_str();
+    if (b < kPageSize && percentLabels[b][0] != '\0') item.value = percentLabels[b];
     item.icon = listIconFor(UITheme::getFileIcon(book.path), 32);  // subtitle rows carry the larger icon
     item.actionValue = static_cast<int16_t>(items.size());
     items.push_back(item);

@@ -3,7 +3,7 @@
 #include "ToolsCommon.h"
 #include "activities/Activity.h"
 
-// Local time plus up to four configurable cities.
+// Local time plus up to 30 configurable cities, a page at a time.
 //
 // Time comes from the existing HalClock (RTC) after an NTP sync; Confirm
 // opens the existing Settings clock-sync flow, which reuses the normal WiFi
@@ -21,7 +21,7 @@ class WorldClockActivity final : public Activity {
 
  private:
   static constexpr char kConfigPath[] = "/tools/worldclock.txt";
-  static constexpr int kMaxCities = 6;
+  static constexpr int kMaxCities = 30;
   static constexpr size_t kNameCap = 24;
 
   struct City {
@@ -41,6 +41,8 @@ class WorldClockActivity final : public Activity {
   tools::ToolInput input_;
   City cities_[kMaxCities] = {};
   int cityCount_ = 0;
+  int page_ = 0;  // which page of cities is shown (set from the screen size in render())
+  int pageCount_ = 1;
   int lastMinute_ = -1;
   unsigned long lastPollMs_ = 0;
   bool transitionPending_ = true;

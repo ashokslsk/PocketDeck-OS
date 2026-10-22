@@ -22,6 +22,10 @@ float loadCachedEpubPercent(const RecentBook& book);
 void saveCachedEpubPercent(const std::string& cachePath, float progress);
 // Calculates and saves cached EPUB progress from a reader position.
 void saveCachedEpubPercent(const Epub& epub, int spineIndex, int currentPage, int pageCount);
+// Counts books in the whole recent list (up to RecentBooksStore::MAX_TOTAL_BOOKS)
+// whose saved progress is above minPercent. One small progress read per book
+// (EPUBs use the cached percentage), so call it once per screen, not per frame.
+int countRecentBooksAbove(float minPercent);
 // Returns true when progress contains a known 0-100 percentage.
 bool hasPercent(float progress);
 // Formats progress as a rounded percentage string such as "42%".

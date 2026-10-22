@@ -133,6 +133,10 @@ class Epub {
   const std::string& getTitle() const;
   const std::string& getAuthor() const;
   const std::string& getLanguage() const;
+  // Reads one Dublin Core field (e.g. "dc:publisher") straight from the OPF
+  // without touching the metadata cache. Streams the OPF once and stops at the
+  // first match; returns false (out empty) when the field is absent.
+  bool readOpfMetadataField(const char* tag, char* out, size_t outSize) const;
   // True when parsed EPUB metadata identifies a cover image. Requires load().
   bool hasCoverImage() const;
   std::string getCoverBmpPath(bool cropped = false, bool imageLevels = false) const;

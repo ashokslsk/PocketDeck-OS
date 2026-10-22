@@ -77,6 +77,7 @@ class XtcReaderActivity final : public Activity {
   float getCurrentBookProgressPercent() const;
   void openChapterSelection();
   void openReadingStats();
+  void openBookInfo();
   void deleteBookStats();
   void deleteBookCache();
   void openReaderMenu();

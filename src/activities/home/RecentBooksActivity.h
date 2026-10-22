@@ -33,6 +33,16 @@ class RecentBooksActivity final : public Activity {
   // kPageSize entries are ever held here.
   static constexpr size_t kPageSize = 10;
   std::vector<RecentBook> recentBooks;
+  // List order from the long-press menu's Sort by. Kept for the session, so
+  // the list opens the way it was last sorted (until restart).
+  enum class SortMode : uint8_t { RecentFirst, OldestFirst, Progress, Title, Finished, Count };
+  static SortMode sortMode;
+  // Positions in the full recent list (newest = 0), in display order; unused
+  // for RecentFirst, the store's own order.
+  std::vector<uint8_t> order_;
+  bool orderDirty_ = true;
+  // "42%" for each book on the page, read once per page load (empty if unknown).
+  char percentLabels[kPageSize][6] = {};
   size_t pageOffset = 0;
   bool hasOlder = false;
   bool hasNewer() const { return pageOffset > 0; }
@@ -63,6 +73,12 @@ class RecentBooksActivity final : public Activity {
   // Show an OK/Cancel prompt to remove the given book from the Recent Books list.
   void promptRemoveBook(const std::string& path, const std::string& title);
   void showBookActionMenu(size_t bookIndex, bool ignoreInitialConfirmRelease = false);
+  void showSortMenu();
+  void showBookInfo(const RecentBook& book);
+  // Fills order_ for the current sort: one pass over the whole recent list
+  // (up to RecentBooksStore::MAX_TOTAL_BOOKS), reading each book's progress
+  // or stats when the sort needs them. Pages then load by position.
+  void rebuildOrder();
 
  public:
   explicit RecentBooksActivity(GfxRenderer& renderer, MappedInputManager& mappedInput);
