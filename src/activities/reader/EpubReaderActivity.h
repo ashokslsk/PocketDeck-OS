@@ -415,6 +415,17 @@ class EpubReaderActivity final : public Activity {
   // Publisher (print edition) page label for the current page, shown at the
   // front of the bottom status bar's title slot. Empty when there is none.
   char publisherPageLabel[24] = {};
+  // Memory over one reading session (open to close), written to the restart
+  // log on exit: the lowest free heap and the smallest "largest free block".
+  // Loop samples plus the heap's own lifetime low-water mark, which also
+  // catches dips inside a chapter build on the render task.
+  unsigned long sessionStartMs_ = 0;
+  unsigned long sessionHeapSampleMs_ = 0;
+  uint32_t sessionMinFree_ = UINT32_MAX;
+  uint32_t sessionMinBlock_ = UINT32_MAX;
+  uint32_t sessionLifetimeMinAtStart_ = 0;
+  void sampleSessionHeap();
+  void logSessionHeap();
   void idlePrepareHomeCovers();
   void startPrepareBook();
   void renderPrepareBookStep();
@@ -487,6 +498,9 @@ class EpubReaderActivity final : public Activity {
   void refreshCachedTimeLeftEstimate();
   void applyBookStatsEditsFromDisk();
   void handleBookStatsReturn(bool returnToReaderMenu);
+  // Page you are on and the book's page count (stable reference pages), when
+  // the book has them.
+  bool bookPagePosition(uint32_t& page, uint32_t& pageCount) const;
   void resetCurrentBookStatsAfterDelete();
   void openFileTransfer();
   void openAutoPageTurnIntervalPicker(bool ignoreInitialConfirmRelease = false, bool returnToReaderMenu = false);

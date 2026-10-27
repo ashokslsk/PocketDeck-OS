@@ -24,7 +24,7 @@ class KOReaderSettingsActivity final : public Activity {
  private:
   // FreeInkApp hosts the settings list (themed rows, touch routing); the
   // header stays on GUI.drawHeader for the battery indicator.
-  using UiApp = freeink::ui::FreeInkApp<12, 4>;
+  using UiApp = freeink::ui::FreeInkApp<20, 4>;  // shared size: one copy of the list/route code in flash
 
   ButtonNavigator buttonNavigator;
 

@@ -461,7 +461,8 @@ void drawWeekdayAndCalendar(GfxRenderer& renderer, const int x, const int y, con
 void drawPerBookStatsCard(GfxRenderer& renderer, const int x, const int y, const int w, const int h,
                           const std::string& bookTitle, const BookReadingStats& stats, const float progressPercent,
                           const bool hasEstimatedTimeLeft, const uint32_t estimatedTimeLeftSeconds,
-                          const StatsLayout& layout) {
+                          const StatsLayout& layout, const uint32_t bookPagesDone = 0,
+                          const uint32_t bookPagesTotal = 0) {
   renderer.drawRect(x, y, w, h);
   renderer.drawLine(x, y + layout.topCardTitleH, x + w, y + layout.topCardTitleH);
   const std::string visibleTitle =
@@ -525,8 +526,16 @@ void drawPerBookStatsCard(GfxRenderer& renderer, const int x, const int y, const
   snprintf(buf, sizeof(buf), "%.1f", pagesPerMinute(stats.totalPagesTurned, stats.totalReadingSeconds));
   drawStatCell(renderer, gridX, colW, bodyTop + rowH * 2, rowH, buf, tr(STR_STATS_PAGES_PER_MIN));
 
-  snprintf(buf, sizeof(buf), "%lu", static_cast<unsigned long>(stats.totalPagesTurned));
-  drawStatCell(renderer, gridX + colW, colW, bodyTop + rowH * 2, rowH, buf, tr(STR_STATS_PAGES_LBL));
+  // Where you are in the book ("145/320", pages completed of the book's page
+  // count) when the reader knows it; otherwise the page turns counted so far.
+  if (bookPagesTotal > 0) {
+    snprintf(buf, sizeof(buf), "%lu/%lu", static_cast<unsigned long>(std::min(bookPagesDone, bookPagesTotal)),
+             static_cast<unsigned long>(bookPagesTotal));
+    drawStatCell(renderer, gridX + colW, colW, bodyTop + rowH * 2, rowH, buf, tr(STR_STATS_PAGES_DONE_LBL));
+  } else {
+    snprintf(buf, sizeof(buf), "%lu", static_cast<unsigned long>(stats.totalPagesTurned));
+    drawStatCell(renderer, gridX + colW, colW, bodyTop + rowH * 2, rowH, buf, tr(STR_STATS_PAGES_LBL));
+  }
 
   if (!showRtcStats) {
     return;
@@ -669,7 +678,8 @@ void drawDateAdjustButton(const GfxRenderer& renderer, const int x, const int y,
 void renderPerBookStatsPage(GfxRenderer& renderer, const MappedInputManager* mappedInput, const std::string& bookTitle,
                             const BookReadingStats& stats, const float progressPercent, const bool hasEstimatedTimeLeft,
                             const uint32_t estimatedTimeLeftSeconds, const bool showButtonHints,
-                            const bool showEditButton, const bool showMoreButton) {
+                            const bool showEditButton, const bool showMoreButton, const uint32_t bookPagesDone,
+                            const uint32_t bookPagesTotal) {
   renderer.clearScreen();
   const bool showRtcStats = shouldShowRtcBasedStats();
   const auto& metrics = UITheme::getInstance().getMetrics();
@@ -711,7 +721,7 @@ void renderPerBookStatsPage(GfxRenderer& renderer, const MappedInputManager* map
     }
 
     drawPerBookStatsCard(renderer, cardX, y, cardW, topCardH, bookTitle, stats, progressPercent, hasEstimatedTimeLeft,
-                         estimatedTimeLeftSeconds, layout);
+                         estimatedTimeLeftSeconds, layout, bookPagesDone, bookPagesTotal);
     y += topCardH + layout.cardGap;
 
     drawSectionCard(renderer, cardX, y, cardW, timeOfDayCardH, tr(STR_STATS_TIME_OF_DAY), layout);
@@ -738,7 +748,7 @@ void renderPerBookStatsPage(GfxRenderer& renderer, const MappedInputManager* map
       y += std::min(unusedExtraHeight / 3, kStandaloneNoRtcMaxVerticalOffset);
     }
     drawPerBookStatsCard(renderer, cardX, y, cardW, topCardH, bookTitle, stats, progressPercent, hasEstimatedTimeLeft,
-                         estimatedTimeLeftSeconds, layout);
+                         estimatedTimeLeftSeconds, layout, bookPagesDone, bookPagesTotal);
   }
 
   if (showButtonHints && mappedInput) {
@@ -1178,7 +1188,8 @@ void renderNoRtcCombinedStatsPage(GfxRenderer& renderer, const MappedInputManage
                                   const std::string& bookTitle, const BookReadingStats& bookStats,
                                   const float progressPercent, const bool hasEstimatedTimeLeft,
                                   const uint32_t estimatedTimeLeftSeconds, const GlobalReadingStats& deviceStats,
-                                  const GlobalReadingStats* allDevicesStats, const bool showButtonHints) {
+                                  const GlobalReadingStats* allDevicesStats, const bool showButtonHints, const uint32_t bookPagesDone,
+                                  const uint32_t bookPagesTotal) {
   renderer.clearScreen();
   const auto& metrics = UITheme::getInstance().getMetrics();
   const auto& layout = getNoRtcCombinedLayout(renderer, mappedInput, showButtonHints, allDevicesStats != nullptr);
@@ -1207,7 +1218,7 @@ void renderNoRtcCombinedStatsPage(GfxRenderer& renderer, const MappedInputManage
 
   int y = metrics.topPadding + headerHeight + layout.topGap;
   drawPerBookStatsCard(renderer, cardX, y, cardW, perBookCardH, bookTitle, bookStats, progressPercent,
-                       hasEstimatedTimeLeft, estimatedTimeLeftSeconds, layout);
+                       hasEstimatedTimeLeft, estimatedTimeLeftSeconds, layout, bookPagesDone, bookPagesTotal);
   y += perBookCardH + layout.cardGap;
 
   drawGlobalStatsCard(renderer, cardX, y, cardW, deviceCardH, tr(STR_STATS_THIS_DEVICE_SCREEN), deviceStats, layout);

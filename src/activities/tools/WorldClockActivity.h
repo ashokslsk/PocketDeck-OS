@@ -35,7 +35,8 @@ class WorldClockActivity final : public Activity {
   void syncClock();
   bool saveCities();
   static bool writeCities(FsFile& out, void* ctx);
-  void chooseSlot();
+  // Back unwinds one level: city picker -> Cities list -> World Clock.
+  void chooseSlot(int selected = 0);
   void chooseCity(int slot);
 
   tools::ToolInput input_;

@@ -35,7 +35,8 @@ Layout layout(const Rect& header) {
   // Center the action lane vertically so taller theme headers split their
   // spare space above and below the back button/title instead of placing all
   // of it above the title.
-  const int actionX = header.x;
+  // After the theme's header mark (PocketDeck's logo), never on top of it.
+  const int actionX = header.x + GUI.headerLeftInset();
   const int actionY = header.y + (header.height - actionHeight) / 2;
   const int touchWidth = std::min(touchSize, header.width);
   const int touchHeight = touchSize;

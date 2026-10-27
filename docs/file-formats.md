@@ -847,3 +847,33 @@ the card to the host. Manage Fonts performs a full rescan; alternatively remove
 this cache to force reinspection after external same-length font changes.
 
 EPUB layout cache versions and identities are unchanged by this catalog.
+
+## `/.pocketdeck-os/system_cache/card_stats.bin`
+
+Explorer > Info's last complete card count, shown at once while a fresh count
+runs. No user data: deleting it only means the next Info page counts from zero.
+
+### Version CST2
+
+Little-endian. `"CST2"` magic; files, folders, books and images (`u32` each);
+then the largest and the smallest non-empty file, each as size (`u64`), name
+length (`u8`) and name bytes (no terminator). A `"CST1"` file (no smallest-file
+record) is ignored and replaced by the next count.
+
+## `/.pocketdeck-os/restart_log.txt`
+
+Plain text, one line per restart that was not a power-on or wake (a forced
+restart from holding Power 10 s says so), per planned low-memory restart in the
+reader, and per reading session over a minute (`session N min "Title": lowest
+free=..K, smallest block=..K`):
+`YYYY-MM-DD HH:MM  <event>  free=<KB>K max=<KB>K` ("time unknown" before the
+clock is set). When it passes 8 KB the oldest half is dropped (whole lines).
+
+## `/.pocketdeck-os/lookup_history_all.txt`
+
+Every word looked up while reading, across books, for the Dictionary tool's
+"Lookups in all books". Plain text, oldest first, one line per lookup:
+`<book cache path>|<YYYY-MM-DD HH:MM>|<word>|<status>` (time empty before the
+clock is set; status is the per-book history's one-letter code). Past 64 KB the
+oldest half is dropped (whole lines). Each book's own
+`<cache>/dictionary_history.txt` is written as before.

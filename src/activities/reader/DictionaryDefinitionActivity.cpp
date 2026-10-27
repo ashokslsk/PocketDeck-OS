@@ -466,7 +466,9 @@ bool DictionaryDefinitionActivity::shouldApproximateDefinitionCodepoint(const ui
   // characters before the active .cpfont gets a chance to draw them.
   if (renderer.isSdCardFont(fontId)) return false;
 
-  return !builtinDefinitionFontSupportsCandidate(cp);
+  // Built-in fonts draw IPA, phonetic letters and math through the shared
+  // symbol fallback font: approximate only what neither has (ə stays ə).
+  return !builtinDefinitionFontSupportsCandidate(cp) && !renderer.fontHasCodepoint(fontId, cp);
 }
 
 bool DictionaryDefinitionActivity::definitionTextNeedsApproximation(const char* text) const {
@@ -1533,7 +1535,10 @@ void DictionaryDefinitionActivity::render(RenderLock&&) {
     titleRight = pageInfoX - metrics.optionPopupInnerPadding;
   }
 
-  const int titleX = hasModalBackground() ? headerRect.x : headerRect.x + metrics.contentSidePadding;
+  // Start after the theme's header mark (PocketDeck's logo) when there is one.
+  const int titleX = hasModalBackground()
+                         ? headerRect.x
+                         : headerRect.x + std::max<int>(metrics.contentSidePadding, GUI.headerLeftInset());
   const int titleY = hasModalBackground() ? headerRect.y : headerRect.y + (headerRect.height - titleLineHeight) / 2;
   const int titleMaxWidth = std::max(0, titleRight - titleX);
   const std::string visibleHeadword =

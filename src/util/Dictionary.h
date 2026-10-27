@@ -150,6 +150,12 @@ class Dictionary {
   // Cheap: one SD seek, 12 bytes read.
   static uint32_t readCsptEntryCount(const char* cachePath = nullptr);
 
+  // A random headword of at least minLetters letters and no spaces from the
+  // configured dictionary (Word Shelf). seed picks the word: the same seed
+  // gives the same word (day number = word of the day). Tries a few ordinals
+  // and returns "" if none qualifies or there is no dictionary.
+  static std::string randomWord(uint32_t seed, size_t minLetters, const char* cachePath = nullptr);
+
  private:
   // Shared word read buffer. Lookup functions are single-threaded; this avoids
   // putting a 256-byte array on the stack in every caller (and 512B peak when nested).

@@ -100,15 +100,16 @@ bool WorldClockActivity::saveCities() {
   return ok;
 }
 
-void WorldClockActivity::chooseSlot() {
+void WorldClockActivity::chooseSlot(const int selected) {
   std::vector<std::string> options;
   options.reserve(kMaxCities + 1);
   for (int i = 0; i < cityCount_; ++i) {
     options.emplace_back(std::to_string(i + 1) + ". " + cities_[i].name);
   }
   if (cityCount_ < kMaxCities) options.emplace_back(tr(STR_TOOLS_ADD_CITY));
+  const auto initial = static_cast<uint8_t>(std::clamp(selected, 0, static_cast<int>(options.size()) - 1));
   auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "WorldClockSlot",
-                                                           StrId::STR_TOOLS_EDIT_CITIES, std::move(options), 0);
+                                                           StrId::STR_TOOLS_EDIT_CITIES, std::move(options), initial);
   if (!picker) return;
   startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
     input_.reset(mappedInput);
@@ -163,7 +164,9 @@ void WorldClockActivity::chooseCity(const int slot) {
       }
       saveCities();
     }
-    requestUpdate();
+    // Back to the Cities list (on the slot just edited), not straight to the
+    // clock: Back there is what returns to World Clock.
+    chooseSlot(std::min(slot, std::max(0, cityCount_ - 1)));
   });
 }
 

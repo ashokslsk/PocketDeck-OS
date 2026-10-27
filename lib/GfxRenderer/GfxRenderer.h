@@ -217,6 +217,9 @@ class GfxRenderer {
   int monospaceFontFor(int fontId) const;
   void clearFallbackFonts() { fallbackFontMap_.clear(); }
   void setScriptShaper(const ScriptShaper* shaper) { scriptShaper_ = shaper; }
+  // True when a registered font (with its family and symbol fallbacks) has a
+  // glyph for cp. Interval lookup only; false for unknown font ids.
+  bool fontHasCodepoint(int fontId, uint32_t cp) const;
   void setBuiltinFallbackFont(int primaryFontId, int fallbackFontId) {
     builtinFallbackMap_[primaryFontId] = fallbackFontId;
   }

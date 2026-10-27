@@ -46,6 +46,12 @@ class SavedItemsHomeActivity final : public Activity {
 
   void reloadSavedBooks();
   void openSavedItems(int bookIndex);
+  // Resurface Trove: a random handful of saved items from every book.
+  static constexpr size_t kResurfaceCount = 12;
+  void openResurface();
+  // Cards for one book (bookIndex >= 0) or Resurface Trove (-1).
+  void openCards(int bookIndex);
+
   void openBookmarkList(const SavedBookEntry& entry);
   void openClippingList(const SavedBookEntry& entry);
   void showSavedKindMenu(int bookIndex);

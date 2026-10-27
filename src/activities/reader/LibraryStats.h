@@ -1,6 +1,9 @@
 #pragma once
 
+#include <HalStorage.h>
+
 #include <cstdint>
+#include <string>
 
 // Whole-library summary for the Reading Stats "Library" page: what is on the
 // SD card and how much of it has been read. Scanning happens once, when the
@@ -31,4 +34,35 @@ struct LibrarySummary {
   // book that has reading data on this device (used by Stats & export).
   using BookFn = void (*)(const char* path, float progress, void* ctx);
   static LibrarySummary scan(BookFn onOpenedBook, void* ctx);
+};
+
+// The same walk a slice at a time, so a screen can keep drawing and reading
+// buttons while a large card is counted (one directory handle per level).
+class LibraryScanner {
+ public:
+  void begin(LibrarySummary::BookFn onOpenedBook = nullptr, void* ctx = nullptr);
+  // Works for about budgetMs; returns true once the walk is complete.
+  bool step(unsigned long budgetMs);
+  void cancel();
+  bool done() const { return done_; }
+  const LibrarySummary& summary() const { return summary_; }
+
+ private:
+  static constexpr int kMaxDepth = 6;
+  struct Level {
+    HalFile dir;
+    std::string path;
+    bool hasBooks = false;
+  };
+  void visitBook(const std::string& path);
+  void popLevel();
+  void finish();
+
+  Level levels_[kMaxDepth + 1];
+  int depth_ = 0;
+  bool done_ = true;
+  double progressSum_ = 0;
+  LibrarySummary summary_;
+  LibrarySummary::BookFn onBook_ = nullptr;
+  void* ctx_ = nullptr;
 };

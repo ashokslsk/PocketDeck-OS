@@ -49,6 +49,8 @@ class FileInfoActivity final : public Activity {
     uint32_t images = 0;
     uint64_t largestSize = 0;
     std::string largestName;
+    uint64_t smallestSize = 0;  // smallest non-empty file
+    std::string smallestName;
   };
   static constexpr int kMaxScanDepth = 12;  // deeper folders are counted, not entered
   void scanSlice();
@@ -67,4 +69,7 @@ class FileInfoActivity final : public Activity {
   CardStats shown_;     // what the page shows: the saved count until the new one finishes
   unsigned long lastDrawMs_ = 0;
   bool drawnOnce_ = false;
+  // The most recent book you are reading (past 5%, not finished): "Title  42%".
+  std::string readingNow_;
+  void findReadingNow();
 };

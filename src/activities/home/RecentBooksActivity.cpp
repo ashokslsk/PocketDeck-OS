@@ -553,6 +553,7 @@ void RecentBooksActivity::showBookInfo(const RecentBook& book) {
   }
   data->title = book.title;
   data->author = book.author;
+  data->path = book.path;
   if (FsHelpers::hasEpubExtension(book.path)) {
     Epub(book.path, "/.pocketdeck-os").readOpfMetadataField("dc:publisher", data->publisher, sizeof(data->publisher));
     data->progressPercent = RecentBookProgress::loadCachedEpubPercent(book);

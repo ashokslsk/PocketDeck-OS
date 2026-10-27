@@ -9,6 +9,7 @@
 
 #include "../reader/EpubReaderBookmarkListActivity.h"
 #include "../reader/EpubReaderClippingListActivity.h"
+#include "SavedCardsActivity.h"
 #include "BookActions.h"
 #include "BookmarkStore.h"
 #include "ClippingStore.h"
@@ -107,19 +108,21 @@ void SavedItemsHomeActivity::onExit() {
 }
 
 void SavedItemsHomeActivity::loop() {
+  // Back returns to whoever opened this screen (Tools or Home), one level up.
   if (TouchHeaderBackButton::wasTapped(mappedInput, TouchHeaderBackButton::compactHeaderRect(renderer))) {
-    onGoHome();
+    finish();
     return;
   }
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
-    onGoHome();
+    finish();
     return;
   }
 
-  if (!books.empty() && !longPressOpenHandled && mappedInput.isPressed(MappedInputManager::Button::Confirm) &&
+  if (!books.empty() && selectedIndex > 0 && !longPressOpenHandled &&
+      mappedInput.isPressed(MappedInputManager::Button::Confirm) &&
       mappedInput.getHeldTime() >= SAVED_ITEM_DELETE_HOLD_MS) {
     longPressOpenHandled = true;
-    showSavedBookActionMenu(selectedIndex, true);
+    showSavedBookActionMenu(selectedIndex - 1, true);
     return;
   }
 
@@ -128,13 +131,16 @@ void SavedItemsHomeActivity::loop() {
       longPressOpenHandled = false;
       return;
     }
-    if (!books.empty() && selectedIndex >= 0 && selectedIndex < static_cast<int>(books.size())) {
-      openSavedItems(selectedIndex);
+    if (!books.empty() && selectedIndex == 0) {
+      openResurface();
+    } else if (selectedIndex > 0 && selectedIndex <= static_cast<int>(books.size())) {
+      openSavedItems(selectedIndex - 1);
     }
     return;
   }
 
-  const int listSize = static_cast<int>(books.size());
+  // Row 0 is Resurface Trove; the books follow.
+  const int listSize = books.empty() ? 0 : static_cast<int>(books.size()) + 1;
   if (listSize == 0) return;
 
   if (uiReady) {
@@ -176,15 +182,18 @@ void SavedItemsHomeActivity::loop() {
 
 void SavedItemsHomeActivity::onRowEvent(const fui::ActionEvent& event, void* user) {
   auto* self = static_cast<SavedItemsHomeActivity*>(user);
-  if (event.value < 0 || event.value >= static_cast<int16_t>(self->books.size())) return;
+  if (event.value < 0 || event.value > static_cast<int16_t>(self->books.size())) return;
   self->selectedIndex = event.value;
-  if (event.longPress) {
-    self->app.clearTapFlash();
-    self->showSavedBookActionMenu(self->selectedIndex, false);
+  self->app.clearTapFlash();
+  if (event.value == 0) {
+    if (!event.longPress) self->openResurface();
     return;
   }
-  self->app.clearTapFlash();
-  self->openSavedItems(self->selectedIndex);
+  if (event.longPress) {
+    self->showSavedBookActionMenu(self->selectedIndex - 1, false);
+    return;
+  }
+  self->openSavedItems(self->selectedIndex - 1);
 }
 
 void SavedItemsHomeActivity::listScreen(UiApp::ScreenType& screen, void* user) {
@@ -201,12 +210,19 @@ void SavedItemsHomeActivity::buildListScreen(UiApp::ScreenType& screen) {
     return;
   }
   std::vector<fui::ListItem> items;
-  items.reserve(books.size());
+  items.reserve(books.size() + 1);
+  {
+    fui::ListItem resurface;
+    resurface.label = tr(STR_RESURFACE_TROVE);
+    resurface.subtitle = tr(STR_RESURFACE_TROVE_HINT);
+    resurface.actionValue = 0;
+    items.push_back(resurface);
+  }
   for (size_t i = 0; i < books.size(); ++i) {
     fui::ListItem item;
     item.label = books[i].bookTitle.c_str();
     if (!books[i].bookAuthor.empty()) item.subtitle = books[i].bookAuthor.c_str();
-    item.actionValue = static_cast<int16_t>(i);
+    item.actionValue = static_cast<int16_t>(i + 1);
     items.push_back(item);
   }
   fui::ListProps props;
@@ -220,7 +236,7 @@ void SavedItemsHomeActivity::buildListScreen(UiApp::ScreenType& screen) {
   const fui::Rect bounds = screen.body();
   const auto rows = configureUiList(props, screen.theme(), bounds, UiListRowType::WithSubtitle);
   visibleRows = rows > 0 ? rows : 1;
-  topIndex = scrollListBy(topIndex, 0, visibleRows, static_cast<int>(books.size()));
+  topIndex = scrollListBy(topIndex, 0, visibleRows, static_cast<int>(items.size()));
   props.topIndex = static_cast<uint16_t>(topIndex);
   screen.list(props);
 }
@@ -238,24 +254,35 @@ void SavedItemsHomeActivity::render(RenderLock&&) {
   uiReady = true;
 
   const auto labels =
-      mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_HOME)), tr(STR_OPEN), tr(STR_DIR_UP), tr(STR_DIR_DOWN));
+      mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_BACK)), tr(STR_OPEN), tr(STR_DIR_UP), tr(STR_DIR_DOWN));
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
   renderer.displayBuffer();
 }
 
 void SavedItemsHomeActivity::openSavedItems(const int bookIndex) {
   if (bookIndex < 0 || bookIndex >= static_cast<int>(books.size())) return;
-  const SavedBookEntry entry = books[bookIndex];
-  const bool hasBookmarks = entry.bookmarkCount > 0;
-  const bool hasClippings = entry.clippingCount > 0;
+  // A book's bookmarks and clippings as cards, one per screen.
+  openCards(bookIndex);
+}
 
-  if (hasBookmarks && hasClippings) {
-    showSavedKindMenu(bookIndex);
-  } else if (hasBookmarks) {
-    openBookmarkList(entry);
-  } else if (hasClippings) {
-    openClippingList(entry);
+void SavedItemsHomeActivity::openResurface() {
+  openCards(-1);
+}
+
+void SavedItemsHomeActivity::openCards(const int bookIndex) {
+  const bool resurface = bookIndex < 0;
+  auto cards = resurface ? SavedCardsActivity::resurfaceCards(books, kResurfaceCount)
+                         : SavedCardsActivity::cardsForBook(books, static_cast<uint16_t>(bookIndex));
+  if (cards.empty()) return;
+  auto activity = makeUniqueNoThrow<SavedCardsActivity>(renderer, mappedInput, books, std::move(cards), resurface);
+  if (!activity) {
+    LOG_ERR("SVA", "OOM: SavedCardsActivity");
+    return;
   }
+  startActivityForResult(std::move(activity), [this](const ActivityResult&) {
+    reloadSavedBooks();
+    requestUpdate();
+  });
 }
 
 void SavedItemsHomeActivity::showSavedKindMenu(const int bookIndex) {

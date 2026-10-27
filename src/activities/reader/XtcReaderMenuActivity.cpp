@@ -191,8 +191,9 @@ void XtcReaderMenuActivity::render(RenderLock&&) {
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
   const Rect standardHeader{0, metrics.topPadding, pageWidth, metrics.headerHeight};
-  const int titleX = mappedInput.hasTouchHardware() ? TouchHeaderBackButton::layout(standardHeader).titleX
-                                                    : metrics.contentSidePadding;
+  const int titleX = mappedInput.hasTouchHardware()
+                         ? TouchHeaderBackButton::layout(standardHeader).titleX
+                         : std::max<int>(metrics.contentSidePadding, GUI.headerLeftInset());  // clear of the mark
   const int titleMaxWidth = std::max(0, pageWidth - titleX - metrics.contentSidePadding - kBatteryTextReserveWidth);
   const auto titleLines =
       renderer.wrappedText(kTitleFontId, title.c_str(), titleMaxWidth, kTitleMaxLines, EpdFontFamily::BOLD);

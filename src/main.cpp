@@ -89,6 +89,7 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "RecentBooksStore.h"
 #include "SdCardFontSystem.h"
 #include "SilentRestart.h"
+#include "util/RestartLog.h"
 #include "activities/Activity.h"
 #include "activities/ActivityManager.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
@@ -357,6 +358,9 @@ void logMemoryStats(const char* phase) {
 
 // Definitions for SilentRestart.h. RTC_NOINIT survives ESP.restart() but not power loss.
 RTC_NOINIT_ATTR uint32_t silentRebootMagic;
+// Set just before a forced restart (Power held 10 s) so the next boot can say so.
+RTC_NOINIT_ATTR uint32_t forcedRestartMagic;
+constexpr uint32_t FORCED_RESTART_MAGIC = 0x46525354;  // "FRST"
 RTC_NOINIT_ATTR uint32_t silentRebootTarget;
 RTC_NOINIT_ATTR uint32_t silentRebootPayload;
 RTC_NOINIT_ATTR uint32_t silentReaderPageBuildMagic;
@@ -1207,7 +1211,11 @@ void performShutdown() {
   APP_STATE.lastSleepFromReader = false;  // the next start opens Home
   APP_STATE.saveToFile();
   deepSleepInProgress = true;
-  showPowerMessage(tr(STR_POWERED_OFF_MESSAGE));
+  // Replaces the open screen (a book saves its position on exit) and waits
+  // until the off screen is on the panel.
+  activityManager.goToPoweredOff();
+  activityManager.loop();
+  activityManager.requestUpdateAndWait();
   delay(POST_SLEEP_SCREEN_SETTLE_MS);
   Storage.shutdown();
   putTiltSensorToSleepForDeepSleep();
@@ -1371,6 +1379,39 @@ void setupDisplayAndFonts(const bool seamless, const bool loadReaderResources, c
   }
 }
 
+namespace {
+// Escape hatch for a frozen screen: holding Power for 10 s restarts the device
+// even if the main loop is stuck (a long SD walk, a deadlock). A separate task
+// reads the pin directly, so it does not depend on the loop or the input layer.
+// It touches no SD card or display, which a stuck loop may be holding.
+constexpr unsigned long kForceRestartHoldMs = 10000;
+void forceRestartWatchdogTask(void*) {
+  unsigned long heldSince = 0;
+  for (;;) {
+    if (gpio.isPowerButtonPhysicallyPressed()) {
+      const unsigned long now = millis();
+      if (heldSince == 0) heldSince = now;
+      if (now - heldSince >= kForceRestartHoldMs) {
+        forcedRestartMagic = FORCED_RESTART_MAGIC;
+        esp_restart();
+      }
+    } else {
+      heldSince = 0;
+    }
+    vTaskDelay(pdMS_TO_TICKS(200));
+  }
+}
+
+void startForceRestartWatchdog() {
+#ifndef SIMULATOR
+  // Above the Arduino loop's priority so it still runs while the loop spins.
+  if (xTaskCreate(forceRestartWatchdogTask, "pwrWatch", 2048, nullptr, 2, nullptr) != pdPASS) {
+    LOG_ERR("MAIN", "Could not start the force-restart watchdog");
+  }
+#endif
+}
+}  // namespace
+
 void setup() {
 #ifdef SIMULATOR
   SimulatorLifecycle::restoreSilentRebootToken(silentRebootMagic, silentRebootTarget, silentRebootPayload);
@@ -1519,6 +1560,21 @@ void setup() {
   FsHelpers::migrateDataLayout();
 
   HalSystem::checkPanic();
+  // Record restarts that were not a power-on or wake, so an unexpected one can
+  // be traced later (panics also leave /crash_report.txt).
+  if (rawResetReason != ESP_RST_POWERON && rawResetReason != ESP_RST_DEEPSLEEP && rawResetReason != ESP_RST_EXT &&
+      rawResetReason != ESP_RST_USB) {
+    char event[48];
+    const bool forced = forcedRestartMagic == FORCED_RESTART_MAGIC;
+    snprintf(event, sizeof(event), "reset %s%s", resetReasonName(rawResetReason),
+             forced           ? " (forced: Power held 10 s)"
+             : isSilentReboot ? (snapshotTarget == SILENT_REBOOT_TARGET_READER ? " (planned, back to book)"
+                                                                               : " (planned)")
+                              : "");
+    RestartLog::append(event);
+  }
+  forcedRestartMagic = 0;
+  startForceRestartWatchdog();
 
   SETTINGS.loadFromFile();
   Storage.installDateTimeCallback(&SETTINGS.clockUtcOffsetQ);

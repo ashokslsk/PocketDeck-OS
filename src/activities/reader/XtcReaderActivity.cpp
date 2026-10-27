@@ -880,6 +880,10 @@ void XtcReaderActivity::openReadingStats() {
     requestUpdate();
     return;
   }
+  // XTC pages are fixed: the page you are on of the book's pages.
+  if (xtc && xtc->getPageCount() > 0) {
+    static_cast<BookStatsActivity*>(bookStats.get())->setBookPages(currentPage + 1, xtc->getPageCount());
+  }
   startActivityForResult(std::move(bookStats), [this](const ActivityResult&) {
     if (xtc) stats = BookReadingStats::load(xtc->getCachePath());
     globalStats = GlobalReadingStats::load();
@@ -898,8 +902,11 @@ void XtcReaderActivity::openBookInfo() {
   }
   data->title = xtc->getTitle();
   data->author = xtc->getAuthor();
+  data->path = xtc->getPath();
   data->progressPercent = getCurrentBookProgressPercent();
   data->stats = stats;
+  data->pagesDone = currentPage + 1;
+  data->pagesTotal = xtc->getPageCount();
   if (SETTINGS.shouldTrackReadingStats()) {
     uint32_t extra = sessionReadingSeconds;
     uint32_t currentPageSeconds = 0;

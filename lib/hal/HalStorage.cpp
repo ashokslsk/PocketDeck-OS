@@ -9,11 +9,13 @@
 #include <FS.h>  // need to be included before SdFat.h for compatibility with FS.h's File class
 #include <HalClock.h>
 #include <Logging.h>
+#include <Memory.h>
 #include <SDCardManager.h>
 #if FREEINK_CAP_USB_MSC
 #include <UsbMassStorage.h>
 #endif
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <new>
@@ -281,6 +283,99 @@ void HalStorage::shutdown() {
 uint64_t HalStorage::totalBytes() const { return SDCard.sdTotalBytes(); }
 
 uint64_t HalStorage::usedBytes() { HAL_STORAGE_WRAPPED_CALL(sdUsedBytes); }
+
+namespace {
+uint16_t le16(const uint8_t* p) { return static_cast<uint16_t>(p[0] | (p[1] << 8)); }
+uint32_t le32(const uint8_t* p) {
+  return static_cast<uint32_t>(p[0]) | (static_cast<uint32_t>(p[1]) << 8) | (static_cast<uint32_t>(p[2]) << 16) |
+         (static_cast<uint32_t>(p[3]) << 24);
+}
+// Copies an 11-byte FAT name field, trimming trailing spaces.
+void copyFatLabel(const uint8_t* src, char* out, const size_t outSize) {
+  size_t n = 11;
+  while (n > 0 && src[n - 1] == ' ') --n;
+  n = std::min(n, outSize - 1);
+  memcpy(out, src, n);
+  out[n] = '\0';
+}
+}  // namespace
+
+bool HalStorage::describeVolume(char* fsType, const size_t fsTypeSize, char* label, const size_t labelSize) {
+  if (!fsType || fsTypeSize == 0 || !label || labelSize == 0) return false;
+  fsType[0] = '\0';
+  label[0] = '\0';
+  StorageLock lock;
+  FsBlockDeviceInterface* dev = SDCard.rawBlockDevice();
+  // Sector-sized scratch, not stack: this runs on activity task stacks.
+  auto sector = makeUniqueNoThrow<uint8_t[]>(512);
+  if (!dev || !sector) {
+    LOG_ERR("SD", "describeVolume: no block device or scratch");
+    return false;
+  }
+  if (!dev->readSector(0, sector.get())) {
+    LOG_ERR("SD", "describeVolume: sector 0 read failed");
+    return false;
+  }
+  // A partitioned card starts with an MBR; the volume's boot sector is at the
+  // first partition's start. A "superfloppy" card has the boot sector at 0.
+  uint32_t vbr = 0;
+  const bool isBootSector = memcmp(sector.get() + 3, "EXFAT   ", 8) == 0 || memcmp(sector.get() + 0x52, "FAT32", 5) == 0 ||
+                            memcmp(sector.get() + 0x36, "FAT", 3) == 0;
+  if (!isBootSector) {
+    vbr = le32(sector.get() + 0x1BE + 8);
+    if (vbr == 0 || !dev->readSector(vbr, sector.get())) {
+      LOG_ERR("SD", "describeVolume: boot sector read failed");
+      return false;
+    }
+  }
+  const uint8_t* b = sector.get();
+  if (memcmp(b + 3, "EXFAT   ", 8) == 0) {
+    snprintf(fsType, fsTypeSize, "exFAT");
+    // The label is a 0x83 entry in the root directory (UTF-16, up to 11 chars).
+    const uint32_t heapOffset = le32(b + 0x58);
+    const uint32_t rootCluster = le32(b + 0x60);
+    const uint8_t clusterShift = b[0x6D];  // sectors per cluster, log2
+    const uint32_t rootSector = vbr + heapOffset + ((rootCluster - 2) << clusterShift);
+    if (rootCluster >= 2 && dev->readSector(rootSector, sector.get())) {
+      for (int e = 0; e < 16; ++e) {
+        const uint8_t* entry = sector.get() + e * 32;
+        if (entry[0] == 0x00) break;
+        if (entry[0] != 0x83) continue;
+        const uint8_t count = std::min<uint8_t>(entry[1], 11);
+        size_t w = 0;
+        for (uint8_t i = 0; i < count && w + 1 < labelSize; ++i) {
+          const uint16_t ch = le16(entry + 2 + i * 2);
+          label[w++] = ch < 0x80 ? static_cast<char>(ch) : '?';  // ASCII labels are the norm
+        }
+        label[w] = '\0';
+        break;
+      }
+    }
+    return true;
+  }
+  const bool fat32 = memcmp(b + 0x52, "FAT32", 5) == 0;
+  snprintf(fsType, fsTypeSize, fat32 ? "FAT32" : "FAT16");
+  // Boot-sector label as a fallback; formatters often leave "NO NAME" there and
+  // keep the real one as a volume-label entry in the root directory.
+  char bootLabel[12];
+  copyFatLabel(b + (fat32 ? 0x47 : 0x2B), bootLabel, sizeof(bootLabel));
+  const uint32_t reserved = le16(b + 0x0E);
+  const uint8_t fats = b[0x10];
+  const uint32_t fatSize = fat32 ? le32(b + 0x24) : le16(b + 0x16);
+  uint32_t rootSector = vbr + reserved + fats * fatSize;
+  if (fat32) rootSector += (le32(b + 0x2C) - 2) * b[0x0D];
+  if (dev->readSector(rootSector, sector.get())) {
+    for (int e = 0; e < 16; ++e) {
+      const uint8_t* entry = sector.get() + e * 32;
+      if (entry[0] == 0x00) break;
+      if (entry[0] == 0xE5 || entry[11] == 0x0F || (entry[11] & 0x08) == 0) continue;  // deleted, LFN, not a label
+      copyFatLabel(entry, label, labelSize);
+      return true;
+    }
+  }
+  if (strcmp(bootLabel, "NO NAME") != 0) snprintf(label, labelSize, "%s", bootLabel);
+  return true;
+}
 
 std::vector<String> HalStorage::listFiles(const char* path, int maxFiles) {
   std::string mapped;

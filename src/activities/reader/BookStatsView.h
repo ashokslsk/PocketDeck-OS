@@ -23,7 +23,7 @@ constexpr int dateField(const int index) { return DateFieldBase + index; }
 void renderPerBookStatsPage(GfxRenderer& renderer, const MappedInputManager* mappedInput, const std::string& bookTitle,
                             const BookReadingStats& stats, float progressPercent, bool hasEstimatedTimeLeft,
                             uint32_t estimatedTimeLeftSeconds, bool showButtonHints, bool showEditButton,
-                            bool showMoreButton);
+                            bool showMoreButton, uint32_t bookPagesDone = 0, uint32_t bookPagesTotal = 0);
 
 void renderGlobalStatsPage(GfxRenderer& renderer, const MappedInputManager* mappedInput, const char* screenTitle,
                            const GlobalReadingStats& stats, bool showButtonHints, bool showMoreButton);
@@ -43,7 +43,7 @@ void renderNoRtcCombinedStatsPage(GfxRenderer& renderer, const MappedInputManage
                                   const std::string& bookTitle, const BookReadingStats& bookStats,
                                   float progressPercent, bool hasEstimatedTimeLeft, uint32_t estimatedTimeLeftSeconds,
                                   const GlobalReadingStats& deviceStats, const GlobalReadingStats* allDevicesStats,
-                                  bool showButtonHints);
+                                  bool showButtonHints, uint32_t bookPagesDone = 0, uint32_t bookPagesTotal = 0);
 
 struct LibrarySummary;
 // Library dashboard: books and folders on the card, opened vs not, progress,

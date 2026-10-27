@@ -19,6 +19,12 @@ class BookStatsActivity final : public Activity {
   GlobalReadingStats allDevicesStats;
   bool showAllDevicesStats = false;
   LibrarySummary library;  // scanned the first time the Library page opens
+  // The Library count runs a slice per loop pass (a large card takes a while)
+  // so buttons keep working; Back stops it.
+  LibraryScanner libraryScanner_;
+  bool libraryScanning_ = false;
+  unsigned long libraryDrawMs_ = 0;
+  void renderLibraryScanProgress();
   bool returnToHomeOnExit = false;
   float progressPercent = -1.0f;
   bool hasEstimatedTimeLeft = false;
@@ -34,6 +40,8 @@ class BookStatsActivity final : public Activity {
   bool ignoreInitialBackRelease = false;
   bool ignoreInitialConfirmRelease = false;
   bool ignoreInitialPowerRelease = false;
+  uint32_t bookPagesDone_ = 0;
+  uint32_t bookPagesTotal_ = 0;
 
   bool hasEditableBook() const { return !bookCachePath.empty() && halClock.isAvailable(); }
   bool usesNoRtcSingleScreenLayout() const { return !halClock.isAvailable(); }
@@ -68,4 +76,10 @@ class BookStatsActivity final : public Activity {
   void loop() override;
   void render(RenderLock&&) override;
   bool allowPowerAsConfirmInReaderMode() const override { return true; }
+  // Pages completed of the book's page count, shown on the book card (both 0:
+  // the card shows page turns instead).
+  void setBookPages(const uint32_t done, const uint32_t total) {
+    bookPagesDone_ = done;
+    bookPagesTotal_ = total;
+  }
 };

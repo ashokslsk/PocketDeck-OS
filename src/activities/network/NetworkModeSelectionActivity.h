@@ -30,7 +30,7 @@ enum class NetworkMode {
 class NetworkModeSelectionActivity final : public Activity {
   // FreeInkApp hosts the mode list (themed rows, icons, touch routing); the
   // header stays on GUI.drawHeader for the battery indicator.
-  using UiHost = UiAppHost<12, 4>;
+  using UiHost = UiAppHost<20, 4>;  // shared size: one copy of the list/route code in flash
   using UiApp = UiHost::App;
 
   ButtonNavigator buttonNavigator;

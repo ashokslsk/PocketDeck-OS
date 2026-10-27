@@ -132,6 +132,8 @@ class ActivityManager {
   void goToSleep(bool fromTimeout = false);
   void goToBoot();
   void goToFullScreenMessage(std::string message, EpdFontFamily::Style style = EpdFontFamily::REGULAR);
+  // The Shut down screen (logo, "Device is off now", a quote).
+  void goToPoweredOff();
   void goToCrashReport();
   void goHome(HomeMenuItem initialMenuItem = HomeMenuItem::NONE,
               HalDisplay::RefreshMode initialRefreshMode = HalDisplay::FAST_REFRESH);

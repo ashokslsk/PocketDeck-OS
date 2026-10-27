@@ -535,7 +535,7 @@ void FrontlightPanelActivity::drawHeader() {
   if (showBookTitle) {
     const auto tokens = uiThemeTokens(uiTarget);
     const Rect homeButton = homeButtonRect();
-    const int titleX = header.x + tokens.headerSidePadding;
+    const int titleX = header.x + std::max<int>(tokens.headerSidePadding, GUI.headerLeftInset());  // clear of the mark
     const int titleRight = homeButton.x - tokens.spaceSm;
     const int titleWidth = std::max(0, titleRight - titleX);
     const std::string visibleTitle = renderer.truncatedText(titleFontId, title, titleWidth, EpdFontFamily::REGULAR);

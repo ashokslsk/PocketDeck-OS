@@ -28,7 +28,7 @@ class EpubReaderPercentSelectionActivity final : public Activity {
   // FreeInkApp hosts the 4x3 numeric keypad (touch always; non-touch once the user
   // holds Confirm to enter it) and its backspace icon. The shared CrossInk back
   // header stays separate. 12 grid keys + 1 backspace, one spare slot; 2 handlers.
-  using UiApp = freeink::ui::FreeInkApp<14, 2>;
+  using UiApp = freeink::ui::FreeInkApp<20, 2>;  // shared size: one copy of the list/route code in flash
 
   static void percentScreen(UiApp::ScreenType& screen, void* user);
   static void onKeypadKeyEvent(const freeink::ui::ActionEvent& event, void* user);

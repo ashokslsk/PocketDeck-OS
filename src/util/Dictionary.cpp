@@ -985,6 +985,33 @@ std::string Dictionary::lookup(const std::string& word, const DictLookupCallback
 // ---------------------------------------------------------------------------
 
 // Resolve the word at 0-based ordinal in .idx using .idx.oft for fast page seek.
+std::string Dictionary::randomWord(const uint32_t seed, const size_t minLetters, const char* cachePath) {
+  const std::string folderPath = readDictPath(cachePath);
+  if (folderPath.empty()) return "";
+  const DictInfo info = readInfo(folderPath.c_str());
+  if (info.wordcount == 0) return "";
+  uint32_t state = seed ? seed : 0x9E3779B9u;
+  for (int attempt = 0; attempt < 24; ++attempt) {
+    // xorshift32: a cheap, well-spread sequence from the seed.
+    state ^= state << 13;
+    state ^= state >> 17;
+    state ^= state << 5;
+    const std::string word = wordAtOrdinal(folderPath, state % info.wordcount);
+    size_t letters = 0;
+    bool ok = !word.empty();
+    for (const char c : word) {
+      const auto u = static_cast<unsigned char>(c);
+      if (c == ' ' || c == '-' || c == '.' || c == '\'' || (u < 0x80 && !std::isalpha(u))) {
+        ok = false;
+        break;
+      }
+      if ((u & 0xC0) != 0x80) ++letters;  // count characters, not UTF-8 bytes
+    }
+    if (ok && letters >= minLetters) return word;
+  }
+  return "";
+}
+
 std::string Dictionary::wordAtOrdinal(const std::string& folderPath, uint32_t ordinal) {
   DictPaths dp(folderPath);
   const DictInfo info = readInfo(folderPath.c_str());

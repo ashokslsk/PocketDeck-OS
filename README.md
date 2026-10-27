@@ -12,6 +12,17 @@ file manager and a speed-reading pacer, all offline and all on the SD card.
 
 ## What's new
 
+- **Saved-item cards and Resurface Trove**: Bookmarks & Clippings shows each book's saved items as cards that open the book at the right place, and Resurface Trove deals a random handful from all your books.
+- **Dictionary across books**: "Lookups in all books" collects every word you looked up while reading, by book, with the date and time; **Word Shelf** gives a word of the day or a random word to learn.
+- **More robust**: hold Power 10 s to force a restart if the screen ever freezes; the Library stats page no longer hangs on big cards; Prepare Whole Book stops at once; a restart and memory log on the card records crashes, watchdog resets, planned restarts and each reading session's memory low point.
+- **About 500 KB of flash free** after building English menus only (books in every language read the same).
+- **Book Info** (reader menu, EPUB and XTC; also on a long press in Recent Books): a popup with title, author, publisher, where the file is on the SD card, a progress bar, and the book's stats: start date, days reading, time read, page you are on of the book's pages, time left, estimated finish date, streak and days not read.
+- **Phonetic and extra symbols everywhere**: dictionary pronunciations keep their IPA (ə ɚ ʌ ɐ ɘ ɵ ʊ ˈ ˌ ː ᵊ …), plus Sanskrit/IAST letters (ṛ ṣ ṭ ḍ ṇ ṃ ḥ) and more math for ML texts (ℒ ℏ 𝔼 𝟙 ⟂ ⨀ ⩽).
+- **Recent Books, sorted your way**: each book shows its reading percentage; hold a book to sort the whole list by recently read, least recently read, reading percentage, name or date finished.
+- **PocketDeck Home**: three latest covers plus a View All Recents tile (its heading counts books past 10%), and a clean tab bar (Explorer · Tools · Transfer · Settings · Stats) with a gray selection.
+- **World Clock** holds up to 30 cities, a page at a time.
+- **Smarter Search in Book**: case, accents, curly quotes, dashes, ligatures and soft hyphens no longer stop a match ("cafe" finds "Café", "don't" finds "don’t"), and it reads chapters faster.
+- **A proper off screen** for Shut down, and a restart log on the card for tracing unexpected restarts.
 - **Speed Read**: a 4 px pacing underline glides under each phrase while the page turns by itself. Presets for English (125 / 200 / 275 / 350 WPM) and Kannada (60 / 100 / 150 / 200 / 250 / 350 WPM), picked automatically for the book; Left/Right fine-tune the pace by 10 WPM while reading (40–600).
 - **Prepare books ahead**: Prepare Whole Book (reader menu) lays out every chapter so page turns are instant; Prepare Folder (Explorer) and Prepare Library (Settings) get book info and folder lists ready for big libraries. Each shows a progress bar, time left and the time it should finish. Clear Prepared Data frees that space and keeps your progress.
 - **Built for huge libraries**: tested with 20,000+ books; book caches are sharded so 40,000+ stay fast, big folders open instantly from a saved list, and the SD layer remembers recently opened books.
@@ -37,12 +48,14 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
   - Japanese, Chinese and Korean books use the included Noto Sans CJK font; Latin and Cyrillic use the built-in fonts.
   - Any `.cpfont` family can be added in `/fonts`.
 - **View Images**: the page's pictures full-screen in grayscale, one at a time.
-- **Search in Book**: find any word or phrase (typed or pasted, English or Kannada) and jump to the exact page, with the match underlined.
+- **Search in Book**: find any word or phrase (typed or pasted, English or Kannada) and jump to the exact page, with the match underlined. Matching ignores letter case and accents and treats curly/straight quotes, dashes, odd spaces, ligatures and hidden soft hyphens alike.
+- **Book Info** (reader menu): metadata (title, author, publisher), a progress bar and this book's stats in one popup.
 - **Copy Text and paste**: select words in a book (reader menu > Copy Text) and paste them into any text field (hold Down), such as Mood notes, Medicine courses or the Dictionary search. The last 50 copies are kept.
 - **Kannada dictionary**: Look Up Word on a Kannada word goes to an installed Kannada dictionary even when the book's dictionary is English, and words are reduced to their dictionary form (ಹಕ್ಕಿಗಳ → ಹಕ್ಕಿ).
 - **Hyphenation** for English, Russian and Spanish books; other languages wrap whole words.
 - **Reading Stats**:
   - Every book gets a progress ring, a start-to-finish timeline, a time-of-day dial that names your busiest period, and day-of-week columns.
+  - "Pages done" shows the page you are on of the book's pages (for example 145/320) when the book has page numbers; otherwise the pages turned.
   - Library and device dashboards cover all books.
 - **Sleep screens** include Book Reading Stats, **Weekly Reading Stats** (days read, time per day, books in progress, reading pattern), wallpapers rotated from `/sleep`, and Kannada book titles.
 - Everything else from CrossInk is kept as it was: bookmarks, highlights (clippings), Focus Reading, Guide Dots, Auto Page Turn, tilt page turn and per-book render modes.
@@ -50,6 +63,8 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
 ### Power button
 
 - Hold **2 s** and release to sleep; hold **4 s** for a Power popup with **Shut down** and **Restart**.
+- Hold **10 s** to force a restart, even when the screen is frozen.
+- **Shut down** leaves an off screen on the panel: the PocketDeck mark, "Device is off now", a reading quote and "Hold Power to turn on".
 
 ### Explorer (files and folders)
 
@@ -62,7 +77,7 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
   - It checks free space first, and a cancelled or failed copy removes everything it wrote.
   - Copying into the same folder makes "Name (copy)", and a copy never overwrites a file.
 - **Search files…** (in the Options sheet): finds files and folders anywhere on the SD card by name; open a book straight from the results.
-- **Info**: type, size, location, reading progress (or a folder's contents) and the SD card's free space.
+- **Info**: type, size, location, reading progress (or a folder's contents), the SD card's format and name (FAT32/exFAT and its label) and free space, then card statistics: files, folders, books, images, the largest and smallest file, and the book you are reading now.
 - **Back-stacking**: from a book back to its folder, then up one folder at a time, then Home. This is remembered across sleep.
 - PDF and MOBI files are listed, and opening one explains how to convert it.
 
@@ -70,19 +85,21 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 - **PocketDeck theme dashboard**:
   - **Now Reading**: the book you're reading, with Continue Reading.
-  - **Recent Books**: four covers, with the selected title in the heading.
+  - **Recent Books**: the three latest covers with their progress, then **View All Recents** (the full list); with it selected, the heading reads "9 books above 10%".
   - **Reading Stats card**: a weekly grid titled with this week's dates (e.g. "12 Oct – 18 Oct"), total time, streak and a ring of days read this week.
-  - **Icon bar**: Explorer · Tools · Recent · Transfer · Settings · Stats.
-- **100 recent books**: the newest 10 stay in memory and the rest live on the SD card, fetched ten at a time with "Older books" / "Newer books".
+  - **Tab bar**: Explorer · Tools · Transfer · Settings · Stats under a single rule, with a light-gray pill on the selected item.
+- **100 recent books**: the newest 10 stay in memory and the rest live on the SD card, fetched ten at a time with "Older books" / "Newer books". Each row shows the book's reading percentage; hold a book for **Sort by** (recently read, least recently read, reading percentage, name, date finished) and **Book Info**.
 - Eight UI themes, including Lyra Carousel with per-book stats under the carousel.
 
 ### Daily tools (Home > Tools)
 
 In this order: **Daily Quote**, **Panchanga**, **World Clock**, **Pomodoro**, **Dictionary**, **Mantras**, **Workout**, **Habits**, **Mood**, **Medicine**, **Stats & export**, **Today**, and **Bookmarks & Clippings**.
 
+- **Dictionary**: search, recent lookups, **Lookups in all books** (each book's looked-up words with the date and time, and totals) and **Word Shelf** (word of the day or a random word of 4+ letters, opened as a paginated flashcard). Hold Search for Word Shelf.
+- **Bookmarks & Clippings**: books with saved items, each opening as cards (one bookmark or clipping per screen, Confirm opens the book there), and **Resurface Trove** for a random handful from every book.
 - **Daily Quote**: a big date first, favourites, and Kannada quotes drawn from the SD card font.
 - **Panchanga**: offline, in **Kannada or English**, any date from **1976 to 2075** with a calendar picker; festival and holiday calendars you can layer from JSON on the SD card.
-- **World Clock**: cities picked on the device from a built-in list; syncs the clock over WiFi.
+- **World Clock**: up to 30 cities picked on the device from a built-in list of about 220, shown a page at a time (Right or the side buttons page through); syncs the clock over WiFi. After picking a city you return to the Cities list; Back from there returns to the clock.
 - **Pomodoro**: a ring that drains clockwise and a focus-history stats page; it redraws once a minute to save battery.
 - **Mantras**: today's mantra, the daily ritual sequence, 35 deities, ritual mantras and kavacha, with a japa counter and stats.
 - **Workout**: pranayama with a breathing circle, Surya Namaskara and asanas, kettlebell / dumbbell / ab wheel / spin bike intervals with a rep counter, and Baduanjin, Tai Chi and other longevity practices. Each comes with stick-figure guides, Kannada names and beginner/advanced timings, and every session is saved with stats.
@@ -238,7 +255,7 @@ Ids can be any short word without `|`. Each tick is logged in
 
 | File | What you can change |
 | --- | --- |
-| `/tools/worldclock.txt` | Cities (max 6): name, UTC offset and DST rule (US, EU, AU, NZ or NONE), separated by `\|`. On the device: World Clock > Left (Cities) |
+| `/tools/worldclock.txt` | Cities (max 30): name, UTC offset and DST rule (US, EU, AU, NZ or NONE), separated by `\|`. On the device: World Clock > Left (Cities) |
 | `/tools/pomodoro.txt` | `focus=25` and `break=5` minutes |
 | `/tools/panchanga.txt` | `lat=`, `lon=`, `tz=` for your town (default Bengaluru), `animate=0/1`, `lang=kn` or `lang=en` (or Panchanga > Confirm (Menu)) |
 | `/tools/daily.json` | Today's to-do list (also editable on the device) |
@@ -324,6 +341,7 @@ The UI now uses [Inter](https://fonts.google.com/specimen/Inter) as the display 
 ### Music and Supplemental Glyphs
 
 - Built-in reader fonts include music notation, selected Cyrillic glyphs, and the Project Hail Mary CJK fallback ranges. Additional SD-card fonts retain emoji fallback support.
+- A shared symbol fallback font (`math_10`–`math_16`, built by `lib/EpdFont/scripts/generate-math-fallback.sh`) gives every built-in font the IPA and phonetic letters (ə ɚ ʌ ʊ ˈ ː ᵊ …), Sanskrit/IAST letters, Greek used in math, math operators and arrows, letterlike symbols (ℒ ℏ ℵ), and 𝔼, 𝟙 and script capitals.
 
 ---
 
@@ -359,6 +377,7 @@ CrossInk runs on an ESP32-C3 with limited RAM, so very large folders or complex 
 - **Indexing Method** (Reader settings): *Full Section* (default) builds each chapter once and pre-builds the next chapter while you read, so page turns and chapter changes are instant. *Incremental* shows a new font or margin setting sooner but builds the next chapter only when you reach it. Pick the one you notice more.
 - If an EPUB is unusually slow, try [optimizing](./docs/webserver.md#epub-optimization) it with the built-in web optimizer (via File Transfer) before copying it to the SD card: remove unused high-resolution images, split very large omnibus files, and avoid embedding multiple full font families when possible.
 - Use a reliable SD card and leave some free space. CrossInk stores settings, reading progress, cache files, stats, and generated book data on the card.
+- If the device restarts on its own, look at `/.pocketdeck-os/restart_log.txt` on the card (it also lists each reading session's lowest free memory): each line has the time, the reason (crash, watchdog, brownout, or a planned low-memory restart while reading) and the free memory. A crash also leaves `/crash_report.txt`.
 
 ---
 

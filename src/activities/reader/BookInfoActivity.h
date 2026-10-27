@@ -13,9 +13,12 @@
 struct BookInfoData {
   std::string title;
   std::string author;
+  std::string path;  // the book's file on the SD card, shown at the card's foot
   char publisher[64] = {};  // empty when the book does not name one
   float progressPercent = -1.0f;
   BookReadingStats stats;  // includes the current session's time
+  uint32_t pagesDone = 0;   // page you are on of pagesTotal (0: not known)
+  uint32_t pagesTotal = 0;
   bool hasTimeLeft = false;
   uint32_t timeLeftSeconds = 0;
   GlobalReadingStats globalStats;  // day-by-day history, used for streaks and days off

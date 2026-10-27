@@ -30,7 +30,7 @@ class DictionaryToolActivity final : public Activity {
  private:
   using UiApp = freeink::ui::FreeInkApp<20, 4>;
   static constexpr freeink::ui::ActionId ACTION_ROW = 1;
-  enum class RowKind : uint8_t { Search, Copied, History };
+  enum class RowKind : uint8_t { Search, WordShelf, AllBooks, Copied, History };
   struct Row {
     RowKind kind;
     uint16_t index;  // into copies / history
@@ -42,6 +42,13 @@ class DictionaryToolActivity final : public Activity {
   void reload();
   void activate(int rowIndex);
   void openSearch();
+  // Lookups across all books: books with word counts, then one book's words.
+  // Back goes up one level at a time (words -> books -> this list).
+  // Word Shelf: the word of the day (same all day) or another random word of 4+
+  // letters from the dictionary, opened as a flashcard in the definition view.
+  void openWordShelf();
+  void openAllBooks(int selected = 0);
+  void openBookWords(const std::string& cachePath, const std::string& title, int bookRow);
   void lookUp(const std::string& text);
   void confirmDeleteHistory(bool ignoreInitialConfirmRelease);
   std::string dictionaryName() const;
@@ -54,6 +61,7 @@ class DictionaryToolActivity final : public Activity {
   std::vector<std::string> labels;
   std::vector<freeink::ui::ListItem> uiItems;
   int selectedIndex = 0;
+  bool allBooksLongPressFired_ = false;
   int topIndex = 0;
   int visibleRows = 1;
   bool uiReady = false;

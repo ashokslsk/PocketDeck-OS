@@ -97,7 +97,7 @@ class NearbyBookTransferActivity final : public Activity {
 
   ButtonNavigator buttonNavigator_;
 
-  using UiApp = freeink::ui::FreeInkApp<8, 4>;
+  using UiApp = freeink::ui::FreeInkApp<20, 4>;  // shared size: one copy of the list/route code in flash
   static constexpr freeink::ui::ActionId ACTION_ROW = 1;
   freeink::ui::GfxRendererTarget uiTarget_;  // Must precede app_: app_ holds a reference to it.
   UiApp app_;

@@ -17,6 +17,7 @@
 #include "RecentBooksStore.h"
 #include "SilentRestart.h"
 #include "boot_sleep/BootActivity.h"
+#include "boot_sleep/PoweredOffActivity.h"
 #include "boot_sleep/SleepActivity.h"
 #include "browser/OpdsBookBrowserActivity.h"
 #include "components/TouchRegistry.h"
@@ -774,6 +775,10 @@ void ActivityManager::goToBoot() { replaceActivity(std::make_unique<BootActivity
 
 void ActivityManager::goToFullScreenMessage(std::string message, EpdFontFamily::Style style) {
   replaceActivity(std::make_unique<FullScreenMessageActivity>(renderer, mappedInput, std::move(message), style));
+}
+
+void ActivityManager::goToPoweredOff() {
+  replaceActivity(std::make_unique<PoweredOffActivity>(renderer, mappedInput));
 }
 
 void ActivityManager::goHome(HomeMenuItem initialMenuItem, const HalDisplay::RefreshMode initialRefreshMode) {

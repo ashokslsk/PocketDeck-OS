@@ -336,6 +336,11 @@ void GfxRenderer::insertFont(const int fontId, EpdFontFamily font) {
   }
 }
 
+bool GfxRenderer::fontHasCodepoint(const int fontId, const uint32_t cp) const {
+  const auto it = fontMap.find(fontId);
+  return it != fontMap.end() && it->second.hasCodepoint(cp, EpdFontFamily::REGULAR);
+}
+
 int GfxRenderer::monospaceFontFor(const int fontId) const {
   if (monoFontIds_.empty()) return fontId;
   if (std::find(monoFontIds_.begin(), monoFontIds_.end(), fontId) != monoFontIds_.end()) return fontId;

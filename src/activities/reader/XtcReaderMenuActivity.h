@@ -36,7 +36,7 @@ class XtcReaderMenuActivity final : public Activity {
   bool allowGlobalHomeGesture() const override { return false; }
 
  private:
-  using UiHost = UiAppHost<8, 2>;
+  using UiHost = UiAppHost<20, 2>;  // shared size: one copy of the list/route code in flash
   using UiApp = UiHost::App;
   static constexpr size_t kMaxMenuItems = 7;
 

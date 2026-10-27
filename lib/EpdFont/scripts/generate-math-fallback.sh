@@ -1,0 +1,74 @@
+#!/bin/bash
+# Shared symbol fallback font (math_10/12/14/16): every built-in reading and UI
+# font falls back to it (main.cpp setSymbolFallback) for code points it lacks.
+# Keeping rarer scripts here — one Regular face per size — costs a fraction of
+# adding them to all 32 reading-font faces.
+#
+# Sources: NotoSans first (Latin, IPA, phonetic, letterlike), then STIX Two
+# Math for operators, arrows and math alphanumerics NotoSans does not have.
+
+set -e
+
+cd "$(dirname "$0")"
+
+NOTO="../builtinFonts/source/NotoSans/NotoSans-Regular.ttf"
+STIX="../builtinFonts/source/STIXTwoMath/STIXTwoMath-Regular.otf"
+
+RANGES=(
+  # Latin-1 symbols the reading fonts may lack: § ¬ ° ± ² ³ µ · ¹ ¼-¾ × ÷
+  0xA7,0xA7 0xAC,0xAC 0xB0,0xB3 0xB5,0xB5 0xB7,0xB7 0xB9,0xB9 0xBC,0xBE 0xD7,0xD7 0xF7,0xF7
+  0x177,0x177
+  # Latin Extended-B letters outside the reading fonts' subsets: Ǝ Ə Ɛ ƒ Ɣ ƛ,
+  # IPA clicks ǀ ǁ ǂ ǃ, dotless ȷ (math), ȿ ɀ
+  0x18E,0x192 0x194,0x196 0x19B,0x19B 0x1C0,0x1C3 0x237,0x237 0x23F,0x240
+  # IPA Extensions: ə ɚ ɝ ʌ ɐ ɘ ɵ ʊ ɪ ɒ ʃ ʒ ɑ ɔ ɛ ɜ ɡ ɹ ʔ …
+  0x250,0x2AF
+  # Spacing Modifier Letters: ʰ ʲ ʷ ʼ ˈ ˌ ː ˑ ˘ ˜ ˞ (rhotic hook) ˠ ˡ ˢ ˣ ˤ
+  0x2B0,0x2DF 0x2E0,0x2E4
+  # Combining marks used in math and IPA
+  0x300,0x308 0x30A,0x30A 0x30C,0x30C 0x332,0x332 0x338,0x338
+  # Greek letters used in math
+  0x391,0x3A9 0x3B1,0x3C9 0x3D1,0x3D1 0x3D5,0x3D6 0x3F0,0x3F1 0x3F5,0x3F5
+  # Phonetic Extensions: modifier letters (ᵃ ᵇ … ᵊ superscript schwa …) and
+  # ᵻ ᵿ (barred vowels in dictionary IPA), plus ᶜ ᶠ ᶻ
+  0x1D2C,0x1D7F 0x1D9C,0x1D9C 0x1DA0,0x1DA0 0x1DBB,0x1DBB
+  # Latin Extended Additional for Sanskrit/IAST transliteration and German:
+  # Ḍ ḍ Ḥ ḥ Ḷ ḷ Ḹ ḹ Ṁ ṁ Ṃ ṃ Ṅ ṅ Ṇ ṇ Ṛ ṛ Ṝ ṝ Ṣ ṣ Ṭ ṭ Ẓ ẓ ẞ
+  0x1E0C,0x1E0D 0x1E24,0x1E25 0x1E36,0x1E39 0x1E40,0x1E47 0x1E5A,0x1E5D 0x1E62,0x1E63 0x1E6C,0x1E6D
+  0x1E92,0x1E93 0x1E9E,0x1E9E
+  # Punctuation and math marks
+  0x2016,0x2016 0x2020,0x2021 0x2026,0x2026 0x2032,0x2037 0x2044,0x2044 0x2057,0x2057
+  0x2070,0x209C 0x20D0,0x20D7 0x20E1,0x20E1
+  # Letterlike Symbols (ℂ ℍ ℒ ℕ ℙ ℚ ℝ ℤ ℓ ℏ ℵ ℱ ℳ …) and vulgar fractions (⅓ ⅛ …)
+  0x2100,0x214F 0x2150,0x215E
+  # Arrows
+  0x2190,0x21D9 0x21E6,0x21E9
+  # Mathematical Operators (all)
+  0x2200,0x22FF
+  # Misc Technical: ⌀ ⌈⌉⌊⌋ ⌒ 〈〉 ⏞⏟
+  0x2300,0x2300 0x2308,0x230B 0x2312,0x2312 0x2329,0x232A 0x23DE,0x23DF
+  # Geometric shapes and marks used in texts
+  0x25A0,0x25A1 0x25B2,0x25B3 0x25B6,0x25B7 0x25BC,0x25BD 0x25C0,0x25C1 0x25C6,0x25C7 0x25CB,0x25CB 0x25CF,0x25CF
+  0x2713,0x2713 0x2717,0x2717
+  # ⟂ (perpendicular), ⟦⟧ ⟨⟩ ⟪⟫ ⟮⟯, long arrows ⟵ ⟶ ⟷ ⟸ ⟹ ⟺ ⟻ ⟼
+  0x27C2,0x27C2 0x27E6,0x27EF 0x27F5,0x27FC
+  # ⦃⦄ ⦅⦆ (set/tuple brackets)
+  0x2983,0x2986
+  # n-ary ⨀ ⨁ ⨂ ⨃ ⨄ ⨅ ⨆, ⨯, ⩽ ⩾, ⪯ ⪰
+  0x2A00,0x2A06 0x2A2F,0x2A2F 0x2A7D,0x2A7E 0x2AAF,0x2AB0
+  0x2C7C,0x2C7C
+  # Math alphanumerics common in ML texts: script capitals (𝒜 𝒟 𝒩 𝒪 𝒳 …),
+  # double-struck capitals (𝔸 𝔼 …) and 𝟙 (indicator function)
+  0x1D49C,0x1D4B5 0x1D538,0x1D551 0x1D7D9,0x1D7D9
+)
+
+interval_args=()
+for range in "${RANGES[@]}"; do
+  interval_args+=(--additional-intervals "$range")
+done
+
+for size in 10 12 14 16; do
+  python fontconvert.py "math_${size}" "$size" "$NOTO" "$STIX" --2bit --compress --zopfli --no-default-intervals \
+    "${interval_args[@]}" > "../builtinFonts/math_${size}.h"
+  echo "Generated math_${size}.h"
+done

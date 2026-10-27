@@ -14,8 +14,9 @@ class Epub;
 // Reader menu > Search in Book: finds a word or phrase in every chapter.
 // Chapters are read straight from the EPUB with their markup skipped (no page
 // layout needed), one chapter per loop pass so the progress line moves and
-// Back stops early. Matching ignores letter case for Latin text; Kannada and
-// other scripts match exactly. Each result shows the text around the match and
+// Back stops early. Matching ignores letter case and Latin accents, treats
+// curly and straight quotes, dashes and odd spaces alike and skips soft
+// hyphens and ligatures; Kannada and other scripts match exactly. Each result shows the text around the match and
 // its chapter; choosing one returns BookmarkResult{spine, progress} and the
 // reader opens the page with the match highlighted.
 class BookSearchActivity final : public Activity {
@@ -27,6 +28,9 @@ class BookSearchActivity final : public Activity {
     std::string snippet;
   };
   static constexpr size_t kMaxHits = 60;
+  // The search folding (case, accents, quotes, dashes, spaces, ligatures, soft
+  // hyphens) as one string, so the reader finds and underlines the same match.
+  static std::string foldText(const std::string& text);
 
   BookSearchActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::shared_ptr<Epub> epub,
                      std::string query);
@@ -49,7 +53,8 @@ class BookSearchActivity final : public Activity {
 
   std::shared_ptr<Epub> epub_;
   std::string query_;
-  std::string needle_;  // normalized query
+  std::string needle_;             // folded query (see foldForSearch)
+  std::vector<uint16_t> failure_;  // KMP table for needle_
   std::vector<Hit> hits_;
   int nextSpine_ = 0;
   int spineCount_ = 0;

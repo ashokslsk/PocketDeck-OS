@@ -2044,6 +2044,24 @@ void FileBrowserActivity::showInfo(const std::string& fullPath, const std::strin
 #endif
   int usageRow = -1;
   int usedPermille = 0;
+  // "SD card · exFAT · POCKETDECK": the card's format and name (read from its
+  // boot sector) ride on the SD card row's label line, so they never take a
+  // row of their own and push the space bar off the page.
+  std::string cardLabel = tr(STR_INFO_SD_CARD);
+#ifndef SIMULATOR
+  {
+    char fsType[8];
+    char volumeLabel[24];
+    if (Storage.describeVolume(fsType, sizeof(fsType), volumeLabel, sizeof(volumeLabel))) {
+      cardLabel += std::string(" \xC2\xB7 ") + fsType;
+      if (volumeLabel[0] != '\0') cardLabel += std::string(" \xC2\xB7 ") + volumeLabel;
+    }
+  }
+#endif
+  if (cardTotal == 0) {
+    LOG_ERR("FileBrowser", "Info: card size unavailable; showing the card row without space");
+    rows.emplace_back(cardLabel, tr(STR_INFO_SD_CARD));
+  }
   if (cardTotal > 0) {
     const std::string freeText = formatByteSize(cardUsed < cardTotal ? cardTotal - cardUsed : 0);
     const std::string totalText = formatByteSize(cardTotal);
@@ -2051,7 +2069,7 @@ void FileBrowserActivity::showInfo(const std::string& fullPath, const std::strin
     snprintf(space, sizeof(space), tr(STR_INFO_FREE_OF_FORMAT), freeText.c_str(), totalText.c_str());
     usageRow = static_cast<int>(rows.size());
     usedPermille = static_cast<int>(std::min<uint64_t>(cardUsed, cardTotal) * 1000 / cardTotal);
-    rows.emplace_back(tr(STR_INFO_SD_CARD), space);
+    rows.emplace_back(cardLabel, space);
   }
 
   auto info = makeUniqueNoThrow<FileInfoActivity>(renderer, mappedInput, name, std::move(rows));

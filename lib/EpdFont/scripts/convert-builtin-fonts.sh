@@ -174,6 +174,9 @@ generate_reading_fonts
 # Shared fixed-size UI symbols
 bash ./generate-ui-symbols.sh
 
+# Shared symbol fallback (IPA, phonetic, extra Latin, math) for every font
+bash ./generate-math-fallback.sh
+
 # UI Font - Inter
 
 UI_FONT_SIZES=(10 12)

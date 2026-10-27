@@ -20,7 +20,7 @@ class ButtonRemapActivity final : public Activity {
   void render(RenderLock&&) override;
 
  private:
-  using UiHost = UiAppHost<4, 1>;
+  using UiHost = UiAppHost<20, 1>;  // shared size: one copy of the list/route code in flash
   using UiApp = UiHost::App;
 
   bool readerMode;

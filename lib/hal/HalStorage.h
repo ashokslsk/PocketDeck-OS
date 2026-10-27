@@ -31,6 +31,10 @@ class HalStorage {
   void shutdown();
   uint64_t totalBytes() const;
   uint64_t usedBytes();
+  // Card format and name for display: fsType gets "FAT16", "FAT32" or
+  // "exFAT"; label the volume label (empty if the card has none). Reads the
+  // boot and first root-directory sectors directly (read-only, 512 B heap).
+  bool describeVolume(char* fsType, size_t fsTypeSize, char* label, size_t labelSize);
   std::vector<String> listFiles(const char* path = "/", int maxFiles = 200);
   // Read the entire file at `path` into a String. Returns empty string on failure.
   String readFile(const char* path);

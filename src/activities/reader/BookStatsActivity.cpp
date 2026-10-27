@@ -2,10 +2,14 @@
 
 #include <I18n.h>
 
+#include <cstdio>
+
 #include "BookStatsView.h"
 #include "MappedInputManager.h"
+#include "components/CompactHeader.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
+#include "fontIds.h"
 #include "util/InputReleaseGuard.h"
 
 namespace {
@@ -307,9 +311,10 @@ bool BookStatsActivity::showNextStatsPage() {
   }
 
   if (page == Page::ThisDevice || page == Page::AllDevices) {
-    if (!library.scanned) {
-      RenderLock lock(*this);
-      library = LibrarySummary::scan();
+    if (!library.scanned && !libraryScanning_) {
+      libraryScanner_.begin();
+      libraryScanning_ = true;
+      libraryDrawMs_ = 0;
     }
     page = Page::Library;
     requestUpdate();
@@ -441,6 +446,29 @@ void BookStatsActivity::loop() {
     return;
   }
 
+  if (libraryScanning_) {
+    // Back stops the count and returns to the previous stats page. Checked as
+    // held too: a slice can outlast a quick tap, and its edges would be missed.
+    using Btn = MappedInputManager::Button;
+    if (mappedInput.isPressed(Btn::Back) || mappedInput.wasPressed(Btn::Back) || mappedInput.wasReleased(Btn::Back) ||
+        mappedInput.wasPressed(Btn::Up) || mappedInput.wasPressed(Btn::Left)) {
+      mappedInput.suppressNextBackRelease();
+      libraryScanner_.cancel();
+      libraryScanning_ = false;
+      showPreviousStatsPage();
+      return;
+    }
+    if (libraryScanner_.step(25)) {
+      library = libraryScanner_.summary();
+      libraryScanning_ = false;
+      requestUpdate();
+    } else if (millis() - libraryDrawMs_ >= 1500) {
+      libraryDrawMs_ = millis();
+      requestUpdate();
+    }
+    return;
+  }
+
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
     mappedInput.suppressNextBackRelease();
     exitStatsActivity();
@@ -497,11 +525,25 @@ void BookStatsActivity::loop() {
   }
 }
 
+void BookStatsActivity::renderLibraryScanProgress() {
+  renderer.clearScreen();
+  CompactHeader::drawTitle(renderer, tr(STR_STATS_LIBRARY));
+  const int midY = renderer.getScreenHeight() / 2;
+  renderer.drawCenteredText(UI_12_FONT_ID, midY - 30, tr(STR_STATS_SCANNING_LIBRARY), true, EpdFontFamily::BOLD);
+  char line[48];
+  snprintf(line, sizeof(line), tr(STR_STATS_SCANNED_BOOKS_FORMAT),
+           static_cast<unsigned>(libraryScanner_.summary().books));
+  renderer.drawCenteredText(UI_10_FONT_ID, midY + 6, line);
+  const auto labels = mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_BACK)), "", "", "");
+  GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  renderer.displayBuffer(HalDisplay::FAST_REFRESH);
+}
+
 void BookStatsActivity::render(RenderLock&&) {
   if (usesNoRtcSingleScreenLayout()) {
     renderNoRtcCombinedStatsPage(renderer, &mappedInput, bookTitle, stats, progressPercent, hasEstimatedTimeLeft,
                                  estimatedTimeLeftSeconds, globalStats,
-                                 showAllDevicesStats ? &allDevicesStats : nullptr, true);
+                                 showAllDevicesStats ? &allDevicesStats : nullptr, true, bookPagesDone_, bookPagesTotal_);
     renderer.displayBuffer();
     return;
   }
@@ -509,7 +551,7 @@ void BookStatsActivity::render(RenderLock&&) {
   switch (page) {
     case Page::PerBook:
       renderPerBookStatsPage(renderer, &mappedInput, bookTitle, stats, progressPercent, hasEstimatedTimeLeft,
-                             estimatedTimeLeftSeconds, true, hasEditableBook(), true);
+                             estimatedTimeLeftSeconds, true, hasEditableBook(), true, bookPagesDone_, bookPagesTotal_);
       break;
     case Page::ThisDevice:
       renderGlobalStatsPage(renderer, &mappedInput, tr(STR_STATS_THIS_DEVICE_SCREEN), globalStats, true, true);
@@ -518,6 +560,10 @@ void BookStatsActivity::render(RenderLock&&) {
       renderGlobalStatsPage(renderer, &mappedInput, tr(STR_STATS_ALL_DEVICES_SCREEN), allDevicesStats, true, true);
       break;
     case Page::Library:
+      if (libraryScanning_) {
+        renderLibraryScanProgress();
+        return;
+      }
       renderLibraryStatsPage(renderer, &mappedInput, library, globalStats, true);
       break;
     case Page::EditDates:

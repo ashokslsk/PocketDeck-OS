@@ -31,7 +31,27 @@ class LookupHistory {
   // Remove one of the visible entries by distance from newest (0 = newest).
   static bool removeRecentAt(const std::string& cachePath, int indexFromNewest);
 
+  // Every lookup made while reading also lands in one global log,
+  // /.pocketdeck-os/lookup_history_all.txt ("<book cache>|<YYYY-MM-DD HH:MM>|
+  // <word>|S" per line, oldest first, oldest half dropped past 64 KB), so the
+  // Dictionary tool can show words across all books with when they were looked
+  // up. Only book caches are recorded; each book keeps its own history too.
+  struct BookLookups {
+    std::string cachePath;
+    std::string title;  // from the cache's source.path (file name without extension)
+    uint16_t words = 0;
+  };
+  // Books with lookups, most recently used first, plus the total word count.
+  static std::vector<BookLookups> loadAllBooks(uint32_t& totalWords);
+  struct TimedWord {
+    std::string word;
+    std::string when;  // "2026-10-23 14:03", empty if the clock was not set
+  };
+  // One book's looked-up words, newest first (at most `max`).
+  static std::vector<TimedWord> loadBookWords(const std::string& cachePath, size_t max);
+
  private:
   static std::string filePath(const std::string& cachePath);
+  static void appendGlobal(const std::string& cachePath, const std::string& word, Status status);
   static std::vector<Entry> readRecent(const std::string& path);
 };

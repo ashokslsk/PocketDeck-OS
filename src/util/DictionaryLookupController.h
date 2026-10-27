@@ -133,7 +133,7 @@ class DictionaryLookupController {
  private:
   void chooseDictionaryForWord(const std::string& word);
 #if CROSSINK_APP_CAP_TOUCH
-  using AltFormUiApp = freeink::ui::FreeInkApp<3, 1>;
+  using AltFormUiApp = freeink::ui::FreeInkApp<20, 1>;  // shared size: one copy of the list/route code in flash
   static constexpr freeink::ui::ActionId ACTION_ALT_FORM_NO = 1;
   static constexpr freeink::ui::ActionId ACTION_ALT_FORM_YES = 2;
   static constexpr freeink::ui::ActionId ACTION_CREATE_CLIPPING = 3;

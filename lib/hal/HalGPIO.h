@@ -97,6 +97,9 @@ class HalGPIO {
   bool wasAnyReleased() const;
   unsigned long getHeldTime() const;
   unsigned long getPowerButtonHeldTime() const;
+  // Plain pin read of the Power button (no debounce or input state), safe from
+  // another task; used by the force-restart watchdog.
+  bool isPowerButtonPhysicallyPressed() const;
 #if CROSSINK_APP_CAP_TOUCH
   bool hasTouch() const;
   bool supportsMultiTouch() const;

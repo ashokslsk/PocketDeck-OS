@@ -63,7 +63,7 @@ class IntervalSelectionActivity final : public Activity {
   ButtonNavigator buttonNavigator;
 
 #if CROSSINK_APP_CAP_TOUCH
-  using UiApp = freeink::ui::FreeInkApp<8, 3>;
+  using UiApp = freeink::ui::FreeInkApp<20, 3>;  // shared size: one copy of the list/route code in flash
   freeink::ui::GfxRendererTarget uiTarget;
   UiApp app;
   std::atomic<bool> uiReady{false};

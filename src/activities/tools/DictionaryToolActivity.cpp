@@ -6,13 +6,18 @@
 #include <Logging.h>
 #include <Memory.h>
 
+#include <Arduino.h>
+
 #include <algorithm>
+#include <cstdlib>
 
 #include "MappedInputManager.h"
 #include "activities/reader/DictionaryDefinitionActivity.h"
 #include "activities/reader/KannadaReading.h"
+#include "activities/reader/ReadingStatsUtils.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/KeyboardEntryActivity.h"
+#include "activities/util/OptionSelectionActivity.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
 #include "components/UiAppHelpers.h"
@@ -81,6 +86,10 @@ void DictionaryToolActivity::reload() {
   labels.reserve(rows.capacity());
   rows.push_back({RowKind::Search, 0});
   labels.push_back(std::string(tr(STR_DICT_TOOL_SEARCH)));
+  rows.push_back({RowKind::WordShelf, 0});
+  labels.push_back(std::string(tr(STR_DICT_WORD_SHELF)));
+  rows.push_back({RowKind::AllBooks, 0});
+  labels.push_back(std::string(tr(STR_DICT_ALL_BOOK_LOOKUPS)));
   for (size_t i = 0; i < copies.size(); ++i) {
     rows.push_back({RowKind::Copied, static_cast<uint16_t>(i)});
     labels.push_back(std::string(tr(STR_DICT_TOOL_COPIED)) + " \xc2\xb7\xc2\xa0" + copies[i]);
@@ -142,7 +151,10 @@ void DictionaryToolActivity::onRowEvent(const fui::ActionEvent& event, void* use
   self->selectedIndex = event.value;
   self->app.clearTapFlash();
   if (event.longPress) {
-    if (self->rows[self->selectedIndex].kind == RowKind::History) self->confirmDeleteHistory(false);
+    const RowKind kind = self->rows[self->selectedIndex].kind;
+    if (kind == RowKind::History) self->confirmDeleteHistory(false);
+    if (kind == RowKind::Search || kind == RowKind::WordShelf) self->openWordShelf();
+    if (kind == RowKind::AllBooks) self->openAllBooks();
     return;
   }
   self->activate(self->selectedIndex);
@@ -155,6 +167,12 @@ void DictionaryToolActivity::activate(const int rowIndex) {
     case RowKind::Search:
       openSearch();
       return;
+    case RowKind::WordShelf:
+      openWordShelf();
+      return;
+    case RowKind::AllBooks:
+      openAllBooks();
+      return;
     case RowKind::Copied:
       if (row.index < copies.size()) lookUp(copies[row.index]);
       return;
@@ -162,6 +180,112 @@ void DictionaryToolActivity::activate(const int rowIndex) {
       if (row.index < history.size()) controller.startLookup(history[row.index].word);
       return;
   }
+}
+
+void DictionaryToolActivity::openWordShelf() {
+  // The word of the day comes from the day number, so it stays put all day.
+  uint32_t daySeed = 0;
+  ReadingStatsDateTime now;
+  if (getCurrentLocalReadingStatsDateTime(now)) daySeed = readingStatsDayIndex(now.date) * 2654435761u;
+  const std::string today = Dictionary::randomWord(daySeed ? daySeed : 12345u, 4, cachePath.c_str());
+  if (today.empty()) {
+    LOG_ERR("DICTOOL", "Word Shelf: no dictionary word found");
+    requestUpdate();
+    return;
+  }
+  std::vector<std::string> options;
+  options.emplace_back(std::string(tr(STR_DICT_WORD_OF_DAY)) + ": " + today);
+  options.emplace_back(tr(STR_DICT_RANDOM_WORD));
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "WordShelf",
+                                                           StrId::STR_DICT_WORD_SHELF, std::move(options), 0);
+  if (!picker) return;
+  picker->showCurrentMarker = false;
+  startActivityForResult(std::move(picker), [this, today](const ActivityResult& result) {
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (result.isCancelled || !sel) {
+      requestUpdate();
+      return;
+    }
+    if (sel->index == 0) {
+      controller.startLookup(today);
+      return;
+    }
+    const std::string word = Dictionary::randomWord(esp_random(), 4, cachePath.c_str());
+    if (!word.empty()) controller.startLookup(word);
+  });
+}
+
+void DictionaryToolActivity::openAllBooks(const int selected) {
+  uint32_t total = 0;
+  auto books = LookupHistory::loadAllBooks(total);
+  if (books.size() > 200) books.resize(200);  // the picker indexes rows with a byte
+  std::vector<std::string> options;
+  options.reserve(books.size() + 1);
+  char line[96];
+  // Row 0 sums it up; the books follow, most recently used first.
+  snprintf(line, sizeof(line), tr(STR_DICT_LOOKUPS_SUMMARY_FORMAT), static_cast<unsigned>(total),
+           static_cast<unsigned>(books.size()));
+  options.emplace_back(line);
+  for (const auto& book : books) {
+    snprintf(line, sizeof(line), tr(STR_DICT_BOOK_WORDS_FORMAT), book.title.c_str(), static_cast<unsigned>(book.words));
+    options.emplace_back(line);
+  }
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(
+      renderer, mappedInput, "DictAllBooks", StrId::STR_DICT_ALL_BOOK_LOOKUPS, std::move(options),
+      static_cast<uint8_t>(std::clamp(selected, 0, static_cast<int>(books.size()))));
+  if (!picker) return;
+  picker->showCurrentMarker = false;
+  startActivityForResult(std::move(picker), [this, books](const ActivityResult& result) {
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (result.isCancelled || !sel) {
+      requestUpdate();
+      return;
+    }
+    const int row = static_cast<int>(sel->index);
+    if (row <= 0 || row > static_cast<int>(books.size())) {
+      openAllBooks(0);
+      return;
+    }
+    const auto& book = books[static_cast<size_t>(row - 1)];
+    openBookWords(book.cachePath, book.title, row);
+  });
+}
+
+void DictionaryToolActivity::openBookWords(const std::string& bookCache, const std::string& title, const int bookRow) {
+  auto words = LookupHistory::loadBookWords(bookCache, 120);
+  if (words.empty()) {
+    openAllBooks(bookRow);
+    return;
+  }
+  // "serendipity  ·  23 Oct 14:03"
+  std::vector<std::string> options;
+  options.reserve(words.size());
+  for (const auto& w : words) {
+    std::string label = w.word;
+    if (w.when.size() >= 16) {
+      ReadingStatsDate date;
+      date.year = static_cast<uint16_t>(atoi(w.when.c_str()));
+      date.month = static_cast<uint8_t>(atoi(w.when.c_str() + 5));
+      date.day = static_cast<uint8_t>(atoi(w.when.c_str() + 8));
+      char shortDate[16];
+      formatReadingStatsShortDate(date, shortDate, sizeof(shortDate));
+      label += "  \xC2\xB7  " + std::string(shortDate) + " " + w.when.substr(11, 5);
+    }
+    options.push_back(std::move(label));
+  }
+  auto picker = makeUniqueNoThrow<OptionSelectionActivity>(renderer, mappedInput, "DictBookWords",
+                                                           StrId::STR_DICT_ALL_BOOK_LOOKUPS, std::move(options), 0);
+  if (!picker) return;
+  picker->showCurrentMarker = false;
+  (void)title;
+  startActivityForResult(std::move(picker), [this, words, bookRow](const ActivityResult& result) {
+    const auto* sel = std::get_if<OptionSelectionResult>(&result.data);
+    if (result.isCancelled || !sel || static_cast<size_t>(sel->index) >= words.size()) {
+      openAllBooks(bookRow);  // Back: up to the books list
+      return;
+    }
+    controller.startLookup(words[static_cast<size_t>(sel->index)].word);
+  });
 }
 
 void DictionaryToolActivity::openSearch() {
@@ -251,13 +375,20 @@ void DictionaryToolActivity::loop() {
     }
   }
 
-  // Hold Confirm on a history word to delete it.
+  // Hold Confirm on a history word to delete it; on Search, for every book's lookups.
   if (mappedInput.isPressed(MappedInputManager::Button::Confirm) &&
-      mappedInput.getHeldTime() >= Dictionary::LONG_PRESS_MS && selectedIndex < static_cast<int>(rows.size()) &&
-      rows[selectedIndex].kind == RowKind::History) {
-    confirmDeleteHistory(true);
-    return;
+      mappedInput.getHeldTime() >= Dictionary::LONG_PRESS_MS && selectedIndex < static_cast<int>(rows.size())) {
+    if (rows[selectedIndex].kind == RowKind::History) {
+      confirmDeleteHistory(true);
+      return;
+    }
+    if (rows[selectedIndex].kind == RowKind::Search && !allBooksLongPressFired_) {
+      allBooksLongPressFired_ = true;
+      openWordShelf();  // hold Search: a word to learn
+      return;
+    }
   }
+  if (!mappedInput.isPressed(MappedInputManager::Button::Confirm)) allBooksLongPressFired_ = false;
 
   const int total = static_cast<int>(rows.size());
   buttonNavigator.onNextRelease([this, total] {

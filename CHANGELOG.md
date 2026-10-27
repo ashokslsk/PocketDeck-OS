@@ -1,3 +1,45 @@
+## [PocketDeck-OS 1.0.0, Smaller firmware, saved-item cards and stability] - 2026-10-27
+
+### Added
+
+- Bookmarks & Clippings shows each book's saved items as cards, one per screen (book, chapter, the clipped text or bookmark snippet); Left/Right page through them and Confirm opens the book at that place. **Resurface Trove** (first row) deals a random handful of saved items from every book to revisit.
+- Dictionary (Tools): **Lookups in all books** lists every book you looked words up in, with word counts and a total; pick a book for its words with the date and time each was looked up, and pick a word to look it up again. Each book's own Lookup History is unchanged.
+- Dictionary (Tools): **Word Shelf** (or hold Search): the word of the day (the same word all day) or another random word of four or more letters from your dictionary, shown in the paginated definition view.
+- Book Info shows where the book is on the SD card (folder and file name), including from Recent Books.
+- Hold Power for 10 seconds to force a restart even when the screen is frozen; the next start records "forced" in the restart log.
+- The restart log also records each reading session's memory low point (lowest free memory and smallest largest-free-block) with the book's title, to show which books or features push the X3 close to its limit.
+
+### Changed
+
+- The firmware builds in English menus only (`custom_i18n_builtin_langs = en`), freeing about 430 KB of flash. Books in any language read exactly as before: fonts, Kannada, Spanish/Russian/English hyphenation and all layout are unaffected; only the other menu translations are left out.
+- Prepare Whole Book stops as soon as Back or Confirm is pressed or held, even while a long chapter is being laid out.
+- Back unwinds one level at a time: after picking a World Clock city you return to the Cities list, and Back from Bookmarks & Clippings returns to Tools (or Home) instead of jumping Home.
+
+### Fixed
+
+- Reading Stats > More > More (Library) no longer freezes the device for minutes on a large card: books are counted a slice at a time with a progress line, Back stops it, and progress is read from each book's small progress file instead of opening every EPUB.
+
+## [PocketDeck-OS 1.0.0, Phonetic symbols, smaller firmware and fixes] - 2026-10-23
+
+### Added
+
+- Dictionary pronunciations and book text now show phonetic (IPA) symbols instead of dropping or approximating them: ə ɚ ɝ ʌ ɐ ɘ ɵ ʊ ɪ ɒ ʃ ʒ ˈ ˌ ː ᵊ ᵻ ᵿ and the rest of the IPA block, plus Sanskrit/IAST letters (ṛ ṣ ṭ ḍ ṇ ṃ ḥ ṅ ḷ), ẞ and more math used in ML texts (ℒ ℏ ℵ, 𝔼, 𝟙, script capitals, ⟂ ⟦⟧ ⦃⦄ ⨀ ⨁ ⨂ ⩽ ⩾, the full letterlike block). They live in the shared symbol fallback font, so every reading and UI font gets them.
+- Shut down shows a new off screen: the PocketDeck mark, "Device is off now", a reading quote and how to turn the device on.
+- Explorer > Info: the card's format and name on the SD card line ("SD card · exFAT · NAME"), the smallest file, and the book you are reading now (the most recent one past 5%). Card counts sit in one row of four so everything fits on the page.
+- Prepare Whole Book shows memory use (share of RAM used and the largest free block) with a small bar while it works.
+- Reading Stats and Book Info show the page you are on of the book's pages ("145/320") when the book has page numbers (EPUB stable pages, XTC pages).
+- `/.pocketdeck-os/restart_log.txt` records every restart that was not a normal power-on or wake (watchdog, crash, brownout, planned restarts) and the reader's low-memory restarts, with the time and free memory, so an unexpected restart can be traced.
+
+### Changed
+
+- Search in Book matches what you type even when the book's typography differs: letter case and accents (cafe finds Café), curly and straight quotes and apostrophes, dashes, unusual spaces, ligatures and hidden soft hyphens. The matcher is also faster (constant work per character, larger read chunks), and the page jump and on-page underline use the same matching.
+- Prepare Whole Book skips one redundant screen refresh per chapter, so preparing a book with many chapters finishes sooner.
+- Firmware is smaller: screens share one copy of the list and touch-routing code instead of seven (about 38 KB of flash back).
+
+### Fixed
+
+- The PocketDeck logo no longer overlaps titles drawn by the dictionary (including from Lookup History), the XTC reader menu, the frontlight panel, compact headers or touch back buttons.
+
 ## [PocketDeck-OS 1.0.0, Book Info, Recent progress and more World Clock cities] - 2026-10-22
 
 ### Added

@@ -77,6 +77,12 @@ void BookInfoActivity::buildRows() {
     snprintf(v, sizeof(Row::value), tr(STR_BOOK_INFO_TIME_SESSIONS_FORMAT), duration,
              static_cast<unsigned>(stats.sessionCount));
   }
+  if (data_.pagesTotal > 0) {
+    if (char* v = add(tr(STR_BOOK_INFO_PAGES_DONE))) {
+      snprintf(v, sizeof(Row::value), "%u / %u", static_cast<unsigned>(std::min(data_.pagesDone, data_.pagesTotal)),
+               static_cast<unsigned>(data_.pagesTotal));
+    }
+  }
   if (char* v = add(tr(STR_BOOK_INFO_PAGES_READ))) {
     snprintf(v, sizeof(Row::value), "%u", static_cast<unsigned>(stats.totalPagesTurned));
   }
@@ -192,9 +198,13 @@ void BookInfoActivity::render(RenderLock&&) {
   renderer.drawLine(x, y, x + w, y);
   y += 10;
 
-  // "Label .......... value" rows, as many as fit.
+  // The file's place on the card closes the card: folder, then file name.
+  const int smallH = renderer.getLineHeight(SMALL_FONT_ID);
+  const int pathBlockH = data_.path.empty() ? 0 : 10 + smallH * 3 + 4;
+
+  // "Label .......... value" rows, as many as fit above it.
   const int rowH = renderer.getLineHeight(UI_10_FONT_ID) + 10;
-  const int rowsBottom = cardY + cardH - pad + 4;
+  const int rowsBottom = cardY + cardH - pad + 4 - pathBlockH;
   for (int i = 0; i < rowCount_ && y + rowH <= rowsBottom; ++i) {
     const Row& row = rows_[i];
     const int valueW = std::min(w * 3 / 5, renderer.getTextWidth(UI_10_FONT_ID, row.value, EpdFontFamily::BOLD));
@@ -204,6 +214,20 @@ void BookInfoActivity::render(RenderLock&&) {
     renderer.drawText(UI_10_FONT_ID, x + w - renderer.getTextWidth(UI_10_FONT_ID, value.c_str(), EpdFontFamily::BOLD),
                       y, value.c_str(), true, EpdFontFamily::BOLD);
     y += rowH;
+  }
+
+  if (pathBlockH > 0) {
+    int py = cardY + cardH - pad + 4 - pathBlockH + 4;
+    renderer.drawLine(x, py, x + w, py);
+    py += 6;
+    renderer.drawText(SMALL_FONT_ID, x, py, tr(STR_BOOK_INFO_ON_CARD), true, EpdFontFamily::BOLD);
+    py += smallH;
+    const size_t slash = data_.path.find_last_of('/');
+    const std::string folder = slash == std::string::npos || slash == 0 ? "/" : data_.path.substr(0, slash);
+    const std::string file = slash == std::string::npos ? data_.path : data_.path.substr(slash + 1);
+    renderer.drawText(SMALL_FONT_ID, x, py, renderer.truncatedText(SMALL_FONT_ID, folder.c_str(), w).c_str());
+    py += smallH;
+    renderer.drawText(SMALL_FONT_ID, x, py, renderer.truncatedText(SMALL_FONT_ID, file.c_str(), w).c_str());
   }
 
   const auto labels = mappedInput.mapLabels(tr(STR_BACK), tr(STR_DONE), "", "");

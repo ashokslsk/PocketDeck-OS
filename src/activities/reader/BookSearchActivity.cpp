@@ -5,6 +5,7 @@
 #include <I18n.h>
 #include <Logging.h>
 #include <Print.h>
+#include <Utf8.h>
 
 #include <algorithm>
 #include <cctype>
@@ -38,6 +39,11 @@ void appendUtf8(std::string& out, uint32_t cp) {
     out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
   } else if (cp < 0x10000) {
     out.push_back(static_cast<char>(0xE0 | (cp >> 12)));
+    out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+    out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+  } else if (cp < 0x110000) {
+    out.push_back(static_cast<char>(0xF0 | (cp >> 18)));
+    out.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
     out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
     out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
   }
@@ -74,12 +80,143 @@ std::string fromCharBoundary(const std::string& s) {
   return s.substr(i);
 }
 
+// Search folding, applied the same way to the query and the book text so that
+// typing on the device finds what typesetting changed: letter case and Latin
+// accents ("cafe" finds "Café"), curly quotes and apostrophes ("don't" finds
+// "don’t"), dashes, odd spaces, ligatures ("ﬁ") and invisible soft hyphens or
+// zero-width marks. Writes up to 4 bytes; returns 0 for a dropped character.
+size_t foldForSearch(const uint32_t cp, char* out) {
+  if (cp < 0x80) {
+    out[0] = lowerAscii(static_cast<char>(cp));
+    return 1;
+  }
+  switch (cp) {
+    case 0x00AD:  // soft hyphen
+    case 0x200B:  // zero-width space / joiners / word joiner / BOM
+    case 0x200C:
+    case 0x200D:
+    case 0x2060:
+    case 0xFEFF:
+      return 0;
+    case 0x00A0:
+    case 0x2002:
+    case 0x2003:
+    case 0x2009:
+    case 0x200A:
+    case 0x202F:
+      out[0] = ' ';
+      return 1;
+    case 0x2018:
+    case 0x2019:
+    case 0x201B:
+    case 0x2032:
+    case 0x02BC:
+      out[0] = '\'';
+      return 1;
+    case 0x201C:
+    case 0x201D:
+    case 0x201E:
+    case 0x2033:
+      out[0] = '"';
+      return 1;
+    case 0x2010:
+    case 0x2011:
+    case 0x2012:
+    case 0x2013:
+    case 0x2014:
+    case 0x2212:
+      out[0] = '-';
+      return 1;
+    case 0x00C6:
+    case 0x00E6:
+      memcpy(out, "ae", 2);
+      return 2;
+    case 0x0152:
+    case 0x0153:
+      memcpy(out, "oe", 2);
+      return 2;
+    case 0x00DF:
+      memcpy(out, "ss", 2);
+      return 2;
+    case 0xFB00:
+      memcpy(out, "ff", 2);
+      return 2;
+    case 0xFB01:
+      memcpy(out, "fi", 2);
+      return 2;
+    case 0xFB02:
+      memcpy(out, "fl", 2);
+      return 2;
+    case 0xFB03:
+      memcpy(out, "ffi", 3);
+      return 3;
+    case 0xFB04:
+      memcpy(out, "ffl", 3);
+      return 3;
+    default:
+      break;
+  }
+  // Latin-1 letters to their base letter, lower case (× and ÷ stay as they are).
+  static constexpr char kLatin1[] =
+      "aaaaaaaceeeeiiii"   // C0-CF
+      "dnooooo\0ouuuuyts"  // D0-DF
+      "aaaaaaaceeeeiiii"   // E0-EF
+      "dnooooo\0ouuuuyty";  // F0-FF
+  if (cp >= 0xC0 && cp <= 0xFF && kLatin1[cp - 0xC0] != '\0') {
+    out[0] = kLatin1[cp - 0xC0];
+    return 1;
+  }
+  // Latin Extended-A case pairs (Ā ā, Č č, Ł ł, Ś ś, Ž ž …) fold to lower case:
+  // upper case is the even code point in most of the block, the odd one in
+  // Ĺ…ň and Ź…ž.
+  uint32_t folded = cp;
+  if ((cp >= 0x0100 && cp <= 0x0137 && cp != 0x0130 && cp != 0x0131) || (cp >= 0x014A && cp <= 0x0177)) {
+    folded = cp | 1;
+  } else if ((cp >= 0x0139 && cp <= 0x0148) || (cp >= 0x0179 && cp <= 0x017E)) {
+    folded = (cp & 1) ? cp + 1 : cp;
+  }
+  // Everything else (Kannada, Cyrillic, …) matches exactly, as UTF-8.
+  std::string tmp;
+  appendUtf8(tmp, folded);
+  const size_t n = std::min<size_t>(tmp.size(), 4);
+  memcpy(out, tmp.data(), n);
+  return n;
+}
+
+// Folds a whole string (the query) and collapses whitespace like the text.
+std::string foldString(const std::string& in) {
+  std::string out;
+  out.reserve(in.size());
+  const auto* p = reinterpret_cast<const unsigned char*>(in.c_str());
+  uint32_t cp;
+  char buf[4];
+  bool space = true;
+  while ((cp = utf8NextCodepoint(&p))) {
+    const size_t n = foldForSearch(cp, buf);
+    for (size_t i = 0; i < n; ++i) {
+      const char c = buf[i];
+      if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+        if (!space) out.push_back(' ');
+        space = true;
+      } else {
+        out.push_back(c);
+        space = false;
+      }
+    }
+  }
+  while (!out.empty() && out.back() == ' ') out.pop_back();
+  return out;
+}
+
 // Streams one chapter's XHTML: skips tags, <head>/<style>/<script> contents
-// and decodes entities, then matches the visible text against the needle.
+// and decodes entities, then matches the folded visible text against the
+// folded needle with a KMP automaton: constant work per byte, and no buffer
+// is shifted per character.
 class SearchSink final : public Print {
  public:
-  SearchSink(const std::string& needle, const uint16_t spine, std::vector<BookSearchActivity::Hit>& hits)
-      : needle_(needle), spine_(spine), hits_(hits) {}
+  SearchSink(const std::string& needle, const std::vector<uint16_t>& failure, const uint16_t spine,
+             std::vector<BookSearchActivity::Hit>& hits)
+      : needle_(needle), failure_(failure), spine_(spine), hits_(hits) {}
 
   size_t write(uint8_t b) override {
     if (full()) return 0;
@@ -93,6 +230,19 @@ class SearchSink final : public Print {
   }
   uint32_t bytesSeen() const { return raw_; }
   bool full() const { return hits_.size() >= BookSearchActivity::kMaxHits && pendingAfter_ == 0; }
+
+  // KMP failure table: for each needle prefix, the length of its longest proper
+  // prefix that is also a suffix. Built once per search.
+  static std::vector<uint16_t> buildFailure(const std::string& needle) {
+    std::vector<uint16_t> f(needle.size(), 0);
+    uint16_t k = 0;
+    for (size_t i = 1; i < needle.size(); ++i) {
+      while (k > 0 && needle[i] != needle[k]) k = f[k - 1];
+      if (needle[i] == needle[k]) ++k;
+      f[i] = k;
+    }
+    return f;
+  }
 
  private:
   void take(const char c) {
@@ -120,24 +270,41 @@ class SearchSink final : public Print {
     }
     if (skipDepth_ > 0) return;
     if (inEntity_) {
-      if (c == ';' || entity_.size() > 8) {
+      if (c == ';' || entityLen_ >= sizeof(entity_) - 1) {
+        entity_[entityLen_] = '\0';
         emitEntity();
         inEntity_ = false;
       } else {
-        entity_.push_back(c);
+        entity_[entityLen_++] = c;
       }
       return;
     }
     if (c == '&') {
       inEntity_ = true;
-      entity_.clear();
+      entityLen_ = 0;
       return;
     }
-    if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
-      if (!lastSpace_) emit(' ');
+    takeTextByte(c);
+  }
+
+  // Assembles UTF-8 so each character is folded whole.
+  void takeTextByte(const char c) {
+    const auto b = static_cast<unsigned char>(c);
+    if (utfNeed_ > 0 && (b & 0xC0) == 0x80) {
+      utfBuf_[utfLen_++] = c;
+      utfCp_ = (utfCp_ << 6) | (b & 0x3F);
+      if (--utfNeed_ == 0) emitCodepoint(utfCp_, utfBuf_, utfLen_);
       return;
     }
-    emit(c);
+    utfNeed_ = 0;
+    if (b < 0x80) {
+      emitCodepoint(b, &c, 1);
+    } else if (b >= 0xC0) {
+      utfNeed_ = b >= 0xF0 ? 3 : b >= 0xE0 ? 2 : 1;
+      utfCp_ = b & (b >= 0xF0 ? 0x07 : b >= 0xE0 ? 0x0F : 0x1F);
+      utfBuf_[0] = c;
+      utfLen_ = 1;
+    }
   }
 
   void closeTag() {
@@ -156,70 +323,93 @@ class SearchSink final : public Print {
     // Block boundaries separate words.
     if (!lastSpace_ &&
         (std::strncmp(name, "p", 1) == 0 || std::strncmp(name, "br", 2) == 0 || std::strncmp(name, "div", 3) == 0 ||
-         std::strncmp(name, "h", 1) == 0 || std::strncmp(name, "li", 2) == 0)) {
-      emit(' ');
+         std::strncmp(name, "h", 1) == 0 || std::strncmp(name, "li", 2) == 0 || std::strncmp(name, "td", 2) == 0 ||
+         std::strncmp(name, "dt", 2) == 0 || std::strncmp(name, "dd", 2) == 0)) {
+      emitCodepoint(' ', " ", 1);
     }
   }
 
   void emitEntity() {
-    std::string text;
-    if (entity_ == "amp") {
-      text = "&";
-    } else if (entity_ == "lt") {
-      text = "<";
-    } else if (entity_ == "gt") {
-      text = ">";
-    } else if (entity_ == "quot") {
-      text = "\"";
-    } else if (entity_ == "apos") {
-      text = "'";
-    } else if (entity_ == "nbsp") {
-      text = " ";
-    } else if (!entity_.empty() && entity_[0] == '#') {
-      const bool hex = entity_.size() > 1 && (entity_[1] == 'x' || entity_[1] == 'X');
-      const uint32_t cp = static_cast<uint32_t>(std::strtoul(entity_.c_str() + (hex ? 2 : 1), nullptr, hex ? 16 : 10));
-      if (cp == 0xA0) {
-        text = " ";
-      } else if (cp > 0) {
-        appendUtf8(text, cp);
+    struct Named {
+      const char* name;
+      uint32_t cp;
+    };
+    static constexpr Named kNamed[] = {{"amp", '&'},       {"lt", '<'},         {"gt", '>'},        {"quot", '"'},
+                                       {"apos", '\''},     {"nbsp", 0xA0},      {"shy", 0xAD},      {"rsquo", 0x2019},
+                                       {"lsquo", 0x2018},  {"rdquo", 0x201D},   {"ldquo", 0x201C},  {"mdash", 0x2014},
+                                       {"ndash", 0x2013},  {"hellip", 0x2026}};
+    uint32_t cp = 0;
+    if (entity_[0] == '#') {
+      const bool hex = entity_[1] == 'x' || entity_[1] == 'X';
+      cp = static_cast<uint32_t>(std::strtoul(entity_ + (hex ? 2 : 1), nullptr, hex ? 16 : 10));
+    } else {
+      for (const Named& n : kNamed) {
+        if (std::strcmp(entity_, n.name) == 0) {
+          cp = n.cp;
+          break;
+        }
       }
     }
-    for (const char ch : text) {
-      if (ch == ' ') {
-        if (!lastSpace_) emit(' ');
-      } else {
-        emit(ch);
-      }
-    }
+    if (cp == 0) return;
+    std::string original;
+    appendUtf8(original, cp);
+    emitCodepoint(cp, original.data(), original.size());
   }
 
-  void emit(const char c) {
-    lastSpace_ = c == ' ';
-    // Context for snippets (original case) and the match window (lower case).
-    context_.push_back(c);
-    if (context_.size() > kContextBefore + needle_.size())
-      context_.erase(0, context_.size() - kContextBefore - needle_.size());
+  // One text character: its original bytes go to the snippet context, its
+  // folded bytes to the matcher.
+  void emitCodepoint(const uint32_t cp, const char* original, const size_t originalLen) {
+    char folded[4];
+    const size_t foldedLen = foldForSearch(cp, folded);
+    if (foldedLen == 0) return;  // soft hyphen and other invisible marks
+    const bool isSpace =
+        foldedLen == 1 && (folded[0] == ' ' || folded[0] == '\n' || folded[0] == '\t' || folded[0] == '\r');
+    if (isSpace) {
+      if (lastSpace_) return;  // collapse runs of space
+      folded[0] = ' ';
+    }
+    lastSpace_ = isSpace;
+    if (isSpace) {
+      pushContext(' ');
+    } else {
+      for (size_t i = 0; i < originalLen; ++i) pushContext(original[i]);
+    }
+    for (size_t i = 0; i < foldedLen; ++i) match(folded[i]);
+  }
+
+  void pushContext(const char c) {
+    ctx_[ctxHead_] = c;
+    ctxHead_ = (ctxHead_ + 1) % kCtxCap;
+    if (ctxCount_ < kCtxCap) ++ctxCount_;
     if (pendingAfter_ > 0 && !hits_.empty()) {
       hits_.back().snippet.push_back(c);
       if (--pendingAfter_ == 0) closeSnippet(hits_.back().snippet);
     }
-    window_.push_back(lowerAscii(c));
-    if (window_.size() > needle_.size()) window_.erase(0, window_.size() - needle_.size());
-    if (cooldown_ > 0) {
-      --cooldown_;
-      return;
-    }
-    if (window_ == needle_ && hits_.size() < BookSearchActivity::kMaxHits) {
-      BookSearchActivity::Hit hit;
-      hit.spine = spine_;
-      hit.offset = raw_;
-      hit.progress = 0.0f;
-      hit.snippet = "\xe2\x80\xa6" + fromCharBoundary(context_);
-      if (pendingAfter_ > 0 && !hits_.empty()) closeSnippet(hits_.back().snippet);
-      hits_.push_back(std::move(hit));
-      pendingAfter_ = kContextAfter;
-      cooldown_ = needle_.size();  // one hit per occurrence
-    }
+  }
+
+  // The last `n` context bytes (oldest first), from a character boundary.
+  std::string recentContext(size_t n) const {
+    n = std::min(n, ctxCount_);
+    std::string out;
+    out.reserve(n);
+    for (size_t i = 0; i < n; ++i) out.push_back(ctx_[(ctxHead_ + kCtxCap - n + i) % kCtxCap]);
+    return fromCharBoundary(out);
+  }
+
+  void match(const char c) {
+    while (state_ > 0 && c != needle_[state_]) state_ = failure_[state_ - 1];
+    if (c == needle_[state_]) ++state_;
+    if (state_ < needle_.size()) return;
+    state_ = 0;  // non-overlapping: one hit per occurrence
+    if (hits_.size() >= BookSearchActivity::kMaxHits) return;
+    BookSearchActivity::Hit hit;
+    hit.spine = spine_;
+    hit.offset = raw_;
+    hit.progress = 0.0f;
+    hit.snippet = "\xe2\x80\xa6" + recentContext(kContextBefore + needle_.size());
+    if (pendingAfter_ > 0 && !hits_.empty()) closeSnippet(hits_.back().snippet);
+    hits_.push_back(std::move(hit));
+    pendingAfter_ = kContextAfter;
   }
 
   static void closeSnippet(std::string& snippet) {
@@ -227,7 +417,10 @@ class SearchSink final : public Print {
     snippet += "\xe2\x80\xa6";
   }
 
+  static constexpr size_t kCtxCap = 256;  // >= kContextBefore + the longest (clamped) query
+
   const std::string& needle_;
+  const std::vector<uint16_t>& failure_;
   uint16_t spine_;
   std::vector<BookSearchActivity::Hit>& hits_;
   uint32_t raw_ = 0;
@@ -238,14 +431,22 @@ class SearchSink final : public Print {
   char lastTagChar_ = 0;
   int skipDepth_ = 0;
   bool inEntity_ = false;
-  std::string entity_;
+  char entity_[12] = {};
+  size_t entityLen_ = 0;
   bool lastSpace_ = true;
-  std::string context_;
-  std::string window_;
+  char utfBuf_[4] = {};
+  size_t utfLen_ = 0;
+  uint8_t utfNeed_ = 0;
+  uint32_t utfCp_ = 0;
+  char ctx_[kCtxCap] = {};
+  size_t ctxHead_ = 0;
+  size_t ctxCount_ = 0;
+  size_t state_ = 0;
   size_t pendingAfter_ = 0;
-  size_t cooldown_ = 0;
 };
 }  // namespace
+
+std::string BookSearchActivity::foldText(const std::string& text) { return foldString(text); }
 
 BookSearchActivity::BookSearchActivity(GfxRenderer& renderer, MappedInputManager& mappedInput,
                                        std::shared_ptr<Epub> epub, std::string query)
@@ -258,22 +459,14 @@ BookSearchActivity::BookSearchActivity(GfxRenderer& renderer, MappedInputManager
 void BookSearchActivity::onEnter() {
   Activity::onEnter();
   kannadareading::beginUi();
-  // Normalize the query like the book text: lower-case Latin, single spaces.
-  std::string needle;
-  bool space = true;
-  for (const char c : query_) {
-    if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-      if (!space) needle.push_back(' ');
-      space = true;
-    } else {
-      needle.push_back(lowerAscii(c));
-      space = false;
-    }
-  }
-  while (!needle.empty() && needle.back() == ' ') needle.pop_back();
+  // Fold the query exactly like the book text (case, accents, quotes, spaces).
+  std::string needle = foldString(query_);
+  // The snippet context ring holds kContextBefore + the needle; keep it in range.
+  if (needle.size() > 200) needle.resize(200);
   hits_.clear();
   hits_.reserve(16);
   needle_ = std::move(needle);
+  failure_ = SearchSink::buildFailure(needle_);
   spineCount_ = epub_ ? epub_->getSpineItemsCount() : 0;
   nextSpine_ = 0;
   searching_ = spineCount_ > 0 && !needle_.empty();
@@ -294,8 +487,9 @@ void BookSearchActivity::searchChapter(const int spine) {
   if (epub_->isNavigationDocumentSpine(spine)) return;
   const auto entry = epub_->getSpineItem(spine);
   const size_t before = hits_.size();
-  SearchSink sink(needle_, static_cast<uint16_t>(spine), hits_);
-  if (!epub_->readItemContentsToStream(entry.href, sink, 1024, /*allowEarlyStop=*/true)) {
+  SearchSink sink(needle_, failure_, static_cast<uint16_t>(spine), hits_);
+  // 2 KB chunks: half the stream calls of 1 KB, still small beside an open book.
+  if (!epub_->readItemContentsToStream(entry.href, sink, 2048, /*allowEarlyStop=*/true)) {
     if (!sink.full()) LOG_ERR("SRCH", "Could not read chapter %d", spine);
   }
   const uint32_t total = std::max<uint32_t>(1, sink.bytesSeen());

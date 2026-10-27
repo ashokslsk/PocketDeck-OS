@@ -10,7 +10,7 @@
 #include "util/ButtonNavigator.h"
 
 class KeyboardLayoutsActivity final : public Activity {
-  using UiApp = freeink::ui::FreeInkApp<16, 4>;
+  using UiApp = freeink::ui::FreeInkApp<20, 4>;  // shared size: one copy of the list/route code in flash
 
  public:
   KeyboardLayoutsActivity(GfxRenderer& renderer, MappedInputManager& mappedInput);
