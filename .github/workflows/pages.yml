@@ -1,17 +1,13 @@
 name: Deploy Pages
 
-# Publishes the PocketDeck-OS web installer (installer/) to GitHub Pages.
-# The X3 app image is taken from dist/pocketdeck-os-x3.bin, so refresh both with
-# `pio run -e default && python3 scripts/update_web_installer.py` before pushing.
+# The web installer is published by GitHub Pages straight from the main branch
+# (Settings > Pages > Deploy from a branch, main, / (root)): index.html redirects
+# to installer/, and .nojekyll serves the files as they are. No workflow is needed.
+#
+# This manual workflow is only for repositories whose Pages source is set to
+# "GitHub Actions"; it publishes the same layout.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "installer/**"
-      - "dist/pocketdeck-os-x3.bin"
-      - "scripts/update_web_installer.py"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:

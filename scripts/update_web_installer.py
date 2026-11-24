@@ -2,6 +2,9 @@
 """Prepare and stage the PocketDeck-OS web installer (installer/).
 
 The installer page flashes the X3 from Chrome or Edge with ESP Web Tools.
+GitHub Pages serves the repository root ("Deploy from a branch", main, /):
+index.html redirects to installer/, .nojekyll turns off the Jekyll build, and
+the manifest points at dist/pocketdeck-os-x3.bin so the app image is stored once.
 It writes the same four images that `pio run -e default -t upload` writes:
 
   0x0000   bootloader.bin
@@ -14,8 +17,8 @@ Usage:
   # and write installer/firmware/x3/manifest.json with the current version.
   python3 scripts/update_web_installer.py
 
-  # Assemble the full static site in DIR (used by the Pages workflow and for
-  # local preview). The app image is copied from dist/ so it is not stored twice.
+  # Assemble the same layout as the published site in DIR, for local preview
+  # (or for the manual GitHub Actions deploy).
   python3 scripts/update_web_installer.py --stage DIR
 """
 
@@ -34,6 +37,8 @@ DIST_APP = REPO / "dist" / "pocketdeck-os-x3.bin"
 BUILD = REPO / ".pio" / "build" / "default"
 BOOT_APP0 = Path.home() / ".platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin"
 APP_NAME = "pocketdeck-os-x3.bin"
+# Relative to installer/firmware/x3/manifest.json.
+APP_PATH_FROM_MANIFEST = "../../../dist/" + APP_NAME
 
 
 def read_version() -> str:
@@ -71,7 +76,7 @@ def prepare() -> None:
                     {"path": "bootloader.bin", "offset": 0x0},
                     {"path": "partitions.bin", "offset": 0x8000},
                     {"path": "boot_app0.bin", "offset": 0xE000},
-                    {"path": APP_NAME, "offset": 0x10000},
+                    {"path": APP_PATH_FROM_MANIFEST, "offset": 0x10000},
                 ],
             }
         ],
@@ -87,8 +92,10 @@ def stage(out: Path) -> None:
     require(DIST_APP)
     if out.exists():
         shutil.rmtree(out)
-    shutil.copytree(INSTALLER, out, ignore=shutil.ignore_patterns(".DS_Store"))
-    shutil.copyfile(DIST_APP, out / "firmware" / "x3" / APP_NAME)
+    shutil.copytree(INSTALLER, out / "installer", ignore=shutil.ignore_patterns(".DS_Store"))
+    (out / "dist").mkdir()
+    shutil.copyfile(DIST_APP, out / "dist" / APP_NAME)
+    shutil.copyfile(REPO / "index.html", out / "index.html")
     # GitHub Pages: serve files as-is (no Jekyll processing).
     (out / ".nojekyll").write_text("")
     print(f"Staged installer site in {out}")

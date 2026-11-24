@@ -21,7 +21,7 @@
           "offset": 57344
         },
         {
-          "path": "pocketdeck-os-x3.bin",
+          "path": "../../../dist/pocketdeck-os-x3.bin",
           "offset": 65536
         }
       ]

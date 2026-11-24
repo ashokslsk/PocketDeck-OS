@@ -161,12 +161,12 @@ git add dist/pocketdeck-os-x3.bin installer
 git commit -m "chore: update web installer firmware" && git push
 ```
 
-The **Deploy Pages** workflow publishes `installer/` with the app image from
-`dist/`. One-time setup: in the GitHub repository open **Settings > Pages** and
-set **Source** to **GitHub Actions**. To preview locally, run
-`python3 scripts/update_web_installer.py --stage /tmp/pd-site` and serve that
-folder with `python3 -m http.server --directory /tmp/pd-site` (Web Serial works
-on `localhost`).
+GitHub Pages publishes the repository as it is (**Settings > Pages > Deploy
+from a branch**, `main`, `/ (root)`): the root `index.html` redirects to
+`installer/`, `.nojekyll` turns off the Jekyll build, and the installer's
+manifest loads the app from `dist/pocketdeck-os-x3.bin`. To preview locally, run
+`python3 -m http.server` in the repository root and open `http://localhost:8000/`
+(Web Serial works on `localhost`).
 
 ### Option A: SD card (already running CrossInk or PocketDeck-OS)
 
