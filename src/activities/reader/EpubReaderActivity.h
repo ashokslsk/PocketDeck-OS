@@ -252,6 +252,10 @@ class EpubReaderActivity final : public Activity {
   bool handleSpeedReadInput(bool confirmReleased, bool backReleased);
   void prepareSpeedReadOverlay(const Page& page, int fontId, int orientedMarginTop, int orientedMarginLeft);
   void drawSpeedReadUnderline();
+  // Hold Confirm in Speed Read: pause and list the words of the current and
+  // previous phrase; picking one opens its definition.
+  void openSpeedReadLookup();
+  bool speedReadLookupFired_ = false;
   void drawSpeedReadCheckIn() const;
   void drawSpeedReadIntro() const;
   void drawSpeedReadCard(const char* title, const char* const* lines, int lineCount, bool centered) const;
@@ -344,6 +348,7 @@ class EpubReaderActivity final : public Activity {
   // One-shot guard for the silent restart used before EPUB layout fallback modes. The restart token
   // restores this guard after boot so the resumed attempt can fall through to those modes.
   bool lowMemoryPartialRestartAttempted = false;
+  int memoryFailedSpine = -1;  // from loadMemoryFailedSpine(), read once on enter
   bool backgroundBuildPausedForLowMemory = false;
   // Input should win the next RenderLock race. Keep the incremental parser alive,
   // but do not start another background chunk until the requested render begins.
@@ -661,6 +666,12 @@ class EpubReaderActivity final : public Activity {
   static bool drawCurrentPageToBuffer(const std::string& filePath, GfxRenderer& renderer);
   static BookReaderSettingsData readBookReaderSettings(const Epub& epub);
   static uint8_t loadBookRenderMode(const std::string& filePath);
+  // A chapter that could not be laid out for lack of memory is remembered per
+  // book, so the next open can warn first. loadMemoryFailedSpine returns -1
+  // when nothing is recorded.
+  static int loadMemoryFailedSpine(const std::string& cachePath);
+  static void saveMemoryFailedSpine(const std::string& cachePath, int spineIndex);
+  static void clearMemoryFailedSpine(const std::string& cachePath);
   static bool saveBookRenderMode(const std::string& filePath, uint8_t renderMode);
   static bool resetBookReaderSettings(const std::string& filePath);
   ScreenshotInfo getScreenshotInfo() const override;

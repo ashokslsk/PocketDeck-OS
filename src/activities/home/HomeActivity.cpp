@@ -51,6 +51,9 @@ constexpr uint32_t CAROUSEL_CACHE_MAGIC = 0x43434152;  // "CCAR"
 // whenever their rendering changes so stale snapshots are rebuilt after OTA.
 constexpr uint16_t CAROUSEL_CACHE_VERSION = 6;
 constexpr char CAROUSEL_CACHE_PATH[] = "/.pocketdeck-os/system_cache/home_carousel_cache.bin";
+// PocketDeck Home cards as last drawn: header, then the 1-bit card region.
+constexpr char POCKETDECK_CARDS_PATH[] = "/.pocketdeck-os/system_cache/home_cards.bin";
+constexpr uint32_t POCKETDECK_CARDS_MAGIC = 0x31434450;  // "PDC1"
 constexpr char CAROUSEL_CACHE_TMP_PATH[] = "/.pocketdeck-os/system_cache/home_carousel_cache.tmp";
 constexpr uint32_t CAROUSEL_FRAME_MIN_FREE_AFTER_ALLOC = 64U * 1024U;
 constexpr uint32_t CAROUSEL_FRAME_MIN_MAX_ALLOC_AFTER_ALLOC = 24U * 1024U;
@@ -601,6 +604,14 @@ int getVisibleRecentBookCount(const std::vector<RecentBook>& recentBooks) {
   return std::min(static_cast<int>(recentBooks.size()), metrics.homeRecentBooksCount);
 }
 
+bool anyNavigationButtonPressed(const MappedInputManager& input) {
+  using B = MappedInputManager::Button;
+  for (const B b : {B::Back, B::Confirm, B::Left, B::Right, B::Up, B::Down, B::PageBack, B::PageForward}) {
+    if (input.isPressed(b)) return true;
+  }
+  return false;
+}
+
 int getHomeMenuSelectionOffset(const std::vector<RecentBook>& recentBooks) {
   const auto& metrics = UITheme::getInstance().getMetrics();
   return metrics.homeContinueReadingInMenu ? 0 : getVisibleRecentBookCount(recentBooks);
@@ -742,11 +753,15 @@ void HomeActivity::prepareHomeCovers(const Epub& epub, const GfxRenderer& render
 
 void HomeActivity::loadRecentCovers(int coverHeight) {
   // Thumbnail generation may need a 32 KB contiguous inflate buffer. The Home
-  // cover snapshot is only a redraw cache, so release it before ZIP work.
-  if (coverBuffer) {
-    freeCoverBuffer();
-    coverRendered = false;
-  }
+  // cover snapshot is only a redraw cache, so release it before ZIP work, but
+  // only when a thumbnail is actually generated; otherwise the next button
+  // press would redraw every card from the SD card.
+  const auto releaseCoverSnapshot = [this] {
+    if (coverBuffer) {
+      freeCoverBuffer();
+      coverRendered = false;
+    }
+  };
 
   recentsLoading = true;
   bool showingLoading = false;
@@ -792,6 +807,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
 
         if (centerMissing || sideMissing) {
           if (FsHelpers::hasEpubExtension(book.path)) {
+            releaseCoverSnapshot();
             Epub epub(book.path, "/.pocketdeck-os");
             showLoadingProgress(10 + progress * progressIncrement);
             if (!epub.load(true, true, Epub::XLocationLoadMode::Skip)) {
@@ -818,6 +834,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
             coverRendered = false;
             requestUpdate();
           } else if (FsHelpers::hasXtcExtension(book.path)) {
+            releaseCoverSnapshot();
             Xtc xtc(book.path, "/.pocketdeck-os");
             if (xtc.load()) {
               showLoadingProgress(10 + progress * progressIncrement);
@@ -853,6 +870,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
         const bool smallMissing = isPocketDeck && supportsExactHomeThumb && !Storage.exists(smallPath.c_str());
         if (smallMissing && !coverPath.empty() && Storage.exists(coverPath.c_str())) {
           if (FsHelpers::hasEpubExtension(book.path)) {
+            releaseCoverSnapshot();
             Epub epub(book.path, "/.pocketdeck-os");
             showLoadingProgress(10 + progress * progressIncrement);
             if (epub.load(true, true, Epub::XLocationLoadMode::Skip) &&
@@ -862,6 +880,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
               requestUpdate();
             }
           } else {
+            releaseCoverSnapshot();
             Xtc xtc(book.path, "/.pocketdeck-os");
             if (xtc.load() && xtc.generateThumbBmp(static_cast<uint16_t>(PocketDeckMetrics::kRecentCoverHeight))) {
               coverRendered = false;
@@ -871,6 +890,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
         }
         if (coverPath.empty() || !Storage.exists(coverPath.c_str())) {
           if (FsHelpers::hasEpubExtension(book.path)) {
+            releaseCoverSnapshot();
             Epub epub(book.path, "/.pocketdeck-os");
             showLoadingProgress(10 + progress * progressIncrement);
             if (!epub.load(true, true, Epub::XLocationLoadMode::Skip)) {
@@ -901,6 +921,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
             coverRendered = false;
             requestUpdate();
           } else if (FsHelpers::hasXtcExtension(book.path)) {
+            releaseCoverSnapshot();
             Xtc xtc(book.path, "/.pocketdeck-os");
             if (xtc.load()) {
               showLoadingProgress(10 + progress * progressIncrement);
@@ -972,6 +993,8 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
 }
 
 void HomeActivity::onEnter() {
+  pocketDeckQuoteTickerReset();
+  pocketDeckRecentCountReset();
   Activity::onEnter();
   kannadareading::beginUi();
 
@@ -1195,6 +1218,7 @@ void HomeActivity::updateHighlightedBookContext(const bool allowEpubLoad) {
 }
 
 void HomeActivity::onExit() {
+  pocketDeckRecentCountStop();
   kannadareading::endUi();
   Activity::onExit();
 
@@ -1245,6 +1269,72 @@ void HomeActivity::freeCoverBuffer() {
   }
   coverBufferSize = 0;
   coverBufferStored = false;
+}
+
+bool HomeActivity::loadCardsFromDisk() {
+  if (!Storage.exists(POCKETDECK_CARDS_PATH)) return false;
+  const size_t needed = renderer.getRegionByteSize(coverRectX, coverRectY, coverRectW, coverRectH);
+  if (needed == 0) return false;
+  const uint32_t key = pocketDeckCardsKey(renderer, recentBooks, globalStats);
+  FsFile file;
+  if (!Storage.openFileForRead("HOME", POCKETDECK_CARDS_PATH, file)) return false;
+  uint32_t magic = 0, fileKey = 0, size = 0;
+  int16_t rx = 0, ry = 0, rw = 0, rh = 0;
+  const bool headerOk = serialization::tryReadPod(file, magic) && serialization::tryReadPod(file, fileKey) &&
+                        serialization::tryReadPod(file, rx) && serialization::tryReadPod(file, ry) &&
+                        serialization::tryReadPod(file, rw) && serialization::tryReadPod(file, rh) &&
+                        serialization::tryReadPod(file, size);
+  if (!headerOk || magic != POCKETDECK_CARDS_MAGIC || fileKey != key || rx != coverRectX || ry != coverRectY ||
+      rw != coverRectW || rh != coverRectH || size != needed || ESP.getMaxAllocHeap() < needed) {
+    file.close();
+    return false;
+  }
+  freeCoverBuffer();
+  // Same malloc-owned buffer storeCoverBuffer() makes; freeCoverBuffer() frees it.
+  coverBuffer = static_cast<uint8_t*>(malloc(needed));
+  if (!coverBuffer) {
+    LOG_ERR("HOME", "OOM: saved cards (%u bytes)", static_cast<unsigned>(needed));
+    file.close();
+    return false;
+  }
+  const size_t got = file.read(coverBuffer, needed);
+  file.close();
+  if (got != needed) {
+    LOG_ERR("HOME", "Saved cards short read (%u of %u)", static_cast<unsigned>(got), static_cast<unsigned>(needed));
+    freeCoverBuffer();
+    return false;
+  }
+  coverBufferSize = needed;
+  coverBufferStored = true;
+  coverBufferInverted = SETTINGS.screenInverted != 0;
+  coverRendered = true;
+  return true;
+}
+
+void HomeActivity::saveCardsToDisk() {
+  if (!coverBuffer || coverBufferSize == 0) return;
+  const uint32_t key = pocketDeckCardsKey(renderer, recentBooks, globalStats);
+  Storage.mkdir("/.pocketdeck-os/system_cache");
+  FsFile file;
+  if (!Storage.openFileForWrite("HOME", POCKETDECK_CARDS_PATH, file)) {
+    LOG_ERR("HOME", "Failed to open saved cards for write");
+    return;
+  }
+  const uint32_t size = static_cast<uint32_t>(coverBufferSize);
+  serialization::writePod(file, POCKETDECK_CARDS_MAGIC);
+  serialization::writePod(file, key);
+  serialization::writePod(file, static_cast<int16_t>(coverRectX));
+  serialization::writePod(file, static_cast<int16_t>(coverRectY));
+  serialization::writePod(file, static_cast<int16_t>(coverRectW));
+  serialization::writePod(file, static_cast<int16_t>(coverRectH));
+  serialization::writePod(file, size);
+  const size_t written = file.write(coverBuffer, coverBufferSize);
+  file.close();
+  if (written != coverBufferSize) {
+    // A truncated file fails the size check on load, but don't leave it around.
+    LOG_ERR("HOME", "Saved cards short write (%u of %u)", static_cast<unsigned>(written), static_cast<unsigned>(size));
+    Storage.remove(POCKETDECK_CARDS_PATH);
+  }
 }
 
 void HomeActivity::invalidateCoverCache() {
@@ -1619,6 +1709,24 @@ bool HomeActivity::preRenderCarouselFrames(bool showProgressPopup) {
 }
 
 void HomeActivity::loop() {
+  // PocketDeck: step the quote of the day along its line.
+  if (SETTINGS.uiTheme == CrossPointSettings::UI_THEME::POCKETDECK && pocketDeckQuoteTick(millis())) {
+    requestUpdate();
+  }
+  // PocketDeck: count recent books past 10% in the background once Home is on
+  // screen. The SD card shares its bus with the display, so the step holds the
+  // render lock; it runs only while nothing is drawing and no button is down.
+  // Waiting on a draw here would make a quick press look held when input is
+  // read afterwards, and the press would then also count as a repeat.
+  if (SETTINGS.uiTheme == CrossPointSettings::UI_THEME::POCKETDECK && firstRenderDone &&
+      pocketDeckRecentCountActive() && !RenderLock::peek() && !anyNavigationButtonPressed(mappedInput)) {
+    bool ready = false;
+    {
+      RenderLock lock(*this);
+      ready = pocketDeckRecentCountStep();
+    }
+    if (ready) requestUpdate();
+  }
   if (quickActionsLongPowerHandled) {
     if (!mappedInput.isPressed(MappedInputManager::Button::Power)) {
       quickActionsLongPowerHandled = false;
@@ -2363,6 +2471,18 @@ void HomeActivity::render(RenderLock&&) {
   }
 
   renderer.clearScreen();
+  // PocketDeck: on the first draw of this visit, reuse the cards saved on the
+  // SD card when nothing on them changed; that skips redrawing every cover.
+  const bool isPocketDeckHome = SETTINGS.uiTheme == CrossPointSettings::UI_THEME::POCKETDECK;
+  if (isPocketDeckHome && !coverRendered && !cardsDiskTried) {
+    cardsDiskTried = true;
+    coverRectX = 0;
+    coverRectY = metrics.homeTopPadding;
+    coverRectW = pageWidth;
+    coverRectH = pocketDeckHomeTileHeight(renderer);
+    loadCardsFromDisk();
+  }
+  const bool cardsDrawnNow = isPocketDeckHome && !coverRendered;
   bool bufferRestored = coverBufferStored && restoreCoverBuffer();
 
   auto menuItems = buildSelectableHomeMenuItems(hasOpdsServers, hasReadingStats, hasBookmarks, hasClippings,
@@ -2377,6 +2497,8 @@ void HomeActivity::render(RenderLock&&) {
     const int maxCoverHeight = pageHeight - metrics.buttonHintsHeight - metrics.homeTopPadding -
                                metrics.homeMenuTopOffset - requiredMenuHeight;
     homeCoverTileHeight = std::clamp(maxCoverHeight, 0, metrics.homeCoverTileHeight);
+  } else if (SETTINGS.uiTheme == CrossPointSettings::UI_THEME::POCKETDECK) {
+    homeCoverTileHeight = pocketDeckHomeTileHeight(renderer);  // taller with the side menu
   }
 
   GUI.drawHeader(renderer, Rect{0, metrics.topPadding, pageWidth, metrics.homeTopPadding},
@@ -2416,11 +2538,17 @@ void HomeActivity::render(RenderLock&&) {
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 
   displayHomeBuffer();
+  // Freshly drawn cards: keep them for the next wake (after the screen shows).
+  if (cardsDrawnNow && coverRendered && coverBufferStored) saveCardsToDisk();
 
   if (!firstRenderDone) {
     firstRenderDone = true;
-    requestUpdate();
-    return;
+    // PocketDeck goes straight on to the cover check below: a second render
+    // would only repeat the same frame and an extra screen refresh.
+    if (SETTINGS.uiTheme != CrossPointSettings::UI_THEME::POCKETDECK) {
+      requestUpdate();
+      return;
+    }
   }
 
   if (!recentsLoaded && !recentsLoading) {

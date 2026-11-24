@@ -30,7 +30,7 @@ file manager and a speed-reading pacer, all offline and all on the SD card.
 - **File manager in Explorer**: hold Open on any file or folder to Rename, Move, Copy (with a progress bar), Delete, see Info, or create a New folder. Reading progress, stats, bookmarks and highlights move with a book.
 - **Back takes you where you came from**: a book opened from Explorer returns to its folder with the book highlighted; books opened from Home or Recent Books return Home.
 - **SD card space** in Info ("12.3 GB free of 29.7 GB"), and Copy checks the space before it starts.
-- **PocketDeck Home dashboard**: Now Reading, Recent Books covers, a weekly reading grid with streak, and an icon bar led by Explorer and Tools.
+- **PocketDeck Home dashboard**: a status bar (mark, date, time, Wi-Fi, battery), cut-corner cards for Now Reading (tag, progress, Read / Left / Pages, Continue Reading), Recent Books covers with a View All Recents tile, a weekly reading grid with streak, and boxed buttons led by Explorer and Tools. Settings > Display > Home Menu puts the buttons in a bar at the bottom or a column on the left (the cards grow taller to fill the space), and Owner Name adds your name under "PocketDeck".
 
 The full history is in [CHANGELOG.md](CHANGELOG.md).
 
@@ -40,6 +40,7 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 - **Speed Read** (reader menu, right after Look Up Word, with or without a dictionary). Long words and punctuation get a little more time; the bar sits between lines so it never covers descenders, ottaksharas or vowel signs, and only the bar refreshes as it moves.
   - Confirm pauses or resumes, Left/Right change the pace by 10 WPM, Back stops, and the side buttons still turn pages.
+  - **Hold Confirm to look up a word**: Speed Read pauses and lists the words of the current and previous phrase; pick one for its definition, Back returns to the paused page, Confirm resumes. Saved to the book's Lookup History like any lookup.
   - The status bar shows "Speed 200 WPM · Chapter" or "Paused · 200 WPM".
   - A short welcome card opens it. After 25 minutes it asks "Continue speed reading?"; with no answer in 10 seconds it ends and the normal sleep timer takes over. It also stops by itself after 2 minutes paused.
   - Pages are drawn in crisp black and white while it runs, so pacing starts at once. Expect a bit more battery use than ordinary reading.
@@ -143,6 +144,29 @@ optional SD-card data pack for the tools.
 > `/.pocketdeck-os` and moves an existing CrossInk `/.crosspoint` folder there
 > on first start (see [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md#what-is-kept)). Charge the reader first and keep it
 > plugged in while flashing.
+
+### Easiest: web installer (X3, Chrome or Edge)
+
+Open **https://ashokslsk.github.io/PocketDeck-OS/** on a computer, connect the
+woken reader with a USB-C data cable, press **Connect & install** and pick
+`USB JTAG/serial debug unit`. It works from stock Xteink firmware, CrossInk or
+an earlier PocketDeck-OS, and writes the same images as `pio run -t upload`.
+
+To publish a new build to the installer (maintainers):
+
+```sh
+pio run -e default
+python3 scripts/update_web_installer.py   # copies the build to dist/ and installer/
+git add dist/pocketdeck-os-x3.bin installer
+git commit -m "chore: update web installer firmware" && git push
+```
+
+The **Deploy Pages** workflow publishes `installer/` with the app image from
+`dist/`. One-time setup: in the GitHub repository open **Settings > Pages** and
+set **Source** to **GitHub Actions**. To preview locally, run
+`python3 scripts/update_web_installer.py --stage /tmp/pd-site` and serve that
+folder with `python3 -m http.server --directory /tmp/pd-site` (Web Serial works
+on `localhost`).
 
 ### Option A: SD card (already running CrossInk or PocketDeck-OS)
 

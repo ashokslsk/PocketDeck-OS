@@ -5,6 +5,7 @@
 
 #include <algorithm>
 
+#include "../settings/DictionarySelectActivity.h"
 #include "DictionaryDefinitionActivity.h"
 #include "MappedInputManager.h"
 #include "Memory.h"
@@ -34,6 +35,12 @@ LookedUpWordsActivity::LookedUpWordsActivity(GfxRenderer& renderer, MappedInputM
   }
 }
 
+void LookedUpWordsActivity::usePickList(std::vector<std::string> words, const int initialIndex) {
+  pickMode_ = true;
+  pickWords_ = std::move(words);
+  pickInitial_ = std::clamp(initialIndex, 0, std::max(0, static_cast<int>(pickWords_.size()) - 1));
+}
+
 const char* LookedUpWordsActivity::glyphFor(LookupHistory::Status s) {
   switch (s) {
     case LookupHistory::Status::Direct:
@@ -53,7 +60,9 @@ const char* LookedUpWordsActivity::glyphFor(LookupHistory::Status s) {
 
 void LookedUpWordsActivity::onEnter() {
   Activity::onEnter();
-  selectedIndex = 0;
+  Dictionary::clearLookupDictPathOverride();
+  selectedIndex = pickMode_ ? pickInitial_ : 0;
+  ignoreInitialConfirmRelease_ = mappedInput.isPressed(MappedInputManager::Button::Confirm);
   topIndex = 0;
   visibleRows = 1;
   uiReady = false;
@@ -65,13 +74,19 @@ void LookedUpWordsActivity::onEnter() {
 }
 
 void LookedUpWordsActivity::reloadEntries() {
-  entries = LookupHistory::load(cachePath);
+  if (pickMode_) {
+    entries.clear();
+    entries.reserve(pickWords_.size());
+    for (const auto& word : pickWords_) entries.push_back({word, LookupHistory::Status::Direct});
+  } else {
+    entries = LookupHistory::load(cachePath);
+  }
   labels.clear();
   labels.reserve(entries.size());
   uiItems.clear();
   uiItems.reserve(entries.size());
   for (size_t i = 0; i < entries.size(); ++i) {
-    labels.push_back(std::string(glyphFor(entries[i].status)) + " " + entries[i].word);
+    labels.push_back(pickMode_ ? entries[i].word : std::string(glyphFor(entries[i].status)) + " " + entries[i].word);
     fui::ListItem item;
     item.label = labels.back().c_str();
     item.actionValue = static_cast<int16_t>(i);
@@ -86,7 +101,7 @@ void LookedUpWordsActivity::onRowEvent(const fui::ActionEvent& event, void* user
   self->selectedIndex = event.value;
   if (event.longPress) {
     self->app.clearTapFlash();
-    self->showDeleteConfirmation(false);
+    if (!self->pickMode_) self->showDeleteConfirmation(false);
     return;
   }
   self->app.clearTapFlash();
@@ -122,6 +137,7 @@ void LookedUpWordsActivity::buildHistoryScreen(UiApp::ScreenType& screen) {
 
 void LookedUpWordsActivity::onExit() {
   controller.onExit();
+  Dictionary::clearLookupDictPathOverride();
   Activity::onExit();
 }
 
@@ -144,6 +160,26 @@ void LookedUpWordsActivity::showDeleteConfirmation(const bool ignoreInitialConfi
       }
     }
     requestUpdate();
+  });
+}
+
+void LookedUpWordsActivity::openDictionarySwitch() {
+  auto picker = makeUniqueNoThrow<DictionarySelectActivity>(renderer, mappedInput, cachePath, true, true);
+  if (!picker) {
+    LOG_ERR("LOOKUP", "OOM: DictionarySelectActivity");
+    requestUpdate();
+    return;
+  }
+  startActivityForResult(std::move(picker), [this](const ActivityResult& result) {
+    const auto* selection = std::get_if<FilePathResult>(&result.data);
+    if (result.isCancelled || !selection) {
+      if (!result.isCancelled) LOG_ERR("LOOKUP", "Dictionary switch returned no path");
+      requestUpdate();
+      return;
+    }
+    // Same word, chosen dictionary; history keeps the first attempt only.
+    Dictionary::setLookupDictPathOverride(selection->path.c_str());
+    controller.startLookup(controller.getLookupWord(), false);
   });
 }
 
@@ -181,6 +217,9 @@ void LookedUpWordsActivity::loop() {
         setResult(ActivityResult{});
         finish();
         break;
+      case DictionaryLookupController::LookupEvent::SwitchDictionary:
+        openDictionarySwitch();
+        break;
       case DictionaryLookupController::LookupEvent::Cancelled:
         requestUpdate();
         break;
@@ -202,8 +241,13 @@ void LookedUpWordsActivity::loop() {
     return;
   }
 
+  if (ignoreInitialConfirmRelease_) {
+    if (!mappedInput.isPressed(MappedInputManager::Button::Confirm)) ignoreInitialConfirmRelease_ = false;
+    return;
+  }
+
   // Long press Confirm: open the delete confirmation at the hold threshold.
-  if (mappedInput.isPressed(MappedInputManager::Button::Confirm) &&
+  if (!pickMode_ && mappedInput.isPressed(MappedInputManager::Button::Confirm) &&
       mappedInput.getHeldTime() >= Dictionary::LONG_PRESS_MS) {
     showDeleteConfirmation(true);
     return;
@@ -274,9 +318,10 @@ void LookedUpWordsActivity::render(RenderLock&&) {
 
   const Rect header{0, metrics.topPadding, pageWidth, TouchHeaderBackButton::height(metrics, mappedInput)};
   if (mappedInput.hasTouchHardware()) {
-    TouchHeaderBackButton::draw(renderer, uiTarget, header, tr(STR_LOOKUP_HISTORY), true);
+    TouchHeaderBackButton::draw(renderer, uiTarget, header,
+                                pickMode_ ? tr(STR_SPEED_READ_LOOKUP_TITLE) : tr(STR_LOOKUP_HISTORY), true);
   } else {
-    GUI.drawHeader(renderer, header, tr(STR_LOOKUP_HISTORY));
+    GUI.drawHeader(renderer, header, pickMode_ ? tr(STR_SPEED_READ_LOOKUP_TITLE) : tr(STR_LOOKUP_HISTORY));
   }
 
   const int contentTop =

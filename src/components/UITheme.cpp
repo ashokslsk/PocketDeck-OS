@@ -266,7 +266,15 @@ int UITheme::getStatusBarHeight() {
   // Reserve the clock lane independently of the current board so orientation
   // and layout do not change when the same settings are used on another device.
   return (statusBar.textLaneVisible(true) ? metrics.statusBarVerticalMargin : 0) +
-         (statusBar.showsProgressBar() ? statusBar.progressBarHeightPx + metrics.progressBarMarginTop : 0);
+         (statusBar.showsProgressBar() ? statusBar.progressBarHeightPx + metrics.progressBarMarginTop : 0) +
+         getReaderProgressLineHeight();
+}
+
+int UITheme::getReaderProgressLineHeight() {
+  // 3 px gap above, the 3 px bar, then room before the footer text.
+  constexpr int kLineBlockHeight = 12;
+  if (SETTINGS.uiTheme != CrossPointSettings::UI_THEME::POCKETDECK) return 0;
+  return SETTINGS.statusBarSpec().textLaneVisible(true) ? kLineBlockHeight : 0;
 }
 
 int UITheme::getProgressBarHeight() {

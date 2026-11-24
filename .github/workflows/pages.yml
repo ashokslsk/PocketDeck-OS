@@ -1,11 +1,16 @@
 name: Deploy Pages
 
+# Publishes the PocketDeck-OS web installer (installer/) to GitHub Pages.
+# The X3 app image is taken from dist/pocketdeck-os-x3.bin, so refresh both with
+# `pio run -e default && python3 scripts/update_web_installer.py` before pushing.
+
 on:
   push:
     branches: [main]
     paths:
-      - "docs/**"
-      - "site/**"
+      - "installer/**"
+      - "dist/pocketdeck-os-x3.bin"
+      - "scripts/update_web_installer.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -29,21 +34,12 @@ jobs:
 
       - uses: actions/configure-pages@v6
 
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: site/package-lock.json
-
-      - run: npm ci
-        working-directory: site
-
-      - run: npm run build
-        working-directory: site
+      - name: Assemble installer site
+        run: python3 scripts/update_web_installer.py --stage _site
 
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: ./site/dist
+          path: ./_site
 
       - name: Deploy to GitHub Pages
         id: deployment

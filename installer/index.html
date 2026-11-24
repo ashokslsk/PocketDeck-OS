@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install PocketDeck-OS</title>
+  <meta name="description" content="Install PocketDeck-OS on the Xteink X3 from your browser over USB." />
+  <script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module"></script>
+  <style>
+    :root {
+      --bg: #f4f2ec;
+      --paper: #ffffff;
+      --ink: #111111;
+      --muted: #5c5a55;
+      --rule: #d8d4ca;
+      --accent: #111111;
+      --on-accent: #ffffff;
+      --warn-bg: #fff6dd;
+      --warn-ink: #5a4300;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --cut: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --paper: #1c1c1c;
+        --ink: #eeeeea;
+        --muted: #a5a39c;
+        --rule: #34332f;
+        --accent: #eeeeea;
+        --on-accent: #111111;
+        --warn-bg: #2d2610;
+        --warn-ink: #f0d68a;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.55 var(--sans);
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+
+    header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .mark {
+      width: 36px; height: 36px; flex: none;
+      background: var(--ink);
+      clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+      display: grid; place-items: center;
+      color: var(--bg); font: 700 15px/1 var(--mono);
+    }
+    .brand { font: 700 18px/1.2 var(--mono); letter-spacing: 0.02em; }
+    .brand small { display: block; font: 12px/1.3 var(--sans); color: var(--muted); letter-spacing: 0; }
+
+    h1 { font-size: 32px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
+    .lede { color: var(--muted); margin: 0 0 24px; font-size: 17px; }
+
+    .card {
+      background: var(--paper);
+      padding: 24px;
+      margin: 0 0 20px;
+      clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+    }
+    .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 14px; }
+
+    .install { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+    .install .meta { font: 13px/1.5 var(--mono); color: var(--muted); }
+    .install .meta strong { color: var(--ink); font-weight: 600; }
+
+    esp-web-install-button { display: inline-block; }
+    .btn {
+      appearance: none; border: 0; cursor: pointer;
+      background: var(--accent); color: var(--on-accent);
+      font: 600 16px/1 var(--sans);
+      padding: 16px 28px;
+      clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    }
+    .btn:hover { opacity: 0.88; }
+    .btn:focus-visible { outline: 3px solid var(--muted); outline-offset: 3px; }
+
+    .notice {
+      background: var(--warn-bg); color: var(--warn-ink);
+      padding: 12px 14px; font-size: 14px; margin: 0;
+    }
+
+    ol.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; }
+    ol.steps > li {
+      counter-increment: s; position: relative;
+      padding: 0 0 18px 44px; margin: 0;
+    }
+    ol.steps > li:last-child { padding-bottom: 0; }
+    ol.steps > li::before {
+      content: counter(s);
+      position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      background: var(--ink); color: var(--bg);
+      font: 700 13px/1 var(--mono);
+      clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    }
+    ol.steps strong { display: block; }
+    ol.steps span { color: var(--muted); font-size: 15px; }
+
+    ul.plain { margin: 0; padding-left: 20px; }
+    ul.plain li { margin: 0 0 8px; }
+    ul.plain li:last-child { margin-bottom: 0; }
+
+    details { border-top: 1px solid var(--rule); padding: 12px 0; }
+    details:first-of-type { border-top: 0; padding-top: 0; }
+    details:last-of-type { padding-bottom: 0; }
+    summary { cursor: pointer; font-weight: 600; }
+    details p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+
+    code {
+      font: 13px/1.4 var(--mono);
+      background: var(--bg); border: 1px solid var(--rule);
+      padding: 1px 5px; overflow-wrap: anywhere;
+    }
+    a { color: var(--ink); text-underline-offset: 2px; }
+    footer { color: var(--muted); font-size: 13px; margin-top: 28px; }
+
+    @media (max-width: 520px) {
+      h1 { font-size: 26px; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="mark" aria-hidden="true">P</div>
+      <div class="brand">PocketDeck-OS<small>Calm reading firmware for the Xteink X3</small></div>
+    </header>
+
+    <h1>Install from your browser</h1>
+    <p class="lede">Connect the reader with USB-C and flash PocketDeck-OS in about two minutes. No downloads or drivers.</p>
+
+    <section class="card" aria-labelledby="install-heading">
+      <h2 id="install-heading">Xteink X3</h2>
+      <div class="install">
+        <esp-web-install-button manifest="firmware/x3/manifest.json">
+          <button class="btn" slot="activate">Connect &amp; install</button>
+          <p class="notice" slot="unsupported">
+            This browser can't talk to USB devices. Open this page in <strong>Chrome</strong> or <strong>Edge</strong>
+            on a computer (Windows, macOS, Linux or ChromeOS).
+          </p>
+          <p class="notice" slot="not-allowed">
+            Installing needs a secure page. Open this page over <strong>https://</strong> (or from localhost).
+          </p>
+        </esp-web-install-button>
+        <div class="meta" id="build-meta">Loading version…</div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Steps</h2>
+      <ol class="steps">
+        <li>
+          <strong>Charge the reader and turn it on.</strong>
+          <span>Wake it so the screen shows Home or a book. A sleeping reader isn't visible over USB.</span>
+        </li>
+        <li>
+          <strong>Connect it with a USB-C data cable.</strong>
+          <span>Some cables only charge. If nothing shows up in step 3, try another cable or port.</span>
+        </li>
+        <li>
+          <strong>Press Connect &amp; install and pick the reader.</strong>
+          <span>It's listed as <code>USB JTAG/serial debug unit</code> (on macOS the port looks like <code>cu.usbmodem…</code>).</span>
+        </li>
+        <li>
+          <strong>Choose Install PocketDeck-OS, then confirm.</strong>
+          <span>Keep the cable connected and this tab open until it says the install is done (about 1–2 minutes).</span>
+        </li>
+        <li>
+          <strong>Restart the reader.</strong>
+          <span>It usually restarts by itself. If the screen doesn't change, press the power button. The PocketDeck-OS boot screen appears.</span>
+        </li>
+      </ol>
+    </section>
+
+    <section class="card" aria-labelledby="kept-heading">
+      <h2 id="kept-heading">What's kept</h2>
+      <ul class="plain">
+        <li>Your books, reading progress, bookmarks and settings are on the SD card and stay where they are.</li>
+        <li>The install replaces the firmware only. It works from stock Xteink firmware, CrossInk or an earlier PocketDeck-OS.</li>
+        <li>For sample quotes, habits and wallpapers, copy the <code>sd-sample/tools</code> folder from the
+          <a href="https://github.com/ashokslsk/PocketDeck-OS">repository</a> to the SD card.</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="help-heading">
+      <h2 id="help-heading">Troubleshooting</h2>
+      <details>
+        <summary>The reader isn't in the list</summary>
+        <p>Wake the reader, unplug and reconnect the cable, then press Connect &amp; install again. Use a data cable and plug straight into the computer rather than through a hub.</p>
+      </details>
+      <details>
+        <summary>"Failed to initialize" or the port is busy</summary>
+        <p>Another app has the port open. Close serial monitors (PlatformIO, Arduino IDE, screen) and other tabs using the reader, reconnect the cable, and try again.</p>
+      </details>
+      <details>
+        <summary>It stopped halfway</summary>
+        <p>Nothing is lost: reconnect and install again. The reader starts the bootloader before the app, so a fresh install always gets through.</p>
+      </details>
+      <details>
+        <summary>I'd rather not use USB</summary>
+        <p>If the reader already runs CrossInk or PocketDeck-OS, download
+          <a href="firmware/x3/pocketdeck-os-x3.bin" download>pocketdeck-os-x3.bin</a>, copy it to the SD card, and open
+          <strong>Settings › System › SD Card Firmware Update</strong>.</p>
+      </details>
+    </section>
+
+    <footer>
+      PocketDeck-OS is open source, built on CrossInk and CrossPoint.
+      <a href="https://github.com/ashokslsk/PocketDeck-OS">Source on GitHub</a>.
+    </footer>
+  </div>
+
+  <script>
+    fetch("firmware/x3/manifest.json")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((m) => {
+        const meta = document.getElementById("build-meta");
+        meta.innerHTML = "";
+        const v = document.createElement("div");
+        v.innerHTML = "Version <strong></strong>";
+        v.querySelector("strong").textContent = m.version;
+        meta.appendChild(v);
+        if (m.built) {
+          const d = document.createElement("div");
+          d.textContent = "Built " + m.built + " · ESP32-C3";
+          meta.appendChild(d);
+        }
+      })
+      .catch(() => {
+        document.getElementById("build-meta").textContent = "ESP32-C3";
+      });
+  </script>
+</body>
+</html>

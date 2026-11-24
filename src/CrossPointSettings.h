@@ -555,6 +555,11 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   uint8_t longPressButtonBehavior = OFF;
   // UI Theme
   uint8_t uiTheme = LYRA;
+  // PocketDeck Home: menu as a bottom bar (0) or a left side column (1).
+  enum HOME_MENU_LAYOUT : uint8_t { HOME_MENU_BOTTOM = 0, HOME_MENU_SIDE = 1 };
+  uint8_t homeMenuLayout = HOME_MENU_BOTTOM;
+  // Owner's name, shown under "PocketDeck" on the PocketDeck Home. Empty hides it.
+  char ownerName[32] = "";
   // Recent Books screen layout
   uint8_t recentBooksView = RECENT_BOOKS_LIST;
   // UI scale (list fonts + row heights); touch boards default one step larger

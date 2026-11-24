@@ -23,6 +23,11 @@ class ReaderActivity final : public Activity {
   bool cleanImageBaseOnEntry = false;
   // Non-static (unlike the other loaders): draws the first-open indexing popup, which needs the renderer.
   EpubOpenResult loadEpub(const std::string& path);
+  // Loads the EPUB and hands it to the reader (or returns to the caller on failure).
+  void openEpub();
+  // Asks before opening a book that is likely to be slow or to run out of
+  // memory. Returns true when a confirmation was started (it opens on Confirm).
+  bool confirmRiskyEpubOpen();
   static std::unique_ptr<Xtc> loadXtc(const std::string& path);
   static std::unique_ptr<Txt> loadTxt(const std::string& path);
   static bool isXtcFile(const std::string& path);

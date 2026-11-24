@@ -4,6 +4,7 @@
 #include <HalStorage.h>
 #include <I18n.h>
 #include <Memory.h>
+#include <ZipFile.h>
 
 #include "CrossPointSettings.h"
 #include "CrossPointState.h"
@@ -14,6 +15,7 @@
 #include "Xtc.h"
 #include "XtcReaderActivity.h"
 #include "activities/util/BmpViewerActivity.h"
+#include "activities/util/ConfirmationActivity.h"
 #include "activities/util/FullScreenMessageActivity.h"
 #include "components/UITheme.h"
 
@@ -213,14 +215,63 @@ void ReaderActivity::onEnter() {
     }
     onGoToTxtReader(std::move(txt));
   } else {
-    auto result = loadEpub(initialBookPath);
-    if (!result.epub) {
-      queueEpubOpenAlert(result.failure);
+    if (confirmRiskyEpubOpen()) return;
+    openEpub();
+  }
+}
+
+void ReaderActivity::openEpub() {
+  auto result = loadEpub(initialBookPath);
+  if (!result.epub) {
+    queueEpubOpenAlert(result.failure);
+    onGoBack();
+    return;
+  }
+  onGoToEpubReader(std::move(result.epub), std::move(result.readerSettings));
+}
+
+bool ReaderActivity::confirmRiskyEpubOpen() {
+  // Books with this many files (chapters + images) take minutes to index the
+  // first time on the C3, and their oversized pages are the ones that run out
+  // of layout memory. Typical books have well under a few hundred.
+  constexpr uint16_t LARGE_BOOK_FILE_COUNT = 1000;
+
+  std::string heading;
+  std::string body;
+  {
+    // Heap, like loadEpub(): Epub is too large for a comfortable stack frame.
+    const auto epub = makeUniqueNoThrow<Epub>(initialBookPath, "/.pocketdeck-os");
+    if (!epub) return false;  // loadEpub() reports the OOM
+    const std::string cachePath = epub->getCachePath();
+    if (EpubReaderActivity::loadMemoryFailedSpine(cachePath) >= 0) {
+      heading = tr(STR_BOOK_MEMORY_WARN_TITLE);
+      body = tr(STR_BOOK_MEMORY_WARN_BODY);
+    } else if (!Storage.exists((cachePath + "/book.bin").c_str())) {
+      ZipFile zip(initialBookPath);
+      const uint16_t files = zip.getTotalEntries();
+      if (files >= LARGE_BOOK_FILE_COUNT) {
+        char buf[200];
+        snprintf(buf, sizeof(buf), tr(STR_BOOK_LARGE_WARN_BODY), static_cast<unsigned>(files));
+        heading = tr(STR_BOOK_LARGE_WARN_TITLE);
+        body = buf;
+      }
+    }
+  }
+  if (heading.empty()) return false;
+
+  auto confirm = makeUniqueNoThrow<ConfirmationActivity>(renderer, mappedInput, heading, body);
+  if (!confirm) {
+    LOG_ERR("READER", "OOM: open-book warning; opening without it");
+    return false;
+  }
+  startActivityForResult(std::move(confirm), [this](const ActivityResult& result) {
+    if (result.isCancelled) {
       onGoBack();
       return;
     }
-    onGoToEpubReader(std::move(result.epub), std::move(result.readerSettings));
-  }
+    openEpub();
+  });
+  return true;
 }
 
 void ReaderActivity::onGoBack() { finish(); }

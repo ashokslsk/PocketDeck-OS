@@ -898,6 +898,29 @@ void BaseTheme::drawStatusBar(GfxRenderer& renderer, const float bookProgress, c
   auto textY = screenHeight - UITheme::getInstance().getStatusBarHeight() - orientedMarginBottom - paddingBottom - 4;
   int progressTextWidth = 0;
 
+  // PocketDeck: book-progress line above the footer text. Its space is the top
+  // of the status bar (textY + 4); the text keeps its usual place below it.
+  const int progressLineHeight = UITheme::getReaderProgressLineHeight();
+  if (progressLineHeight > 0) {
+    if (showProgress) {
+      constexpr int kLineSidePadding = 64;  // inset from each end of the footer
+      const int lineLeft = metrics.statusBarHorizontalMargin + orientedMarginLeft + kLineSidePadding;
+      const int lineWidth = std::max(0, renderer.getScreenWidth() - metrics.statusBarHorizontalMargin * 2 -
+                                            orientedMarginLeft - orientedMarginRight - kLineSidePadding * 2);
+      const int fillTop = textY + 4 + 3;  // 3 px clear of the page text above
+      const float clamped = std::clamp(bookProgress, 0.0f, 100.0f);
+      const int fillWidth = static_cast<int>(static_cast<float>(lineWidth) * clamped / 100.0f);
+      // Unread part: a dotted 1 px track through the middle of the bar, so it
+      // reads lighter than the solid read part (the panel has no gray here).
+      const int trackY = fillTop + 1;
+      for (int x = lineLeft + fillWidth; x < lineLeft + lineWidth; x += 2) {
+        renderer.drawPixel(x, trackY, foregroundBlack);
+      }
+      if (fillWidth > 0) renderer.fillRect(lineLeft, fillTop, fillWidth, 3, foregroundBlack);  // read part, 3 px
+    }
+    textY += progressLineHeight;
+  }
+
   const bool showStablePageNumbers = statusBar.showStablePageNumbers && stableCurrentPage > 0 && stablePageCount > 0;
   if (showProgress && (statusBar.showBookProgressPercent || statusBar.showChapterPageCount || showStablePageNumbers)) {
     // Right aligned text for progress counter

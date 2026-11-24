@@ -509,7 +509,7 @@ void ChapterHtmlSlimParser::flushPendingAnchor() {
   }
 
   // Record deferred anchor after previous block is flushed (and any TOC page break)
-  anchorData.push_back({std::move(pendingAnchorId), static_cast<uint16_t>(completedPageCount)});
+  anchorData.push(pendingAnchorId, static_cast<uint16_t>(completedPageCount));
   pendingAnchorId.clear();
   pendingAnchorFromInlineA = false;
 }
@@ -585,7 +585,7 @@ void ChapterHtmlSlimParser::startPreviewAtAnchor() {
   pendingAnchorId.clear();
   pendingAnchorFromInlineA = false;
   anchorData.clear();
-  anchorData.push_back({previewAnchor, 0});
+  anchorData.push(previewAnchor, 0);
 
   if (!currentTextBlock) {
     auto paragraphAlignmentBlockStyle = BlockStyle();
@@ -988,7 +988,7 @@ void ChapterHtmlSlimParser::emitHorizontalRule(const BlockStyle& blockStyle) {
   headingOpenerActive = false;
 
   if (!pendingAnchorId.empty()) {
-    anchorData.push_back({std::move(pendingAnchorId), static_cast<uint16_t>(completedPageCount)});
+    anchorData.push(pendingAnchorId, static_cast<uint16_t>(completedPageCount));
     pendingAnchorId.clear();
     pendingAnchorFromInlineA = false;
   }
@@ -3964,7 +3964,7 @@ bool ChapterHtmlSlimParser::finishParse() {
       return false;
     }
     if (!pendingAnchorId.empty()) {
-      anchorData.push_back({std::move(pendingAnchorId), static_cast<uint16_t>(completedPageCount)});
+      anchorData.push(pendingAnchorId, static_cast<uint16_t>(completedPageCount));
       pendingAnchorId.clear();
       pendingAnchorFromInlineA = false;
     }

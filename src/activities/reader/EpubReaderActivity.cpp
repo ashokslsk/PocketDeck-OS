@@ -13,6 +13,7 @@
 #include <Logging.h>
 #include <Memory.h>
 #include <MemoryBudget.h>
+#include <Serialization.h>
 #include <Utf8.h>
 
 #include <algorithm>
@@ -111,6 +112,7 @@ constexpr uint8_t READER_SETTINGS_FLAG_AUTO_PAGE_TURN = 1 << 1;
 constexpr uint8_t READER_SETTINGS_FLAG_RENDER_MODE = 1 << 2;
 constexpr uint8_t READER_SETTINGS_FLAG_DICTIONARY_FONT = 1 << 3;
 constexpr char READER_SETTINGS_FILE_NAME[] = "/reader_settings.bin";
+constexpr char MEMORY_FAILED_FILE_NAME[] = "/layout_memory_failed.bin";
 constexpr char BALANCED_SECTION_CACHE_SUFFIX[] = "_balanced";
 constexpr char LIGHT_SECTION_CACHE_SUFFIX[] = "_light";
 constexpr unsigned long RENDER_MODE_TOAST_MS = 1500UL;
@@ -1422,6 +1424,34 @@ uint8_t EpubReaderActivity::loadBookRenderMode(const std::string& filePath) {
                                     : static_cast<uint8_t>(EpubRenderMode::CrossInkDefault);
 }
 
+int EpubReaderActivity::loadMemoryFailedSpine(const std::string& cachePath) {
+  const std::string path = cachePath + MEMORY_FAILED_FILE_NAME;
+  if (!Storage.exists(path.c_str())) return -1;
+  FsFile file;
+  if (!Storage.openFileForRead("ERS", path, file)) return -1;
+  int16_t spine = -1;
+  const bool ok = serialization::tryReadPod(file, spine);
+  file.close();
+  return ok ? spine : -1;
+}
+
+void EpubReaderActivity::saveMemoryFailedSpine(const std::string& cachePath, const int spineIndex) {
+  FsFile file;
+  if (!Storage.openFileForWrite("ERS", cachePath + MEMORY_FAILED_FILE_NAME, file)) {
+    LOG_ERR("ERS", "Could not record low-memory chapter %d", spineIndex);
+    return;
+  }
+  if (!serialization::tryWritePod(file, static_cast<int16_t>(spineIndex))) {
+    LOG_ERR("ERS", "Could not write low-memory chapter %d", spineIndex);
+  }
+  file.close();
+}
+
+void EpubReaderActivity::clearMemoryFailedSpine(const std::string& cachePath) {
+  const std::string path = cachePath + MEMORY_FAILED_FILE_NAME;
+  if (Storage.exists(path.c_str())) Storage.remove(path.c_str());
+}
+
 bool EpubReaderActivity::saveBookRenderMode(const std::string& filePath, const uint8_t renderMode) {
   Epub epub(filePath, "/.pocketdeck-os");
   epub.setupCacheDir();
@@ -2328,6 +2358,7 @@ void EpubReaderActivity::onEnter() {
   // Save current epub as last opened epub and add to recent books
   APP_STATE.openEpubPath = epub->getPath();
   APP_STATE.saveToFile();
+  memoryFailedSpine = loadMemoryFailedSpine(epub->getCachePath());
   const RecentBook::CoverState coverState =
       epub->hasCoverImage() ? RecentBook::CoverState::Unknown : RecentBook::CoverState::Missing;
   if (!skipRecentBookUpdateOnEntry) {
@@ -6068,6 +6099,19 @@ bool EpubReaderActivity::handleSpeedReadInput(const bool confirmReleased, const 
     stopSpeedRead();
     return true;
   }
+  // Hold Confirm: pause and pick a word of the current or previous phrase to
+  // look up (the previous one too, since the bar has often moved on by the
+  // time a word catches your eye). A short press still pauses and resumes.
+  if (!speedReadLookupFired_ && mappedInput.isPressed(MappedInputManager::Button::Confirm) &&
+      mappedInput.getHeldTime() >= Dictionary::LONG_PRESS_MS) {
+    speedReadLookupFired_ = true;
+    openSpeedReadLookup();
+    return true;
+  }
+  if (confirmReleased && speedReadLookupFired_) {
+    speedReadLookupFired_ = false;  // the release of that hold
+    return true;
+  }
   if (confirmReleased) {
     setSpeedReadPaused(!speedReadPaused);
     return true;
@@ -6135,6 +6179,84 @@ bool EpubReaderActivity::handleSpeedReadInput(const bool confirmReleased, const 
     pageTurn(true, "speed_read");
   }
   return false;
+}
+
+void EpubReaderActivity::openSpeedReadLookup() {
+  if (!epub || !section || !speedReadPhrases || speedReadPhraseCount == 0) return;
+  if (!speedReadPaused) setSpeedReadPaused(true);
+
+  // Word range: the previous phrase (if any) through the current one.
+  const uint16_t step = std::min<uint16_t>(speedReadStep, speedReadPhraseCount - 1);
+  const uint16_t firstWord = speedReadPhrases[step > 0 ? step - 1 : step].firstWord;
+  const uint16_t currentFirst = speedReadPhrases[step].firstWord;
+  const uint16_t endWord = step + 1 < speedReadPhraseCount ? speedReadPhrases[step + 1].firstWord : UINT16_MAX;
+
+  std::vector<std::string> words;
+  int initial = 0;
+  {
+    RenderLock lock(*this);
+    auto page = section->loadPageFromSectionFile();
+    if (!page) {
+      LOG_ERR("ERS", "Speed Read lookup: could not load page %d", section->currentPage);
+      return;
+    }
+    words.reserve(16);
+    std::string pending;  // first half of a word split by an inserted hyphen
+    forEachVisiblePageWord(*page, [&](const uint16_t pageWordIndex, const PageTextLine&, const TextBlock& block,
+                                      const size_t i) {
+      if (pageWordIndex < firstWord) return true;
+      if (pageWordIndex >= endWord && pending.empty()) return false;
+      const auto wordIndex = static_cast<uint16_t>(i);
+      const char* raw = block.wordText(wordIndex);
+      std::string text = pending + (raw + (hasEmSpacePrefix(raw) ? 3 : 0));
+      pending.clear();
+      if (block.wordEndsWithInsertedHyphen(wordIndex)) {
+        if (!text.empty() && text.back() == '-') text.pop_back();
+        pending = std::move(text);
+        return true;
+      }
+      const std::string clean = Dictionary::cleanWord(text);
+      bool hasLetter = false;
+      for (const char c : clean) {
+        const auto u = static_cast<unsigned char>(c);
+        if (u >= 0x80 || std::isalpha(u)) {
+          hasLetter = true;
+          break;
+        }
+      }
+      if (!hasLetter) return true;
+      const bool seen = std::any_of(words.begin(), words.end(), [&](const std::string& w) {
+        return strcasecmp(w.c_str(), clean.c_str()) == 0;
+      });
+      if (!seen) {
+        if (pageWordIndex < currentFirst) initial = static_cast<int>(words.size()) + 1;
+        words.push_back(clean);
+      }
+      return pageWordIndex + 1 < endWord || !pending.empty();
+    });
+  }
+  if (words.empty()) return;
+  initial = std::min(initial, static_cast<int>(words.size()) - 1);  // first word of the current phrase
+
+  const BookReaderSettingsData bookSettings = loadBookReaderSettingsFile(epub->getCachePath());
+  auto list = makeUniqueNoThrow<LookedUpWordsActivity>(renderer, mappedInput, epub->getCachePath(),
+                                                       bookSettings.dictionarySdFontFamilyName,
+                                                       bookSettings.dictionaryFontPointSize);
+  if (!list) {
+    LOG_ERR("ERS", "OOM: Speed Read lookup list");
+    return;
+  }
+  list->usePickList(std::move(words), initial);
+  pauseReadingPaceTimer("speed_read_lookup");
+  startActivityForResult(std::move(list), [this](const ActivityResult&) {
+    resumeReadingPaceTimer("speed_read_lookup_return");
+    releaseReaderSdFontCachesForLowMemory(renderer, "DICT", "speed read lookup exit");
+    // Back on the paused page with the bar where it was: Confirm resumes, and
+    // time spent reading the definition does not count toward the auto-stop.
+    speedReadPausedSinceMs = millis();
+    speedReadLookupFired_ = false;
+    requestUpdate();
+  });
 }
 
 void EpubReaderActivity::prepareSpeedReadOverlay(const Page& page, const int fontId, const int orientedMarginTop,
@@ -6449,6 +6571,12 @@ void EpubReaderActivity::render(RenderLock&& lock) {
 
   const auto showLowMemoryLayoutError = [this, &queueLowMemoryLayoutAlert]() {
     queueLowMemoryLayoutAlert(true);
+    // Don't resume into a chapter that cannot be laid out: a restart or wake
+    // would land on the same failure again and loop. The next start goes Home.
+    APP_STATE.openEpubPath = "";
+    APP_STATE.saveToFile();
+    saveMemoryFailedSpine(epub->getCachePath(), currentSpineIndex);
+    memoryFailedSpine = currentSpineIndex;
     GUI.drawPopup(renderer, tr(STR_EPUB_LAYOUT_MEMORY_TITLE));
   };
 
@@ -6879,6 +7007,11 @@ void EpubReaderActivity::render(RenderLock&& lock) {
           showBuildError();
         }
         return;
+      }
+      if (memoryFailedSpine == currentSpineIndex && !usedReadablePartialFallback) {
+        // The chapter that failed last time now lays out: forget the warning.
+        clearMemoryFailedSpine(epub->getCachePath());
+        memoryFailedSpine = -1;
       }
       if (!section->isBuilding()) {
         releaseReaderSdFontCachesForLowMemory(renderer, "ERS", "section cache build");

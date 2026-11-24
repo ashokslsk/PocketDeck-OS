@@ -49,6 +49,10 @@ class UITheme {
   static UIIcon getFileIcon(const std::string& filename);
   static int getStatusBarHeight();
   static int getProgressBarHeight();
+  // PocketDeck reader footer: a book-progress line above the status text
+  // (dotted 1 px track the full width, the read part solid 3 px black). Height it
+  // reserves in the status bar, or 0 when it is not drawn.
+  static int getReaderProgressLineHeight();
   // Device-specific top offset for the clock, battery, and reserved status-bar lane.
   static int getTopStatusBarInset(const GfxRenderer& renderer);
 

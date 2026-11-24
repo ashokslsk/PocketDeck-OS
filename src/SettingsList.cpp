@@ -47,6 +47,11 @@ const std::vector<SettingInfo>& getBaseSettingsList() {
                                 CrossPointSettings::UI_THEME::LYRA_3_COVERS,
                                 CrossPointSettings::UI_THEME::LYRA_CAROUSEL, CrossPointSettings::UI_THEME::ROUNDEDRAFF,
                                 CrossPointSettings::UI_THEME::POCKETDECK}));
+    add(SettingInfo::Enum(StrId::STR_HOME_MENU_LAYOUT, &CrossPointSettings::homeMenuLayout,
+                          {StrId::STR_HOME_MENU_BOTTOM, StrId::STR_HOME_MENU_SIDE}, "homeMenuLayout",
+                          StrId::STR_CAT_DISPLAY));
+    add(SettingInfo::String(StrId::STR_OWNER_NAME, SETTINGS.ownerName, sizeof(SETTINGS.ownerName), "ownerName",
+                            StrId::STR_CAT_DISPLAY));
     add(SettingInfo::Enum(StrId::STR_UI_SCALE, &CrossPointSettings::uiScale, {StrId::STR_SMALL, StrId::STR_LARGE},
                           "uiScale", StrId::STR_CAT_DISPLAY)
             .withEnumRawValues({CrossPointSettings::UI_SCALE_SMALL, CrossPointSettings::UI_SCALE_LARGE}));

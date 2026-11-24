@@ -16,6 +16,11 @@ class LookedUpWordsActivity final : public Activity {
   explicit LookedUpWordsActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookCachePath,
                                  const char* dictionaryFontFamilyName = nullptr, uint8_t dictionaryFontPointSize = 0);
 
+  // Pick mode (Speed Read look-up): the given words instead of the book's
+  // history, starting on `initialIndex`; no delete. Lookups are still
+  // recorded in the book's history like any other.
+  void usePickList(std::vector<std::string> words, int initialIndex);
+
   void onEnter() override;
   void onExit() override;
   void loop() override;
@@ -37,6 +42,12 @@ class LookedUpWordsActivity final : public Activity {
   std::vector<std::string> labels;
   std::vector<freeink::ui::ListItem> uiItems;
   int selectedIndex = 0;
+  bool pickMode_ = false;
+  std::vector<std::string> pickWords_;
+  int pickInitial_ = 0;
+  // The Confirm hold that opened a pick list ends inside it; that release must
+  // not look up the first word.
+  bool ignoreInitialConfirmRelease_ = false;
 
   DictionaryLookupController controller;
   ButtonNavigator buttonNavigator;
@@ -49,5 +60,7 @@ class LookedUpWordsActivity final : public Activity {
   bool skipLoopDelay() override { return controller.skipLoopDelay(); }
 
   void showDeleteConfirmation(bool ignoreInitialConfirmRelease);
+  // Not-found popup's "switch dictionary": pick another and retry the word.
+  void openDictionarySwitch();
   static const char* glyphFor(LookupHistory::Status s);
 };

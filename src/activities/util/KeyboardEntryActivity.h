@@ -45,6 +45,8 @@ class KeyboardEntryActivity : public Activity {
   bool passwordVisible = false;
 
   ButtonNavigator buttonNavigator;
+  // Cursor mode: holding Left/Right keeps moving the cursor, faster than key travel.
+  ButtonNavigator cursorNavigator{120, 400};
 
   // Keyboard layers. The letter/symbol layers come from the SDK's builtin
   // layouts (with the always-visible number row); the URL layers are
@@ -132,6 +134,7 @@ class KeyboardEntryActivity : public Activity {
   // One copy: paste it. Several: let the reader pick (newest preselected).
   void startPaste();
   bool backspaceUtf8();
+  void eraseBeforeCursor();
   static size_t utf8Prev(const std::string& s, size_t pos);
   static size_t utf8Next(const std::string& s, size_t pos);
 

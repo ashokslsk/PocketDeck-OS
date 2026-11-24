@@ -399,6 +399,84 @@ void DailyQuoteActivity::showRandom(const uint32_t seed) {
   randomPick_ = true;
 }
 
+bool DailyQuoteActivity::quoteForDay(const int32_t day, std::string& out) {
+  out.clear();
+  // Heap, not stack: a quote line can be 2 KB. Freed on return.
+  auto line = makeUniqueNoThrow<char[]>(kLineCap);
+  if (!line) {
+    LOG_ERR("QUOTE", "OOM: %u-byte quote buffer", static_cast<unsigned>(kLineCap));
+    return false;
+  }
+  FsFile src;
+  if (!Storage.exists(kQuotesPath) || !Storage.openFileForRead("QUOTE", kQuotesPath, src)) return false;
+  const auto sourceSize = static_cast<uint32_t>(src.fileSize());
+
+  // Same index the tool keeps; rebuilt only when quotes.txt changed.
+  uint32_t count = 0;
+  FsFile idx;
+  if (Storage.exists(kIndexPath) && Storage.openFileForRead("QUOTE", kIndexPath, idx)) {
+    IndexHeader header{};
+    if (idx.read(&header, sizeof(header)) == sizeof(header) && header.magic == kIndexMagic &&
+        header.sourceSize == sourceSize) {
+      count = header.count;
+    }
+    idx.close();
+  }
+  if (count == 0) {
+    tools::ensureToolsDirs();
+    BuildCtx ctx{&src, line.get(), kLineCap, sourceSize, 0};
+    if (!tools::writeFileAtomic(kIndexPath, &DailyQuoteActivity::buildIndex, &ctx)) {
+      LOG_ERR("QUOTE", "Failed to build %s", kIndexPath);
+      src.close();
+      return false;
+    }
+    count = ctx.count;
+  }
+  if (count == 0 || !Storage.openFileForRead("QUOTE", kIndexPath, idx)) {
+    src.close();
+    return false;
+  }
+
+  // Exact date, then the yearly date, then a pick that is stable for the day.
+  uint16_t y = 0;
+  uint8_t m = 0, d = 0;
+  tools::civilFromDays(day, y, m, d);
+  const int32_t yearlyKey = -static_cast<int32_t>(m * 100 + d);
+  int64_t exact = -1;
+  int64_t yearly = -1;
+  idx.seek(sizeof(IndexHeader));
+  IndexEntry chunk[16];
+  uint32_t remaining = count;
+  while (remaining > 0 && exact < 0) {
+    const uint32_t n = std::min<uint32_t>(remaining, 16);
+    if (idx.read(chunk, n * sizeof(IndexEntry)) != static_cast<int>(n * sizeof(IndexEntry))) break;
+    for (uint32_t i = 0; i < n; ++i) {
+      if (chunk[i].key == day) {
+        exact = chunk[i].offset;
+        break;
+      }
+      if (yearly < 0 && chunk[i].key == yearlyKey) yearly = chunk[i].offset;
+    }
+    remaining -= n;
+  }
+  int64_t offset = exact >= 0 ? exact : yearly;
+  if (offset < 0) {
+    IndexEntry entry{};
+    const uint32_t pick = mix(static_cast<uint32_t>(day)) % count;
+    if (idx.seek(sizeof(IndexHeader) + pick * sizeof(IndexEntry)) && idx.read(&entry, sizeof(entry)) == sizeof(entry)) {
+      offset = entry.offset;
+    }
+  }
+  idx.close();
+  const bool ok = offset >= 0 && src.seek(static_cast<uint32_t>(offset)) && tools::readLine(src, line.get(), kLineCap) > 0;
+  src.close();
+  if (!ok) return false;
+  const char* text = nullptr;
+  keyForPrefix(line.get(), &text);
+  out = text != nullptr ? text : "";
+  return !out.empty();
+}
+
 void DailyQuoteActivity::onExit() {
   kannada::release();
   Activity::onExit();

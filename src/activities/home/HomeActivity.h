@@ -65,6 +65,8 @@ class HomeActivity final : public Activity {
   // Cached cover pixels already include Dark Mode's image-polarity correction.
   // They must be redrawn rather than reused when the output polarity changes.
   bool coverBufferInverted = false;
+  // PocketDeck keeps the drawn cards on the SD card; tried once per Home visit.
+  bool cardsDiskTried = false;
   // Home can be entered while Back is still held (e.g. leaving Settings with
   // Back): ignore that stale release until a fresh press is seen here.
   bool backPressSeen = false;
@@ -114,6 +116,8 @@ class HomeActivity final : public Activity {
   bool storeCoverBuffer();    // Store frame buffer for cover image
   bool restoreCoverBuffer();  // Restore frame buffer from stored cover
   void freeCoverBuffer();     // Free the stored cover buffer
+  bool loadCardsFromDisk();   // PocketDeck: reuse the saved cards when nothing changed
+  void saveCardsToDisk();     // PocketDeck: save freshly drawn cards for the next wake
   void invalidateCoverCache();
   void invalidatePolarityMismatchedCaches();
   bool preRenderCarouselFrames(bool showProgressPopup = false);

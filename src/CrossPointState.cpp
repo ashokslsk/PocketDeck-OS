@@ -58,12 +58,15 @@ bool CrossPointState::saveToFile() const {
   std::lock_guard<std::mutex> stateLock(_mutex);
   JsonDocument doc;
   toJson(doc);
-  return PersistableStoreBase::writeDocToFile(STATE_FILE_JSON, doc);
+  // Temp file + swap: a failed save keeps the previous state (open book,
+  // reading position hand-offs) instead of leaving no file.
+  return PersistableStoreBase::writeDocToFileAtomically(STATE_FILE_JSON, doc);
 }
 
 bool CrossPointState::loadFromFile() {
-  // Try JSON first
-  if (Storage.exists(STATE_FILE_JSON)) {
+  // Try JSON first. readDocFromFile also recovers the backup an interrupted
+  // atomic save can leave behind, so don't require the main file to exist.
+  {
     std::lock_guard<std::mutex> storeLock(storeMutex);
     JsonDocument doc;
     if (PersistableStoreBase::readDocFromFile(STATE_FILE_JSON, doc)) {

@@ -1887,10 +1887,22 @@ void loop() {
   if (!buttonShortcutController.isQuickLocked() && UsbSerialFileTransfer::process(activityManager.isHomeActivity()) ==
                                                        UsbSerialFileTransfer::ProcessResult::ScreenshotRequested) {
     const uint32_t bufferSize = display.getBufferSize();
+#if !defined(SIMULATOR) && LOG_SERIAL_HAS_TX_TIMEOUT
+    // The 1 ms timeout drops whatever the host has not read yet; a screenshot
+    // is asked for by a host that is reading, so wait for it, then restore.
+    logSerial.setTxTimeoutMs(250);
+#endif
     logSerial.printf("SCREENSHOT_START:%d\n", bufferSize);
-    uint8_t* buf = display.getFrameBuffer();
-    logSerial.write(buf, bufferSize);
+    const uint8_t* buf = display.getFrameBuffer();
+    constexpr uint32_t kChunk = 512;
+    for (uint32_t sent = 0; sent < bufferSize; sent += kChunk) {
+      logSerial.write(buf + sent, std::min(kChunk, bufferSize - sent));
+    }
+    logSerial.flush();
     logSerial.printf("SCREENSHOT_END\n");
+#if !defined(SIMULATOR) && LOG_SERIAL_HAS_TX_TIMEOUT
+    logSerial.setTxTimeoutMs(1);  // back to the load-bearing 1 ms
+#endif
   }
 
   // Notify the active activity before global shortcut and gesture routes consume

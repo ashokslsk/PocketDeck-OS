@@ -38,6 +38,10 @@ constexpr uint8_t SETTINGS_FILE_VERSION = 2;
 constexpr char SETTINGS_FILE_BIN[] = "/.pocketdeck-os/settings.bin";
 constexpr char SETTINGS_FILE_JSON[] = "/.pocketdeck-os/pocketdeck-os-settings.json";
 constexpr char LEGACY_SETTINGS_FILE_JSON[] = "/.pocketdeck-os/settings.json";
+// Present once PocketDeck has its own settings file. From then on the legacy
+// settings.json (which other firmware may still own) is never loaded again, so a
+// lost settings file can no longer bring back stale values like the Lyra theme.
+constexpr char SETTINGS_OWNED_MARKER[] = "/.pocketdeck-os/.settings-owned";
 constexpr char SETTINGS_FILE_BAK[] = "/.pocketdeck-os/settings.bin.bak";
 constexpr char LANG_FILE_BIN[] = "/.pocketdeck-os/language.bin";
 constexpr char LANG_FILE_BAK[] = "/.pocketdeck-os/language.bin.bak";
@@ -780,14 +784,20 @@ bool CrossPointSettings::saveToFile() const {
   std::lock_guard<std::mutex> lock(storeMutex);
   JsonDocument doc;
   toJson(doc);
-  return PersistableStoreBase::writeDocToFile(SETTINGS_FILE_JSON, doc);
+  // Write to a temp file and swap it in, so a failed or interrupted save keeps
+  // the previous settings instead of leaving no file at all.
+  return PersistableStoreBase::writeDocToFileAtomically(SETTINGS_FILE_JSON, doc);
 }
 
 bool CrossPointSettings::loadFromFile() {
   enum class JsonLoadStatus : uint8_t { MissingOrEmpty, Loaded, Failed };
 
   auto loadJsonSettings = [this](const char* path, bool migrateToCurrentPath) -> JsonLoadStatus {
-    if (!Storage.exists(path)) return JsonLoadStatus::MissingOrEmpty;
+    // An interrupted atomic save can leave only "<path>.bak"; readDocFromFile
+    // restores it, so treat either file as present.
+    if (!Storage.exists(path) && !Storage.exists((std::string(path) + ".bak").c_str())) {
+      return JsonLoadStatus::MissingOrEmpty;
+    }
 
     JsonDocument doc;
     if (PersistableStoreBase::readDocFromFile(path, doc)) {
@@ -822,7 +832,14 @@ bool CrossPointSettings::loadFromFile() {
   // Prefer CrossInk's namespaced settings file. Use the old generic file only
   // as a migration fallback so other firmware can keep its own settings.json.
   JsonLoadStatus jsonStatus = loadJsonSettings(SETTINGS_FILE_JSON, false);
+  if (jsonStatus == JsonLoadStatus::Loaded && !Storage.exists(SETTINGS_OWNED_MARKER)) {
+    if (!Storage.writeFile(SETTINGS_OWNED_MARKER, "1")) LOG_ERR("CPS", "Failed to write settings marker");
+  }
   if (jsonStatus != JsonLoadStatus::MissingOrEmpty) return jsonStatus == JsonLoadStatus::Loaded;
+  if (Storage.exists(SETTINGS_OWNED_MARKER)) {
+    LOG_ERR("CPS", "Settings file missing or unreadable; using defaults instead of legacy settings");
+    return false;
+  }
 
   jsonStatus = loadJsonSettings(LEGACY_SETTINGS_FILE_JSON, true);
   if (jsonStatus != JsonLoadStatus::MissingOrEmpty) return jsonStatus == JsonLoadStatus::Loaded;

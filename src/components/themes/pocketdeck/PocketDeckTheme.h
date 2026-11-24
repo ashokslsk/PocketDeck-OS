@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <vector>
+
 #include "components/themes/lyra/LyraTheme.h"
 
 // PocketDeck: Lyra's layout with the PocketDeck-OS mark in every header, a
@@ -30,6 +33,30 @@ constexpr int kMarkSize = 32;
 constexpr int kMarkGap = 8;
 }  // namespace PocketDeckMetrics
 
+class GfxRenderer;
+struct GlobalReadingStats;
+struct RecentBook;
+// Height of the Home card area: the cards also take the bottom bar's rows when
+// Home Menu is Side.
+int pocketDeckHomeTileHeight(const GfxRenderer& renderer);
+// Fingerprint of everything drawn on the Home cards (books, covers, progress,
+// stats, today, layout). Home keeps the drawn cards on the SD card and reuses
+// them after a wake while this matches, instead of redrawing every cover.
+uint32_t pocketDeckCardsKey(const GfxRenderer& renderer, const std::vector<RecentBook>& books,
+                            const GlobalReadingStats& globalStats);
+// Quote of the day ticker on Home's status bar. Home calls reset on enter and
+// tick from its loop; tick returns true when Home should redraw.
+void pocketDeckQuoteTickerReset();
+bool pocketDeckQuoteTick(unsigned long nowMs);
+// Counts recent books past 10% (the View All tile's heading) one book per
+// call, so Home shows at once. Home calls reset on enter and step from its loop
+// after the first paint; step returns true when the count is ready. Stop frees
+// the counter's memory when Home closes.
+void pocketDeckRecentCountReset();
+void pocketDeckRecentCountStop();
+bool pocketDeckRecentCountActive();
+bool pocketDeckRecentCountStep();
+
 class PocketDeckTheme : public LyraTheme {
  public:
   int headerLeftInset() const override;
@@ -43,4 +70,10 @@ class PocketDeckTheme : public LyraTheme {
   void drawButtonMenu(GfxRenderer& renderer, Rect rect, int buttonCount, int selectedIndex,
                       const std::function<const char*(int index)>& buttonLabel,
                       const std::function<UIIcon(int index)>& rowIcon) const override;
+  void drawButtonHints(GfxRenderer& renderer, const char* btn1, const char* btn2, const char* btn3, const char* btn4,
+                       bool allowInvertedText = false) const override;
+
+ private:
+  // Home's status bar: mark and name, date, time, Wi-Fi, battery, then a rule.
+  void drawHomeStatusBar(const GfxRenderer& renderer, Rect rect) const;
 };

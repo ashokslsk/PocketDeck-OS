@@ -713,10 +713,9 @@ bool Section::createSectionFile(const ReaderRenderSpec& spec, const std::functio
       file, pageIndex,
       [&anchors](FsFile& output) {
         if (!serialization::tryWritePod(output, static_cast<uint16_t>(anchors.size()))) return false;
-        for (const auto& [anchor, page] : anchors) {
-          if (!serialization::tryWriteString(output, anchor) || !serialization::tryWritePod(output, page)) return false;
-        }
-        return true;
+        return anchors.forEach([&output](const std::string_view anchor, const uint16_t page) {
+          return serialization::tryWriteString(output, std::string(anchor)) && serialization::tryWritePod(output, page);
+        });
       },
       pageIndexOffsets);
   if (!wrotePageIndex) {
@@ -1025,10 +1024,13 @@ bool Section::hasHtmlCache() const {
 
 std::optional<uint16_t> Section::findAnchorDuringBuild(const std::string& anchor) const {
   if (!build_ || !build_->parser) return std::nullopt;
-  for (const auto& [key, page] : build_->parser->getAnchors()) {
-    if (key == anchor) return page;
-  }
-  return std::nullopt;
+  std::optional<uint16_t> found;
+  build_->parser->getAnchors().forEach([&](const std::string_view key, const uint16_t page) {
+    if (key != anchor) return true;
+    found = page;
+    return false;
+  });
+  return found;
 }
 
 std::optional<uint16_t> Section::findAnchor(const std::string& anchor) const {
@@ -1131,15 +1133,15 @@ bool Section::commitBuildFile(const uint8_t version, const uint32_t bytesConsume
       file, build_->pageIndex,
       [this, asPartial, &anchors](FsFile& output) {
         uint16_t anchorCount = 0;
-        for (const auto& [anchor, page] : anchors) {
+        anchors.forEach([&](const std::string_view, const uint16_t page) {
           if (!asPartial || page < builtPageCount_) anchorCount++;
-        }
+          return true;
+        });
         if (!serialization::tryWritePod(output, anchorCount)) return false;
-        for (const auto& [anchor, page] : anchors) {
-          if (asPartial && page >= builtPageCount_) continue;
-          if (!serialization::tryWriteString(output, anchor) || !serialization::tryWritePod(output, page)) return false;
-        }
-        return true;
+        return anchors.forEach([&](const std::string_view anchor, const uint16_t page) {
+          if (asPartial && page >= builtPageCount_) return true;
+          return serialization::tryWriteString(output, std::string(anchor)) && serialization::tryWritePod(output, page);
+        });
       },
       pageIndexOffsets);
   if (!wrotePageIndex) {

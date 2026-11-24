@@ -1,44 +1,143 @@
 #include "PocketDeckTheme.h"
 
+#include <FsHelpers.h>
 #include <GfxRenderer.h>
+#include <HalClock.h>
+#include <HalGPIO.h>
+#include <HalPowerManager.h>
 #include <HalStorage.h>
 #include <I18n.h>
 
+#include <Arduino.h>
+
 #include <algorithm>
+#include <climits>
 #include <cstdio>
+#include <cstring>
 #include <string>
 
+#include "CrossPointSettings.h"
 #include "RecentBooksStore.h"
 #include "activities/home/RecentBookProgress.h"
 #include "activities/reader/BookInsights.h"
 #include "activities/reader/BookReadingStats.h"
 #include "activities/reader/GlobalReadingStats.h"
 #include "activities/reader/ReadingStatsUtils.h"
+#include "activities/tools/DailyQuoteActivity.h"
 #include "activities/tools/ToolsCommon.h"
+#include "components/HeaderDate.h"
 #include "components/TouchRegistry.h"
 #include "components/UITheme.h"
 #include "components/UiAppHelpers.h"
+#include "components/icons/deckIcons.h"
+#include "components/icons/listIcons.h"
 #include "components/icons/toolsIcon.h"
 #include "fontIds.h"
 #include "images/PocketDeckMark32.h"
+#include "network/WifiUtils.h"
 
 namespace {
 constexpr int kPad = 12;      // screen edge to card
 constexpr int kInset = 12;    // card edge to content
-constexpr int kRadius = 10;   // card corners
-constexpr int kCardGap = 14;  // between cards
-constexpr int kNowH = 250;    // Now Reading card
-constexpr int kStatsH = 150;  // Reading Stats card
+constexpr int kChamfer = 14;  // card corner cut
+constexpr int kCardGap = 10;  // between cards
+constexpr int kNowH = 268;    // Now Reading card
+constexpr int kStatsH = 142;  // Reading Stats card
 constexpr int kRecentSlots = 4;   // covers plus the View All Recents tile
 constexpr int kRecentCovers = 3;  // == homeRecentBooksCount
-constexpr int kRecentH = 166;     // Recent Books card
+constexpr int kRecentH = 164;     // Recent Books card
 constexpr int kButtonH = 40;      // Continue Reading button
 constexpr int kRecentTopPad = 8;  // heading to covers
 constexpr int kRecentFootH = 26;  // progress row under the covers
+constexpr int kSideW = 84;        // side menu column (Home Menu: Side)
+constexpr int kSideItemW = 80;
+constexpr int kSideReadH = 100;   // pitch of the side items, Read first
 
+bool sideMenu() { return SETTINGS.homeMenuLayout == CrossPointSettings::HOME_MENU_SIDE; }
+
+// One side-menu item: icon over label; selected is a black rounded box.
+void sideItem(const GfxRenderer& r, const int x, const int y, const int w, const int h, const freeink::Icon& icon,
+              const char* label, const bool selected) {
+  // Inset so the black box clears the panel's outline.
+  if (selected) r.fillRoundedRect(x + 7, y + 5, w - 14, h - 10, 10, Color::Black);
+  const int font = SMALL_FONT_ID;  // one size for every item
+  const int labelH = r.getLineHeight(font);
+  const int iconY = y + (h - 32 - 2 - labelH) / 2;
+  drawLucideIcon(r, icon, x + (w - 32) / 2, iconY, !selected);
+  const std::string text = r.truncatedText(font, label, w - 6);
+  r.drawText(font, x + (w - r.getTextWidth(font, text.c_str())) / 2, iconY + 34, text.c_str(), !selected);
+}
+
+// The PocketDeck shape: a rectangle with its corners cut at 45 degrees.
+void chamferPoints(const int x, const int y, const int w, const int h, const int c, int* px, int* py) {
+  const int r = x + w - 1;
+  const int b = y + h - 1;
+  const int xs[8] = {x + c, r - c, r, r, r - c, x + c, x, x};
+  const int ys[8] = {y, y, y + c, b - c, b, b, b - c, y + c};
+  for (int i = 0; i < 8; ++i) {
+    px[i] = xs[i];
+    py[i] = ys[i];
+  }
+}
+
+void fillChamfer(const GfxRenderer& r, const int x, const int y, const int w, const int h, const int c,
+                 const bool black) {
+  int px[8];
+  int py[8];
+  chamferPoints(x, y, w, h, c, px, py);
+  r.fillPolygon(px, py, 8, black);
+}
+
+// Outline `lw` px thick, drawn inwards. Each inner ring cuts its corners one
+// pixel less so the diagonals stay solid.
+void drawChamfer(const GfxRenderer& r, const int x, const int y, const int w, const int h, const int c, const int lw,
+                 const bool black = true) {
+  for (int k = 0; k < lw; ++k) {
+    int px[8];
+    int py[8];
+    chamferPoints(x + k, y + k, w - 2 * k, h - 2 * k, std::max(1, c - k), px, py);
+    for (int i = 0; i < 8; ++i) r.drawLine(px[i], py[i], px[(i + 1) % 8], py[(i + 1) % 8], black);
+  }
+}
+
+// Card: white cut-corner panel, 2 px frame and a hairline inner frame.
 void card(const GfxRenderer& r, const int x, const int y, const int w, const int h) {
-  r.fillRoundedRect(x, y, w, h, kRadius, Color::White);
-  r.drawRoundedRect(x, y, w, h, 1, kRadius, true);
+  fillChamfer(r, x, y, w, h, kChamfer, false);
+  drawChamfer(r, x, y, w, h, kChamfer, 2);
+  drawChamfer(r, x + 5, y + 5, w - 10, h - 10, kChamfer - 3, 1);
+}
+
+// "/////" accent ticks, `n` of them starting at x.
+void hatch(const GfxRenderer& r, const int x, const int y, const int n, const int h = 6) {
+  for (int i = 0; i < n; ++i) r.drawLine(x + i * 5, y + h, x + i * 5 + h, y, 2, true);
+}
+
+// Rule with heavy bracket ends and hatch ticks, under the status bar and
+// above the Home buttons.
+void deckRule(const GfxRenderer& r, const int x0, const int x1, const int y) {
+  constexpr int kEnd = 44;
+  r.drawLine(x0 + kEnd, y, x1 - kEnd, y, true);
+  r.fillRect(x0, y - 1, kEnd - 14, 3, true);
+  r.fillRect(x1 - kEnd + 14, y - 1, kEnd - 14, 3, true);
+  hatch(r, x0 + kEnd - 10, y - 3, 2, 5);
+  hatch(r, x1 - kEnd + 2, y - 3, 2, 5);
+}
+
+// ">" drawn with lines, 2 px strokes.
+void chevron(const GfxRenderer& r, const int x, const int cy, const int size, const bool black) {
+  for (int d = 0; d < 2; ++d) {
+    r.drawLine(x + d, cy - size, x + size + d, cy, black);
+    r.drawLine(x + size + d, cy, x + d, cy + size, black);
+  }
+}
+
+// "^" / "v" for the Up and Down hints.
+void chevronVertical(const GfxRenderer& r, const int cx, const int cy, const int size, const bool up) {
+  const int dir = up ? -1 : 1;
+  for (int d = 0; d < 2; ++d) {
+    r.drawLine(cx - size, cy - dir * size / 2 + d, cx, cy + dir * size / 2 + d, true);
+    r.drawLine(cx, cy + dir * size / 2 + d, cx + size, cy - dir * size / 2 + d, true);
+  }
 }
 
 // Section title with a 32 px icon (or none) on the left. Returns the y below it.
@@ -52,6 +151,14 @@ int cardTitle(const GfxRenderer& r, const int x, const int y, const UIIcon icon,
   }
   r.drawText(UI_12_FONT_ID, tx, y + 4 + (32 - r.getLineHeight(UI_12_FONT_ID)) / 2, title, true, EpdFontFamily::BOLD);
   return y + 40;
+}
+
+// Section title with a given 32 px icon.
+int cardTitleIcon(const GfxRenderer& r, const int x, const int y, const freeink::Icon& icon, const char* title) {
+  drawLucideIcon(r, icon, x + kInset - 2, y + 6);
+  r.drawText(UI_12_FONT_ID, x + kInset + 34, y + 6 + (32 - r.getLineHeight(UI_12_FONT_ID)) / 2, title, true,
+             EpdFontFamily::BOLD);
+  return y + 42;
 }
 
 // y below a card title row, for cards that draw their title later.
@@ -96,11 +203,11 @@ int drawCover(GfxRenderer& r, const RecentBook& book, const int x, const int y, 
   return drawnW;
 }
 
-// Rounded progress bar: gray track, black fill.
+// Rounded progress bar: gray track, black fill, round ends.
 void progressBar(const GfxRenderer& r, const int x, const int y, const int w, const int h, const float pct) {
-  r.fillRectDither(x, y, w, h, Color::LightGray);
+  r.fillRoundedRect(x, y, w, h, h / 2, Color::LightGray);
   const int fill = std::clamp(static_cast<int>(w * pct / 100.0f), 0, w);
-  if (fill > 0) r.fillRect(x, y, std::max(h, fill), h, true);
+  if (fill > 0) r.fillRoundedRect(x, y, std::max(h, fill), h, h / 2, Color::Black);
 }
 
 // Big value over a small caption, left aligned.
@@ -112,8 +219,11 @@ void valueBlock(const GfxRenderer& r, const int x, const int y, const char* valu
 // Value over caption, centred in a column.
 void centredBlock(const GfxRenderer& r, const int x, const int w, const int y, const char* value, const char* caption,
                   const int valueFont = UI_12_FONT_ID) {
-  const int vw = r.getTextWidth(valueFont, value, EpdFontFamily::BOLD);
-  r.drawText(valueFont, x + (w - vw) / 2, y, value, true, EpdFontFamily::BOLD);
+  // A narrow column (side menu layout) drops a long value to 10 pt.
+  const int font = r.getTextWidth(valueFont, value, EpdFontFamily::BOLD) > w - 4 ? UI_10_FONT_ID : valueFont;
+  const int vw = r.getTextWidth(font, value, EpdFontFamily::BOLD);
+  r.drawText(font, x + (w - vw) / 2, y + (r.getLineHeight(valueFont) - r.getLineHeight(font)), value, true,
+             EpdFontFamily::BOLD);
   const std::string cap = r.truncatedText(UI_10_FONT_ID, caption, w - 4);
   const int cw = r.getTextWidth(UI_10_FONT_ID, cap.c_str());
   r.drawText(UI_10_FONT_ID, x + (w - cw) / 2, y + r.getLineHeight(valueFont), cap.c_str(), true);
@@ -132,64 +242,87 @@ void shortDuration(const uint32_t seconds, char* buf, const size_t len) {
 constexpr StrId kDayLabels[7] = {StrId::STR_STATS_MON, StrId::STR_STATS_TUE, StrId::STR_STATS_WED, StrId::STR_STATS_THU,
                                  StrId::STR_STATS_FRI, StrId::STR_STATS_SAT, StrId::STR_STATS_SUN};
 
-void drawNowReading(GfxRenderer& r, const RecentBook& book, const int x, const int y, const int w,
+// Black "Now Reading" tag: book icon and label, slanted right end.
+int nowTag(const GfxRenderer& r, const int x, const int y) {
+  const char* label = tr(STR_NOW_READING);
+  const int h = r.getLineHeight(SMALL_FONT_ID) + 8;
+  const int w = 10 + 16 + 6 + r.getTextWidth(SMALL_FONT_ID, label) + 8;
+  r.fillRoundedRect(x, y, w, h, 4, true, false, true, false, Color::Black);
+  for (int row = 0; row < h; ++row) r.drawLine(x + w, y + row, x + w + (h - row) / 2, y + row, true);
+  drawLucideIcon(r, icon_deck_book_16, x + 10, y + (h - 16) / 2, false);
+  r.drawText(SMALL_FONT_ID, x + 32, y + 4, label, false);
+  return h;
+}
+
+// Icon over a big value over a caption, centred in a column.
+void figure(const GfxRenderer& r, const int x, const int w, const int y, const freeink::Icon& icon, const char* value,
+            const char* caption) {
+  drawLucideIcon(r, icon, x + (w - 20) / 2, y);
+  centredBlock(r, x, w, y + 22, value, caption);
+}
+
+void drawNowReading(GfxRenderer& r, const RecentBook& book, const int x, const int y, const int w, const int h,
                     const freeink::Icon* (*iconFor)(UIIcon, uint32_t)) {
-  card(r, x, y, w, kNowH);
-  const int coverH = kNowH - 2 * kInset;
-  drawCover(r, book, x + kInset, y + kInset, coverH * 2 / 3, coverH);
-  const int tx = x + kInset + coverH * 2 / 3 + 14;
-  const int tw = x + w - kInset - tx;
+  (void)iconFor;
+  card(r, x, y, w, h);
+  hatch(r, x + w - 64, y + 9, 6);
+  // No taller than its thumbnail; centred when the card is taller.
+  const int coverH = std::min(h - 2 * kInset - 4, PocketDeckMetrics::values.homeCoverHeight + 8);
+  // Narrower beside the side menu, so the text column keeps its width.
+  const int coverW = std::min(coverH * 2 / 3, w * 36 / 100);
+  drawCover(r, book, x + kInset + 2, y + (h - coverH) / 2, coverW, coverH);
+  const int tx = x + kInset + coverW + 16;
+  const int tw = x + w - kInset - 4 - tx;
   const int smallH = r.getLineHeight(UI_10_FONT_ID);
   const int valueH = r.getLineHeight(UI_12_FONT_ID);
   char buf[32];
 
   // Bottom up: button, figures, progress; the title gets the rest.
-  const int buttonY = y + kNowH - kInset - kButtonH;
-  r.fillRoundedRect(tx, buttonY, tw, kButtonH, 8, Color::Black);
+  const int buttonY = y + h - kInset - kButtonH;
+  fillChamfer(r, tx, buttonY, tw, kButtonH, 10, true);
   const char* cont = tr(STR_CONTINUE_READING);
   const int cw = r.getTextWidth(UI_10_FONT_ID, cont, EpdFontFamily::BOLD);
-  const freeink::Icon* bookIcon = iconFor(UIIcon::Book, 24);
-  const int iconW = bookIcon != nullptr ? 32 : 0;
-  const int cx = tx + (tw - cw - iconW) / 2;
-  if (bookIcon != nullptr) drawLucideIcon(r, *bookIcon, cx, buttonY + (kButtonH - 24) / 2, false);
-  r.drawText(UI_10_FONT_ID, cx + iconW, buttonY + (kButtonH - r.getLineHeight(UI_10_FONT_ID)) / 2, cont, false,
-             EpdFontFamily::BOLD);
-  r.drawText(UI_10_FONT_ID, tx + tw - 18, buttonY + (kButtonH - r.getLineHeight(UI_10_FONT_ID)) / 2, ">", false,
-             EpdFontFamily::BOLD);
+  constexpr int kPlayW = 30;
+  // The ">>>" arrows only when they clear the text (not beside the side menu).
+  // Centred group shifted left 8 px; the arrows take the last 36 px plus 8 px clear.
+  const bool arrows = tw - (cw + kPlayW) >= 72;
+  const int cx = tx + (tw - cw - kPlayW) / 2 - (arrows ? 8 : 0);
+  drawLucideIcon(r, icon_deck_play_20, cx, buttonY + (kButtonH - 20) / 2, false);
+  r.drawText(UI_10_FONT_ID, cx + kPlayW, buttonY + (kButtonH - smallH) / 2, cont, false, EpdFontFamily::BOLD);
+  if (arrows) {
+    for (int i = 0; i < 3; ++i) chevron(r, tx + tw - 36 + i * 7, buttonY + kButtonH / 2, 6, false);
+  }
 
   const BookReadingStats stats = BookReadingStats::load(book_files::cachePathFor(book.path));
   const float pct = RecentBookProgress::loadPercent(book);
-  const int figH = r.getLineHeight(UI_12_FONT_ID);
-  const int figY = buttonY - 8 - figH - smallH;
+  const int figTop = buttonY - 6 - (22 + valueH + smallH);
   const int colW = tw / 3;
   formatCompactReadingDuration(stats.totalReadingSeconds, buf, sizeof(buf));
-  centredBlock(r, tx, colW, figY, stats.totalReadingSeconds > 0 ? buf : "-", tr(STR_STATS_READ_SHORT));
+  figure(r, tx, colW, figTop, icon_deck_book_20, stats.totalReadingSeconds > 0 ? buf : "-", tr(STR_STATS_READ_SHORT));
   uint32_t left = 0;
   if (!stats.isCompleted && pct >= 0.0f && bookTimeLeftSeconds(stats, pct, left)) {
     formatCompactReadingDuration(left, buf, sizeof(buf));
   } else {
     snprintf(buf, sizeof(buf), "-");
   }
-  centredBlock(r, tx + colW, colW, figY, buf, tr(STR_STATS_LEFT_SHORT));
+  figure(r, tx + colW, colW, figTop, icon_deck_hourglass_20, buf, tr(STR_STATS_LEFT_SHORT));
   snprintf(buf, sizeof(buf), "%lu", static_cast<unsigned long>(stats.totalPagesTurned));
-  centredBlock(r, tx + colW * 2, colW, figY, buf, tr(STR_STATS_PAGES_SHORT));
-  r.drawLine(tx + colW, figY + 2, tx + colW, figY + figH + smallH - 2, true);
-  r.drawLine(tx + colW * 2, figY + 2, tx + colW * 2, figY + figH + smallH - 2, true);
+  figure(r, tx + colW * 2, colW, figTop, icon_deck_page_20, buf, tr(STR_STATS_PAGES_SHORT));
+  r.drawLine(tx + colW, figTop + 6, tx + colW, figTop + 22 + valueH + smallH - 4, true);
+  r.drawLine(tx + colW * 2, figTop + 6, tx + colW * 2, figTop + 22 + valueH + smallH - 4, true);
 
-  // Thick bar with the percentage at its end.
-  const int pctH = r.getLineHeight(UI_10_FONT_ID);
-  const int pctY = figY - 10 - pctH;
+  // Rounded bar with the percentage at its end.
+  const int pctY = figTop - 8 - smallH;
   snprintf(buf, sizeof(buf), "%d%%", pct >= 0.0f ? static_cast<int>(pct + 0.5f) : 0);
   const int pw = r.getTextWidth(UI_10_FONT_ID, buf, EpdFontFamily::BOLD);
   r.drawText(UI_10_FONT_ID, tx + tw - pw, pctY, buf, true, EpdFontFamily::BOLD);
-  progressBar(r, tx, pctY + (pctH - 10) / 2, tw - pw - 10, 10, pct >= 0.0f ? pct : 0.0f);
+  progressBar(r, tx, pctY + (smallH - 10) / 2, tw - pw - 12, 10, pct >= 0.0f ? pct : 0.0f);
 
-  // "Now Reading", title (up to two lines), author.
+  // Tag, title (up to two lines), author.
   int ty = y + kInset;
-  r.drawText(UI_10_FONT_ID, tx, ty, tr(STR_NOW_READING), true);
-  ty += smallH + 2;
-  const int authorH = book.author.empty() ? 0 : r.getLineHeight(UI_10_FONT_ID) + 2;
-  const int titleRoom = std::max(1, (pctY - 4 - authorH - ty) / valueH);
+  ty += nowTag(r, tx, ty) + 3;
+  const int authorH = book.author.empty() ? 0 : smallH;
+  const int titleRoom = std::max(1, (pctY - 2 - authorH - ty) / valueH);
   const auto titleLines =
       r.wrappedText(UI_12_FONT_ID, book.title.c_str(), tw, std::min(2, titleRoom), EpdFontFamily::BOLD);
   for (const auto& line : titleLines) {
@@ -198,14 +331,15 @@ void drawNowReading(GfxRenderer& r, const RecentBook& book, const int x, const i
   }
   if (!book.author.empty()) {
     const std::string author = r.truncatedText(UI_10_FONT_ID, book.author.c_str(), tw);
-    r.drawText(UI_10_FONT_ID, tx, ty + 2, author.c_str(), true);
+    r.drawText(UI_10_FONT_ID, tx, ty, author.c_str(), true);
   }
 }
 
-void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, const int y, const int w,
+void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, const int y, const int w, const int h,
                       const freeink::Icon* (*iconFor)(UIIcon, uint32_t)) {
-  card(r, x, y, w, kStatsH);
-  const int top = cardTitleSlot(y);
+  (void)iconFor;
+  card(r, x, y, w, h);
+  const int top = cardTitleSlot(y) + 2;
   const GlobalReadingStats empty{};
   const GlobalReadingStats& s = g != nullptr ? *g : empty;
 
@@ -230,13 +364,12 @@ void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, 
                static_cast<unsigned>(sun.day), m2);
     }
   }
-  cardTitle(r, x, y, UIIcon::Chart, title, iconFor);
+  cardTitleIcon(r, x, y, icon_deck_calendar_32, title);
 
   // Left: days read, one row per week (this week at the bottom), Mon..Sun
   // across; read days black, others gray, today framed. Each row is labelled
   // with its Monday.
-  const int chartW = w * 2 / 3;
-  const int labelH = r.getLineHeight(UI_10_FONT_ID);
+  const int chartW = w >= 480 ? w * 2 / 3 : w * 60 / 100;
   const int smallH = r.getLineHeight(SMALL_FONT_ID);
   const int rowLabelW = r.getTextWidth(SMALL_FONT_ID, "30 Sep") + 4;
   const int gridX = x + kInset + rowLabelW;
@@ -244,9 +377,20 @@ void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, 
   const int headY = top;
   const int gridTop = headY + smallH + 2;
   const int pitch = std::max(smallH, 14);
-  const int weeks = std::max(1, (y + kStatsH - kInset - gridTop) / pitch);
+  const int weeks = std::max(1, (y + h - kInset - gridTop) / pitch);
+  // Initials for every day ("M T W") when any name would touch its neighbour.
+  bool initials = false;
+  for (int wd = 0; wd < 7; ++wd) initials |= r.getTextWidth(SMALL_FONT_ID, I18N.get(kDayLabels[wd])) > slot - 3;
   for (int wd = 0; wd < 7; ++wd) {
-    const char* label = I18N.get(kDayLabels[wd]);
+    const char* full = I18N.get(kDayLabels[wd]);
+    char initial[5] = {};
+    const char* label = full;
+    if (initials) {
+      size_t n = 1;
+      while (full[n] != '\0' && (static_cast<uint8_t>(full[n]) & 0xC0) == 0x80 && n < 4) ++n;
+      memcpy(initial, full, n);
+      label = initial;
+    }
     const EpdFontFamily::Style st = wd == todayWd ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR;
     const int lw = r.getTextWidth(SMALL_FONT_ID, label, st);
     r.drawText(SMALL_FONT_ID, gridX + wd * slot + (slot - lw) / 2, headY, label, true, st);
@@ -272,18 +416,14 @@ void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, 
       const int ch = pitch - 3;
       const int back = weeksBack * 7 + (todayWd - wd);
       if (!hasNow || back < 0) {
-        r.drawRect(cx, cy, cw, ch, true);  // later this week
+        r.drawRoundedRect(cx, cy, cw, ch, 1, 2, true);  // later this week
         continue;
       }
       const bool read =
           static_cast<uint32_t>(back) <= todayIdx &&
           readingHistoryHasDay(s.readingHistoryAnchorDay, s.readingHistoryBits, todayIdx - static_cast<uint32_t>(back));
-      if (read) {
-        r.fillRect(cx, cy, cw, ch, true);
-      } else {
-        r.fillRectDither(cx, cy, cw, ch, Color::LightGray);
-      }
-      if (back == 0) r.drawRect(cx - 2, cy - 2, cw + 4, ch + 4, true);  // today
+      r.fillRoundedRect(cx, cy, cw, ch, 2, read ? Color::Black : Color::LightGray);
+      if (back == 0) r.drawRoundedRect(cx - 2, cy - 2, cw + 4, ch + 4, 1, 3, true);  // today
     }
   }
 
@@ -291,13 +431,21 @@ void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, 
   // read in the last seven.
   char buf[24];
   shortDuration(s.totalReadingSeconds, buf, sizeof(buf));
-  const int tw = r.getTextWidth(UI_12_FONT_ID, buf, EpdFontFamily::BOLD);
-  r.drawText(UI_12_FONT_ID, x + w - kInset - tw, y + 4 + (32 - r.getLineHeight(UI_12_FONT_ID)) / 2, buf, true,
-             EpdFontFamily::BOLD);
+  {
+    // Total time on a black pill with a book icon.
+    const int tw = r.getTextWidth(UI_10_FONT_ID, buf, EpdFontFamily::BOLD);
+    const int ph = r.getLineHeight(UI_10_FONT_ID) + 6;
+    const int pw = 12 + 16 + 6 + tw + 14;
+    const int px = x + w - kInset - 4 - pw;
+    const int py = y + 6 + (32 - ph) / 2;
+    r.fillRoundedRect(px, py, pw, ph, ph / 2, Color::Black);
+    drawLucideIcon(r, icon_deck_book_16, px + 12, py + (ph - 16) / 2, false);
+    r.drawText(UI_10_FONT_ID, px + 34, py + 3, buf, false, EpdFontFamily::BOLD);
+  }
   const int divX = x + chartW + 4;
-  r.drawLine(divX, top, divX, y + kStatsH - kInset, true);
+  r.drawLine(divX, top, divX, y + h - kInset, true);
   const int valueH = r.getLineHeight(UI_12_FONT_ID);
-  const int rowH = (y + kStatsH - kInset - top) / 2;
+  const int rowH = (y + h - kInset - top) / 2;
   const uint16_t streak = hasNow ? s.currentReadingStreak(&now.date) : 0;
   snprintf(buf, sizeof(buf), "%u %s", static_cast<unsigned>(streak),
            streak == 1 ? tr(STR_STATS_DAY) : tr(STR_STATS_DAYS));
@@ -310,40 +458,43 @@ void drawReadingStats(GfxRenderer& r, const GlobalReadingStats* g, const int x, 
   }
   char weekBuf[8];
   snprintf(weekBuf, sizeof(weekBuf), "%d/7", week);
-  // The block (marks + text) sits against the right edge, leaving space
-  // after the divider.
-  const int ringR = std::min(17, rowH / 2 - 2);
-  const int textW = std::max({r.getTextWidth(UI_12_FONT_ID, buf, EpdFontFamily::BOLD),
-                              r.getTextWidth(UI_10_FONT_ID, tr(STR_STATS_STREAK_SHORT)),
-                              r.getTextWidth(UI_12_FONT_ID, weekBuf, EpdFontFamily::BOLD),
-                              r.getTextWidth(UI_10_FONT_ID, tr(STR_STATS_LAST_7_DAYS))});
-  const int rx = std::max(divX + 8, x + w - kInset - (ringR * 2 + 8 + textW));
-  // Text lines end flush with the card's right edge.
-  const int textRight = x + w - kInset;
-  const auto rightText = [&](const int font, const int ty, const char* t, const EpdFontFamily::Style st) {
-    r.drawText(font, textRight - r.getTextWidth(font, t, st), ty, t, true, st);
+  // Icon, then value over caption, left aligned after it.
+  const int ix = divX + 12;
+  const int textX = ix + 40;
+  const auto statRow = [&](const freeink::Icon& icon, const int rowTop, const char* value, const char* caption) {
+    // Caption tucked under the value's descent so two rows fit the card.
+    const int capH = r.getLineHeight(SMALL_FONT_ID);
+    const int blockY = rowTop + (rowH - (valueH - 4 + capH)) / 2;
+    drawLucideIcon(r, icon, ix, rowTop + (rowH - 32) / 2);
+    r.drawText(UI_12_FONT_ID, textX, blockY, value, true, EpdFontFamily::BOLD);
+    const std::string cap = r.truncatedText(SMALL_FONT_ID, caption, x + w - kInset - textX);
+    r.drawText(SMALL_FONT_ID, textX, blockY + valueH - 4, cap.c_str(), true);
   };
-  rightText(UI_12_FONT_ID, top + (rowH - valueH - labelH) / 2, buf, EpdFontFamily::BOLD);
-  rightText(UI_10_FONT_ID, top + (rowH - valueH - labelH) / 2 + valueH, tr(STR_STATS_STREAK_SHORT),
-            EpdFontFamily::REGULAR);
-  // Streak mark: a flame.
-  drawLucideIcon(r, icon_flame_32, rx + ringR - 16, top + rowH / 2 - 16);
-  const int ringCy = top + rowH + rowH / 2;
-  tools::drawProgressRing(r, rx + ringR, ringCy, ringR, 8, week / 7.0f);
-  rightText(UI_12_FONT_ID, ringCy - (valueH + labelH) / 2, weekBuf, EpdFontFamily::BOLD);
-  rightText(UI_10_FONT_ID, ringCy - (valueH + labelH) / 2 + valueH, tr(STR_STATS_LAST_7_DAYS), EpdFontFamily::REGULAR);
+  statRow(icon_flame_32, top, buf, tr(STR_STATS_STREAK_SHORT));
+  statRow(icon_deck_target_32, top + rowH, weekBuf, tr(STR_STATS_LAST_7_DAYS));
 }
 
-// Recent books past 10%, counted when the Recent Books card is drawn (once
-// per Home visit); -1 until then.
+// Recent books past 10%, for the View All tile's heading. Counting reads one
+// progress file per book (up to 100), which takes seconds on the SD card, so
+// Home counts one book per loop pass after it is on screen; -1 until done.
 int sRecentAboveTenCount = -1;
+struct RecentCounter {
+  std::vector<RecentBook> page;  // the current page of up to kPage books
+  size_t offset = 0;             // books loaded so far
+  size_t next = 0;               // next book in `page`
+  bool more = true;
+  bool active = false;
+  int count = 0;
+};
+RecentCounter gRecentCounter;
 
 int recentSlotWidth(const int w) { return (w - 2 * kInset) / kRecentSlots; }
 
 void drawRecentReads(GfxRenderer& r, const std::vector<RecentBook>& books, const int x, const int y, const int w,
                      const int h, const freeink::Icon* (*iconFor)(UIIcon, uint32_t)) {
+  (void)iconFor;
   card(r, x, y, w, h);
-  const int top = cardTitle(r, x, y, UIIcon::Recent, tr(STR_MENU_RECENT_BOOKS), iconFor) + kRecentTopPad;
+  const int top = cardTitleIcon(r, x, y, icon_deck_stack_32, tr(STR_MENU_RECENT_BOOKS)) + kRecentTopPad;
   const int slot = recentSlotWidth(w);
   const int coverH = std::min(PocketDeckMetrics::kRecentCoverHeight, y + h - kInset - kRecentFootH - top);
   const int count = std::min(static_cast<int>(books.size()), kRecentCovers);
@@ -356,7 +507,7 @@ void drawRecentReads(GfxRenderer& r, const std::vector<RecentBook>& books, const
     snprintf(buf, sizeof(buf), "%d%%", pct >= 0.0f ? static_cast<int>(pct + 0.5f) : 0);
     const int pw = r.getTextWidth(UI_10_FONT_ID, buf);
     const int footY = top + coverH + 4;
-    progressBar(r, bx, footY + 8, std::max(4, cw - pw - 6), 5, pct >= 0.0f ? pct : 0.0f);
+    progressBar(r, bx, footY + 8, std::max(6, cw - pw - 6), 6, pct >= 0.0f ? pct : 0.0f);
     r.drawText(UI_10_FONT_ID, bx + cw - pw, footY, buf, true);
   }
   if (count == 0) {
@@ -367,33 +518,30 @@ void drawRecentReads(GfxRenderer& r, const std::vector<RecentBook>& books, const
   // covers by a divider like the Reading Stats card's.
   const int divX = x + kInset + kRecentCovers * slot;
   r.drawLine(divX, top - 2, divX, y + h - kInset, true);
-  // How many recent books are past 10%, for the heading when the tile is
-  // selected. Counted here: this part is drawn once per Home visit.
-  sRecentAboveTenCount = RecentBookProgress::countRecentBooksAbove(10.0f);
-
   const int tx = divX + 6;
   const int tw = slot - 10;
-  const int areaTop = top;
-  const int areaBottom = y + h - kInset;
-  const int lineH = r.getLineHeight(UI_10_FONT_ID);
-  const auto lines = r.wrappedText(UI_10_FONT_ID, tr(STR_VIEW_ALL_RECENTS), tw - 14, 2, EpdFontFamily::BOLD);
+  const int areaTop = top - 6;
+  const int areaBottom = y + h - kInset + 4;
+  // The tile: a rounded frame around a grid icon and the label.
+  r.drawRoundedRect(tx, areaTop, tw, areaBottom - areaTop, 1, 8, true);
+  const int tileFont = tw < 110 ? SMALL_FONT_ID : UI_10_FONT_ID;  // narrow beside the side menu
+  const int lineH = r.getLineHeight(tileFont);
+  const auto lines = r.wrappedText(tileFont, tr(STR_VIEW_ALL_RECENTS), tw - 14, 2, EpdFontFamily::BOLD);
   const int textH = static_cast<int>(lines.size()) * lineH;
   constexpr int kIcon = 32;
   constexpr int kIconGap = 8;
   int ty = areaTop + std::max(0, (areaBottom - areaTop - kIcon - kIconGap - textH) / 2);
-  if (const freeink::Icon* bmp = iconFor(UIIcon::Library, kIcon)) {
-    drawLucideIcon(r, *bmp, tx + (tw - kIcon) / 2, ty);
-  }
+  drawLucideIcon(r, icon_deck_grid_32, tx + (tw - kIcon) / 2, ty);
   ty += kIcon + kIconGap;
   constexpr int kChevronW = 5;
   constexpr int kChevronGap = 5;
   for (size_t n = 0; n < lines.size(); ++n) {
     const bool last = n + 1 == lines.size();
-    const int lw = r.getTextWidth(UI_10_FONT_ID, lines[n].c_str(), EpdFontFamily::BOLD);
+    const int lw = r.getTextWidth(tileFont, lines[n].c_str(), EpdFontFamily::BOLD);
     // The last line carries the ">" so text and arrow centre as one group.
     const int groupW = lw + (last ? kChevronGap + kChevronW : 0);
     const int lx = tx + (tw - groupW) / 2;
-    r.drawText(UI_10_FONT_ID, lx, ty, lines[n].c_str(), true, EpdFontFamily::BOLD);
+    r.drawText(tileFont, lx, ty, lines[n].c_str(), true, EpdFontFamily::BOLD);
     if (last) {
       const int cx = lx + lw + kChevronGap;
       const int cy = ty + lineH / 2 + 1;
@@ -407,6 +555,79 @@ void drawRecentReads(GfxRenderer& r, const std::vector<RecentBook>& books, const
 }
 }  // namespace
 
+namespace {
+// FNV-1a, enough to tell whether anything drawn on the cards changed.
+struct CardsHash {
+  uint32_t h = 2166136261u;
+  void add(const void* data, const size_t len) {
+    const auto* p = static_cast<const uint8_t*>(data);
+    for (size_t i = 0; i < len; ++i) h = (h ^ p[i]) * 16777619u;
+  }
+  template <typename T>
+  void value(const T v) {
+    add(&v, sizeof(v));
+  }
+  void text(const std::string& t) {
+    add(t.data(), t.size());
+    value<uint8_t>(0);
+  }
+};
+}  // namespace
+
+uint32_t pocketDeckCardsKey(const GfxRenderer& renderer, const std::vector<RecentBook>& books,
+                            const GlobalReadingStats& globalStats) {
+  CardsHash k;
+  k.value<uint8_t>(1);  // bump when the card drawing changes
+  k.value(renderer.getScreenWidth());
+  k.value(renderer.getScreenHeight());
+  k.value(pocketDeckHomeTileHeight(renderer));
+  k.value(SETTINGS.homeMenuLayout);
+  k.value(SETTINGS.screenInverted);
+  k.value(SETTINGS.language);
+  // Now Reading and the Recent Books covers: books 0..2.
+  const int count = std::min(static_cast<int>(books.size()), kRecentCovers);
+  k.value(count);
+  for (int i = 0; i < count; ++i) {
+    const RecentBook& b = books[i];
+    k.text(b.path);
+    k.text(b.title);
+    k.text(b.author);
+    k.text(b.coverBmpPath);
+    k.value(RecentBookProgress::loadPercent(b));
+    if (!b.coverBmpPath.empty()) {
+      // A thumbnail appearing replaces the placeholder.
+      k.value(Storage.exists(UITheme::getCoverThumbPath(b.coverBmpPath, PocketDeckMetrics::kRecentCoverHeight).c_str()));
+      if (i == 0) {
+        k.value(Storage.exists(
+            UITheme::getCoverThumbPath(b.coverBmpPath, PocketDeckMetrics::values.homeCoverHeight).c_str()));
+      }
+    }
+  }
+  if (count > 0) {
+    const BookReadingStats st = BookReadingStats::load(book_files::cachePathFor(books[0].path));
+    k.value(st.totalReadingSeconds);
+    k.value(st.totalPagesTurned);
+    k.value(st.isCompleted);
+    k.value(st.avgSecondsPerForwardPage);
+    k.value(st.estimatedTimeLeftSeconds);
+  }
+  // Reading Stats: totals, the day history and today's place in the week.
+  k.value(globalStats.totalReadingSeconds);
+  k.value(globalStats.readingHistoryAnchorDay);
+  k.add(globalStats.readingHistoryBits.data(), globalStats.readingHistoryBits.size());
+  k.value(globalStats.longestReadingStreak);
+  ReadingStatsDateTime now;
+  const bool hasNow = getCurrentLocalReadingStatsDateTime(now);
+  k.value(hasNow ? readingStatsDayIndex(now.date) : 0u);
+  return k.h;
+}
+
+int pocketDeckHomeTileHeight(const GfxRenderer& renderer) {
+  const auto& m = PocketDeckMetrics::values;
+  if (SETTINGS.homeMenuLayout != CrossPointSettings::HOME_MENU_SIDE) return m.homeCoverTileHeight;
+  return std::max(m.homeCoverTileHeight, renderer.getScreenHeight() - m.buttonHintsHeight - m.homeTopPadding - 6);
+}
+
 int PocketDeckTheme::headerLeftInset() const {
   using namespace PocketDeckMetrics;
   const auto& metrics = UITheme::getInstance().getMetrics();
@@ -416,6 +637,10 @@ int PocketDeckTheme::headerLeftInset() const {
 void PocketDeckTheme::drawHeader(const GfxRenderer& renderer, const Rect rect, const char* title, const char* subtitle,
                                  const bool readerContext) const {
   using namespace PocketDeckMetrics;
+  if (title == nullptr && !readerContext) {
+    drawHomeStatusBar(renderer, rect);
+    return;
+  }
   const auto& metrics = UITheme::getInstance().getMetrics();
   const int markArea = headerLeftInset();
   // Standard Lyra header shifted right to make room for the mark.
@@ -446,25 +671,36 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
                                           const GlobalReadingStats* globalStats,
                                           const char* /*currentChapterTitle*/) const {
   (void)bufferRestored;
-  const int x = rect.x + kPad;
-  const int w = rect.width - 2 * kPad;
+  const bool side = sideMenu();
+  const int x = rect.x + kPad + (side ? kSideW : 0);
+  const int w = rect.width - 2 * kPad - (side ? kSideW : 0);
   const int nowY = rect.y + 10;
-  // Now Reading, then Recent Books, then Reading Stats.
-  const int recentY = nowY + kNowH + kCardGap;
-  const int recentH = kRecentH;
+  const int sideX = rect.x + kPad / 2;
+  // Now Reading, then Recent Books, then Reading Stats. A taller area (the
+  // side menu frees the bottom bar's rows) grows the cards, mostly Now Reading.
+  const int extra = std::max(0, rect.height - PocketDeckMetrics::values.homeCoverTileHeight);
+  const int nowH = kNowH + extra * 58 / 100;
+  const int recentH = kRecentH + extra * 12 / 100;
+  const int statsH = kStatsH + extra - (nowH - kNowH) - (recentH - kRecentH);
+  const int recentY = nowY + nowH + kCardGap;
   const int statsY = recentY + recentH + kCardGap;
 
   // Everything here is static while Home is open: draw it once, snapshot it,
   // and let later renders restore the snapshot and add only the selection.
   if (!coverRendered) {
     if (!recentBooks.empty()) {
-      drawNowReading(renderer, recentBooks[0], x, nowY, w, &LyraTheme::iconForName);
+      drawNowReading(renderer, recentBooks[0], x, nowY, w, nowH, &LyraTheme::iconForName);
     } else {
-      card(renderer, x, nowY, w, kNowH);
-      drawEmptyRecents(renderer, Rect{x, nowY, w, kNowH});
+      card(renderer, x, nowY, w, nowH);
+      drawEmptyRecents(renderer, Rect{x, nowY, w, nowH});
     }
-    drawReadingStats(renderer, globalStats, x, statsY, w, &LyraTheme::iconForName);
+    drawReadingStats(renderer, globalStats, x, statsY, w, statsH, &LyraTheme::iconForName);
     drawRecentReads(renderer, recentBooks, x, recentY, w, recentH, &LyraTheme::iconForName);
+    if (side) {
+      // The side panel: a white rounded column with a 2 px outline, as tall as the cards.
+      renderer.drawRoundedRect(sideX, nowY, kSideItemW, rect.y + rect.height - nowY, 2, 18, true);
+      sideItem(renderer, sideX, nowY + 4, kSideItemW, kSideReadH, icon_deck_book_32, tr(STR_READ), false);
+    }
     coverBufferStored = storeCoverBuffer();
     coverRendered = coverBufferStored;
   }
@@ -472,7 +708,8 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
   // Selection and touch targets: the Now Reading card is book 0; each cover
   // in Recent Reads is its book.
   if (!recentBooks.empty()) {
-    TouchRegistry::getInstance().add(Rect{x, nowY, w, kNowH}, 0, TouchRegistry::Cover);
+    TouchRegistry::getInstance().add(Rect{x, nowY, w, nowH}, 0, TouchRegistry::Cover);
+    if (side) TouchRegistry::getInstance().add(Rect{sideX, nowY, kSideItemW, kSideReadH}, 0, TouchRegistry::Cover);
   }
   const int slot = recentSlotWidth(w);
   const int count = std::min(static_cast<int>(recentBooks.size()), kRecentCovers);
@@ -490,7 +727,7 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
              sRecentAboveTenCount == 1 ? tr(STR_RECENT_ONE_ABOVE_10) : tr(STR_RECENT_ABOVE_10_FORMAT),
              sRecentAboveTenCount);
     const int headX = x + kInset + 34;
-    const int headY = recentY + 4 + (32 - renderer.getLineHeight(UI_12_FONT_ID)) / 2;
+    const int headY = recentY + 6 + (32 - renderer.getLineHeight(UI_12_FONT_ID)) / 2;
     const int afterHead =
         headX + renderer.getTextWidth(UI_12_FONT_ID, tr(STR_MENU_RECENT_BOOKS), EpdFontFamily::BOLD);
     const int space = renderer.getTextWidth(UI_12_FONT_ID, "n");
@@ -505,14 +742,14 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
     }
   }
   if (selectorIndex == count) {
-    const int top = recentY + 40 + kRecentTopPad;
-    renderer.drawRoundedRect(tileX + 2, top - 6, slot - 4, recentY + recentH - kInset + 4 - (top - 6), 3, 6, true);
+    const int top = recentY + 42 + kRecentTopPad;
+    renderer.drawRoundedRect(tileX + 6, top - 6, slot - 10, recentY + recentH - kInset + 4 - (top - 6), 3, 8, true);
   }
   if (selectorIndex >= 0 && selectorIndex < count) {
     // Heading names the selected book: "Recent Books – <title>".
     const char* heading = tr(STR_MENU_RECENT_BOOKS);
     const int headX = x + kInset + 34;
-    const int headY = recentY + 4 + (32 - renderer.getLineHeight(UI_12_FONT_ID)) / 2;
+    const int headY = recentY + 6 + (32 - renderer.getLineHeight(UI_12_FONT_ID)) / 2;
     const int afterHead = headX + renderer.getTextWidth(UI_12_FONT_ID, heading, EpdFontFamily::BOLD);
     const int room = x + w - kInset - afterHead;
     if (room > 40) {
@@ -527,10 +764,11 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
       renderer.drawText(UI_12_FONT_ID, titleX, headY, title.c_str(), true, EpdFontFamily::REGULAR);
     }
     if (selectorIndex == 0) {
-      renderer.drawRoundedRect(x, nowY, w, kNowH, 3, kRadius, true);
+      drawChamfer(renderer, x, nowY, w, nowH, kChamfer, 4);
+      if (side) sideItem(renderer, sideX, nowY + 4, kSideItemW, kSideReadH, icon_deck_book_32, tr(STR_READ), true);
     }
     const int sx = x + kInset + selectorIndex * slot;
-    const int top = recentY + 40 + kRecentTopPad;
+    const int top = recentY + 42 + kRecentTopPad;
     const int boxBottom = recentY + recentH - kInset + 4;
     renderer.drawRoundedRect(sx + 2, top - 6, slot - 4, boxBottom - (top - 6), 3, 6, true);
   }
@@ -539,9 +777,8 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
 void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, const int buttonCount,
                                      const int selectedIndex, const std::function<const char*(int index)>& buttonLabel,
                                      const std::function<UIIcon(int index)>& rowIcon) const {
-  // Bottom bar: a tab bar under one hairline rule. Items share the width
-  // equally with no frames, icon over label; the selected item sits on a
-  // light-gray rounded pill.
+  // Bottom bar: one cut-corner box per item under a bracketed rule, icon
+  // over label; the selected box is filled black with white content.
   if (buttonCount <= 0) return;
   // Recent Books lives in the Recent Books card (View All Recents), not here.
   // Entries keep their menu index for touch and selection; only slots shift.
@@ -549,6 +786,32 @@ void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, con
   int shownCount = 0;
   for (int i = 0; i < buttonCount; ++i) shownCount += shownInBar(i) ? 1 : 0;
   if (shownCount <= 0) return;
+  if (sideMenu()) {
+    // Left column under Read (drawn with the cards), same height as the cards.
+    const auto& metrics = UITheme::getInstance().getMetrics();
+    const int sx = kPad / 2;
+    const int top = metrics.homeTopPadding + 10 + 4 + kSideReadH;
+    const int bottom = metrics.homeTopPadding + pocketDeckHomeTileHeight(renderer) - 4;
+    const int itemH = std::min(kSideReadH, (bottom - top) / shownCount);  // shrinks only with many items
+    int slot = 0;
+    for (int i = 0; i < buttonCount; ++i) {
+      if (!shownInBar(i)) continue;
+      const int iy = top + (slot++) * itemH;
+      const UIIcon icon = rowIcon != nullptr ? rowIcon(i) : UIIcon::File;
+      const freeink::Icon* bmp = icon == UIIcon::Tools      ? &icon_layout_grid_32
+                                 : icon == UIIcon::Settings ? &icon_cog_32
+                                                            : iconForName(icon, 32);
+      if (bmp == nullptr) bmp = iconForName(UIIcon::Book, 32);
+      const char* label = buttonLabel != nullptr ? buttonLabel(i) : "";
+      if (icon == UIIcon::Folder) label = tr(STR_TAB_LIBRARY);
+      if (icon == UIIcon::Chart) label = tr(STR_TAB_STATS);
+      if (icon == UIIcon::Transfer) label = tr(STR_TAB_TRANSFER);
+      if (icon == UIIcon::BookmarkIcon) label = tr(STR_TAB_SAVED);
+      TouchRegistry::getInstance().add(Rect{sx, iy, kSideItemW, itemH}, i, TouchRegistry::Item);
+      if (bmp != nullptr) sideItem(renderer, sx, iy, kSideItemW, itemH, *bmp, label ? label : "", i == selectedIndex);
+    }
+    return;
+  }
   const int x = rect.x + kPad;
   const int w = rect.width - 2 * kPad;
   const int cols = std::min(shownCount, 7);  // one row, even with OPDS
@@ -561,7 +824,7 @@ void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, con
   const int cellW = w / cols;
   const int barX = x + (w - cols * cellW) / 2;
   // The rule separating the bar from the cards above.
-  renderer.drawLine(rect.x + kPad / 2, barTop - 6, rect.x + rect.width - kPad / 2 - 1, barTop - 6, true);
+  deckRule(renderer, rect.x + kPad, rect.x + rect.width - kPad - 1, barTop - 5);
   // Short tab names for the common items; others keep their menu label.
   const auto tabLabel = [&](const int i) -> const char* {
     switch (rowIcon != nullptr ? rowIcon(i) : UIIcon::File) {
@@ -581,17 +844,16 @@ void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, con
       }
     }
   };
-  // One label size for the whole bar: 10 pt if every label fits.
+  // One label size for the whole bar: 10 pt only if every label keeps at
+  // least 12 px clear of its box's sides; otherwise the small size for all.
   int labelFont = UI_10_FONT_ID;
   for (int i = 0; i < buttonCount; ++i) {
     if (!shownInBar(i)) continue;
-    if (renderer.getTextWidth(UI_10_FONT_ID, tabLabel(i)) > cellW - 12) labelFont = SMALL_FONT_ID;
+    if (renderer.getTextWidth(UI_10_FONT_ID, tabLabel(i)) > cellW - 8 - 24) labelFont = SMALL_FONT_ID;
   }
   const int labelH = renderer.getLineHeight(labelFont);
-  // Selection pill: soft 4 px corners, inset so neighbouring pills never touch.
-  constexpr int kPillInsetX = 8;
-  constexpr int kPillInsetY = 2;
-  constexpr int kPillRadius = 4;
+  constexpr int kBoxGap = 4;  // each side of a box
+  constexpr int kBoxCut = 9;
   int slotIndex = 0;
   for (int i = 0; i < buttonCount; ++i) {
     if (!shownInBar(i)) continue;
@@ -601,19 +863,348 @@ void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, con
     const int ch = rowH - 4;
     TouchRegistry::getInstance().add(Rect{cx, cy, cellW, ch}, i, TouchRegistry::Item);
     const UIIcon icon = rowIcon != nullptr ? rowIcon(i) : UIIcon::File;
-    if (i == selectedIndex) {
-      renderer.fillRoundedRect(cx + kPillInsetX, cy + kPillInsetY, cellW - 2 * kPillInsetX, ch - 2 * kPillInsetY,
-                               kPillRadius, Color::LightGray);
+    const bool selected = i == selectedIndex;
+    const int bx = cx + kBoxGap;
+    const int bw = cellW - 2 * kBoxGap;
+    if (selected) {
+      fillChamfer(renderer, bx, cy, bw, ch, kBoxCut, true);
+    } else {
+      fillChamfer(renderer, bx, cy, bw, ch, kBoxCut, false);
+      drawChamfer(renderer, bx, cy, bw, ch, kBoxCut, 2);
     }
     if (withIcons) {
-      const freeink::Icon* bmp = icon == UIIcon::Tools ? &icon_layout_grid_32 : iconForName(icon, 32);
+      const freeink::Icon* bmp = icon == UIIcon::Tools      ? &icon_layout_grid_32
+                                 : icon == UIIcon::Settings ? &icon_cog_32
+                                                            : iconForName(icon, 32);
       if (bmp == nullptr) bmp = iconForName(UIIcon::Book, 32);
-      if (bmp != nullptr) drawLucideIcon(renderer, *bmp, cx + (cellW - 32) / 2, cy + 8, true);
+      if (bmp != nullptr) drawLucideIcon(renderer, *bmp, cx + (cellW - 32) / 2, cy + (ch - 32 - 4 - labelH) / 2, !selected);
     }
     const char* label = tabLabel(i);
-    const std::string text = renderer.truncatedText(labelFont, label ? label : "", cellW - 12);
+    const std::string text = renderer.truncatedText(labelFont, label ? label : "", bw - 16);
     const int lw = renderer.getTextWidth(labelFont, text.c_str());
-    const int ly = withIcons ? cy + ch - labelH - 6 : cy + (ch - labelH) / 2;
-    renderer.drawText(labelFont, cx + (cellW - lw) / 2, ly, text.c_str(), true);
+    // Icon and label centred as one group in the box.
+    const int ly = withIcons ? cy + (ch - 32 - 4 - labelH) / 2 + 36 : cy + (ch - labelH) / 2;
+    renderer.drawText(labelFont, cx + (cellW - lw) / 2, ly, text.c_str(), !selected);
   }
+}
+
+namespace {
+// Quote of the day on Home's second status row. Longer than the row, it steps
+// a word at a time: a short hold at the start, a step every kStepMs, a hold at
+// the end, then back to the start, for kTickerPasses (5) passes per Home visit. Only
+// that line changes, so each step is a small differential refresh.
+constexpr unsigned long kTickerStepMs = 2000;
+constexpr unsigned long kTickerHoldStartMs = 4000;
+constexpr unsigned long kTickerHoldEndMs = 3000;
+constexpr int kTickerPasses = 5;
+
+struct QuoteTicker {
+  std::string text;  // “quote” — author
+  int32_t day = INT32_MIN;
+  size_t offset = 0;  // byte offset of the first shown word
+  bool overflow = false;
+  bool atEnd = false;
+  int passes = 0;
+  unsigned long nextMs = 0;
+};
+QuoteTicker gTicker;
+
+// Today's quote from Tools > Daily Quote, read once per day.
+void refreshTickerQuote() {
+  tools::DateTime local;
+  if (!tools::getLocalNow(local)) return;  // no date, no "of the day"
+  const int32_t day = tools::daysOf(local);
+  if (day == gTicker.day) return;
+  gTicker.day = day;
+  gTicker.offset = 0;
+  gTicker.nextMs = 0;
+  gTicker.passes = 0;
+  std::string line;
+  gTicker.text.clear();
+  if (!DailyQuoteActivity::quoteForDay(day, line)) return;
+  // “text” — author: split at the last em dash.
+  const size_t dash = line.rfind(" \xE2\x80\x94 ");
+  gTicker.text = "\xE2\x80\x9C";
+  gTicker.text += line.substr(0, dash);
+  gTicker.text += "\xE2\x80\x9D";
+  if (dash != std::string::npos) gTicker.text += line.substr(dash);
+}
+
+// Draws the ticker in [x, x + w) at y; updates overflow / atEnd.
+void drawTicker(const GfxRenderer& r, const int x, const int y, const int w) {
+  const std::string& t = gTicker.text;
+  gTicker.overflow = r.getTextWidth(SMALL_FONT_ID, t.c_str()) > w;
+  if (!gTicker.overflow) gTicker.offset = 0;
+  if (gTicker.offset >= t.size()) gTicker.offset = 0;
+  const std::string rest = t.substr(gTicker.offset);
+  // Whole words that fit; never a cut-off word.
+  size_t fit = 0;
+  for (size_t pos = 0;;) {
+    const size_t sp = rest.find(' ', pos);
+    const size_t end = sp == std::string::npos ? rest.size() : sp;
+    if (r.getTextWidth(SMALL_FONT_ID, rest.substr(0, end).c_str()) > w) break;
+    fit = end;
+    if (sp == std::string::npos) break;
+    pos = sp + 1;
+  }
+  const bool wasAtEnd = gTicker.atEnd;
+  gTicker.atEnd = fit >= rest.size();
+  if (gTicker.overflow && gTicker.atEnd && !wasAtEnd) gTicker.nextMs = millis() + kTickerHoldEndMs;
+  if (fit > 0) r.drawText(SMALL_FONT_ID, x, y, rest.substr(0, fit).c_str(), true);
+}
+}  // namespace
+
+void pocketDeckRecentCountReset() {
+  sRecentAboveTenCount = -1;
+  gRecentCounter.page.clear();
+  gRecentCounter.offset = 0;
+  gRecentCounter.next = 0;
+  gRecentCounter.more = true;
+  gRecentCounter.count = 0;
+  gRecentCounter.active = true;
+}
+
+bool pocketDeckRecentCountActive() { return gRecentCounter.active; }
+
+void pocketDeckRecentCountStop() {
+  gRecentCounter.active = false;
+  std::vector<RecentBook>().swap(gRecentCounter.page);
+}
+
+bool pocketDeckRecentCountStep() {
+  constexpr size_t kPage = 10;
+  RecentCounter& c = gRecentCounter;
+  if (!c.active) return false;
+  if (c.next >= c.page.size()) {
+    if (!c.more || c.offset >= static_cast<size_t>(RecentBooksStore::MAX_TOTAL_BOOKS)) {
+      // Done: publish the count and give the page's memory back.
+      c.active = false;
+      std::vector<RecentBook>().swap(c.page);
+      sRecentAboveTenCount = c.count;
+      return true;
+    }
+    c.page.clear();
+    c.page.reserve(kPage);
+    c.more = RECENT_BOOKS.loadPage(c.page, c.offset, kPage);
+    c.offset += c.page.size();
+    c.next = 0;
+    if (c.page.empty()) c.more = false;
+    return false;
+  }
+  const RecentBook& book = c.page[c.next++];
+  const float pct = FsHelpers::hasEpubExtension(book.path) ? RecentBookProgress::loadCachedEpubPercent(book)
+                                                            : RecentBookProgress::loadPercent(book);
+  if (RecentBookProgress::hasPercent(pct) && pct > 10.0f) ++c.count;
+  return false;
+}
+
+void pocketDeckQuoteTickerReset() {
+  gTicker.offset = 0;
+  gTicker.nextMs = 0;
+  gTicker.passes = 0;
+  gTicker.atEnd = false;
+}
+
+bool pocketDeckQuoteTick(const unsigned long nowMs) {
+  if (!gTicker.overflow || gTicker.passes >= kTickerPasses) return false;
+  if (gTicker.nextMs == 0) {
+    gTicker.nextMs = nowMs + kTickerHoldStartMs;
+    return false;
+  }
+  if (static_cast<long>(nowMs - gTicker.nextMs) < 0) return false;
+  if (gTicker.atEnd) {
+    gTicker.offset = 0;
+    gTicker.atEnd = false;
+    gTicker.nextMs = nowMs + kTickerHoldStartMs;
+    ++gTicker.passes;
+  } else {
+    const size_t sp = gTicker.text.find(' ', gTicker.offset);
+    gTicker.offset = sp == std::string::npos ? 0 : sp + 1;
+    gTicker.nextMs = nowMs + kTickerStepMs;
+  }
+  return true;
+}
+
+void PocketDeckTheme::drawHomeStatusBar(const GfxRenderer& renderer, const Rect rect) const {
+  using namespace PocketDeckMetrics;
+  const auto& metrics = UITheme::getInstance().getMetrics();
+  const int left = rect.x + kPad;
+  const int right = rect.x + rect.width - kPad;
+  const int rowTop = rect.y + UITheme::getTopStatusBarInset(renderer) + 2;
+  const int smallH = renderer.getLineHeight(SMALL_FONT_ID);
+  const int nameX = left + kMarkSize + 6;
+
+  refreshTickerQuote();
+  const std::string owner = renderer.truncatedText(SMALL_FONT_ID, SETTINGS.ownerName, 150);
+  // Two rows when there is an owner name or a quote: brand, date, time and
+  // battery on top; owner name and the quote below. Otherwise one row.
+  const bool twoRows = !owner.empty() || !gTicker.text.empty();
+  const int midY = twoRows ? rowTop + 8 : rowTop + kMarkSize / 2;
+  const int textY = midY - smallH / 2;
+
+  // Top row segments after the brand, spread evenly with "|" separators.
+  struct Segment {
+    const freeink::Icon* icon;
+    char text[20];
+    int width;
+  };
+  Segment segs[3];
+  int count = 0;
+  const auto add = [&](const freeink::Icon* icon, const char* text) {
+    Segment& sg = segs[count++];
+    sg.icon = icon;
+    snprintf(sg.text, sizeof(sg.text), "%s", text ? text : "");
+    sg.width = (icon ? 16 : 0) + (icon && sg.text[0] ? 5 : 0) + renderer.getTextWidth(SMALL_FONT_ID, sg.text);
+  };
+  char timeBuf[12];
+  char dateBuf[16];
+  if (halClock.isAvailable() && SETTINGS.shouldShowClockOutsideReader() &&
+      halClock.formatTime(timeBuf, sizeof(timeBuf), SETTINGS.clockUtcOffsetQ, SETTINGS.clockFormat == 1)) {
+    if (formatHeaderDateText(dateBuf, sizeof(dateBuf))) add(&icon_deck_calendar_16, dateBuf);
+    add(&icon_deck_clock_16, timeBuf);
+  }
+  if (hasActiveStationWifiConnection()) add(&icon_deck_wifi_16, "");
+
+  const char* brand = tr(STR_HOME_BRAND);
+  const int brandW = kMarkSize + 6 + renderer.getTextWidth(UI_10_FONT_ID, brand, EpdFontFamily::BOLD);
+  const bool showPct = SETTINGS.hideBatteryPercentage != CrossPointSettings::HIDE_BATTERY_PERCENTAGE::HIDE_ALWAYS;
+  char pctBuf[8];
+  snprintf(pctBuf, sizeof(pctBuf), "%u%%", static_cast<unsigned>(powerManager.getBatteryPercentage()));
+  const int batteryW =
+      metrics.batteryWidth + 2 + (showPct ? batteryPercentSpacing + renderer.getTextWidth(SMALL_FONT_ID, pctBuf) : 0);
+  int total = brandW + batteryW;
+  for (int i = 0; i < count; ++i) total += segs[i].width;
+  const int gap = std::max(10, (right - left - total) / (count + 1));
+
+  // The mark spans both rows.
+  for (int y = 0; y < kMarkSize; ++y) {
+    for (int x = 0; x < kMarkSize; ++x) {
+      const uint8_t byte = PocketDeckMark32[y * (kMarkSize / 8) + x / 8];
+      if (!(byte & (0x80 >> (x & 7)))) renderer.drawPixel(left + x, rowTop + y, true);
+    }
+  }
+  renderer.drawText(UI_10_FONT_ID, nameX, midY - renderer.getLineHeight(UI_10_FONT_ID) / 2, brand, true,
+                    EpdFontFamily::BOLD);
+  int cx = left + brandW;
+  const auto separator = [&] {
+    renderer.drawLine(cx + gap / 2, midY - 7, cx + gap / 2, midY + 7, true);
+    cx += gap;
+  };
+  for (int i = 0; i < count; ++i) {
+    separator();
+    int ix = cx;
+    if (segs[i].icon) {
+      drawLucideIcon(renderer, *segs[i].icon, ix, midY - 8);
+      ix += 16 + 5;
+    }
+    if (segs[i].text[0]) renderer.drawText(SMALL_FONT_ID, ix, textY, segs[i].text, true);
+    cx += segs[i].width;
+  }
+  separator();
+  const int iconX = right - metrics.batteryWidth - 2;
+  drawBatteryRight(renderer, Rect{iconX, textY, metrics.batteryWidth, metrics.batteryHeight}, showPct);
+
+  if (twoRows) {
+    // A 2 px line splits the rows; below it the owner name, a short divider,
+    // then the quote to the right edge.
+    const int lineY = rowTop + 23;
+    renderer.fillRect(nameX, lineY, right - nameX, 2, true);
+    const int row2Y = lineY + 4;
+    int qx = nameX;
+    if (!owner.empty()) {
+      renderer.drawText(SMALL_FONT_ID, nameX, row2Y, owner.c_str(), true);
+      qx = nameX + renderer.getTextWidth(SMALL_FONT_ID, owner.c_str());
+      if (!gTicker.text.empty()) {
+        const int divY = row2Y + smallH / 2;
+        renderer.drawLine(qx + 8, divY - 6, qx + 8, divY + 6, true);
+        qx += 16;
+      }
+    }
+    if (!gTicker.text.empty()) drawTicker(renderer, qx, row2Y, right - qx);
+  }
+
+  deckRule(renderer, left - kPad / 2, right + kPad / 2 - 1, rect.y + rect.height - 4);
+}
+
+void PocketDeckTheme::drawButtonHints(GfxRenderer& renderer, const char* btn1, const char* btn2, const char* btn3,
+                                      const char* btn4, const bool allowInvertedText) const {
+  // Lyra's positions (they sit over the physical buttons), drawn as cut-corner
+  // pills; Read, Select, Up and Down carry a small icon.
+  if (gpio.hasTouch()) return;
+  const GfxRenderer::Orientation orig = renderer.getOrientation();
+  const bool invertText = allowInvertedText && orig == GfxRenderer::Orientation::PortraitInverted;
+  renderer.setOrientation(GfxRenderer::Orientation::Portrait);
+
+  const int pageHeight = renderer.getScreenHeight();
+  constexpr int kW = 80;
+  constexpr int kH = LyraMetrics::values.buttonHintsHeight - 4;
+  constexpr int kStubH = 13;
+  constexpr int kCut = 7;
+  constexpr int narrow[] = {58, 146, 254, 342};
+  constexpr int wide[] = {65, 157, 291, 383};
+  const int* pos = renderer.getScreenWidth() >= 528 ? wide : narrow;
+  const char* labels[] = {btn1, btn2, btn3, btn4};
+  const int top = pageHeight - kH - 2;
+
+  for (int i = 0; i < 4; ++i) {
+    const int x = pos[i];
+    if (labels[i] == nullptr) continue;
+    // Clear the full slot first so an old label never shows through a stub.
+    renderer.fillRect(x, pageHeight - LyraMetrics::values.buttonHintsHeight, kW,
+                      LyraMetrics::values.buttonHintsHeight, false);
+    if (labels[i][0] != '\0') {
+      TouchRegistry::getInstance().add(Rect{x, top, kW, kH}, i, TouchRegistry::Button);
+      drawChamfer(renderer, x, top, kW, kH, kCut, 2);
+    } else {
+      drawChamfer(renderer, x, pageHeight - kStubH - 1, kW, kStubH, 4, 1);
+    }
+  }
+
+  renderer.setOrientation(invertText ? GfxRenderer::Orientation::PortraitInverted : GfxRenderer::Orientation::Portrait);
+  const int lineH = renderer.getLineHeight(SMALL_FONT_ID);
+  const int textTop = invertText ? 2 + (kH - lineH) / 2 : top + (kH - lineH) / 2;
+  for (int i = 0; i < 4; ++i) {
+    if (labels[i] == nullptr || labels[i][0] == '\0') continue;
+    const int x = pos[invertText ? 3 - i : i];
+    // A small mark for the common actions.
+    enum class Mark { None, Read, Select, Up, Down } mark = Mark::None;
+    if (strcmp(labels[i], tr(STR_READ)) == 0) mark = Mark::Read;
+    else if (strcmp(labels[i], tr(STR_SELECT)) == 0) mark = Mark::Select;
+    else if (strcmp(labels[i], tr(STR_DIR_UP)) == 0) mark = Mark::Up;
+    else if (strcmp(labels[i], tr(STR_DIR_DOWN)) == 0) mark = Mark::Down;
+    // Icon width plus gap; the Select check and the arrows are narrower than the book.
+    int markW = mark == Mark::None ? 0 : (mark == Mark::Read ? 16 + 4 : (mark == Mark::Select ? 10 + 4 : 12 + 6));
+    // Keep at least 8 px clear on each side; a label too wide for its mark drops it.
+    if (markW > 0 && renderer.getTextWidth(SMALL_FONT_ID, labels[i]) + markW > kW - 16) {
+      mark = Mark::None;
+      markW = 0;
+    }
+    const std::string label = renderer.truncatedText(SMALL_FONT_ID, labels[i], kW - 10 - markW);
+    const int tw = renderer.getTextWidth(SMALL_FONT_ID, label.c_str());
+    const int gx = x + (kW - 1 - tw - markW) / 2;
+    const int midY = textTop + lineH / 2;
+    switch (mark) {
+      case Mark::Read:
+        drawLucideIcon(renderer, icon_deck_book_16, gx, midY - 8);
+        break;
+      case Mark::Select:
+        // A 2 px check mark: crisp at this size, unlike a dashed square.
+        // Bold: three offset strokes.
+        for (int d = 0; d < 3; ++d) {
+          const int dx = d == 2 ? 1 : 0;
+          const int dy = d == 1 ? 1 : 0;
+          renderer.drawLine(gx + dx, midY + dy, gx + 3 + dx, midY + 3 + dy, true);
+          renderer.drawLine(gx + 3 + dx, midY + 3 + dy, gx + 9 + dx, midY - 4 + dy, true);
+        }
+        break;
+      case Mark::Up:
+      case Mark::Down:
+        chevronVertical(renderer, gx + 6, midY, 6, mark == Mark::Up);
+        break;
+      case Mark::None:
+        break;
+    }
+    renderer.drawText(SMALL_FONT_ID, gx + markW, textTop, label.c_str(), true);
+  }
+  renderer.setOrientation(orig);
 }

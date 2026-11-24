@@ -122,6 +122,9 @@ class ZipFile {
   bool open();
   bool close();
   bool loadAllFileStatSlims();
+  // Number of files in the archive, read from the end-of-central-directory
+  // record (one small tail read, no directory scan). 0 when the zip is invalid.
+  uint16_t getTotalEntries() { return loadZipDetails() ? zipDetails.totalEntries : 0; }
   bool getInflatedFileSize(const char* filename, size_t* size);
   // Batch lookup: scan ZIP central dir once and fill sizes for matching targets.
   // targets must be sorted by (hash, len). sizes[target.index] receives uncompressedSize.

@@ -893,7 +893,7 @@ inline std::vector<SettingInfo> buildControlsSideButtonSettingsList(const std::v
 
 inline std::vector<SettingInfo> buildGroupedDisplaySettingsList(const std::vector<SettingInfo>& allSettings) {
   std::vector<SettingInfo> displaySettings;
-  displaySettings.reserve(10);
+  displaySettings.reserve(12);
 
   auto addDisplaySetting = [&](StrId nameId) {
     const auto it = std::find_if(allSettings.begin(), allSettings.end(),
@@ -914,6 +914,10 @@ inline std::vector<SettingInfo> buildGroupedDisplaySettingsList(const std::vecto
   addDisplaySetting(StrId::STR_REFRESH_FREQ);
   addDisplaySetting(StrId::STR_NIGHT_MODE);
   addDisplaySetting(StrId::STR_UI_THEME);
+  if (SETTINGS.uiTheme == CrossPointSettings::UI_THEME::POCKETDECK) {
+    addDisplaySetting(StrId::STR_HOME_MENU_LAYOUT);  // PocketDeck Home: bottom bar or side panel
+    addDisplaySetting(StrId::STR_OWNER_NAME);        // under "PocketDeck" on Home
+  }
   addDisplaySetting(StrId::STR_CAROUSEL_BOOK_STATS);  // used by the Lyra Carousel theme
   addDisplaySetting(StrId::STR_UI_SCALE);
   addDisplaySetting(StrId::STR_RECENT_BOOKS_VIEW);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "ToolsCommon.h"
 #include "activities/Activity.h"
 
@@ -25,6 +27,11 @@ class DailyQuoteActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
+
+  // The quote this tool shows for `day` (days since epoch), as one line
+  // "text — author", for the PocketDeck Home status bar. Builds the index if
+  // needed. False when there is no quotes file. Uses a temporary 2 KB buffer.
+  static bool quoteForDay(int32_t day, std::string& out);
 
  private:
   static constexpr char kQuotesPath[] = "/tools/quotes.txt";

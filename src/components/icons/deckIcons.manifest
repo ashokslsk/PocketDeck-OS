@@ -1,0 +1,16 @@
+# Manifest for src/components/icons/deckIcons.h (PocketDeck Home) — regenerate with:
+#   python3 scripts/generate_icons.py --library lucide \
+#     --manifest src/components/icons/deckIcons.manifest \
+#     --sizes 16,20,32 --out src/components/icons/deckIcons.h
+# then clang-format -i the output.
+deck-calendar = calendar-days
+deck-clock = clock
+deck-wifi = wifi
+deck-hourglass = hourglass
+deck-page = file-text
+deck-book = book-open
+deck-play = play
+deck-stack = layers
+deck-target = target
+deck-select = square-dashed
+deck-grid = layout-grid

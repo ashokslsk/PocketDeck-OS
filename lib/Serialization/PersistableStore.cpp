@@ -19,6 +19,11 @@ bool PersistableStoreBase::writeDocToFileAtomically(const char* path, const Json
   Storage.mkdir("/.pocketdeck-os");
   String json;
   serializeJson(doc, json);
+  if (json.isEmpty()) {
+    // An empty String here means serialization ran out of memory.
+    LOG_ERR("PERSIST", "Failed to serialize %s", path);
+    return false;
+  }
 
   const std::string tempPath = std::string(path) + ".tmp";
   const std::string backupPath = std::string(path) + ".bak";

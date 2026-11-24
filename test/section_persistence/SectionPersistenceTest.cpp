@@ -49,7 +49,7 @@ struct SectionHarness {
         [](std::unique_ptr<Page>, uint16_t, uint16_t, uint32_t, uint32_t) {}, spec.embeddedStyle, "", "",
         spec.imageRendering, std::vector<std::string>{}, nullptr, nullptr, spec.renderMode);
     ASSERT_NE(context->parser, nullptr);
-    context->parser->anchorData = anchors;
+    for (const auto& [anchor, page] : anchors) context->parser->anchorData.push(anchor, page);
     section.build_ = std::move(context);
     ASSERT_TRUE(Storage.openFileForWrite("TEST", section.build_->tmpSectionPath, section.file));
     ASSERT_TRUE(section.writeSectionFileHeader(spec));

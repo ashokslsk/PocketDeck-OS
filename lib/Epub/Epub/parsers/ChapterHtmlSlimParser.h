@@ -13,6 +13,7 @@
 #include <string_view>
 #include <vector>
 
+#include "Epub/AnchorList.h"
 #include "Epub/EpubRenderMode.h"
 #include "Epub/FootnoteEntry.h"
 #include "Epub/Page.h"
@@ -228,7 +229,7 @@ class ChapterHtmlSlimParser {
 
   // Anchor-to-page mapping: tracks which page each HTML id attribute lands on
   int completedPageCount = 0;
-  std::vector<std::pair<std::string, uint16_t>> anchorData;
+  AnchorList anchorData;
   std::string pendingAnchorId;  // deferred until after previous text block is flushed
   bool pendingAnchorFromInlineA = false;
   std::vector<std::string> tocAnchors;  // the list of anchors that are TOC chapter boundaries
@@ -362,7 +363,7 @@ class ChapterHtmlSlimParser {
   void releaseInputFile();
 
   void addLineToPage(std::shared_ptr<TextBlock> line, uint32_t visibleOffset, uint32_t referenceOffset);
-  const std::vector<std::pair<std::string, uint16_t>>& getAnchors() const { return anchorData; }
+  const AnchorList& getAnchors() const { return anchorData; }
   bool wasLowMemoryFallbackTriggered() const { return lowMemoryImageFallback; }
   bool wasLowMemoryAbortTriggered() const { return lowMemoryAbort; }
 

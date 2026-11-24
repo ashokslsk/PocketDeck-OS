@@ -308,6 +308,13 @@ bool KeyboardEntryActivity::backspaceUtf8() {
   return true;
 }
 
+void KeyboardEntryActivity::eraseBeforeCursor() {
+  // Hold Del: erase everything left of the cursor, keep what follows it.
+  // With the cursor at the end this clears the whole field, as before.
+  text.erase(0, std::min(cursorPos, text.length()));
+  cursorPos = 0;
+}
+
 bool KeyboardEntryActivity::activateValue(const int16_t value, const bool longPress) {
   switch (value) {
     case fui::QWERTY_KEY_SHIFT:
@@ -352,8 +359,7 @@ bool KeyboardEntryActivity::activateValue(const int16_t value, const bool longPr
       return false;
     case fui::QWERTY_KEY_BACKSPACE:
       if (longPress) {
-        text.clear();
-        cursorPos = 0;
+        eraseBeforeCursor();
         return true;
       }
       delPressCount++;
@@ -385,8 +391,7 @@ bool KeyboardEntryActivity::clearAllOrAltOnSelected() {
   const fui::KeyboardKey* key = selectedKey();
   if (!key) return false;
   if (key->value == fui::QWERTY_KEY_BACKSPACE) {
-    text.clear();
-    cursorPos = 0;
+    eraseBeforeCursor();
     return true;
   }
   // Explicit alts and the letter case-flip, same as touch long-press.
@@ -713,8 +718,22 @@ void KeyboardEntryActivity::loop() {
     requestUpdate();
   });
 
+  // Text and URL fields: the cursor moves on press and repeats while held.
+  // Password fields keep the release-based moves below (hold Right = toggle).
+  const bool cursorRepeats = cursorMode && inputType != InputType::Password;
+  cursorNavigator.onPressAndContinuous({MappedInputManager::Button::Left, MappedInputManager::Button::Left}, [&] {
+    if (!cursorRepeats || cursorPos == 0) return;
+    cursorPos = utf8Prev(text, cursorPos);
+    requestUpdate();
+  });
+  cursorNavigator.onPressAndContinuous({MappedInputManager::Button::Right, MappedInputManager::Button::Right}, [&] {
+    if (!cursorRepeats || cursorPos >= text.length()) return;
+    cursorPos = utf8Next(text, cursorPos);
+    requestUpdate();
+  });
+
   if (mappedInput.wasReleased(MappedInputManager::Button::Left)) {
-    if (cursorMode) {
+    if (cursorMode && inputType == InputType::Password) {
       if (togglePos) {
         cursorPos = savedCursorPos;
         togglePos = false;
@@ -755,7 +774,7 @@ void KeyboardEntryActivity::loop() {
       rightHeld = false;
       rightLongHandled = false;
     }
-    if (cursorMode && !togglePos && cursorPos < text.length()) {
+    if (cursorMode && inputType == InputType::Password && !togglePos && cursorPos < text.length()) {
       cursorPos = utf8Next(text, cursorPos);
       requestUpdate();
     }
@@ -996,9 +1015,8 @@ void KeyboardEntryActivity::render(RenderLock&&) {
           renderer.drawCenteredText(SMALL_FONT_ID, hintLineY, passTip, true);
         }
       }
-    } else {
-      renderer.drawCenteredText(SMALL_FONT_ID, hintY, tr(STR_KB_HINT_EDIT_ENTRY), true);
     }
+    // Outside cursor mode the tips block below already says "Hold UP".
   }
 
   const fui::Rect kbRect = keyboardRect();
@@ -1043,11 +1061,11 @@ void KeyboardEntryActivity::render(RenderLock&&) {
       drawTip(tr(STR_KB_HINT_EXIT_URL_MODE), y);
       y += tipsLh;
       if (!text.empty()) {
-        drawTip(tr(STR_KB_HINT_CLEAR_TEXT), y);
+        drawTip(tr(STR_KB_HINT_CURSOR_CLEAR), y);
       }
     } else if (symbols) {
       if (!text.empty()) {
-        drawTip(tr(STR_KB_HINT_CLEAR_TEXT), y);
+        drawTip(tr(STR_KB_HINT_CURSOR_CLEAR), y);
         y += tipsLh;
       }
       if (!pasteTip.empty()) drawTip(pasteTip.c_str(), y);
@@ -1067,7 +1085,7 @@ void KeyboardEntryActivity::render(RenderLock&&) {
         y += tipsLh;
       }
       if (!text.empty()) {
-        drawTip(tr(STR_KB_HINT_CLEAR_TEXT), y);
+        drawTip(tr(STR_KB_HINT_CURSOR_CLEAR), y);
         y += tipsLh;
       }
       if (!pasteTip.empty()) drawTip(pasteTip.c_str(), y);
