@@ -10,6 +10,16 @@ PocketDeck-OS is e-reader firmware for the Xteink X3 that keeps a calm,
 book-first reader in your pocket and adds a small deck of daily tools, a real
 file manager and a speed-reading pacer, all offline and all on the SD card.
 
+> [!TIP]
+> **Install PocketDeck-OS from your browser:
+> [ashokslsk.github.io/PocketDeck-OS](https://ashokslsk.github.io/PocketDeck-OS/)**
+>
+> This is the recommended way to install or update. Open it in Chrome or Edge on
+> a computer, connect your Xteink X3 with a USB-C cable and press
+> **Connect & install**. No downloads or drivers, and your books and settings
+> on the SD card are kept. See [Installing PocketDeck-OS](#installing-pocketdeck-os)
+> for other ways.
+
 ## What's new
 
 - **Saved-item cards and Resurface Trove**: Bookmarks & Clippings shows each book's saved items as cards that open the book at the right place, and Resurface Trove deals a random handful from all your books.
@@ -145,12 +155,20 @@ optional SD-card data pack for the tools.
 > on first start (see [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md#what-is-kept)). Charge the reader first and keep it
 > plugged in while flashing.
 
-### Easiest: web installer (X3, Chrome or Edge)
+### Recommended: web installer (X3)
 
-Open **https://ashokslsk.github.io/PocketDeck-OS/** on a computer, connect the
-woken reader with a USB-C data cable, press **Connect & install** and pick
-`USB JTAG/serial debug unit`. It works from stock Xteink firmware, CrossInk or
-an earlier PocketDeck-OS, and writes the same images as `pio run -t upload`.
+**Please use the web installer: https://ashokslsk.github.io/PocketDeck-OS/**
+
+1. Open the link in **Chrome** or **Edge** on a computer (Windows, macOS, Linux
+   or ChromeOS). Safari and Firefox can't flash devices.
+2. Charge the reader, wake it, and connect it with a USB-C data cable.
+3. Press **Connect & install** and pick `USB JTAG/serial debug unit`.
+4. Choose **Install PocketDeck-OS**, confirm, and keep the tab open until it
+   finishes (about 1–2 minutes). The reader restarts into PocketDeck-OS.
+
+It works from stock Xteink firmware, CrossInk or an earlier PocketDeck-OS, and
+it is also how to update to a newer PocketDeck-OS. The options below are only
+for when the web installer can't be used.
 
 To publish a new build to the installer (maintainers):
 
@@ -161,10 +179,11 @@ git add dist/pocketdeck-os-x3.bin installer
 git commit -m "chore: update web installer firmware" && git push
 ```
 
-GitHub Pages publishes the repository as it is (**Settings > Pages > Deploy
-from a branch**, `main`, `/ (root)`): the root `index.html` redirects to
-`installer/`, `.nojekyll` turns off the Jekyll build, and the installer's
-manifest loads the app from `dist/pocketdeck-os-x3.bin`. To preview locally, run
+The **Deploy Pages** workflow publishes it on every push that changes the
+installer or the firmware (**Settings > Pages > Source: GitHub Actions**; run it
+by hand from the Actions tab if needed). The root `index.html` redirects to
+`installer/`, and the installer's manifest loads the app from
+`dist/pocketdeck-os-x3.bin`. To preview locally, run
 `python3 -m http.server` in the repository root and open `http://localhost:8000/`
 (Web Serial works on `localhost`).
 
