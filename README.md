@@ -104,9 +104,10 @@ The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 ### Daily tools (Home > Tools)
 
-In this order: **Daily Quote**, **Panchanga**, **World Clock**, **Pomodoro**, **Dictionary**, **Mantras**, **Workout**, **Habits**, **Mood**, **Medicine**, **Stats & export**, **Today**, and **Bookmarks & Clippings**.
+In this order: **Daily Quote**, **Panchanga**, **World Clock**, **Pomodoro**, **Dictionary**, **Word Tetris**, **Mantras**, **Workout**, **Habits**, **Mood**, **Medicine**, **Stats & export**, **Today**, and **Bookmarks & Clippings**.
 
 - **Dictionary**: search, recent lookups, **Lookups in all books** (each book's looked-up words with the date and time, and totals) and **Word Shelf** (word of the day or a random word of 4+ letters, opened as a paginated flashcard). Hold Search for Word Shelf.
+- **Word Tetris**: fit four lettered pieces into a 4×4 board so every row reads a word. 240 puzzles, each with exactly one answer; pieces don't rotate. Hold Confirm for a hint (it places one piece). Rows get a tick or a cross once the board is full.
 - **Bookmarks & Clippings**: books with saved items, each opening as cards (one bookmark or clipping per screen, Confirm opens the book there), and **Resurface Trove** for a random handful from every book.
 - **Daily Quote**: a big date first, favourites, and Kannada quotes drawn from the SD card font.
 - **Panchanga**: offline, in **Kannada or English**, any date from **1976 to 2075** with a calendar picker; festival and holiday calendars you can layer from JSON on the SD card.

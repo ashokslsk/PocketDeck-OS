@@ -22,6 +22,7 @@ class ToolsMenuActivity final : public Activity {
     WORLD_CLOCK,
     POMODORO,
     DICTIONARY,  // look up words without a book
+    WORD_TETRIS,
     MANTRAS,
     WORKOUT,
     HABITS,

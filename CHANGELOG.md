@@ -1,3 +1,9 @@
+## [PocketDeck-OS 1.0.0, Word Tetris] - 2026-11-27
+
+### Added
+
+- Tools > **Word Tetris**: a word puzzle. Four lettered tetrominoes go into a 4×4 board so that every row reads a common English word. Pick a piece from the tray, move it with Left/Right and the side buttons, and Confirm to drop it (Back puts it back). Once the board is full, each row gets a tick or a cross. Hold Confirm for a hint, which places one piece where it belongs. There are 240 puzzles, each with exactly one answer. Your puzzle number, solved count and hints are kept in `/tools/wordtetris.txt`. The puzzles are built into the firmware (about 13 KB of flash, no extra RAM) by `scripts/gen_word_tetris.py`.
+
 ## [PocketDeck-OS 1.0.0, Smaller firmware, saved-item cards and stability] - 2026-10-27
 
 ### Added
