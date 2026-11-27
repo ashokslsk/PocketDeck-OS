@@ -74,9 +74,9 @@ void ImageViewerActivity::drawChrome(const int parts) const {
   }
   renderer.drawCenteredText(SMALL_FONT_ID, metrics.topPadding, title, true, EpdFontFamily::BOLD);
   const char* confirm = count > 1 ? tr(STR_IMAGE_NEXT_IMAGE) : "";
-  const auto hints = mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_BACK)), confirm,
-                                           zoom_ > 1 ? tr(STR_IMAGE_ZOOM_OUT) : "",
-                                           zoom_ < kMaxZoom ? tr(STR_IMAGE_ZOOM_IN) : "");
+  const auto hints =
+      mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_BACK)), confirm, zoom_ > 1 ? tr(STR_IMAGE_ZOOM_OUT) : "",
+                            zoom_ < kMaxZoom ? tr(STR_IMAGE_ZOOM_IN) : "");
   GUI.drawButtonHints(renderer, hints.btn1, hints.btn2, hints.btn3, hints.btn4);
 }
 

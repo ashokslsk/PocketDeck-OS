@@ -71,7 +71,8 @@ void MedicineActivity::openMenu() {
   if (count_ > 0) {
     const meds::Course& c = courses_[selected_];
     add(Details, std::string(tr(STR_TOOLS_MED_DETAILS)) + ": " + c.name);
-    if (meds::statusOf(c, today_) == meds::Status::Active) add(Stop, std::string(tr(STR_TOOLS_MED_STOP)) + ": " + c.name);
+    if (meds::statusOf(c, today_) == meds::Status::Active)
+      add(Stop, std::string(tr(STR_TOOLS_MED_STOP)) + ": " + c.name);
   }
   if (count_ < meds::kMaxCourses) add(Add, tr(STR_TOOLS_MED_ADD));
   if (count_ > 0) add(Delete, std::string(tr(STR_TOOLS_MED_DELETE)) + ": " + courses_[selected_].name);
@@ -550,8 +551,9 @@ void MedicineActivity::render(RenderLock&&) {
     tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_STATS_EXPORT), "", "");
   } else {
     renderList(Rect{content.x + 8, content.y, content.width - 8, content.height});
-    tools::drawHints(renderer, mappedInput, tr(STR_BACK), count_ > 0 ? tr(STR_TOOLS_MED_TICK) : tr(STR_TOOLS_MED_ADD_SHORT),
-                     tr(STR_TOOLS_MENU), count_ > 0 ? tr(STR_TOOLS_MED_NEXT_DOSE) : "");
+    tools::drawHints(renderer, mappedInput, tr(STR_BACK),
+                     count_ > 0 ? tr(STR_TOOLS_MED_TICK) : tr(STR_TOOLS_MED_ADD_SHORT), tr(STR_TOOLS_MENU),
+                     count_ > 0 ? tr(STR_TOOLS_MED_NEXT_DOSE) : "");
   }
   const bool transition = transitionPending_;
   transitionPending_ = false;

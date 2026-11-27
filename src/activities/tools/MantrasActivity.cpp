@@ -1032,8 +1032,7 @@ void MantrasActivity::renderJapa() {
       kannada::Line lines[3];
       const size_t n = kannada::wrap(renderer, mantra_->kannada, kannada::kToolBold, w, lines, 3);
       for (size_t i = 0; i < n && i < 3; ++i) {
-        const int lw =
-            kannada::width(renderer, mantra_->kannada + lines[i].start, kannada::kToolBold, lines[i].length);
+        const int lw = kannada::width(renderer, mantra_->kannada + lines[i].start, kannada::kToolBold, lines[i].length);
         kannada::draw(renderer, x0 + (w - lw) / 2, y, mantra_->kannada + lines[i].start, kannada::kToolBold, true,
                       lines[i].length);
         y += kannada::lineHeight(renderer, kannada::kToolBold);

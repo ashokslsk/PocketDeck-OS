@@ -89,7 +89,6 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "RecentBooksStore.h"
 #include "SdCardFontSystem.h"
 #include "SilentRestart.h"
-#include "util/RestartLog.h"
 #include "activities/Activity.h"
 #include "activities/ActivityManager.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
@@ -109,6 +108,7 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "components/icons/tablerFilledIcons.h"
 #include "fontIds.h"
 #include "network/UsbSerialFileTransfer.h"
+#include "util/RestartLog.h"
 #ifdef SIMULATOR
 #include <SimulatorLifecycle.h>
 
@@ -1567,10 +1567,10 @@ void setup() {
     char event[48];
     const bool forced = forcedRestartMagic == FORCED_RESTART_MAGIC;
     snprintf(event, sizeof(event), "reset %s%s", resetReasonName(rawResetReason),
-             forced           ? " (forced: Power held 10 s)"
-             : isSilentReboot ? (snapshotTarget == SILENT_REBOOT_TARGET_READER ? " (planned, back to book)"
-                                                                               : " (planned)")
-                              : "");
+             forced ? " (forced: Power held 10 s)"
+             : isSilentReboot
+                 ? (snapshotTarget == SILENT_REBOOT_TARGET_READER ? " (planned, back to book)" : " (planned)")
+                 : "");
     RestartLog::append(event);
   }
   forcedRestartMagic = 0;

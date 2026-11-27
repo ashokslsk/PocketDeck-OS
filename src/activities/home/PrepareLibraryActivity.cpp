@@ -5,21 +5,21 @@
 #include <FileIndex.h>
 #include <FsHelpers.h>
 #include <GfxRenderer.h>
+#include <HalClock.h>
 #include <I18n.h>
 #include <Logging.h>
-#include <HalClock.h>
 #include <MemoryBudget.h>
 
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
 
+#include "CrossPointSettings.h"
 #include "FileBrowserActivity.h"
 #include "components/UITheme.h"
+#include "fontIds.h"
 #include "util/PrepareEta.h"
 #include "util/PreparedMarks.h"
-#include "CrossPointSettings.h"
-#include "fontIds.h"
 
 namespace {
 constexpr unsigned long kWalkSliceMs = 40;
@@ -98,7 +98,8 @@ int PrepareLibraryActivity::nextBook(const unsigned long budgetMs) {
     HalFile entry = level.dir.openNextFile();
     if (!entry && FsHelpers::directoryIterationFailed(level.dir)) {
       char detail[64];
-      snprintf(detail, sizeof(detail), "%s after %u entries", level.dir.allocationFailed() ? "out of memory" : "card read error",
+      snprintf(detail, sizeof(detail), "%s after %u entries",
+               level.dir.allocationFailed() ? "out of memory" : "card read error",
                static_cast<unsigned>(level.consumed));
       reportLine("FOLDER READ ERROR", level.path, detail);
       if (resumeLevel(level)) continue;
@@ -174,9 +175,11 @@ void PrepareLibraryActivity::reportBegin() {
   }
   const auto heap = MemoryBudget::snapshot();
   char header[256];
-  const int n = snprintf(header, sizeof(header), "PocketDeck-OS prepare report\nStarted: %s\nFolder: %s\nMemory at start: %u KB free, largest block %u KB\n\n",
-                         when, rootPath_.c_str(), static_cast<unsigned>(heap.freeHeap / 1024),
-                         static_cast<unsigned>(heap.maxAllocHeap / 1024));
+  const int n = snprintf(
+      header, sizeof(header),
+      "PocketDeck-OS prepare report\nStarted: %s\nFolder: %s\nMemory at start: %u KB free, largest block %u KB\n\n",
+      when, rootPath_.c_str(), static_cast<unsigned>(heap.freeHeap / 1024),
+      static_cast<unsigned>(heap.maxAllocHeap / 1024));
   if (n > 0) file.write(reinterpret_cast<const uint8_t*>(header), std::min<size_t>(n, sizeof(header) - 1));
   file.close();
 }
@@ -418,7 +421,8 @@ void PrepareLibraryActivity::render(RenderLock&&) {
              true);
     snprintf(line, sizeof(line), tr(STR_PREPARE_TOOK_FORMAT), PrepareEta::duration(finishedMs_ - startMs_).c_str());
     drawLine(line, false);
-    snprintf(line, sizeof(line), tr(STR_PREPARE_CHECKED_FORMAT), grouped(doneBooks_).c_str(), grouped(totalBooks_).c_str());
+    snprintf(line, sizeof(line), tr(STR_PREPARE_CHECKED_FORMAT), grouped(doneBooks_).c_str(),
+             grouped(totalBooks_).c_str());
     drawLine(line, false);
   }
   y += 6;

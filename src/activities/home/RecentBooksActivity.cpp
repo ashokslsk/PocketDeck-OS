@@ -20,8 +20,8 @@
 #include "RecentBooksStore.h"
 #include "activities/reader/BookInfoActivity.h"
 #include "activities/reader/EpubReaderActivity.h"
-#include "activities/reader/ReadingStatsUtils.h"
 #include "activities/reader/KannadaReading.h"
+#include "activities/reader/ReadingStatsUtils.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "activities/util/OptionSelectionActivity.h"
 #include "components/CompactHeader.h"
@@ -79,7 +79,7 @@ void RecentBooksActivity::rebuildOrder() {
           break;
         case SortMode::Progress: {
           const float pct = FsHelpers::hasEpubExtension(book.path) ? RecentBookProgress::loadCachedEpubPercent(book)
-                                                                    : RecentBookProgress::loadPercent(book);
+                                                                   : RecentBookProgress::loadPercent(book);
           key = RecentBookProgress::hasPercent(pct) ? static_cast<int32_t>(pct * 100.0f) : -1;
           break;
         }
@@ -143,7 +143,7 @@ void RecentBooksActivity::loadRecentBooks() {
     if (i >= recentBooks.size()) continue;
     const RecentBook& book = recentBooks[i];
     const float pct = FsHelpers::hasEpubExtension(book.path) ? RecentBookProgress::loadCachedEpubPercent(book)
-                                                              : RecentBookProgress::loadPercent(book);
+                                                             : RecentBookProgress::loadPercent(book);
     if (RecentBookProgress::hasPercent(pct)) {
       snprintf(percentLabels[i], sizeof(percentLabels[i]), "%d%%", static_cast<int>(pct + 0.5f));
     }

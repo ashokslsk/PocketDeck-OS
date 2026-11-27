@@ -29,7 +29,7 @@ class ToolsMenuActivity final : public Activity {
     MEDICINE,
     STATS,
     TODAY,
-    SAVED,       // all-books bookmarks and clippings (Saved Items)
+    SAVED,  // all-books bookmarks and clippings (Saved Items)
     TOOL_COUNT
   };
 

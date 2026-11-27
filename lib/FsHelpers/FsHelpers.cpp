@@ -432,8 +432,8 @@ void migrateDataLayout() {
 
   // App caches that used to sit at the top level.
   static constexpr const char* kSystemCaches[] = {"fileindex",        "card_stats.bin", "home_carousel_cache.bin",
-                                                   "font-catalog.bin", "image_view.pxc", "sleep_frame.bin",
-                                                   "sleep-image-index"};
+                                                  "font-catalog.bin", "image_view.pxc", "sleep_frame.bin",
+                                                  "sleep-image-index"};
   for (const char* name : kSystemCaches) {
     const std::string from = std::string(kDataDirPrefix) + name;
     const std::string to = std::string(kSystemCacheDir) + "/" + name;

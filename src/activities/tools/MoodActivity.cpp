@@ -13,9 +13,9 @@
 #include <string>
 #include <vector>
 
-#include "ToolsLog.h"
 #include "MoodHistoryActivity.h"
 #include "ToolStatsPages.h"
+#include "ToolsLog.h"
 #include "activities/util/KeyboardEntryActivity.h"
 #include "activities/util/OptionSelectionActivity.h"
 #include "fontIds.h"

@@ -541,9 +541,9 @@ void BookStatsActivity::renderLibraryScanProgress() {
 
 void BookStatsActivity::render(RenderLock&&) {
   if (usesNoRtcSingleScreenLayout()) {
-    renderNoRtcCombinedStatsPage(renderer, &mappedInput, bookTitle, stats, progressPercent, hasEstimatedTimeLeft,
-                                 estimatedTimeLeftSeconds, globalStats,
-                                 showAllDevicesStats ? &allDevicesStats : nullptr, true, bookPagesDone_, bookPagesTotal_);
+    renderNoRtcCombinedStatsPage(
+        renderer, &mappedInput, bookTitle, stats, progressPercent, hasEstimatedTimeLeft, estimatedTimeLeftSeconds,
+        globalStats, showAllDevicesStats ? &allDevicesStats : nullptr, true, bookPagesDone_, bookPagesTotal_);
     renderer.displayBuffer();
     return;
   }

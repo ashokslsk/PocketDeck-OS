@@ -804,11 +804,10 @@ void ChapterHtmlSlimParser::startNewTextBlock(const BlockStyle& blockStyle) {
   // If the pending anchor is a TOC chapter boundary, force a page break after the previous
   // block is flushed so the chapter starts on a fresh page.
   flushPendingAnchor();
-  currentTextBlock.reset(new (std::nothrow) ParsedText(extraParagraphSpacing,
-                                                       forceParagraphIndents && !blockStyle.preformatted,
-                                                       hyphenationEnabled && !blockStyle.preformatted,
-                                                       focusReadingEnabled, guideReadingEnabled, wordSpacing,
-                                                       blockStyle, trackReferenceCharacters));
+  currentTextBlock.reset(new (std::nothrow)
+                             ParsedText(extraParagraphSpacing, forceParagraphIndents && !blockStyle.preformatted,
+                                        hyphenationEnabled && !blockStyle.preformatted, focusReadingEnabled,
+                                        guideReadingEnabled, wordSpacing, blockStyle, trackReferenceCharacters));
   if (!currentTextBlock) {
     const auto heap = MemoryBudget::snapshot();
     LOG_ERR("EHP", "Failed to create text block (%u free, %u max alloc)", heap.freeHeap, heap.maxAllocHeap);
@@ -4018,8 +4017,8 @@ void ChapterHtmlSlimParser::addLineToPage(std::shared_ptr<TextBlock> line, const
   // Code lines advance by the monospace font's (smaller) line height.
   const int lineHeight =
       line->getBlockStyle().preformatted
-          ? std::max(1, static_cast<int>(renderer.getLineHeight(renderer.monospaceFontFor(fontId)) * lineCompression +
-                                         0.5f))
+          ? std::max(
+                1, static_cast<int>(renderer.getLineHeight(renderer.monospaceFontFor(fontId)) * lineCompression + 0.5f))
           : effectiveLineHeight() + line->getRubyShift(renderer.getFontAscenderSize(fontId));
 
   if (!currentPage) {

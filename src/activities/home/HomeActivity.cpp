@@ -724,8 +724,7 @@ void HomeActivity::prepareHomeCovers(const Epub& epub, const GfxRenderer& render
   // call returns at once when its thumbnail already exists at that size.
   bool ok = true;
   if (theme == CrossPointSettings::UI_THEME::LYRA_CAROUSEL) {
-    ok = epub.generateThumbBmp(LyraCarouselTheme::centerThumbW(), LyraCarouselTheme::centerThumbH(), &renderer,
-                               fontId);
+    ok = epub.generateThumbBmp(LyraCarouselTheme::centerThumbW(), LyraCarouselTheme::centerThumbH(), &renderer, fontId);
     ok = epub.generateThumbBmp(LyraCarouselTheme::sideThumbW(), LyraCarouselTheme::sideThumbH(), &renderer, fontId) &&
          ok;
   } else if (isDashboardTheme()) {

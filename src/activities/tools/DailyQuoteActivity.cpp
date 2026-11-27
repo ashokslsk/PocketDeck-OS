@@ -468,7 +468,8 @@ bool DailyQuoteActivity::quoteForDay(const int32_t day, std::string& out) {
     }
   }
   idx.close();
-  const bool ok = offset >= 0 && src.seek(static_cast<uint32_t>(offset)) && tools::readLine(src, line.get(), kLineCap) > 0;
+  const bool ok =
+      offset >= 0 && src.seek(static_cast<uint32_t>(offset)) && tools::readLine(src, line.get(), kLineCap) > 0;
   src.close();
   if (!ok) return false;
   const char* text = nullptr;

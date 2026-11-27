@@ -359,7 +359,8 @@ int WorkoutActivity::segCount() const {
     case Type::Hold:
       return it.sides * 2 - 1;
     case Type::Sequence:
-      return std::max<int>(1, levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1])) * std::max<int>(1, it.stepCount);
+      return std::max<int>(1, levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1])) *
+             std::max<int>(1, it.stepCount);
     case Type::Interval:
       return std::max<int>(1, levelValue(LevelField::Sets, it.sets[0], it.sets[1])) * 2 - 1;
   }
@@ -380,17 +381,21 @@ WorkoutActivity::Seg WorkoutActivity::seg(const int i) const {
     }
     case Type::Hold:
       if (i % 2 == 1) return {SegKind::Switch, static_cast<uint8_t>(i / 2), kSwitchSeconds};
-      return {SegKind::Hold, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]))};
+      return {SegKind::Hold, static_cast<uint8_t>(i / 2),
+              std::max<uint16_t>(1, levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]))};
     case Type::Sequence: {
       const int sc = std::max<int>(1, it.stepCount);
       const workout::Step& st = it.steps[i % sc];
-      const uint16_t secs = stepSeconds(st.seconds ? st.seconds : levelValue(LevelField::StepSeconds, it.stepSeconds[0], it.stepSeconds[1]));
+      const uint16_t secs = stepSeconds(
+          st.seconds ? st.seconds : levelValue(LevelField::StepSeconds, it.stepSeconds[0], it.stepSeconds[1]));
       return {SegKind::Step, static_cast<uint8_t>(i % sc), std::max<uint16_t>(1, secs)};
     }
     case Type::Interval:
       if (i % 2 == 1)
-        return {SegKind::Recover, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, levelValue(LevelField::Rest, it.restSeconds[0], it.restSeconds[1]))};
-      return {SegKind::Work, static_cast<uint8_t>(i / 2), std::max<uint16_t>(1, levelValue(LevelField::Work, it.work[0], it.work[1]))};
+        return {SegKind::Recover, static_cast<uint8_t>(i / 2),
+                std::max<uint16_t>(1, levelValue(LevelField::Rest, it.restSeconds[0], it.restSeconds[1]))};
+      return {SegKind::Work, static_cast<uint8_t>(i / 2),
+              std::max<uint16_t>(1, levelValue(LevelField::Work, it.work[0], it.work[1]))};
   }
   return {SegKind::Hold, 0, 1};
 }
@@ -400,7 +405,9 @@ uint32_t WorkoutActivity::elapsedMs() const {
   return accMs_ + (running_ ? millis() - runStartMs_ : 0);
 }
 
-uint32_t WorkoutActivity::totalMs() const { return static_cast<uint32_t>(levelValue(LevelField::Minutes, item_->minutes[0], item_->minutes[1])) * 60000UL; }
+uint32_t WorkoutActivity::totalMs() const {
+  return static_cast<uint32_t>(levelValue(LevelField::Minutes, item_->minutes[0], item_->minutes[1])) * 60000UL;
+}
 
 void WorkoutActivity::startSession() {
   running_ = true;
@@ -580,25 +587,30 @@ void WorkoutActivity::timingLine(char* buf, const size_t len) const {
         const size_t n = strlen(pattern);
         snprintf(pattern + n, sizeof(pattern) - n, i ? "-%u" : "%u", phaseSeconds(it.phases[i]));
       }
-      snprintf(buf, len, "%u %s  |  %s %s", levelValue(LevelField::Minutes, it.minutes[0], it.minutes[1]), tr(STR_TOOLS_WORKOUT_MIN), pattern, s);
+      snprintf(buf, len, "%u %s  |  %s %s", levelValue(LevelField::Minutes, it.minutes[0], it.minutes[1]),
+               tr(STR_TOOLS_WORKOUT_MIN), pattern, s);
       break;
     }
     case Type::Hold:
       if (it.sides > 1) {
-        snprintf(buf, len, "%u %s  |  %s %u", levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]), s, tr(STR_TOOLS_WORKOUT_SIDES), it.sides);
+        snprintf(buf, len, "%u %s  |  %s %u", levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]), s,
+                 tr(STR_TOOLS_WORKOUT_SIDES), it.sides);
       } else {
         snprintf(buf, len, "%u %s", levelValue(LevelField::HoldSeconds, it.seconds[0], it.seconds[1]), s);
       }
       break;
     case Type::Sequence: {
       const uint16_t step = stepSeconds(levelValue(LevelField::StepSeconds, it.stepSeconds[0], it.stepSeconds[1]));
-      snprintf(buf, len, "%s %u  |  %s %u  |  %u %s", tr(STR_TOOLS_WORKOUT_ROUNDS), levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]),
-               tr(STR_TOOLS_WORKOUT_STEPS), it.stepCount, step, s);
+      snprintf(buf, len, "%s %u  |  %s %u  |  %u %s", tr(STR_TOOLS_WORKOUT_ROUNDS),
+               levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]), tr(STR_TOOLS_WORKOUT_STEPS), it.stepCount,
+               step, s);
       break;
     }
     case Type::Interval:
-      snprintf(buf, len, "%s %u  |  %s %u %s  |  %s %u %s", tr(STR_TOOLS_WORKOUT_SETS), levelValue(LevelField::Sets, it.sets[0], it.sets[1]),
-               tr(STR_TOOLS_WORKOUT_WORK), levelValue(LevelField::Work, it.work[0], it.work[1]), s, tr(STR_TOOLS_WORKOUT_REST), levelValue(LevelField::Rest, it.restSeconds[0], it.restSeconds[1]), s);
+      snprintf(buf, len, "%s %u  |  %s %u %s  |  %s %u %s", tr(STR_TOOLS_WORKOUT_SETS),
+               levelValue(LevelField::Sets, it.sets[0], it.sets[1]), tr(STR_TOOLS_WORKOUT_WORK),
+               levelValue(LevelField::Work, it.work[0], it.work[1]), s, tr(STR_TOOLS_WORKOUT_REST),
+               levelValue(LevelField::Rest, it.restSeconds[0], it.restSeconds[1]), s);
       if (it.reps > 0) {
         const size_t n = strlen(buf);
         snprintf(buf + n, len - n, "  |  %s %u", tr(STR_TOOLS_WORKOUT_REPS), it.reps);
@@ -888,8 +900,9 @@ void WorkoutActivity::renderFigureSession(const Rect& c, const Seg& s, const uin
       renderer.drawCenteredText(UI_12_FONT_ID, y, step->name, true, EpdFontFamily::BOLD);
       y += lineH;
       snprintf(buf, sizeof(buf), "%s %u / %u  |  %s %u / %u", tr(STR_TOOLS_WORKOUT_ROUNDS),
-               static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1), levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]),
-               tr(STR_TOOLS_WORKOUT_STEPS), static_cast<unsigned>(s.index + 1), it.stepCount);
+               static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1),
+               levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]), tr(STR_TOOLS_WORKOUT_STEPS),
+               static_cast<unsigned>(s.index + 1), it.stepCount);
       break;
     case SegKind::Hold:
     case SegKind::Switch:
@@ -910,7 +923,8 @@ void WorkoutActivity::renderFigureSession(const Rect& c, const Seg& s, const uin
                                 EpdFontFamily::BOLD);
       y += lineH;
       snprintf(buf, sizeof(buf), "%s %u / %u", tr(STR_TOOLS_WORKOUT_SETS),
-               static_cast<unsigned>(s.index + (s.kind == SegKind::Recover ? 2 : 1)), levelValue(LevelField::Sets, it.sets[0], it.sets[1]));
+               static_cast<unsigned>(s.index + (s.kind == SegKind::Recover ? 2 : 1)),
+               levelValue(LevelField::Sets, it.sets[0], it.sets[1]));
       break;
   }
 
@@ -1025,8 +1039,7 @@ void WorkoutActivity::renderMantraStep(const Rect& c, const Seg& s, const uint32
     const int kw = std::min(c.width - 16, kannada::width(renderer, st.mantraKn, kannada::kToolBold));
     kannada::Line line[1];
     if (kannada::wrap(renderer, st.mantraKn, kannada::kToolBold, c.width - 16, line, 1) > 0) {
-      kannada::draw(renderer, (sw - kw) / 2, y, st.mantraKn + line[0].start, kannada::kToolBold, true,
-                    line[0].length);
+      kannada::draw(renderer, (sw - kw) / 2, y, st.mantraKn + line[0].start, kannada::kToolBold, true, line[0].length);
     }
     y += kannada::lineHeight(renderer, kannada::kToolBold);
   }
@@ -1065,8 +1078,9 @@ void WorkoutActivity::renderMantraStep(const Rect& c, const Seg& s, const uint32
   if (segMs > 0) renderer.fillRect(barX, y, static_cast<int>(static_cast<uint64_t>(barW) * done / segMs), 10, true);
   y += 18;
   snprintf(buf, sizeof(buf), "%s %u / %u  |  %s %u / %u", tr(STR_TOOLS_WORKOUT_ROUNDS),
-           static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1), levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]),
-           tr(STR_TOOLS_WORKOUT_STEPS), static_cast<unsigned>(s.index + 1), it.stepCount);
+           static_cast<unsigned>(segIdx_ / std::max<int>(1, it.stepCount) + 1),
+           levelValue(LevelField::Rounds, it.rounds[0], it.rounds[1]), tr(STR_TOOLS_WORKOUT_STEPS),
+           static_cast<unsigned>(s.index + 1), it.stepCount);
   renderer.drawCenteredText(UI_10_FONT_ID, y, buf);
   y += smallH;
   if (st.text[0] && y < c.y + c.height - smallH) {
@@ -1103,8 +1117,7 @@ void WorkoutActivity::renderVerse() {
   if (useKannada(v.kn)) {
     constexpr size_t kMaxLines = 9;
     kannada::Line lines[kMaxLines];
-    const size_t n =
-        std::min(kMaxLines, kannada::wrap(renderer, v.kn, kannada::kToolText, c.width, lines, kMaxLines));
+    const size_t n = std::min(kMaxLines, kannada::wrap(renderer, v.kn, kannada::kToolText, c.width, lines, kMaxLines));
     const int lh = kannada::lineHeight(renderer, kannada::kToolText) + 2;
     for (size_t i = 0; i < n; ++i) {
       const int lw = kannada::width(renderer, v.kn + lines[i].start, kannada::kToolText, lines[i].length);

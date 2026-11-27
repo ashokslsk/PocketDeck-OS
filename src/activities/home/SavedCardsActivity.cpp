@@ -161,8 +161,8 @@ void SavedCardsActivity::render(RenderLock&&) {
     titleOpt.maxLines = 2;
     const std::string bookTitle = "**" + book.bookTitle + "**";
     titleOpt.markdown = true;
-    const int titleLines = tools::drawWrappedText(
-        renderer, Rect{x, y, w, renderer.getLineHeight(UI_12_FONT_ID) * 2}, bookTitle.c_str(), titleOpt);
+    const int titleLines = tools::drawWrappedText(renderer, Rect{x, y, w, renderer.getLineHeight(UI_12_FONT_ID) * 2},
+                                                  bookTitle.c_str(), titleOpt);
     y += renderer.getLineHeight(UI_12_FONT_ID) * std::max(1, std::min(titleLines, 2));
     if (!book.bookAuthor.empty()) {
       renderer.drawText(UI_10_FONT_ID, x, y, renderer.truncatedText(UI_10_FONT_ID, book.bookAuthor.c_str(), w).c_str());

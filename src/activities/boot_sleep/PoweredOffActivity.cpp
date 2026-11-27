@@ -26,8 +26,8 @@ void PoweredOffActivity::onEnter() {
 
   const int quoteW = pageWidth - 2 * 48;
   const int quoteH = renderer.getLineHeight(LEXENDDECA_12_FONT_ID);
-  for (const auto& line : renderer.wrappedText(LEXENDDECA_12_FONT_ID, tr(STR_POWERED_OFF_QUOTE), quoteW, 4,
-                                               EpdFontFamily::ITALIC)) {
+  for (const auto& line :
+       renderer.wrappedText(LEXENDDECA_12_FONT_ID, tr(STR_POWERED_OFF_QUOTE), quoteW, 4, EpdFontFamily::ITALIC)) {
     renderer.drawCenteredText(LEXENDDECA_12_FONT_ID, y, line.c_str(), true, EpdFontFamily::ITALIC);
     y += quoteH;
   }

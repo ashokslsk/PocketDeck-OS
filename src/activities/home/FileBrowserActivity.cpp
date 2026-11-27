@@ -25,11 +25,9 @@
 #include "CrossPointState.h"
 #include "FileBrowserActionActivity.h"
 #include "FileInfoActivity.h"
-#include "PrepareLibraryActivity.h"
-#include "components/icons/prepIcons.h"
-#include "util/PreparedMarks.h"
 #include "FileSearchActivity.h"
 #include "MappedInputManager.h"
+#include "PrepareLibraryActivity.h"
 #include "RecentBookProgress.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
 #include "activities/reader/EpubReaderActivity.h"
@@ -45,9 +43,11 @@
 #include "components/UIThemeTokens.h"
 #include "components/UiAppHelpers.h"
 #include "components/icons/listIcons.h"
+#include "components/icons/prepIcons.h"
 #include "components/themes/minimal/MinimalTheme.h"
 #include "fontIds.h"
 #include "util/BookMoveUtils.h"
+#include "util/PreparedMarks.h"
 
 namespace fui = freeink::ui;
 
@@ -668,69 +668,71 @@ void FileBrowserActivity::showDirectoryActionMenu(const std::string& entry, bool
   items.push_back({FileBrowserAction::Info, StrId::STR_FILE_INFO});
   items.push_back({FileBrowserAction::Search, StrId::STR_SEARCH_FILES});
 
-  startActivityForResult(std::make_unique<FileBrowserActionActivity>(renderer, mappedInput, getFileName(entry),
-                                                                     std::move(items), ignoreInitialConfirmRelease),
-                         [this, fullPath, entry](const ActivityResult& result) {
-                           longPressConfirmHandled = false;
-                           if (result.isCancelled) {
-                             return;
-                           }
+  startActivityForResult(
+      std::make_unique<FileBrowserActionActivity>(renderer, mappedInput, getFileName(entry), std::move(items),
+                                                  ignoreInitialConfirmRelease),
+      [this, fullPath, entry](const ActivityResult& result) {
+        longPressConfirmHandled = false;
+        if (result.isCancelled) {
+          return;
+        }
 
-                           const auto action =
-                               static_cast<FileBrowserAction>(std::get<FileBrowserActionResult>(result.data).action);
-                           switch (action) {
-                             case FileBrowserAction::Delete:
-                               promptDeleteDirectory(fullPath, entry);
-                               return;
-                             case FileBrowserAction::Rename:
-                               startRenameDirectory(fullPath, entry);
-                               return;
-                             case FileBrowserAction::Move:
-                               startMove(fullPath, entry);
-                               return;
-                             case FileBrowserAction::Copy:
-                               startCopy(fullPath, entry);
-                               return;
-                             case FileBrowserAction::SortRecents:
-                             case FileBrowserAction::BookInfo:
-                             case FileBrowserAction::Search:
-                               startSearch();
-                               return;
-                             case FileBrowserAction::PrepareFolder:
-                               startActivityForResult(
-                                   std::make_unique<PrepareLibraryActivity>(renderer, mappedInput, fullPath, false),
-                                   [this](const ActivityResult&) { loadFiles(true); requestUpdate(); });
-                               return;
-                             case FileBrowserAction::NewFolder:
-                               startNewFolder();
-                               return;
-                             case FileBrowserAction::Info:
-                               showInfo(fullPath, entry);
-                               return;
-                             case FileBrowserAction::SetSleepFolder:
-                               setPreferredSleepFolder(fullPath);
-                               return;
-                             case FileBrowserAction::ClearSleepFolder:
-                               clearPreferredSleepFolder();
-                               return;
-                             case FileBrowserAction::DeleteCache:
-                             case FileBrowserAction::DeleteStats:
-                             case FileBrowserAction::ToggleCompleted:
-                             case FileBrowserAction::RemoveFromRecents:
-                             case FileBrowserAction::PinFavorite:
-                             case FileBrowserAction::UnpinFavorite:
-                             case FileBrowserAction::PinBootFavorite:
-                             case FileBrowserAction::UnpinBootFavorite:
-                             case FileBrowserAction::ViewBookmarks:
-                             case FileBrowserAction::ViewClippings:
-                             case FileBrowserAction::DeleteBookmarks:
-                             case FileBrowserAction::DeleteClippings:
-                             case FileBrowserAction::EpubRenderMode:
-                             case FileBrowserAction::ResetReaderSettings:
-                             case FileBrowserAction::SendNearby:
-                               return;
-                           }
-                         });
+        const auto action = static_cast<FileBrowserAction>(std::get<FileBrowserActionResult>(result.data).action);
+        switch (action) {
+          case FileBrowserAction::Delete:
+            promptDeleteDirectory(fullPath, entry);
+            return;
+          case FileBrowserAction::Rename:
+            startRenameDirectory(fullPath, entry);
+            return;
+          case FileBrowserAction::Move:
+            startMove(fullPath, entry);
+            return;
+          case FileBrowserAction::Copy:
+            startCopy(fullPath, entry);
+            return;
+          case FileBrowserAction::SortRecents:
+          case FileBrowserAction::BookInfo:
+          case FileBrowserAction::Search:
+            startSearch();
+            return;
+          case FileBrowserAction::PrepareFolder:
+            startActivityForResult(std::make_unique<PrepareLibraryActivity>(renderer, mappedInput, fullPath, false),
+                                   [this](const ActivityResult&) {
+                                     loadFiles(true);
+                                     requestUpdate();
+                                   });
+            return;
+          case FileBrowserAction::NewFolder:
+            startNewFolder();
+            return;
+          case FileBrowserAction::Info:
+            showInfo(fullPath, entry);
+            return;
+          case FileBrowserAction::SetSleepFolder:
+            setPreferredSleepFolder(fullPath);
+            return;
+          case FileBrowserAction::ClearSleepFolder:
+            clearPreferredSleepFolder();
+            return;
+          case FileBrowserAction::DeleteCache:
+          case FileBrowserAction::DeleteStats:
+          case FileBrowserAction::ToggleCompleted:
+          case FileBrowserAction::RemoveFromRecents:
+          case FileBrowserAction::PinFavorite:
+          case FileBrowserAction::UnpinFavorite:
+          case FileBrowserAction::PinBootFavorite:
+          case FileBrowserAction::UnpinBootFavorite:
+          case FileBrowserAction::ViewBookmarks:
+          case FileBrowserAction::ViewClippings:
+          case FileBrowserAction::DeleteBookmarks:
+          case FileBrowserAction::DeleteClippings:
+          case FileBrowserAction::EpubRenderMode:
+          case FileBrowserAction::ResetReaderSettings:
+          case FileBrowserAction::SendNearby:
+            return;
+        }
+      });
 }
 
 void FileBrowserActivity::pinSleepFavorite(const std::string& fullPath) {

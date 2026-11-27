@@ -131,9 +131,9 @@ void HabitTrackerActivity::openMenu() {
     }
     switch (actions[sel->index]) {
       case Stats: {
-        auto stats = makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_HABIT_STATS),
-                                                          &toolstats::buildHabit, names_[selHabit_],
-                                                          statsx::Feature::Habits);
+        auto stats =
+            makeUniqueNoThrow<ToolStatsActivity>(renderer, mappedInput, tr(STR_TOOLS_HABIT_STATS),
+                                                 &toolstats::buildHabit, names_[selHabit_], statsx::Feature::Habits);
         if (stats) {
           startActivityForResult(std::move(stats), [this](const ActivityResult&) {
             input_.reset(mappedInput);

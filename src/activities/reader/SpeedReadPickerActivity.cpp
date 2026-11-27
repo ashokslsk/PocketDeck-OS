@@ -65,12 +65,11 @@ void SpeedReadPickerActivity::render(RenderLock&&) {
                  kannada_ ? tr(STR_SPEED_READ_KANNADA) : tr(STR_SPEED_READ_ENGLISH));
 
   // A rounded card of rows: icon, "125 WPM", what the pace is for.
-  static const freeink::Icon* const kIcons[kMaxPresetCount] = {&icon_book_open_32, &icon_book_32,
-                                                               &icon_zap_32,       &icon_gauge_32,
-                                                               &icon_fast_forward_32, &icon_rocket_32};
-  static constexpr StrId kCaptions[kMaxPresetCount] = {
-      StrId::STR_SPEED_READ_CAREFUL, StrId::STR_SPEED_READ_COMFORTABLE, StrId::STR_SPEED_READ_FLUENT,
-      StrId::STR_SPEED_READ_FAST,    StrId::STR_SPEED_READ_RAPID,       StrId::STR_SPEED_READ_SPRINT};
+  static const freeink::Icon* const kIcons[kMaxPresetCount] = {
+      &icon_book_open_32, &icon_book_32, &icon_zap_32, &icon_gauge_32, &icon_fast_forward_32, &icon_rocket_32};
+  static constexpr StrId kCaptions[kMaxPresetCount] = {StrId::STR_SPEED_READ_CAREFUL, StrId::STR_SPEED_READ_COMFORTABLE,
+                                                       StrId::STR_SPEED_READ_FLUENT,  StrId::STR_SPEED_READ_FAST,
+                                                       StrId::STR_SPEED_READ_RAPID,   StrId::STR_SPEED_READ_SPRINT};
   const int count = presetCount(kannada_);
   const int x = metrics.contentSidePadding;
   const int w = screenW - 2 * metrics.contentSidePadding;

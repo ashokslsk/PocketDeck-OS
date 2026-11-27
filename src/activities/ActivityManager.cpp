@@ -777,9 +777,7 @@ void ActivityManager::goToFullScreenMessage(std::string message, EpdFontFamily::
   replaceActivity(std::make_unique<FullScreenMessageActivity>(renderer, mappedInput, std::move(message), style));
 }
 
-void ActivityManager::goToPoweredOff() {
-  replaceActivity(std::make_unique<PoweredOffActivity>(renderer, mappedInput));
-}
+void ActivityManager::goToPoweredOff() { replaceActivity(std::make_unique<PoweredOffActivity>(renderer, mappedInput)); }
 
 void ActivityManager::goHome(HomeMenuItem initialMenuItem, const HalDisplay::RefreshMode initialRefreshMode) {
   std::string initialBookPath;

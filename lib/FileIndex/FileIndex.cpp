@@ -128,8 +128,7 @@ FileIndex::VerifyStatus FileIndex::verifyStep(const uint32_t budgetMs) {
       if (failed) return VerifyStatus::Changed;  // rebuild through the normal path
       setFingerprint_ = verifySetFp;
       setEntries_ = verifySetCount;
-      const bool same =
-          verifySig == hdr.dirSignature && verifyDirs == hdr.dirCount && verifyFiles == hdr.fileCount;
+      const bool same = verifySig == hdr.dirSignature && verifyDirs == hdr.dirCount && verifyFiles == hdr.fileCount;
       return same ? VerifyStatus::Unchanged : VerifyStatus::Changed;
     }
     file.getName(verifyName.get(), NAME_BUF_SIZE);

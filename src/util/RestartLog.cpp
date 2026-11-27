@@ -56,8 +56,9 @@ void append(const char* event) {
              static_cast<unsigned>(now.hour), static_cast<unsigned>(now.minute));
   }
   char line[192];
-  const int n = snprintf(line, sizeof(line), "%s  %s  free=%uK max=%uK\n", when, event ? event : "?",
-                         static_cast<unsigned>(ESP.getFreeHeap() / 1024), static_cast<unsigned>(ESP.getMaxAllocHeap() / 1024));
+  const int n =
+      snprintf(line, sizeof(line), "%s  %s  free=%uK max=%uK\n", when, event ? event : "?",
+               static_cast<unsigned>(ESP.getFreeHeap() / 1024), static_cast<unsigned>(ESP.getMaxAllocHeap() / 1024));
   if (n <= 0) return;
   trimIfLarge();
   HalFile file = Storage.open(kPath, O_WRITE | O_CREAT | O_APPEND);

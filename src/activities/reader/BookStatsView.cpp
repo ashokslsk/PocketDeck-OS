@@ -1188,8 +1188,8 @@ void renderNoRtcCombinedStatsPage(GfxRenderer& renderer, const MappedInputManage
                                   const std::string& bookTitle, const BookReadingStats& bookStats,
                                   const float progressPercent, const bool hasEstimatedTimeLeft,
                                   const uint32_t estimatedTimeLeftSeconds, const GlobalReadingStats& deviceStats,
-                                  const GlobalReadingStats* allDevicesStats, const bool showButtonHints, const uint32_t bookPagesDone,
-                                  const uint32_t bookPagesTotal) {
+                                  const GlobalReadingStats* allDevicesStats, const bool showButtonHints,
+                                  const uint32_t bookPagesDone, const uint32_t bookPagesTotal) {
   renderer.clearScreen();
   const auto& metrics = UITheme::getInstance().getMetrics();
   const auto& layout = getNoRtcCombinedLayout(renderer, mappedInput, showButtonHints, allDevicesStats != nullptr);

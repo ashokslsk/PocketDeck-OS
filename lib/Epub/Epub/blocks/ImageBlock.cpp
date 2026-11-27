@@ -1,8 +1,7 @@
 #include "ImageBlock.h"
 
-#include <FsHelpers.h>
-
 #include <FontCacheManager.h>
+#include <FsHelpers.h>
 #include <GfxRenderer.h>
 #include <Logging.h>
 #include <Memory.h>

@@ -9,13 +9,13 @@
 
 #include "../reader/EpubReaderBookmarkListActivity.h"
 #include "../reader/EpubReaderClippingListActivity.h"
-#include "SavedCardsActivity.h"
 #include "BookActions.h"
 #include "BookmarkStore.h"
 #include "ClippingStore.h"
 #include "CrossPointState.h"
 #include "FileBrowserActionActivity.h"
 #include "MappedInputManager.h"
+#include "SavedCardsActivity.h"
 #include "activities/reader/KannadaReading.h"
 #include "activities/util/ConfirmationActivity.h"
 #include "components/CompactHeader.h"
@@ -265,9 +265,7 @@ void SavedItemsHomeActivity::openSavedItems(const int bookIndex) {
   openCards(bookIndex);
 }
 
-void SavedItemsHomeActivity::openResurface() {
-  openCards(-1);
-}
+void SavedItemsHomeActivity::openResurface() { openCards(-1); }
 
 void SavedItemsHomeActivity::openCards(const int bookIndex) {
   const bool resurface = bookIndex < 0;

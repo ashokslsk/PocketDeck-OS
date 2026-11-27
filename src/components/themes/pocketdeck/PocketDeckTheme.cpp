@@ -1,5 +1,6 @@
 #include "PocketDeckTheme.h"
 
+#include <Arduino.h>
 #include <FsHelpers.h>
 #include <GfxRenderer.h>
 #include <HalClock.h>
@@ -7,8 +8,6 @@
 #include <HalPowerManager.h>
 #include <HalStorage.h>
 #include <I18n.h>
-
-#include <Arduino.h>
 
 #include <algorithm>
 #include <climits>
@@ -37,12 +36,12 @@
 #include "network/WifiUtils.h"
 
 namespace {
-constexpr int kPad = 12;      // screen edge to card
-constexpr int kInset = 12;    // card edge to content
-constexpr int kChamfer = 14;  // card corner cut
-constexpr int kCardGap = 10;  // between cards
-constexpr int kNowH = 268;    // Now Reading card
-constexpr int kStatsH = 142;  // Reading Stats card
+constexpr int kPad = 12;          // screen edge to card
+constexpr int kInset = 12;        // card edge to content
+constexpr int kChamfer = 14;      // card corner cut
+constexpr int kCardGap = 10;      // between cards
+constexpr int kNowH = 268;        // Now Reading card
+constexpr int kStatsH = 142;      // Reading Stats card
 constexpr int kRecentSlots = 4;   // covers plus the View All Recents tile
 constexpr int kRecentCovers = 3;  // == homeRecentBooksCount
 constexpr int kRecentH = 164;     // Recent Books card
@@ -51,7 +50,7 @@ constexpr int kRecentTopPad = 8;  // heading to covers
 constexpr int kRecentFootH = 26;  // progress row under the covers
 constexpr int kSideW = 84;        // side menu column (Home Menu: Side)
 constexpr int kSideItemW = 80;
-constexpr int kSideReadH = 100;   // pitch of the side items, Read first
+constexpr int kSideReadH = 100;  // pitch of the side items, Read first
 
 bool sideMenu() { return SETTINGS.homeMenuLayout == CrossPointSettings::HOME_MENU_SIDE; }
 
@@ -596,7 +595,8 @@ uint32_t pocketDeckCardsKey(const GfxRenderer& renderer, const std::vector<Recen
     k.value(RecentBookProgress::loadPercent(b));
     if (!b.coverBmpPath.empty()) {
       // A thumbnail appearing replaces the placeholder.
-      k.value(Storage.exists(UITheme::getCoverThumbPath(b.coverBmpPath, PocketDeckMetrics::kRecentCoverHeight).c_str()));
+      k.value(
+          Storage.exists(UITheme::getCoverThumbPath(b.coverBmpPath, PocketDeckMetrics::kRecentCoverHeight).c_str()));
       if (i == 0) {
         k.value(Storage.exists(
             UITheme::getCoverThumbPath(b.coverBmpPath, PocketDeckMetrics::values.homeCoverHeight).c_str()));
@@ -728,8 +728,7 @@ void PocketDeckTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect rect
              sRecentAboveTenCount);
     const int headX = x + kInset + 34;
     const int headY = recentY + 6 + (32 - renderer.getLineHeight(UI_12_FONT_ID)) / 2;
-    const int afterHead =
-        headX + renderer.getTextWidth(UI_12_FONT_ID, tr(STR_MENU_RECENT_BOOKS), EpdFontFamily::BOLD);
+    const int afterHead = headX + renderer.getTextWidth(UI_12_FONT_ID, tr(STR_MENU_RECENT_BOOKS), EpdFontFamily::BOLD);
     const int space = renderer.getTextWidth(UI_12_FONT_ID, "n");
     const char* dash = "\xE2\x80\x93";  // en dash
     const int dashX = afterHead + space;
@@ -877,7 +876,8 @@ void PocketDeckTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, con
                                  : icon == UIIcon::Settings ? &icon_cog_32
                                                             : iconForName(icon, 32);
       if (bmp == nullptr) bmp = iconForName(UIIcon::Book, 32);
-      if (bmp != nullptr) drawLucideIcon(renderer, *bmp, cx + (cellW - 32) / 2, cy + (ch - 32 - 4 - labelH) / 2, !selected);
+      if (bmp != nullptr)
+        drawLucideIcon(renderer, *bmp, cx + (cellW - 32) / 2, cy + (ch - 32 - 4 - labelH) / 2, !selected);
     }
     const char* label = tabLabel(i);
     const std::string text = renderer.truncatedText(labelFont, label ? label : "", bw - 16);
@@ -993,7 +993,7 @@ bool pocketDeckRecentCountStep() {
   }
   const RecentBook& book = c.page[c.next++];
   const float pct = FsHelpers::hasEpubExtension(book.path) ? RecentBookProgress::loadCachedEpubPercent(book)
-                                                            : RecentBookProgress::loadPercent(book);
+                                                           : RecentBookProgress::loadPercent(book);
   if (RecentBookProgress::hasPercent(pct) && pct > 10.0f) ++c.count;
   return false;
 }
@@ -1150,8 +1150,8 @@ void PocketDeckTheme::drawButtonHints(GfxRenderer& renderer, const char* btn1, c
     const int x = pos[i];
     if (labels[i] == nullptr) continue;
     // Clear the full slot first so an old label never shows through a stub.
-    renderer.fillRect(x, pageHeight - LyraMetrics::values.buttonHintsHeight, kW,
-                      LyraMetrics::values.buttonHintsHeight, false);
+    renderer.fillRect(x, pageHeight - LyraMetrics::values.buttonHintsHeight, kW, LyraMetrics::values.buttonHintsHeight,
+                      false);
     if (labels[i][0] != '\0') {
       TouchRegistry::getInstance().add(Rect{x, top, kW, kH}, i, TouchRegistry::Button);
       drawChamfer(renderer, x, top, kW, kH, kCut, 2);
@@ -1168,10 +1168,14 @@ void PocketDeckTheme::drawButtonHints(GfxRenderer& renderer, const char* btn1, c
     const int x = pos[invertText ? 3 - i : i];
     // A small mark for the common actions.
     enum class Mark { None, Read, Select, Up, Down } mark = Mark::None;
-    if (strcmp(labels[i], tr(STR_READ)) == 0) mark = Mark::Read;
-    else if (strcmp(labels[i], tr(STR_SELECT)) == 0) mark = Mark::Select;
-    else if (strcmp(labels[i], tr(STR_DIR_UP)) == 0) mark = Mark::Up;
-    else if (strcmp(labels[i], tr(STR_DIR_DOWN)) == 0) mark = Mark::Down;
+    if (strcmp(labels[i], tr(STR_READ)) == 0)
+      mark = Mark::Read;
+    else if (strcmp(labels[i], tr(STR_SELECT)) == 0)
+      mark = Mark::Select;
+    else if (strcmp(labels[i], tr(STR_DIR_UP)) == 0)
+      mark = Mark::Up;
+    else if (strcmp(labels[i], tr(STR_DIR_DOWN)) == 0)
+      mark = Mark::Down;
     // Icon width plus gap; the Select check and the arrows are narrower than the book.
     int markW = mark == Mark::None ? 0 : (mark == Mark::Read ? 16 + 4 : (mark == Mark::Select ? 10 + 4 : 12 + 6));
     // Keep at least 8 px clear on each side; a label too wide for its mark drops it.

@@ -43,7 +43,7 @@ class PrepareLibraryActivity final : public Activity {
     uint8_t retries = 0;
     uint32_t fingerprint = 0;  // FsHelpers::entryHash sum, for Explorer's folder mark
     uint32_t entries = 0;
-    bool readError = false;    // gave up on part of this folder: no mark
+    bool readError = false;  // gave up on part of this folder: no mark
   };
   // A failed directory read (low memory or a card error) looks like the end of
   // the folder; reopen it and skip back to where the walk was instead.
@@ -52,11 +52,11 @@ class PrepareLibraryActivity final : public Activity {
   // Batches: a short pause after every kBatchSize books, and before each book
   // a free-memory check that waits (up to a limit) for the heap to recover.
   static constexpr uint32_t kBatchSize = 20;
-  bool pendingBook_ = false;     // bookPath_ found, waiting to be prepared
+  bool pendingBook_ = false;  // bookPath_ found, waiting to be prepared
   uint32_t inBatch_ = 0;
   uint8_t memoryWaits_ = 0;
   unsigned long pauseUntilMs_ = 0;
-  std::string currentTitle_;     // shown on screen: title of the book in hand
+  std::string currentTitle_;  // shown on screen: title of the book in hand
 
   // /.pocketdeck-os/prepare-report.txt: one run's summary plus a line per
   // problem (unreadable book, folder read error, early end) with the memory

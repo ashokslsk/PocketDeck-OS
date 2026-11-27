@@ -29,7 +29,6 @@
 #include "../settings/DictionarySelectActivity.h"
 #include "../settings/KOReaderSettingsActivity.h"
 #include "BookInfoActivity.h"
-#include "util/RestartLog.h"
 #include "BookStatsActivity.h"
 #include "ClipSelectionActivity.h"
 #include "ClippingStore.h"
@@ -37,15 +36,16 @@
 #include "CrossPointState.h"
 #include "DictionaryWordSelectActivity.h"
 #include "EpubGrayscale.h"
-#include "activities/home/HomeActivity.h"
-#include "util/PrepareEta.h"
-#include "util/PreparedMarks.h"
-#include "activities/tools/KannadaText.h"
 #include "EpubReaderBookmarkListActivity.h"
 #include "EpubReaderChapterSelectionActivity.h"
 #include "EpubReaderClippingListActivity.h"
 #include "EpubReaderFootnotesActivity.h"
 #include "ReadingDayLog.h"
+#include "activities/home/HomeActivity.h"
+#include "activities/tools/KannadaText.h"
+#include "util/PrepareEta.h"
+#include "util/PreparedMarks.h"
+#include "util/RestartLog.h"
 #if CROSSINK_APP_CAP_TOUCH
 #include "EpubReaderTouchMenuActivity.h"
 #endif
@@ -2768,8 +2768,8 @@ void EpubReaderActivity::logSessionHeap() {
   if (lifetimeMin < sessionLifetimeMinAtStart_) sessionMinFree_ = std::min(sessionMinFree_, lifetimeMin);
   char event[96];
   const std::string title = epub ? epub->getTitle().substr(0, 32) : std::string("?");
-  snprintf(event, sizeof(event), "session %lu min \"%s\": lowest free=%uK, smallest block=%uK", minutes,
-           title.c_str(), static_cast<unsigned>(sessionMinFree_ / 1024), static_cast<unsigned>(sessionMinBlock_ / 1024));
+  snprintf(event, sizeof(event), "session %lu min \"%s\": lowest free=%uK, smallest block=%uK", minutes, title.c_str(),
+           static_cast<unsigned>(sessionMinFree_ / 1024), static_cast<unsigned>(sessionMinBlock_ / 1024));
   RestartLog::append(event);
 }
 
@@ -2786,9 +2786,8 @@ void EpubReaderActivity::loop() {
       // passes would otherwise be missed. The build checks the flag on every
       // parse step, so it ends within moments.
       using Btn = MappedInputManager::Button;
-      if (mappedInput.isPressed(Btn::Back) || mappedInput.wasPressed(Btn::Back) ||
-          mappedInput.wasReleased(Btn::Back) || mappedInput.isPressed(Btn::Confirm) ||
-          mappedInput.wasPressed(Btn::Confirm)) {
+      if (mappedInput.isPressed(Btn::Back) || mappedInput.wasPressed(Btn::Back) || mappedInput.wasReleased(Btn::Back) ||
+          mappedInput.isPressed(Btn::Confirm) || mappedInput.wasPressed(Btn::Confirm)) {
         prepareBookCancel.store(true, std::memory_order_relaxed);
       }
       requestUpdate();  // the next chapter (render() does one per pass)
@@ -4075,9 +4074,8 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
         uint32_t extra = sessionReadingSeconds;
         uint32_t currentPageSeconds = 0;
         if (currentPageReadingSecondsForStats(currentPageSeconds, "book_info_preview")) extra += currentPageSeconds;
-        data->stats.totalReadingSeconds = data->stats.totalReadingSeconds > UINT32_MAX - extra
-                                              ? UINT32_MAX
-                                              : data->stats.totalReadingSeconds + extra;
+        data->stats.totalReadingSeconds =
+            data->stats.totalReadingSeconds > UINT32_MAX - extra ? UINT32_MAX : data->stats.totalReadingSeconds + extra;
       }
       data->hasTimeLeft = estimateTimeLeftSeconds(true, data->timeLeftSeconds);
       bookPagePosition(data->pagesDone, data->pagesTotal);
@@ -4089,13 +4087,13 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
       }
       pauseReadingPaceTimer("book_info");
       startActivityForResult(std::move(info), [this, returnToReaderMenu](const ActivityResult&) {
-                               resumeReadingPaceTimer("book_info_return");
-                               if (returnToReaderMenu) {
-                                 openReaderMenu();
-                               } else {
-                                 requestUpdate();
-                               }
-                             });
+        resumeReadingPaceTimer("book_info_return");
+        if (returnToReaderMenu) {
+          openReaderMenu();
+        } else {
+          requestUpdate();
+        }
+      });
       break;
     }
     case EpubReaderMenuActivity::MenuAction::READING_STATS: {
@@ -4122,12 +4120,11 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
       auto statsActivity =
           hasSyncedStats
               ? std::make_unique<BookStatsActivity>(renderer, mappedInput, epub->getTitle(), epub->getCachePath(),
-                                                    displayStats, getCurrentBookProgressPercent(),
-                                                    hasEstimatedTimeLeft, estimatedTimeLeftSeconds, globalStats,
-                                                    displayAllDevicesStats)
+                                                    displayStats, getCurrentBookProgressPercent(), hasEstimatedTimeLeft,
+                                                    estimatedTimeLeftSeconds, globalStats, displayAllDevicesStats)
               : std::make_unique<BookStatsActivity>(renderer, mappedInput, epub->getTitle(), epub->getCachePath(),
-                                                    displayStats, getCurrentBookProgressPercent(),
-                                                    hasEstimatedTimeLeft, estimatedTimeLeftSeconds, globalStats);
+                                                    displayStats, getCurrentBookProgressPercent(), hasEstimatedTimeLeft,
+                                                    estimatedTimeLeftSeconds, globalStats);
       uint32_t bookPage = 0;
       uint32_t bookPageCount = 0;
       if (bookPagePosition(bookPage, bookPageCount)) statsActivity->setBookPages(bookPage, bookPageCount);
@@ -6202,38 +6199,38 @@ void EpubReaderActivity::openSpeedReadLookup() {
     }
     words.reserve(16);
     std::string pending;  // first half of a word split by an inserted hyphen
-    forEachVisiblePageWord(*page, [&](const uint16_t pageWordIndex, const PageTextLine&, const TextBlock& block,
-                                      const size_t i) {
-      if (pageWordIndex < firstWord) return true;
-      if (pageWordIndex >= endWord && pending.empty()) return false;
-      const auto wordIndex = static_cast<uint16_t>(i);
-      const char* raw = block.wordText(wordIndex);
-      std::string text = pending + (raw + (hasEmSpacePrefix(raw) ? 3 : 0));
-      pending.clear();
-      if (block.wordEndsWithInsertedHyphen(wordIndex)) {
-        if (!text.empty() && text.back() == '-') text.pop_back();
-        pending = std::move(text);
-        return true;
-      }
-      const std::string clean = Dictionary::cleanWord(text);
-      bool hasLetter = false;
-      for (const char c : clean) {
-        const auto u = static_cast<unsigned char>(c);
-        if (u >= 0x80 || std::isalpha(u)) {
-          hasLetter = true;
-          break;
-        }
-      }
-      if (!hasLetter) return true;
-      const bool seen = std::any_of(words.begin(), words.end(), [&](const std::string& w) {
-        return strcasecmp(w.c_str(), clean.c_str()) == 0;
-      });
-      if (!seen) {
-        if (pageWordIndex < currentFirst) initial = static_cast<int>(words.size()) + 1;
-        words.push_back(clean);
-      }
-      return pageWordIndex + 1 < endWord || !pending.empty();
-    });
+    forEachVisiblePageWord(
+        *page, [&](const uint16_t pageWordIndex, const PageTextLine&, const TextBlock& block, const size_t i) {
+          if (pageWordIndex < firstWord) return true;
+          if (pageWordIndex >= endWord && pending.empty()) return false;
+          const auto wordIndex = static_cast<uint16_t>(i);
+          const char* raw = block.wordText(wordIndex);
+          std::string text = pending + (raw + (hasEmSpacePrefix(raw) ? 3 : 0));
+          pending.clear();
+          if (block.wordEndsWithInsertedHyphen(wordIndex)) {
+            if (!text.empty() && text.back() == '-') text.pop_back();
+            pending = std::move(text);
+            return true;
+          }
+          const std::string clean = Dictionary::cleanWord(text);
+          bool hasLetter = false;
+          for (const char c : clean) {
+            const auto u = static_cast<unsigned char>(c);
+            if (u >= 0x80 || std::isalpha(u)) {
+              hasLetter = true;
+              break;
+            }
+          }
+          if (!hasLetter) return true;
+          const bool seen = std::any_of(words.begin(), words.end(), [&](const std::string& w) {
+            return strcasecmp(w.c_str(), clean.c_str()) == 0;
+          });
+          if (!seen) {
+            if (pageWordIndex < currentFirst) initial = static_cast<int>(words.size()) + 1;
+            words.push_back(clean);
+          }
+          return pageWordIndex + 1 < endWord || !pending.empty();
+        });
   }
   if (words.empty()) return;
   initial = std::min(initial, static_cast<int>(words.size()) - 1);  // first word of the current phrase
@@ -6891,7 +6888,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
         if (buildSucceeded) {
           activeSectionFontId = fontId;
           activeSectionLayoutSignature = readerRenderSpecSignature(spec);
-      PreparedMarks::writeLayoutSignature(epub->getCachePath(), activeSectionLayoutSignature);
+          PreparedMarks::writeLayoutSignature(epub->getCachePath(), activeSectionLayoutSignature);
           usedRenderMode = profile.renderMode;
           safeModeBuildSucceeded = profile.safeMode;
           LOG_DBG("ERS",
@@ -7744,7 +7741,8 @@ void EpubReaderActivity::drawPrepareBookScreen() {
       snprintf(line, sizeof(line), tr(STR_PREPARE_DONE_FORMAT), total);
     }
     drawLine(line, true);
-    snprintf(line, sizeof(line), prepareCancelled ? tr(STR_PREPARE_PAGES_SO_FAR_FORMAT) : tr(STR_PREPARE_PAGES_TOTAL_FORMAT),
+    snprintf(line, sizeof(line),
+             prepareCancelled ? tr(STR_PREPARE_PAGES_SO_FAR_FORMAT) : tr(STR_PREPARE_PAGES_TOTAL_FORMAT),
              static_cast<unsigned>(preparePages));
     drawLine(line, false);
     if (prepareFailed > 0) {
@@ -7759,7 +7757,8 @@ void EpubReaderActivity::drawPrepareBookScreen() {
     drawLine(line, true);
     snprintf(line, sizeof(line), tr(STR_PREPARE_PAGES_SO_FAR_FORMAT), static_cast<unsigned>(preparePages));
     drawLine(line, false);
-    snprintf(line, sizeof(line), tr(STR_PREPARE_ELAPSED_FORMAT), PrepareEta::duration(millis() - prepareStartMs).c_str());
+    snprintf(line, sizeof(line), tr(STR_PREPARE_ELAPSED_FORMAT),
+             PrepareEta::duration(millis() - prepareStartMs).c_str());
     drawLine(line, false);
     if (prepareBuiltCount > 0) {
       // Rough: the average build so far times the chapters still unchecked.
@@ -7783,7 +7782,8 @@ void EpubReaderActivity::drawPrepareBookScreen() {
     const uint32_t heapTotal = std::max<uint32_t>(1, ESP.getHeapSize());
     const uint32_t heapUsed = heapTotal > heap.freeHeap ? heapTotal - heap.freeHeap : 0;
     const auto usedPct = static_cast<unsigned>(heapUsed * 100ULL / heapTotal);
-    snprintf(line, sizeof(line), tr(STR_PREPARE_MEMORY_FORMAT), usedPct, static_cast<unsigned>(heap.maxAllocHeap / 1024));
+    snprintf(line, sizeof(line), tr(STR_PREPARE_MEMORY_FORMAT), usedPct,
+             static_cast<unsigned>(heap.maxAllocHeap / 1024));
     drawLine(line, false);
     constexpr int kRamBarH = 8;
     renderer.drawRoundedRect(x, y - 4, w, kRamBarH, 1, kRamBarH / 2, true);
@@ -8732,8 +8732,8 @@ void EpubReaderActivity::renderStatusBar() const {
 
   if (publisherPageLabel[0] != '\0' && !activeFootnotePreview) {
     // "p. 143 · Chapter" — the print edition's page leads the title slot.
-    title = title.empty() ? std::string(publisherPageLabel)
-                          : std::string(publisherPageLabel) + " \xc2\xb7\xc2\xa0" + title;
+    title =
+        title.empty() ? std::string(publisherPageLabel) : std::string(publisherPageLabel) + " \xc2\xb7\xc2\xa0" + title;
   }
 
   if (speedReadActive && !automaticPageTurnActive) {

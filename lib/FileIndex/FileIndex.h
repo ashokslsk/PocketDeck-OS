@@ -75,8 +75,7 @@ class FileIndex {
   struct BuildState;
 
   bool scanDirectory(const char* dirPath, AcceptFn accept, uint32_t& signature, uint32_t& dirs, uint32_t& files);
-  bool loadExisting(const char* dirPath, uint32_t signature, uint32_t dirs, uint32_t files,
-                    bool checkSignature = true);
+  bool loadExisting(const char* dirPath, uint32_t signature, uint32_t dirs, uint32_t files, bool checkSignature = true);
   bool build(const char* dirPath, AcceptFn accept, uint32_t signature, uint32_t dirs, uint32_t files);
   bool flushChunk(BuildState& bs);
   bool mergeRuns(BuildState& bs, uint32_t recordCount);

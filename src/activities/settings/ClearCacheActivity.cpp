@@ -1,32 +1,31 @@
 #include "ClearCacheActivity.h"
 
+#include <Arduino.h>
+#include <Epub.h>
 #include <FsHelpers.h>
-
 #include <GfxRenderer.h>
 #include <HalStorage.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <Txt.h>
+#include <Xtc.h>
 
 #include <algorithm>
-#include <vector>
-#include <utility>
-#include <string>
+#include <cstdio>
 #include <cstring>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "MappedInputManager.h"
+#include "RecentBooksStore.h"
+#include "activities/home/BookActions.h"
 #include "components/TouchActionButtons.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 #include "util/BookCacheUtils.h"
 #include "util/PreparedMarks.h"
-#include "activities/home/BookActions.h"
-#include "RecentBooksStore.h"
-#include <Epub.h>
-#include <Txt.h>
-#include <Xtc.h>
-#include <Arduino.h>
-#include <cstdio>
 
 namespace {
 
@@ -131,8 +130,8 @@ void ClearCacheActivity::render(RenderLock&&) {
   }
 
   if (state == SUCCESS) {
-    renderer.drawCenteredText(UI_10_FONT_ID, pageHeight / 2 - 20, stopped ? tr(STR_PREPARE_STOPPED) : tr(STR_CACHE_CLEARED),
-                              true, EpdFontFamily::BOLD);
+    renderer.drawCenteredText(UI_10_FONT_ID, pageHeight / 2 - 20,
+                              stopped ? tr(STR_PREPARE_STOPPED) : tr(STR_CACHE_CLEARED), true, EpdFontFamily::BOLD);
     std::string resultText = std::to_string(clearedCount) + " " + std::string(tr(STR_ITEMS_REMOVED));
     if (failedCount > 0) {
       resultText += ", " + std::to_string(failedCount) + " " + std::string(tr(STR_FAILED_LOWER));
@@ -159,8 +158,8 @@ namespace {
 // else there (progress.bin, stats, reader settings, lookup history) is kept.
 bool isRebuildableBookCacheEntry(const char* name, const bool isDir) {
   if (isDir) return strcmp(name, "sections") == 0 || strcmp(name, "html") == 0;
-  static const char* const kFiles[] = {"book.bin", "css_rules.cache", "kannada.flag", ".tmp.css", "prepared.sig",
-                                       "layout.sig"};
+  static const char* const kFiles[] = {"book.bin", "css_rules.cache", "kannada.flag",
+                                       ".tmp.css", "prepared.sig",    "layout.sig"};
   for (const char* file : kFiles) {
     if (strcmp(name, file) == 0) return true;
   }

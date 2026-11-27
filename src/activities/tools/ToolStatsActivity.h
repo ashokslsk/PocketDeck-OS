@@ -49,8 +49,8 @@ using BuildFn = void (*)(Page& page, int32_t today, const void* ctx);
 
 class ToolStatsActivity final : public Activity {
  public:
-  ToolStatsActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, const char* title,
-                    toolstats::BuildFn build, const void* ctx, statsx::Feature feature, bool keepAwake = false)
+  ToolStatsActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, const char* title, toolstats::BuildFn build,
+                    const void* ctx, statsx::Feature feature, bool keepAwake = false)
       : Activity("ToolStats", renderer, mappedInput),
         title_(title),
         build_(build),

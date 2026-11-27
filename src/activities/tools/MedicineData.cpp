@@ -220,7 +220,7 @@ int load(Course (&courses)[kMaxCourses]) {
     c.days = static_cast<uint16_t>(std::clamp(atoi(days), 1, kMaxDays));
     if (stopped != nullptr && stopped[0] != '-' && !tools::parseIsoDate(stopped, c.stopped)) c.stopped = 0;
     if (food != nullptr) {
-      c.food = strncmp(food, "before", 6) == 0 ? FoodBefore
+      c.food = strncmp(food, "before", 6) == 0  ? FoodBefore
                : strncmp(food, "after", 5) == 0 ? FoodAfter
                : strncmp(food, "with", 4) == 0  ? FoodWith
                                                 : FoodAny;

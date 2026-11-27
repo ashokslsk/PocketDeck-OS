@@ -1,11 +1,10 @@
 #include "FileInfoActivity.h"
 
+#include <Arduino.h>
 #include <FsHelpers.h>
 #include <GfxRenderer.h>
 #include <I18n.h>
 #include <Logging.h>
-
-#include <Arduino.h>
 
 #include <algorithm>
 #include <cctype>
@@ -65,7 +64,7 @@ void FileInfoActivity::findReadingNow() {
   // The newest few recents are in RAM; EPUBs use their cached percentage.
   for (const RecentBook& book : RECENT_BOOKS.getBooks()) {
     const float pct = FsHelpers::hasEpubExtension(book.path) ? RecentBookProgress::loadCachedEpubPercent(book)
-                                                              : RecentBookProgress::loadPercent(book);
+                                                             : RecentBookProgress::loadPercent(book);
     if (!RecentBookProgress::hasPercent(pct) || pct <= 5.0f || pct >= 100.0f) continue;
     if (BookActions::isBookCompleted(book.path)) continue;
     char pctText[8];

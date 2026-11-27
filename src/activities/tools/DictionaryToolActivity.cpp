@@ -1,12 +1,11 @@
 #include "DictionaryToolActivity.h"
 
+#include <Arduino.h>
 #include <GfxRenderer.h>
 #include <HalStorage.h>
 #include <I18n.h>
 #include <Logging.h>
 #include <Memory.h>
-
-#include <Arduino.h>
 
 #include <algorithm>
 #include <cstdlib>

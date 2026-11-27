@@ -158,9 +158,9 @@ size_t foldForSearch(const uint32_t cp, char* out) {
   }
   // Latin-1 letters to their base letter, lower case (× and ÷ stay as they are).
   static constexpr char kLatin1[] =
-      "aaaaaaaceeeeiiii"   // C0-CF
-      "dnooooo\0ouuuuyts"  // D0-DF
-      "aaaaaaaceeeeiiii"   // E0-EF
+      "aaaaaaaceeeeiiii"    // C0-CF
+      "dnooooo\0ouuuuyts"   // D0-DF
+      "aaaaaaaceeeeiiii"    // E0-EF
       "dnooooo\0ouuuuyty";  // F0-FF
   if (cp >= 0xC0 && cp <= 0xFF && kLatin1[cp - 0xC0] != '\0') {
     out[0] = kLatin1[cp - 0xC0];
@@ -334,10 +334,10 @@ class SearchSink final : public Print {
       const char* name;
       uint32_t cp;
     };
-    static constexpr Named kNamed[] = {{"amp", '&'},       {"lt", '<'},         {"gt", '>'},        {"quot", '"'},
-                                       {"apos", '\''},     {"nbsp", 0xA0},      {"shy", 0xAD},      {"rsquo", 0x2019},
-                                       {"lsquo", 0x2018},  {"rdquo", 0x201D},   {"ldquo", 0x201C},  {"mdash", 0x2014},
-                                       {"ndash", 0x2013},  {"hellip", 0x2026}};
+    static constexpr Named kNamed[] = {{"amp", '&'},      {"lt", '<'},       {"gt", '>'},       {"quot", '"'},
+                                       {"apos", '\''},    {"nbsp", 0xA0},    {"shy", 0xAD},     {"rsquo", 0x2019},
+                                       {"lsquo", 0x2018}, {"rdquo", 0x201D}, {"ldquo", 0x201C}, {"mdash", 0x2014},
+                                       {"ndash", 0x2013}, {"hellip", 0x2026}};
     uint32_t cp = 0;
     if (entity_[0] == '#') {
       const bool hex = entity_[1] == 'x' || entity_[1] == 'X';

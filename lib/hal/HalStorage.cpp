@@ -1,16 +1,15 @@
 #define HAL_STORAGE_IMPL
 #include "HalStorage.h"
 
-#include <string>
-
-#include <cstring>
-
 #include <Arduino.h>
 #include <FS.h>  // need to be included before SdFat.h for compatibility with FS.h's File class
 #include <HalClock.h>
 #include <Logging.h>
 #include <Memory.h>
 #include <SDCardManager.h>
+
+#include <cstring>
+#include <string>
 #if FREEINK_CAP_USB_MSC
 #include <UsbMassStorage.h>
 #endif
@@ -319,8 +318,8 @@ bool HalStorage::describeVolume(char* fsType, const size_t fsTypeSize, char* lab
   // A partitioned card starts with an MBR; the volume's boot sector is at the
   // first partition's start. A "superfloppy" card has the boot sector at 0.
   uint32_t vbr = 0;
-  const bool isBootSector = memcmp(sector.get() + 3, "EXFAT   ", 8) == 0 || memcmp(sector.get() + 0x52, "FAT32", 5) == 0 ||
-                            memcmp(sector.get() + 0x36, "FAT", 3) == 0;
+  const bool isBootSector = memcmp(sector.get() + 3, "EXFAT   ", 8) == 0 ||
+                            memcmp(sector.get() + 0x52, "FAT32", 5) == 0 || memcmp(sector.get() + 0x36, "FAT", 3) == 0;
   if (!isBootSector) {
     vbr = le32(sector.get() + 0x1BE + 8);
     if (vbr == 0 || !dev->readSector(vbr, sector.get())) {

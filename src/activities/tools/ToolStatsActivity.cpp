@@ -60,8 +60,7 @@ void ToolStatsActivity::render(RenderLock&&) {
   if (!page_.clockValid) {
     renderer.drawCenteredText(UI_12_FONT_ID, content.y + content.height / 2 - 20, tr(STR_TOOLS_CLOCK_NOT_SET), true,
                               EpdFontFamily::BOLD);
-    renderer.drawCenteredText(UI_10_FONT_ID, content.y + content.height / 2 + 10,
-                              tr(STR_TOOLS_SYNC_FROM_WORLD_CLOCK));
+    renderer.drawCenteredText(UI_10_FONT_ID, content.y + content.height / 2 + 10, tr(STR_TOOLS_SYNC_FROM_WORLD_CLOCK));
     tools::drawHints(renderer, mappedInput, tr(STR_BACK), "", "", "");
     renderer.displayBuffer(tools::transitionRefresh());
     transitionPending_ = false;
@@ -79,7 +78,8 @@ void ToolStatsActivity::render(RenderLock&&) {
     const int chartH = std::min(220, (avail - 10 * (chartCount - 1)) / chartCount);
     for (const auto& c : page_.charts) {
       if (c.kind == toolstats::Chart::Kind::None) continue;
-      const Rect plot = charts::drawPanel(renderer, Rect{content.x, y, content.width, chartH}, c.title, c.left, c.right);
+      const Rect plot =
+          charts::drawPanel(renderer, Rect{content.x, y, content.width, chartH}, c.title, c.left, c.right);
       switch (c.kind) {
         case toolstats::Chart::Kind::Line:
           charts::lineChart(renderer, plot, c.values, c.n, c.minV, c.maxV, c.yTop[0] ? c.yTop : nullptr,

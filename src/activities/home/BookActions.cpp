@@ -1,7 +1,5 @@
 #include "BookActions.h"
 
-#include <Txt.h>
-
 #include <Epub.h>
 #include <Epub/EpubRenderMode.h>
 #include <FsHelpers.h>
@@ -9,6 +7,7 @@
 #include <HalStorage.h>
 #include <I18n.h>
 #include <Logging.h>
+#include <Txt.h>
 #include <Xtc.h>
 
 #include <cstdio>

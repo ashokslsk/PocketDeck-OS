@@ -31,7 +31,7 @@ struct Course {
   int32_t start = 0;                                   // first day (tools day number)
   int32_t stopped = 0;                                 // 0 = not stopped early, else the stop day
   int16_t slotMinute[kMaxDoses] = {};                  // planned time of each dose
-  uint8_t food = 0;  // FoodAny, FoodBefore, FoodAfter or FoodWith
+  uint8_t food = 0;                                    // FoodAny, FoodBefore, FoodAfter or FoodWith
   uint8_t taken[(kMaxDays * kMaxDoses + 7) / 8] = {};  // day-major bits
 
   int32_t lastDay() const { return start + days - 1; }
