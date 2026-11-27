@@ -14,6 +14,7 @@ struct Puzzle {
 
 constexpr int kPuzzleCount = 240;
 
+// clang-format off
 static const Puzzle kPuzzles[kPuzzleCount] = {
     {{'S', 'L', 'I', 'P', 'O', 'V', 'E', 'N', 'B', 'A', 'L', 'L', 'M', 'I', 'L', 'D'}, 0x574383ABu},  // slip oven ball mild
     {{'H', 'I', 'L', 'L', 'G', 'O', 'L', 'D', 'T', 'A', 'S', 'K', 'W', 'R', 'A', 'P'}, 0x571B0B2Bu},  // hill gold task wrap
@@ -298,5 +299,6 @@ static const char kWords[] =
     "WAVEWEAKWEARWEEKWELLWENTWEREWESTWHATWHENWHOMWIDEWIFEWILDWILLWIND"
     "WINEWINGWIREWISEWISHWITHWOLFWOODWOOLWORDWOREWORKWORMWRAPYARDYARN"
     "YEARYELLYOURZEROZONEZOOM";
+// clang-format on
 
 }  // namespace wordtetris

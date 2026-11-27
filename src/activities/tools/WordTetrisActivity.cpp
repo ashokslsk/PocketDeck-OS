@@ -17,8 +17,8 @@
 constexpr char WordTetrisActivity::kStatePath[];
 
 namespace {
-constexpr int kBorder = 3;               // piece outline width in pixels
-constexpr int kMarkMargin = 30;          // room right of the board for row marks
+constexpr int kBorder = 3;       // piece outline width in pixels
+constexpr int kMarkMargin = 30;  // room right of the board for row marks
 constexpr int kFastRefreshesBeforeClean = 30;
 
 // Draws `text` centred in a square cell. drawText() takes the top of the line
@@ -72,8 +72,7 @@ void WordTetrisActivity::loadState() {
 bool WordTetrisActivity::writeState(FsFile& out, void* ctx) {
   const auto* self = static_cast<const WordTetrisActivity*>(ctx);
   char buf[64];
-  snprintf(buf, sizeof(buf), "puzzle=%d\nsolved=%u\nhints=%u\n", self->puzzle_, self->solvedCount_,
-           self->hintCount_);
+  snprintf(buf, sizeof(buf), "puzzle=%d\nsolved=%u\nhints=%u\n", self->puzzle_, self->solvedCount_, self->hintCount_);
   return tools::writeText(out, buf);
 }
 
@@ -263,8 +262,8 @@ void WordTetrisActivity::drop() {
 }
 
 void WordTetrisActivity::cancelMove() {
-  Piece& piece = pieces_[selected_];
   if (movingWasPlaced_) {
+    Piece& piece = pieces_[selected_];
     piece.row = movingFromRow_;
     piece.col = movingFromCol_;
     piece.placed = true;
@@ -492,8 +491,7 @@ void WordTetrisActivity::drawTray(const Rect& area) const {
 
 void WordTetrisActivity::render(RenderLock&&) {
   char subtitle[32];
-  snprintf(subtitle, sizeof(subtitle), "%s %d / %d", tr(STR_TOOLS_WT_PUZZLE), puzzle_ + 1,
-           wordtetris::kPuzzleCount);
+  snprintf(subtitle, sizeof(subtitle), "%s %d / %d", tr(STR_TOOLS_WT_PUZZLE), puzzle_ + 1, wordtetris::kPuzzleCount);
   const Rect content = tools::drawFrame(renderer, tr(STR_TOOLS_WORD_TETRIS), subtitle);
 
   // One status line on top tells the player what the buttons do right now.
@@ -544,8 +542,7 @@ void WordTetrisActivity::render(RenderLock&&) {
 
   switch (mode_) {
     case Mode::Tray:
-      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_WT_PICK), tr(STR_DIR_LEFT),
-                       tr(STR_DIR_RIGHT));
+      tools::drawHints(renderer, mappedInput, tr(STR_BACK), tr(STR_TOOLS_WT_PICK), tr(STR_DIR_LEFT), tr(STR_DIR_RIGHT));
       break;
     case Mode::Place:
       tools::drawHints(renderer, mappedInput, tr(STR_CANCEL), tr(STR_TOOLS_WT_DROP), tr(STR_DIR_LEFT),

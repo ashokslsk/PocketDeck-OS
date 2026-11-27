@@ -212,6 +212,7 @@ def main():
     lines.append("")
     lines.append(f"constexpr int kPuzzleCount = {len(puzzles)};")
     lines.append("")
+    lines.append("// clang-format off")
     lines.append("static const Puzzle kPuzzles[kPuzzleCount] = {")
     for rows, tiling in puzzles:
         packed = 0
@@ -229,6 +230,7 @@ def main():
     for i in range(0, len(upper), 16):
         lines.append('    "' + "".join(upper[i:i + 16]) + '"')
     lines[-1] += ";"
+    lines.append("// clang-format on")
     lines.append("")
     lines.append("}  // namespace wordtetris")
     lines.append("")
