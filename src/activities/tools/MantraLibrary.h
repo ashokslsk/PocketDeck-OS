@@ -83,7 +83,7 @@ class Library {
     uint16_t count;
   };
   static constexpr int kMaxCategories = 80;
-  Brief briefs_[kMaxCategories];  // valid up to categoryCount_
+  Brief briefs_[kMaxCategories]{};  // valid up to categoryCount_
 
   uint16_t categoryCount_ = 0;
   uint16_t mantraCount_ = 0;

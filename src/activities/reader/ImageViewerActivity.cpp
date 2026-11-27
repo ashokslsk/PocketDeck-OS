@@ -43,7 +43,7 @@ void ImageViewerActivity::viewport(Placement& out) const {
 }
 
 bool ImageViewerActivity::placementFor(const std::string& path, Placement& out) const {
-  ImageToFramebufferDecoder* decoder = ImageDecoderFactory::getDecoder(path);
+  const ImageToFramebufferDecoder* decoder = ImageDecoderFactory::getDecoder(path);
   ImageDimensions dims{0, 0};
   if (!decoder || !decoder->getDimensions(path, dims) || dims.width <= 0 || dims.height <= 0) {
     LOG_ERR("IMGV", "Cannot read image size: %s", path.c_str());

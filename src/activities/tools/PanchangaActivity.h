@@ -82,7 +82,7 @@ class PanchangaActivity final : public Activity {
   int32_t today_ = 0;
   int32_t selected_ = 0;
   panchanga::Day day_;
-  DayName names_[kMaxDayNames];  // valid up to nameCount_
+  DayName names_[kMaxDayNames]{};  // valid up to nameCount_
   int nameCount_ = 0;
   int detailsTop_ = 0;           // first name shown on the details screen
   double moonElongation_ = 0.0;  // at noon (or now, for today)

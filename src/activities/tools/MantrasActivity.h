@@ -114,7 +114,7 @@ class MantrasActivity final : public Activity {
 
   // Groups
   Group group_ = Group::Deities;
-  GroupRow groupRows_[64];  // valid up to groupCount_
+  GroupRow groupRows_[64]{};  // valid up to groupCount_
   int groupCount_ = 0;
   int groupSel_ = 0;
 
@@ -123,12 +123,12 @@ class MantrasActivity final : public Activity {
   mantras::Category listInfo_;
   int listSel_ = 0;
   int previewTop_ = -1;
-  Preview previews_[kPreviewRows];  // filled by loadPreviews() before the list is shown
+  Preview previews_[kPreviewRows]{};  // filled by loadPreviews() before the list is shown
 
   // Daily ritual
   int ritualCat_ = -1;
   mantras::Category ritualInfo_;
-  char steps_[kMaxSteps][64];  // valid up to stepCount_
+  char steps_[kMaxSteps][64]{};  // valid up to stepCount_
   int stepCount_ = 0;
   int ritualSel_ = 0;
 

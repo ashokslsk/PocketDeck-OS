@@ -213,6 +213,7 @@ struct WriteCtx {
   uint32_t sourceSize;
 };
 
+// cppcheck-suppress constParameterCallback ; WriteFn requires a mutable void* context
 bool writeIndex(FsFile& out, void* ctx) {
   const auto* w = static_cast<const WriteCtx*>(ctx);
   const Builder& b = *w->b;
@@ -270,14 +271,14 @@ bool Library::loadHeader() {
   kavachasOffset_ = categoriesOffset_ + static_cast<uint32_t>(kCategoryBytes * tools::le16(h + 6));
   mantrasOffset_ = kavachasOffset_ + static_cast<uint32_t>(kKavachaBytes * kavachaCount_);
   if (!Storage.openFileForRead("MANT", kIndexPath, f)) return false;
-  bool read = f.seek(categoriesOffset_);
-  for (uint16_t i = 0; read && i < categoryCount_; ++i) {
+  bool readOk = f.seek(categoriesOffset_);
+  for (uint16_t i = 0; readOk && i < categoryCount_; ++i) {
     uint8_t c[8];
-    read = f.read(c, sizeof(c)) == sizeof(c) && f.seek(categoriesOffset_ + kCategoryBytes * (i + 1u));
+    readOk = f.read(c, sizeof(c)) == sizeof(c) && f.seek(categoriesOffset_ + kCategoryBytes * (i + 1u));
     briefs_[i] = {static_cast<Kind>(c[0]), c[1], tools::le16(c + 2), tools::le16(c + 4)};
   }
   f.close();
-  if (!read) categoryCount_ = mantraCount_ = 0;
+  if (!readOk) categoryCount_ = mantraCount_ = 0;
   return mantraCount_ > 0;
 }
 

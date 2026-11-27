@@ -60,7 +60,7 @@ class PanchangaCalendarActivity final : public Activity {
   int loadedMonth_ = 0;
   uint32_t festivalDays_ = 0;  // bit d-1 set: a festival on day d
   uint32_t holidayDays_ = 0;
-  Item items_[kMaxItems];  // valid up to itemCount_
+  Item items_[kMaxItems]{};  // valid up to itemCount_
   int itemCount_ = 0;
   int jumpRow_ = 1;  // 0 decade, 1 year, 2 month
   bool transitionPending_ = true;

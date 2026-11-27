@@ -642,12 +642,12 @@ void FileBrowserActivity::promptDeleteDirectory(const std::string& fullPath, con
   };
 
   const std::string heading = tr(STR_DELETE) + std::string("? ");
-  unsigned files = 0;
-  unsigned folders = 0;
-  countDirectoryChildren(dirPath, files, folders);
+  unsigned fileCount = 0;
+  unsigned folderCount = 0;
+  countDirectoryChildren(dirPath, fileCount, folderCount);
   const std::string name = entry.empty() || entry.back() != '/' ? entry : entry.substr(0, entry.size() - 1);
   char body[320];
-  snprintf(body, sizeof(body), tr(STR_DELETE_FOLDER_ITEMS_FORMAT), name.c_str(), files + folders);
+  snprintf(body, sizeof(body), tr(STR_DELETE_FOLDER_ITEMS_FORMAT), name.c_str(), fileCount + folderCount);
   startActivityForResult(
       std::make_unique<ConfirmationActivity>(renderer, mappedInput, heading, body, ignoreInitialConfirmRelease),
       handler);
@@ -1999,11 +1999,11 @@ void FileBrowserActivity::showInfo(const std::string& fullPath, const std::strin
   std::vector<FileInfoActivity::Row> rows;
 
   if (isDirectory) {
-    unsigned files = 0;
-    unsigned folders = 0;
-    countDirectoryChildren(path, files, folders);
+    unsigned fileCount = 0;
+    unsigned folderCount = 0;
+    countDirectoryChildren(path, fileCount, folderCount);
     char contents[64];
-    snprintf(contents, sizeof(contents), tr(STR_INFO_ITEMS_FORMAT), files, folders);
+    snprintf(contents, sizeof(contents), tr(STR_INFO_ITEMS_FORMAT), fileCount, folderCount);
     rows.emplace_back(tr(STR_INFO_TYPE), tr(STR_INFO_FOLDER));
     rows.emplace_back(tr(STR_INFO_CONTENTS), contents);
   } else {

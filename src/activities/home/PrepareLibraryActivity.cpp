@@ -444,9 +444,9 @@ void PrepareLibraryActivity::render(RenderLock&&) {
   }
   {
     const auto heap = MemoryBudget::snapshot();
-    const uint32_t total = std::max<uint32_t>(1, ESP.getHeapSize());
-    const uint32_t used = total > heap.freeHeap ? total - heap.freeHeap : 0;
-    snprintf(line, sizeof(line), tr(STR_PREPARE_MEMORY_FORMAT), static_cast<unsigned>(used * 100ULL / total),
+    const uint32_t heapTotal = std::max<uint32_t>(1, ESP.getHeapSize());
+    const uint32_t used = heapTotal > heap.freeHeap ? heapTotal - heap.freeHeap : 0;
+    snprintf(line, sizeof(line), tr(STR_PREPARE_MEMORY_FORMAT), static_cast<unsigned>(used * 100ULL / heapTotal),
              static_cast<unsigned>(heap.maxAllocHeap / 1024));
     drawLine(line, false);
   }

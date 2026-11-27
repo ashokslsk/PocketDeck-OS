@@ -84,9 +84,10 @@ int consonantAt(const char* s, const size_t len, const size_t i, size_t& bytes) 
   if (n == 0) return -1;
   const int c = consonantIndex(cp);
   if (c < 0) return -1;
-  uint32_t next = 0, third = 0;
+  uint32_t next = 0;
   const size_t n2 = decode(s, len, i + n, next);
   if (n2 && next == kVirama) {
+    uint32_t third = 0;
     const size_t n3 = decode(s, len, i + n + n2, third);
     if (n3 && ((cp == 0x0C95 && third == 0x0CB7) || (cp == 0x0C9C && third == 0x0C9E))) {
       bytes = n + n2 + n3;
@@ -412,7 +413,7 @@ bool Font::bitmap(const Style style, const uint16_t glyph, GlyphBitmap& out) {
       for (int b = 0; b < kGlyphBuckets; ++b) glyphs_[b].key = 0xFFFF;
       arenaUsed_ = 0;
     }
-    if (bytes > 0 && !readAt(styles_[s].bitmapsOffset + le32(m), arena_.get() + arenaUsed_, bytes)) {
+    if (bytes > 0 && !readAt(styles_[s].bitmapsOffset + le32(m), &arena_[arenaUsed_], bytes)) {
       e.key = 0xFFFF;
       return false;
     }
@@ -428,7 +429,7 @@ bool Font::bitmap(const Style style, const uint16_t glyph, GlyphBitmap& out) {
   out.h = e.h;
   out.left = e.left;
   out.top = e.top;
-  out.bits = arena_.get() + e.arenaOffset;
+  out.bits = &arena_[e.arenaOffset];
   return true;
 }
 

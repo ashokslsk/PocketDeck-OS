@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <iterator>
 #include <string>
 #include <utility>
 #include <vector>
@@ -110,8 +111,8 @@ void ClearCacheActivity::render(RenderLock&&) {
     return;
   }
 
-  char line[96];
   if (state == CLEARING) {
+    char line[96];
     // Progress: shards of book_reading_cache walked.
     const int x = 24;
     const int w = pageWidth - 48;
@@ -160,14 +161,12 @@ bool isRebuildableBookCacheEntry(const char* name, const bool isDir) {
   if (isDir) return strcmp(name, "sections") == 0 || strcmp(name, "html") == 0;
   static const char* const kFiles[] = {"book.bin", "css_rules.cache", "kannada.flag",
                                        ".tmp.css", "prepared.sig",    "layout.sig"};
-  for (const char* file : kFiles) {
-    if (strcmp(name, file) == 0) return true;
+  if (std::any_of(std::begin(kFiles), std::end(kFiles), [name](const char* file) { return strcmp(name, file) == 0; })) {
+    return true;
   }
   static const char* const kPrefixes[] = {"img_", "thumb_", "cover_src"};
-  for (const char* prefix : kPrefixes) {
-    if (strncmp(name, prefix, strlen(prefix)) == 0) return true;
-  }
-  return false;
+  return std::any_of(std::begin(kPrefixes), std::end(kPrefixes),
+                     [name](const char* prefix) { return strncmp(name, prefix, strlen(prefix)) == 0; });
 }
 
 // Names of the entries in `dir` (one shard, or one book folder: small).

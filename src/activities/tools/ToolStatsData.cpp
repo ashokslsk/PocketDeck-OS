@@ -121,8 +121,8 @@ void onWorkout(const tlog::Stamp& at, char* fields, void* p) {
 
 int sumLast(const int16_t* values, const int days) {
   int sum = 0;
-  for (int i = kHistoryDays - days; i < kHistoryDays; ++i) {
-    if (i >= 0 && values[i] > 0) sum += values[i];
+  for (int i = std::max(0, kHistoryDays - days); i < kHistoryDays; ++i) {
+    if (values[i] > 0) sum += values[i];
   }
   return sum;
 }

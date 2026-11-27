@@ -599,8 +599,10 @@ void PanchangaActivity::renderMain() {
     if (!kannadaMode()) {
       // "upto 03:04 next day"
       int ux = right;
-      if (nextDay) ux -= label(kn::Label::Tomorrow, 0, 0, false);
-      if (nextDay) label(kn::Label::Tomorrow, ux, y);
+      if (nextDay) {
+        ux -= label(kn::Label::Tomorrow, 0, 0, false);
+        label(kn::Label::Tomorrow, ux, y);
+      }
       ux -= tw + (nextDay ? 6 : 0);
       drawLatin(renderer, ux, y, lineH, t, false);
       ux -= label(kn::Label::Until, 0, 0, false) + 6;

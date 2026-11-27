@@ -52,8 +52,5 @@ class SavedItemsHomeActivity final : public Activity {
   // Cards for one book (bookIndex >= 0) or Resurface Trove (-1).
   void openCards(int bookIndex);
 
-  void openBookmarkList(const SavedBookEntry& entry);
-  void openClippingList(const SavedBookEntry& entry);
-  void showSavedKindMenu(int bookIndex);
   void showSavedBookActionMenu(int bookIndex, bool ignoreInitialConfirmRelease);
 };

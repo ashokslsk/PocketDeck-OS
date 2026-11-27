@@ -429,8 +429,8 @@ void DictionaryToolActivity::render(RenderLock&&) {
   app.render();
   uiReady = true;
 
-  const auto labels =
+  const auto hints =
       mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_BACK)), tr(STR_SELECT), tr(STR_DIR_UP), tr(STR_DIR_DOWN));
-  GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  GUI.drawButtonHints(renderer, hints.btn1, hints.btn2, hints.btn3, hints.btn4);
   renderer.displayBuffer(HalDisplay::FAST_REFRESH);
 }

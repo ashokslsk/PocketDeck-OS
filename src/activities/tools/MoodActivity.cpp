@@ -80,7 +80,6 @@ void onLogLine(const tlog::Stamp& at, char* fields, void* ctx) {
   char* cursor = fields;
   const char* date = tlog::nextField(&cursor);
   const char* mood = tlog::nextField(&cursor);
-  const char* note = cursor;  // rest of the line (may contain '|')
   int32_t day = 0;
   if (date == nullptr || mood == nullptr || !tools::parseIsoDate(date, day)) return;
   const int idx = day - l->firstDay;
@@ -88,7 +87,10 @@ void onLogLine(const tlog::Stamp& at, char* fields, void* ctx) {
   if (idx < 0 || idx >= MoodActivity::kDays || m < 1 || m > 5) return;
   l->mood[idx] = static_cast<int16_t>(m);
   l->minute[idx] = day == at.day ? at.minute : charts::kNoValue;
-  if (day == l->noteDay) snprintf(l->note, l->noteCap, "%s", note != nullptr ? note : "");
+  if (day == l->noteDay) {
+    const char* note = cursor;  // rest of the line (may contain '|')
+    snprintf(l->note, l->noteCap, "%s", note != nullptr ? note : "");
+  }
 }
 }  // namespace
 

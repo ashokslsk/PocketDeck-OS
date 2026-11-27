@@ -287,14 +287,13 @@ void PanchangaCalendarActivity::renderGrid() {
       if (on) renderer.fillRect(x0 - 4, ry, 6, rowH - 4);
       snprintf(buf, sizeof(buf), "%d", it.day);
       renderer.drawText(UI_12_FONT_ID, x0 + 10, ry + 3, buf, true, EpdFontFamily::BOLD);
-      int nx = x0 + 52;
+      const int nx = x0 + 52;
       if (kannadaMode() && kannada::hasKannada(it.name)) {
-        nx += kannada::draw(renderer, nx, ry - 2, it.name, on ? kannada::Style::Value : kannada::Style::Label);
+        kannada::draw(renderer, nx, ry - 2, it.name, on ? kannada::Style::Value : kannada::Style::Label);
       } else {
         const auto st = on ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR;
         const std::string shown = renderer.truncatedText(UI_12_FONT_ID, it.name, x0 + w - nx - 70, st);
         renderer.drawText(UI_12_FONT_ID, nx, ry + 3, shown.c_str(), true, st);
-        nx += renderer.getTextWidth(UI_12_FONT_ID, shown.c_str(), st);
       }
       if (it.holiday) {
         const char* h = tr(STR_TOOLS_PANCH_HOLIDAY);

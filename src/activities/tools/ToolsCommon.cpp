@@ -404,7 +404,7 @@ int drawWrappedKannada(const GfxRenderer& renderer, const Rect& box, const char*
       const int visible = lineIndex - opt.skipLines;
       const int y = box.y + visible * lineH;
       if (!opt.draw || i >= 48 || visible < 0 || visible >= opt.maxLines || y + lineH > box.y + box.height) continue;
-      const char* s = buf.get() + lines[i].start;
+      const char* s = &buf[lines[i].start];
       int x = box.x + indent;
       if (opt.centered) x = box.x + (box.width - kannada::width(renderer, s, style, lines[i].length)) / 2;
       if (i == 0 && bullet) renderer.fillRect(box.x + 5, y + lineH / 2 - 2, 5, 5);

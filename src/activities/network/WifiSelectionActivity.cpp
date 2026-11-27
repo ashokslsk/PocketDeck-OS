@@ -73,6 +73,7 @@ void logWifiStationEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
       LOG_INF("WIFI", "STA event: connected to AP");
       break;
     case ARDUINO_EVENT_WIFI_STA_GOT_IP: {
+      // cppcheck-suppress unreadVariable ; only read by LOG_INF, which compiles out at LOG_LEVEL 0
       const uint8_t* ip = reinterpret_cast<const uint8_t*>(&info.got_ip.ip_info.ip.addr);
       LOG_INF("WIFI", "STA event: got IP %u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
       break;

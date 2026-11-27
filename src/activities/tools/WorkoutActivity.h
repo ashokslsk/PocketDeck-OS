@@ -93,7 +93,7 @@ class WorkoutActivity final : public Activity {
   bool transitionPending_ = true;
   Screen screen_ = Screen::Categories;
 
-  workout::CategoryInfo cats_[workout::kMaxCategories];
+  workout::CategoryInfo cats_[workout::kMaxCategories]{};
   int catCount_ = 0;
   int catSel_ = 0;
   int openCat_ = -1;

@@ -1057,9 +1057,9 @@ void PocketDeckTheme::drawHomeStatusBar(const GfxRenderer& renderer, const Rect 
     sg.width = (icon ? 16 : 0) + (icon && sg.text[0] ? 5 : 0) + renderer.getTextWidth(SMALL_FONT_ID, sg.text);
   };
   char timeBuf[12];
-  char dateBuf[16];
   if (halClock.isAvailable() && SETTINGS.shouldShowClockOutsideReader() &&
       halClock.formatTime(timeBuf, sizeof(timeBuf), SETTINGS.clockUtcOffsetQ, SETTINGS.clockFormat == 1)) {
+    char dateBuf[16];
     if (formatHeaderDateText(dateBuf, sizeof(dateBuf))) add(&icon_deck_calendar_16, dateBuf);
     add(&icon_deck_clock_16, timeBuf);
   }

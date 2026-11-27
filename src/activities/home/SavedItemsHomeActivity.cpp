@@ -7,8 +7,6 @@
 
 #include <algorithm>
 
-#include "../reader/EpubReaderBookmarkListActivity.h"
-#include "../reader/EpubReaderClippingListActivity.h"
 #include "BookActions.h"
 #include "BookmarkStore.h"
 #include "ClippingStore.h"
@@ -283,38 +281,6 @@ void SavedItemsHomeActivity::openCards(const int bookIndex) {
   });
 }
 
-void SavedItemsHomeActivity::showSavedKindMenu(const int bookIndex) {
-  if (bookIndex < 0 || bookIndex >= static_cast<int>(books.size())) return;
-  const SavedBookEntry entry = books[bookIndex];
-
-  std::vector<FileBrowserActionActivity::MenuItem> items;
-  items.reserve(2);
-  items.push_back({FileBrowserAction::ViewBookmarks, StrId::STR_BOOKMARKS});
-  items.push_back({FileBrowserAction::ViewClippings, StrId::STR_CLIPPINGS});
-
-  startActivityForResult(
-      std::make_unique<FileBrowserActionActivity>(renderer, mappedInput, entry.bookTitle, std::move(items)),
-      [this, entry](const ActivityResult& result) {
-        const auto* actionResult = std::get_if<FileBrowserActionResult>(&result.data);
-        if (result.isCancelled || !actionResult) {
-          requestUpdate();
-          return;
-        }
-
-        switch (static_cast<FileBrowserAction>(actionResult->action)) {
-          case FileBrowserAction::ViewBookmarks:
-            openBookmarkList(entry);
-            break;
-          case FileBrowserAction::ViewClippings:
-            openClippingList(entry);
-            break;
-          default:
-            requestUpdate();
-            break;
-        }
-      });
-}
-
 void SavedItemsHomeActivity::showSavedBookActionMenu(const int bookIndex, const bool ignoreInitialConfirmRelease) {
   if (bookIndex < 0 || bookIndex >= static_cast<int>(books.size())) return;
   const SavedBookEntry entry = books[bookIndex];
@@ -367,57 +333,4 @@ void SavedItemsHomeActivity::showSavedBookActionMenu(const int bookIndex, const 
         reloadSavedBooks();
         requestUpdate();
       });
-}
-
-void SavedItemsHomeActivity::openBookmarkList(const SavedBookEntry& entry) {
-  BOOKMARKS.loadForBook(entry.bookPath, entry.bookTitle, entry.bookAuthor, entry.bookType);
-
-  startActivityForResult(
-      std::make_unique<EpubReaderBookmarkListActivity>(renderer, mappedInput, BOOKMARKS.getBookmarks()),
-      [this, entry](const ActivityResult& result) {
-        if (!result.isCancelled) {
-          const auto* bm = std::get_if<BookmarkResult>(&result.data);
-          if (bm) {
-            APP_STATE.pendingBookmarkSpine = bm->spineIndex;
-            APP_STATE.pendingBookmarkProgress = bm->progress;
-            APP_STATE.pendingBookmarkParagraphIndex = bm->paragraphIndex;
-            APP_STATE.pendingClippingIndex = UINT16_MAX;
-            APP_STATE.saveToFile();
-            onSelectBook(entry.bookPath);
-          } else {
-            LOG_ERR("SVA", "openBookmarkList: unexpected result variant");
-            requestUpdate();
-          }
-        } else {
-          reloadSavedBooks();
-          requestUpdate();
-        }
-      });
-}
-
-void SavedItemsHomeActivity::openClippingList(const SavedBookEntry& entry) {
-  CLIPPINGS.loadForBook(entry.bookPath, entry.bookTitle, entry.bookAuthor, entry.bookType);
-
-  startActivityForResult(std::make_unique<EpubReaderClippingListActivity>(renderer, mappedInput),
-                         [this, entry](const ActivityResult& result) {
-                           if (!result.isCancelled) {
-                             const auto* clipping = std::get_if<ClippingJumpResult>(&result.data);
-                             if (clipping) {
-                               APP_STATE.pendingBookmarkSpine = clipping->spineIndex;
-                               APP_STATE.pendingBookmarkProgress =
-                                   clipping->pageCount > 0 ? static_cast<float>(clipping->page) / clipping->pageCount
-                                                           : 0.0f;
-                               APP_STATE.pendingBookmarkParagraphIndex = clipping->paragraphIndex;
-                               APP_STATE.pendingClippingIndex = clipping->clippingIndex;
-                               APP_STATE.saveToFile();
-                               onSelectBook(entry.bookPath);
-                             } else {
-                               LOG_ERR("SVA", "openClippingList: unexpected result variant");
-                               requestUpdate();
-                             }
-                           } else {
-                             reloadSavedBooks();
-                             requestUpdate();
-                           }
-                         });
 }

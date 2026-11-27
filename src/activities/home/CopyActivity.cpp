@@ -203,11 +203,10 @@ void CopyActivity::loop() {
     finishWith(false, true);
     return;
   }
-  bool ok;
   {
     // The render task reads the counters and the current item name.
     RenderLock lock(*this);
-    ok = copySlice(kSliceMs);
+    const bool ok = copySlice(kSliceMs);
     if (!ok) {
       finishWith(false, false);
       return;

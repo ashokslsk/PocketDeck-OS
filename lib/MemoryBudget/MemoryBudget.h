@@ -73,7 +73,9 @@ inline PsramSnapshot psramSnapshot() {
 }
 
 inline void logEpubHeapPools(const char* stage) {
+  // cppcheck-suppress unreadVariable ; only read by LOG_INF, which compiles out at LOG_LEVEL 0
   const auto internal = snapshot();
+  // cppcheck-suppress unreadVariable ; only read by LOG_INF, which compiles out at LOG_LEVEL 0
   const auto psram = psramSnapshot();
   LOG_INF("EPS", "%s: internal free=%u max=%u; psram free=%u max=%u total=%u", stage, internal.freeHeap,
           internal.maxAllocHeap, psram.freeHeap, psram.maxAllocHeap, psram.totalHeap);

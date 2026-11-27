@@ -912,9 +912,9 @@ void MantrasActivity::renderGroups() {
     const int cw = countText[0] ? renderer.getTextWidth(UI_10_FONT_ID, countText) + 12 : 0;
     if (useKannada(kn)) {
       // Same baseline as the English name drawn at ry + 10.
-      const int top =
+      const int textTop =
           ry + 10 + renderer.getFontAscenderSize(UI_12_FONT_ID) - kannada::ascent(renderer, kannada::kToolSmall);
-      x += drawText(kn, kannada::kToolSmall, x, top, (w - cw) / 2, !on) + 10;
+      x += drawText(kn, kannada::kToolSmall, x, textTop, (w - cw) / 2, !on) + 10;
     }
     const std::string shown = renderer.truncatedText(UI_12_FONT_ID, en, x0 + w - cw - x, EpdFontFamily::REGULAR);
     renderer.drawText(UI_12_FONT_ID, x, ry + 10, shown.c_str(), !on,
@@ -970,7 +970,7 @@ void MantrasActivity::renderView() {
     kannada::Style style;
     int gapBefore;
     const char* heading;
-  } blocks[5] = {
+  } const blocks[5] = {
       {useKannada(m.kannada) ? m.kannada : "", kannada::kToolText, 0, nullptr},
       {m.english, kannada::kToolText, 14, nullptr},
       {showKn ? m.meaningKannada : "", kannada::kToolSmall, 18,
@@ -1090,8 +1090,8 @@ void MantrasActivity::renderAbout() {
   aboutPages_ = std::max<int>(1, static_cast<int>((n + perPage - 1) / perPage));
   const size_t first = static_cast<size_t>(aboutPage_) * perPage;
   for (size_t i = first; i < n && i < first + perPage; ++i) {
-    kannada::draw(renderer, content.x, content.y + static_cast<int>(i - first) * lh, about_.get() + lines[i].start,
-                  style, true, lines[i].length);
+    kannada::draw(renderer, content.x, content.y + static_cast<int>(i - first) * lh, &about_[lines[i].start], style,
+                  true, lines[i].length);
   }
   char buf[32];
   snprintf(buf, sizeof(buf), "%s %d / %d", tr(STR_TOOLS_MANTRA_PAGE), aboutPage_ + 1, aboutPages_);
